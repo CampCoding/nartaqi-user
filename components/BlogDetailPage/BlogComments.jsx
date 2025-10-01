@@ -194,7 +194,7 @@ export const AddBlogComment = () => {
         </div>
 
         <button
-          className="inline-flex mr-auto items-center justify-center gap-2 px-12 py-6 relative bg-secondary rounded-[30px] cursor-pointer hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 transition-colors duration-200"
+          className="inline-flex mr-auto items-center justify-center gap-2 px-12 py-6 relative bg-secondary rounded-[30px] cursor-pointer hover:bg-secondary-dark focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 transition-colors duration-200"
           type="button"
           aria-label="تقديم تعليق"
         >

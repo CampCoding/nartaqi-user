@@ -1,5 +1,6 @@
 import React from "react";
 import { BlogCard } from './../ui/Cards/BlogCard';
+import Link from "next/link";
 
 const RelatedBlogs = () => {
   return (
@@ -15,7 +16,9 @@ const RelatedBlogs = () => {
           "/images/FRAME.png",
 
         ].map((item, index) => (
+          <Link href={"/blogs/blog-details/123"}>
           <BlogCard freeWidth={true} key={index} image={item} />
+          </Link>
         ))}
       </div>
 

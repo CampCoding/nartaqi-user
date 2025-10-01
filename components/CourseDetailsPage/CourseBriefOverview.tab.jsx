@@ -7,6 +7,7 @@ import {
   RatingStarIcon,
   VideoCameraIcon,
 } from "../../public/svgs";
+import Link from "next/link";
 
 const CourseBriefOverview = ({isRegistered}) => {
   return (
@@ -46,7 +47,7 @@ const CourseBriefOverview = ({isRegistered}) => {
         </div>
       </div>
       <div className="flex flex-col gap-[24px]">
-        <div className="flex justify-between items-center">
+        <Link href={"/teacher-overview/123"} className="flex justify-between items-center hover:bg-primary-light rounded-[20px] p-3">
           <div className="flex justify-end items-center gap-[5px]">
             <img
               className="w-11 h-11 relative rounded-[50px]"
@@ -89,7 +90,7 @@ const CourseBriefOverview = ({isRegistered}) => {
               </div>
             </div>
           </div>
-        </div>
+        </Link>
 
         <div className="self-stretch text-right justify-center text-black text-base font-medium ">
           مدرب معتمد في التدريس الفعّال، بخبرة أكثر من ٨ سنوات في تطوير أساليب

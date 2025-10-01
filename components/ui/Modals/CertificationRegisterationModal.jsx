@@ -140,7 +140,7 @@ export const CertificationRegisterationModal = ({ open, setOpen }) => {
               aria-disabled={!agreed}
               className=" disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer  size- px-16 py-4 bg-secondary hover:bg-secondary-dark  rounded-[20px] inline-flex justify-center items-center gap-2.5"
             >
-              <div className="text-right justify-center text-white text-base font-bold font-['Cairo']">
+              <div className="text-right justify-center text-white text-base font-bold ">
                 موافق
               </div>
             </button>

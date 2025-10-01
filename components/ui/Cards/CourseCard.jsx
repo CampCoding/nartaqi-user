@@ -1,42 +1,61 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import {
   CourseCalenderIcon,
   FileTextIcon,
   RatingStarIcon,
   ShareIcon,
 } from "../../../public/svgs";
+import Link from "next/link";
+import { useUser } from "../../../lib/useUser";
 
 const CourseCard = ({
   freeWidth = false,
   type = "students",
   buttonStyle = "normal",
   isRegistered = false,
+
   isInFav = false,
 }) => {
   const width = freeWidth ? "w-full" : "w-[351px]";
 
+  const { isAuthenticated } = useUser();
+  const [isFav, setIsFav] = useState(false);
+
+  useEffect(() => {
+    if (isInFav) {
+      setIsFav(isInFav);
+    }
+  }, [isInFav]);
+
   const Button = () => {
     if (buttonStyle === "normal") {
       return (
-        <div className="flex-1 px-4 py-3 bg-secondary rounded-[10px] shadow-[0_4px_12px_rgba(249,115,22,0.4)] flex justify-center items-center gap-2.5">
+        <Link
+          href={
+            isRegistered ? "/course/123?reg=true&done=false" : "/course/123"
+          }
+          className="flex-1 px-4 py-3 bg-secondary rounded-[10px] shadow-[0_4px_12px_rgba(249,115,22,0.4)] flex justify-center items-center gap-2.5"
+        >
           <div className="justify-center text-bg text-sm font-semibold">
             {!isRegistered ? "التحق بالدورة" : "ادخل الدورة"}
           </div>
-        </div>
+        </Link>
       );
     } else {
       return (
-        <div className="w-full self-stretch px-4 py-3 bg-gradient-to-r from-primary to-secondary rounded-[10px] shadow-[0_4px_20px_rgba(0,0,0,0.25)] inline-flex justify-center items-center gap-2.5 transition-all duration-200 cursor-pointer hover:from-secondary hover:to-primary hover:scale-105 hover:shadow-[0_8px_24px_rgba(59,130,246,0.25)]">
+        <Link
+          href={isRegistered ? "/course/123?reg=true&done=true" : "/course/123"}
+          className="w-full self-stretch px-4 py-3 bg-gradient-to-r from-primary to-secondary rounded-[10px] shadow-[0_4px_20px_rgba(0,0,0,0.25)] inline-flex justify-center items-center gap-2.5 transition-all duration-200 cursor-pointer hover:from-secondary hover:to-primary hover:scale-105 hover:shadow-[0_8px_24px_rgba(59,130,246,0.25)]"
+        >
           <div className="justify-center text-bg text-sm font-semibold ">
             {!isRegistered ? "التحق بالدورة" : "ادخل الدورة"}
           </div>
-        </div>
+        </Link>
       );
     }
   };
-
-
-  
 
   return (
     <div
@@ -59,7 +78,7 @@ const CourseCard = ({
             </div>
           </div>
           <div className="absolute top-4 left-4">
-            <FavIcon isFav={isInFav} />
+            <FavIcon onClick={() => setIsFav(!isFav)} isFav={isFav} />
           </div>
           <div className="w-8 h-8 p-2 left-[16px] top-[24px] absolute opacity-0 bg-white rounded-[10px] outline outline-1 outline-offset-[-1px] outline-zinc-500 inline-flex flex-col justify-start items-start gap-2.5 overflow-hidden">
             <div className="w-3.5 h-3 left-[9px] top-[10px] absolute bg-red-500" />
@@ -194,26 +213,28 @@ const CourseCard = ({
 
 export default CourseCard;
 
-const FavIcon = ({isFav = false}) => {
-
-
-
-return   <div
-    data-property-1="true"
-    className={`w-8 h-8 relative ${isFav ? "bg-secondary":"bg-transparent border border-white"}  rounded-[10px]  inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden`}
-  >
-    <svg
-      width={18}
-      height={16}
-      viewBox="0 0 18 16"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      // {...props}
+const FavIcon = ({ isFav = false, onClick = () => null }) => {
+  return (
+    <div
+    onClick={onClick}
+      data-property-1="true"
+      className={`w-8 h-8 relative z-40 cursor-pointer ${
+        isFav ? "bg-secondary" : "bg-transparent border border-white"
+      }  rounded-[10px]  inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden`}
     >
-      <path
-        d="M9 16C8.79 16 8.5764 15.9623 8.3592 15.8868C8.142 15.8114 7.9506 15.6907 7.785 15.5248L6.2325 14.099C4.6425 12.6355 3.2061 11.1836 1.9233 9.74303C0.6405 8.3025 -0.000599579 6.71442 4.20757e-07 4.97878C4.20757e-07 3.56058 0.472501 2.37624 1.4175 1.42574C2.3625 0.475247 3.54 0 4.95 0C5.745 0 6.495 0.16958 7.2 0.508741C7.905 0.847902 8.505 1.31198 9 1.90099C9.495 1.31259 10.095 0.848807 10.8 0.509646C11.505 0.170486 12.255 0.000603489 13.05 0C14.46 0 15.6375 0.475247 16.5825 1.42574C17.5275 2.37624 18 3.56058 18 4.97878C18 6.71381 17.3625 8.30552 16.0875 9.75389C14.8125 11.2023 13.365 12.6582 11.745 14.1216L10.215 15.5248C10.05 15.6907 9.8589 15.8114 9.6417 15.8868C9.4245 15.9623 9.2106 16 9 16Z"
-        fill="white"
-      />
-    </svg>
-  </div>
-}
+      <svg
+        width={18}
+        height={16}
+        viewBox="0 0 18 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        // {...props}
+      >
+        <path
+          d="M9 16C8.79 16 8.5764 15.9623 8.3592 15.8868C8.142 15.8114 7.9506 15.6907 7.785 15.5248L6.2325 14.099C4.6425 12.6355 3.2061 11.1836 1.9233 9.74303C0.6405 8.3025 -0.000599579 6.71442 4.20757e-07 4.97878C4.20757e-07 3.56058 0.472501 2.37624 1.4175 1.42574C2.3625 0.475247 3.54 0 4.95 0C5.745 0 6.495 0.16958 7.2 0.508741C7.905 0.847902 8.505 1.31198 9 1.90099C9.495 1.31259 10.095 0.848807 10.8 0.509646C11.505 0.170486 12.255 0.000603489 13.05 0C14.46 0 15.6375 0.475247 16.5825 1.42574C17.5275 2.37624 18 3.56058 18 4.97878C18 6.71381 17.3625 8.30552 16.0875 9.75389C14.8125 11.2023 13.365 12.6582 11.745 14.1216L10.215 15.5248C10.05 15.6907 9.8589 15.8114 9.6417 15.8868C9.4245 15.9623 9.2106 16 9 16Z"
+          fill="white"
+        />
+      </svg>
+    </div>
+  );
+};

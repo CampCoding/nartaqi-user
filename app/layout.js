@@ -2,6 +2,7 @@ import { Cairo, Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import Header from "../components/shared/Topbar";
 import Footer from "../components/shared/Footer";
+import { UserProvider } from "../lib/useUser.jsx";
 import MarginLabels from "../lib/MarginLabels";
 
 const cairo = Cairo({
@@ -28,9 +29,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl">
       <body className={`${cairo.variable} ${notoSansArabic.variable}`}>
-        <Header />
-        {children}
-        <Footer />
+        <UserProvider>
+          <Header />
+          {children}
+          <Footer />
+        </UserProvider>
       </body>
     </html>
   );

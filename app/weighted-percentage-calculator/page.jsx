@@ -71,7 +71,7 @@ const WeightedPercentageCalculator = () => {
         </div>
         <div className="flex items-center justify-center ">
           <div className="px-20 py-6 mx-auto !bg-primary hover:!bg-primary-dark transition cursor-pointer mt-[27px] mb-[48px]  rounded-[20px] inline-flex justify-center items-center gap-2.5">
-            <div className="text-right justify-center text-white text-base font-bold font-['Cairo']">
+            <div className="text-right justify-center text-white text-base font-bold ">
               احسب نسبتي
             </div>
           </div>

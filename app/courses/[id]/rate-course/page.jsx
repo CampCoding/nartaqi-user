@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import PagesBanner from "./../../components/ui/PagesBanner";
-import { RatingQuestion } from "../../components/ReateCoursePage.jsx/RatingQuestion";
+import PagesBanner from "../../../../components/ui/PagesBanner";
+import { RatingQuestion } from "../../../../components/ReateCoursePage.jsx/RatingQuestion";
 import RateDone from "./RateDone";
 
 /* سؤال نصي بسيط */

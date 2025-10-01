@@ -5,7 +5,7 @@ import RegCourseDetailsCard from "../../../../components/CourseDetailsPage/Reg_c
 import RegCourseDetailsContent from "../../../../components/CourseDetailsPage/Reg_courseDetailsContent";
 import LiveCard from "./../../../../components/ui/Cards/LiveCard";
 
-const Reg_courseDetails = () => {
+const Reg_courseDetails = ({isDone}) => {
   return (
     <>
       <div className="w-full h-[611px] relative ">
@@ -21,7 +21,7 @@ const Reg_courseDetails = () => {
         <div className="flex justify-between">
           <RegCourseDetailsContent />
           <div className=" grid grid-cols-1 gap-[80px] translate-y-[-441px]  ">
-            <RegCourseDetailsCard />
+            <RegCourseDetailsCard isDone={isDone} />
             <LiveCard />
           </div>
         </div>

@@ -3,7 +3,7 @@ import PagesBanner from "../../components/ui/PagesBanner";
 import { StudentResultCard } from "../../components/ui/Cards/StudentResultCard";
 import LicturerCard from "../../components/ui/Cards/LicturerCard";
 
-const Trainers = () => {
+const Instructors = () => {
   return (
     <div>
       <PagesBanner
@@ -41,4 +41,4 @@ const Trainers = () => {
   );
 };
 
-export default Trainers;
+export default Instructors;

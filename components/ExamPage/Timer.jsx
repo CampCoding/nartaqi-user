@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 
-export const Timer = ({ currentQuestionIndex = 0, totalQuestions = 1, initialSeconds = 0, onTimeUp }) => {
+export const Timer = ({ currentQuestionIndex = 0, totalQuestions = 1, initialSeconds = 0, onTimeUp , isStarted , setIsStarted }) => {
   const [remainingSeconds, setRemainingSeconds] = useState(initialSeconds);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export const Timer = ({ currentQuestionIndex = 0, totalQuestions = 1, initialSec
       setRemainingSeconds((s) => (s > 0 ? s - 1 : 0));
     }, 1000);
     return () => clearInterval(id);
-  }, [remainingSeconds, onTimeUp]);
+  }, [remainingSeconds, onTimeUp , isStarted]);
 
   useEffect(() => {
     setRemainingSeconds(initialSeconds);

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 const CardSummery = () => {
@@ -54,11 +55,11 @@ const CardSummery = () => {
           </div>
         </div>
       </div>
-      <div className="self-stretch hover:scale-105 transition-all cursor-pointer px-2 py-3 bg-secondary rounded-[10px] inline-flex justify-center items-center gap-2.5">
+      <Link href={"/checkout"} className="self-stretch hover:scale-105 transition-all cursor-pointer px-2 py-3 bg-secondary rounded-[10px] inline-flex justify-center items-center gap-2.5">
         <div className="text-right justify-center text-white text-base font-bold ">
           دفع
         </div>
-      </div>
+      </Link>
     </div>
   );
 };

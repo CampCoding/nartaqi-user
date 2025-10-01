@@ -14,7 +14,7 @@ export const McqQuestion = ({
       {imageUrl && (
         <img src={imageUrl} alt="question" className="max-w-full h-[349px] object-contain border-2 border-primary-light   rounded-xl" />
       )}
-      <div className="self-stretch text-right justify-center text-text text-xl font-bold font-['Cairo'] leading-[50px]">
+      <div className="self-stretch text-right justify-center text-text text-xl font-bold  leading-[50px]">
         {questionText}
       </div>
       <div className="flex flex-col flex-1 items-start gap-6 relative">

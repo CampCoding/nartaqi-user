@@ -1,6 +1,7 @@
 import React from "react";
 import PagesBanner from "../../components/ui/PagesBanner";
 import { BlogCard } from "../../components/ui/Cards/BlogCard";
+import Link from "next/link";
 
 const BlogsPage = () => {
   return (
@@ -49,7 +50,9 @@ const BlogsPage = () => {
           "/images/FRAME (2).png",
           "/images/FRAME.png",
         ].map((item, index) => (
+          <Link href={"/blogs/blog-details/123"}>
           <BlogCard freeWidth={true} key={index} image={item} />
+          </Link>
         ))}
       </div>
     </div>

@@ -99,7 +99,7 @@ const ResetPasswordLastStep = () => {
 
 
           >
-            <div className="text-right justify-center text-white text-base font-bold font-['Cairo']">
+            <div className="text-right justify-center text-white text-base font-bold ">
               
               تغيير كلمة المرور
             </div>

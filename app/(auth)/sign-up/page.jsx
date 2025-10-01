@@ -6,9 +6,13 @@ import RadioButtons from "../../../components/ui/RadioButtons";
 import { SaudiIcon } from "../../../public/svgs";
 import { Eye } from "lucide-react";
 import Link from "next/link";
+import { useUser } from "../../../lib/useUser.jsx";
+import { useRouter } from "next/navigation";
 
 const SignUpPage = () => {
   const [value1, setValue1] = useState("Apple");
+  const { register, isLoading } = useUser();
+  const router = useRouter();
 
   const plainOptions = ["Apple", "Pear", "Orange"];
   const onChange1 = ({ target: { value } }) => {
@@ -16,7 +20,34 @@ const SignUpPage = () => {
     setValue1(value);
   };
 
+  const [firstName, setFirstName] = useState("");
+  const [middleName, setMiddleName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
   const [selected, setSelected] = useState("unconfirmed");
+
+  const handleSubmit = async (e) => {
+    e?.preventDefault?.();
+    setError("");
+    if (password !== confirmPassword) {
+      setError("كلمتا المرور غير متطابقتين");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await register({ firstName, middleName, lastName, gender: selected, phone, password });
+      router.push("/");
+    } catch (err) {
+      setError(err?.message || "فشل إنشاء الحساب");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className=" flex justify-between overflow-hidden">
@@ -32,22 +63,28 @@ const SignUpPage = () => {
             مرحبا بك في منصة نرتقي
           </p>
         </div>
-        <div className="mx-auto w-full max-w-4xl  space-y-[32px] ">
+        <form onSubmit={handleSubmit} className="mx-auto w-full max-w-4xl  space-y-[32px] ">
           <div className="grid grid-cols-3 gap-4  mb-4 ">
             <Input
               subLabel=""
               label="الأسم الأول"
               placeholder="أدخل اسمك الأول"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
             />
             <Input
               subLabel=""
               label="الأسم الأوسط"
               placeholder="أدخل اسمك الأوسط"
+              value={middleName}
+              onChange={(e) => setMiddleName(e.target.value)}
             />
             <Input
               subLabel=""
               label="اسم العائله"
               placeholder="أدخل اسم عائلتك"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
             />
             <div className="flex col-span-3 items-center gap-6">
               <div className="text-base text-bold">النوع:</div>
@@ -66,6 +103,8 @@ const SignUpPage = () => {
                 label="رقم الجوال"
                 subLabel=""
                 placeholder="ادخل رقم جوالك"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
               />
             </div>
             <div className="col-span-3">
@@ -73,6 +112,8 @@ const SignUpPage = () => {
                 label="كلمة المرور"
                 subLabel=""
                 placeholder="أدخل كلمة المرور"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <div className="col-span-3">
@@ -80,17 +121,21 @@ const SignUpPage = () => {
                 label="تأكيد كلمة المرور"
                 subLabel=""
                 placeholder="أدخل تأكيد كلمة المرور"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
           </div>
           
           <div className="space-y-4">
-
-          <div className="w-full px-12 py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5">
+          {error ? (
+            <div className="text-danger text-sm font-medium">{error}</div>
+          ) : null}
+          <button type="submit" disabled={submitting || isLoading} className="w-full px-12 py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5 disabled:opacity-60">
             <div className="text-right justify-center text-white text-base font-bold ">
-              إنشاء حساب جديد
+              {submitting ? "جارٍ الإنشاء..." : "إنشاء حساب جديد"}
             </div>
-          </div>
+          </button>
           <div className="  text-center justify-center">
             <span className="text-text text-sm font-medium ">
                لديك حساب بالفعل؟
@@ -103,16 +148,16 @@ const SignUpPage = () => {
             </Link>
           </div>
         </div>
+        </form>
         </div>
-      </div>
       <div className="  w-[592px]  relative select-none " style={{
-        backgroundImage: `url("/images/logo-banner.png")`,
+        backgroundImage: 'url("/images/logo-banner.png")',
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
 
       }}/>
-    </div>
+      </div>
   );
 };
 

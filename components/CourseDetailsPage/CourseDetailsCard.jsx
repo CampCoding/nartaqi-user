@@ -9,6 +9,7 @@ import {
   RatingStarIcon,
   CourseHeartIcon,
 } from "../../public/svgs";
+import Link from "next/link";
 
 const CourseDetailsCard = () => {
   return (
@@ -24,7 +25,7 @@ const CourseDetailsCard = () => {
       >
         <div className="absolute inset-0 bg-gradient-to-b to-black/40 via-black/20 from-transparent"></div>
 
-        <div className="w-16 left-[193px] top-[111px] absolute inline-flex flex-col justify-start items-center gap-2">
+        <Link href={"/course-preview/123"} className="w-16 left-[193px] top-[111px] absolute inline-flex flex-col justify-start items-center gap-2">
           <div className="self-stretch p-5 bg-secondary rounded-[100px] shadow-[0px_0px_50px_0px_rgba(249,115,22,1.00)] inline-flex justify-center items-center gap-2.5 overflow-hidden">
             <div className="w-6 h-6 relative flex justify-center items-center">
               <svg
@@ -43,7 +44,7 @@ const CourseDetailsCard = () => {
               </svg>
             </div>
           </div>
-        </div>
+        </Link>
       </div>
       <div className=" inline-flex flex-col justify-start w-full mt-[24px] mb-[35px] ">
         <div className="  w-full pb-[16px] border-b-2 border-zinc-100 inline-flex  justify-between items-center">

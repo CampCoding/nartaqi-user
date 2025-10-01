@@ -83,7 +83,7 @@ export const SupportSection = ({ data }) => {
           style={{ backgroundImage: `url(${data.image})` }}
         >
           <button
-            className="flex w-[124px] h-[124px] items-center justify-center gap-2.5 p-5 relative bg-secondary rounded-[100px] overflow-hidden border-8 border-solid border-white aspect-[1] hover:bg-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-300 transition-colors duration-200"
+            className="flex w-[124px] h-[124px] items-center justify-center gap-2.5 p-5 relative bg-secondary rounded-[100px] overflow-hidden border-8 border-solid border-white aspect-[1] hover:bg-secondary-dark focus:outline-none focus:ring-4 focus:ring-orange-300 transition-colors duration-200"
             aria-label={data.buttonAria || "تشغيل الفيديو"}
             type="button"
             onClick={data.onPlay}

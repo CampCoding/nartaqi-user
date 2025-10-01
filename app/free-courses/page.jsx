@@ -9,6 +9,7 @@ import "swiper/css/free-mode";
 import { FreeMode, Mousewheel, Navigation } from "swiper/modules";
 import CoursesCategoryCard from "../../components/ui/Cards/CoursesCategoryCard";
 import CourseCard from "../../components/ui/Cards/CourseCard";
+import Link from "next/link";
 
 const FreeCourses = () => {
   const CoursesCategoryCardData = [
@@ -66,7 +67,7 @@ const FreeCourses = () => {
       </div>
 
       <div className=" px-14 py-8 w-full rounded-3xl inline-flex justify-center items-center gap-2.5">
-        <div className="justify-center text-secondary  text-4xl font-bold font-['Cairo']">
+        <div className="justify-center text-secondary  text-4xl font-bold ">
           الفئات
         </div>
       </div>
@@ -90,7 +91,9 @@ const FreeCourses = () => {
       >
         {[...CoursesCategoryCardData ]?.map((item, index) => (
           <SwiperSlide key={index} className="!w-fit">
+            <Link href={"/courses/123"}>
             <CoursesCategoryCard data={item} />
+            </Link>
           </SwiperSlide>
         ))}
       </Swiper>

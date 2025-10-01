@@ -46,7 +46,7 @@ const MockTestReview = () => {
             </div>
           </div>
 
-          <div className="text-right justify-center text-text text-2xl font-semibold font-['Cairo'] leading-[50px]">24 أسئلة غير مكتمله</div>
+          <div className="text-right justify-center text-text text-2xl font-semibold  leading-[50px]">24 أسئلة غير مكتمله</div>
         </div>
 
 

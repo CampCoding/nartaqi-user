@@ -4,11 +4,11 @@ const VerbalSection = () => {
   return (
       <div className="w-[584px]  inline-flex flex-col justify-start items-start gap-8">
         <div className=" inline-flex justify-end items-center gap-6">
-          <div className="text-right justify-center text-text text-3xl font-bold font-['Cairo']">
+          <div className="text-right justify-center text-text text-3xl font-bold ">
             القسم اللفظي
           </div>
         </div>
-        <div className=" flex-1 text-right justify-center text-text-alt text-xl font-normal font-['Cairo'] leading-10">
+        <div className=" flex-1 text-right justify-center text-text-alt text-xl font-normal  leading-10">
           القسم اللفظي
           <br />
           يتكون القسم اللفظي من مجموعة من الأسئلة التي تقيس قدرة الطالب على فهم

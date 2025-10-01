@@ -11,7 +11,7 @@ export const TextQuestion = ({
 }) => {
   return (
     <div className="flex-1 flex flex-col gap-4">
-      <div className="self-stretch text-right justify-center text-text text-xl font-bold font-['Cairo'] leading-[50px]">
+      <div className="self-stretch text-right justify-center text-text text-xl font-bold  leading-[50px]">
         {questionText}
       </div>
       {imageUrl && (

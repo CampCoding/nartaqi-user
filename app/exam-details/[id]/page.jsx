@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import PagesBanner from "../../components/ui/PagesBanner";
-import ExamDetailsHeader from "../../components/ExamDetailsPage/ExamDetailsHeader";
-import { Instructions } from "../../components/ExamDetailsPage/Instructions";
-import { Alerts } from "../../components/ExamDetailsPage/Alerts";
-import ExamResults from "../../components/ExamPage/ExamResults";
+import PagesBanner from "../../../components/ui/PagesBanner";
+import ExamDetailsHeader from "../../../components/ExamDetailsPage/ExamDetailsHeader";
+import { Instructions } from "../../../components/ExamDetailsPage/Instructions";
+import { Alerts } from "../../../components/ExamDetailsPage/Alerts";
+import ExamResults from "../../../components/ExamPage/ExamResults";
 import Link from "next/link";
 
 const ExamDetails = () => {

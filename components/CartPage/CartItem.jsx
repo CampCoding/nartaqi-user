@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { CartTrashIcon, RatingStarIcon } from "./../../public/svgs";
 
-const CartItem = ({ data }) => {
+const CartItem = ({ data, onRemove }) => {
   const [quantity, setQuantity] = useState(data.quantity || 1);
 
   const handleMinusQuantity = () => {
@@ -142,8 +142,8 @@ const CartItem = ({ data }) => {
               {data.price} ر.س
             </div>
             <div
-              onClick={data.onRemove}
-              className="px-[17.5px] group transition-all cursor-pointer hover:scale-105 hover:text-white hover:bg-danger py-3 rounded-2xl outline outline-2 outline-offset-[-2px] outline-text inline-flex justify-center items-center gap-2"
+              onClick={onRemove}
+              className="px-[17.5px] select-none group transition-all cursor-pointer hover:scale-105 hover:text-white hover:bg-danger py-3 rounded-2xl outline outline-2 outline-offset-[-2px] outline-text inline-flex justify-center items-center gap-2"
             >
               <CartTrashIcon className="group-hover:!stroke-white stroke-[#2D2D2D] " />
               <div className="cursor-pointer whitespace-nowrap text-right justify-center text-text group-hover:text-white text-xs font-medium ">

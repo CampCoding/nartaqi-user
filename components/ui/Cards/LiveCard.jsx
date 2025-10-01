@@ -31,11 +31,11 @@ const LiveCard = () => {
 
           <div className="inline-flex items-center gap-2 relative flex-[0_0_auto]">
             <div>
-              <LiveIcon />
+              <LiveIcon className={"w-10 h-10"} />
             </div>
             <div className="inline-flex items-center justify-start gap-4 relative flex-[0_0_auto]">
-              <h1 className="w-fit  font-bold text-[#f91616] text-2xl leading-[normal] relative flex items-center justify-center mt-[-1.00px] tracking-[0] ">
-                بث مباشر
+              <h1 className="w-fit  font-bold text-[#f91616] text-xl leading-[normal] relative flex items-center justify-center mt-[-1.00px] tracking-[0] ">
+                بث مباشر 
               </h1>
             </div>
 
@@ -52,14 +52,14 @@ const LiveCard = () => {
       </header>
 
       <section className="flex flex-col items-start gap-4 relative self-stretch w-full flex-[0_0_auto]">
-        <h2 className="self-stretch  font-semibold text-text text-[32px] text-center leading-[normal] relative flex items-center justify-center mt-[-1.00px] tracking-[0] ">
+        <h2 className="self-stretch  text-text text-2xl font-bold text-center leading-[normal] relative flex items-center justify-center mt-[-1.00px] tracking-[0] ">
           كيفية إعداد خطة درس ناجحة
         </h2>
 
         <div className="flex items-center justify-between p-4 relative self-stretch w-full flex-[0_0_auto] bg-white rounded-[20px] border-2 border-solid border-variable-collection-stroke">
 
           <div className="inline-flex flex-col items-start gap-2 relative flex-[0_0_auto]">
-            <div className="self-stretch font-semibold text-text text-2xl leading-[normal] relative flex items-center justify-center mt-[-1.00px] tracking-[0] ">
+            <div className="self-stretch font-semibold text-text text-xl leading-[normal] relative flex items-center justify-center mt-[-1.00px] tracking-[0] ">
               <span>رمز الدخول :</span>
               <span className="mx-2" aria-label={`Access code ${accessCode}`}>
                 {accessCode}
@@ -83,7 +83,7 @@ const LiveCard = () => {
         className="flex items-center justify-center gap-2.5 px-2.5 py-6 relative self-stretch w-full flex-[0_0_auto] bg-[#f91616] rounded-[30px] shadow-[0px_0px_50px_#f9161699] hover:bg-[#e01414] active:bg-[#d01212] disabled:opacity-70 transition-colors cursor-pointer"
         aria-label="Join the live stream now"
       >
-        <span className="w-fit  font-bold text-[#e8ecf3] text-2xl text-center leading-[30px] whitespace-nowrap relative flex items-center justify-center mt-[-1.00px] tracking-[0] ">
+        <span className="w-fit  font-bold text-[#e8ecf3] text-xl text-center leading-[30px] whitespace-nowrap relative flex items-center justify-center mt-[-1.00px] tracking-[0] ">
           {isJoining ? "جاري الانضمام..." : "أنضم الأن"}
         </span>
       </button>

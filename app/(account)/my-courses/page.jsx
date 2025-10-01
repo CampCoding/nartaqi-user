@@ -8,7 +8,7 @@ const MyCourses = () => {
       <AchievementRate />
 
       <div className="space-y-4">
-        <div className="self-stretch leading-normal text-right justify-center text-secondary text-3xl font-bold font-['Cairo']">
+        <div className="self-stretch leading-normal text-right justify-center text-secondary text-3xl font-bold ">
           الدورات النشطة
         </div>
 
@@ -23,7 +23,7 @@ const MyCourses = () => {
         </div>
       </div>
       <div className="space-y-4">
-        <div className="self-stretch leading-normal text-right justify-center text-primary text-3xl font-bold font-['Cairo']">
+        <div className="self-stretch leading-normal text-right justify-center text-primary text-3xl font-bold ">
           الدورات المكتملة
         </div>
 

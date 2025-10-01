@@ -15,13 +15,20 @@ import { ElectronicPayment } from "../../components/CheckoutPage/ElectronicPayme
 import InstallmentCheckout from "../../components/CheckoutPage/InstallmentCheckout";
 import BankCard from "../../components/CheckoutPage/BankCard";
 import CheckoutBanksSection from "../../components/CheckoutPage/CheckoutBanksSection";
+import Link from "next/link";
 
 const CheckoutPage = () => {
   const [selectedTab, setSelectedTap] = useState("");
 
   return (
-    <div className="container ! mx-auto px-[64px]">
-      <CourseTitle title={"الدفع"} />
+    <div className="container  max-w-[1312px] !mx-auto px-[64px]">
+      <CourseTitle title={"الدفع"} breadcrumbs={
+        [
+          { title: "الرئيسية", link: "/" },
+            { title: "السلة", link: "/cart" },
+            { title: "الدفع", link: "/#" },
+        ]
+      } />
       <CheckoutSummery />
       <div className="mt-[48px] flex flex-col gap-[24px] mb-[88px]">
         <CheckoutTabs onChange={(val) => setSelectedTap(val)} />
@@ -36,11 +43,11 @@ const CheckoutPage = () => {
                 return <CheckoutBanksSection />;
             }
           })()}
-          <div className="flex  items-center justify-center px-16 py-5 cursor-pointer transition hover:bg-secondary-dark relative bg-secondary rounded-[25px]">
+          <Link href={"/success-checkout"} className="flex  items-center justify-center px-16 py-5 cursor-pointer transition hover:bg-secondary-dark relative bg-secondary rounded-[25px]">
             <h1 className="relative flex items-center justify-center w-fit mt-[-1.00px] font-bold text-white text-2xl tracking-[0] leading-[normal] ">
               تأكيد الدفع
             </h1>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

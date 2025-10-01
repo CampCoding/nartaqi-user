@@ -6,9 +6,18 @@ import RadioButtons from "../../../components/ui/RadioButtons";
 import { SaudiIcon } from "../../../public/svgs";
 import { Eye } from "lucide-react";
 import Link from "next/link";
+import { useUser } from "../../../lib/useUser.jsx";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
   const [value1, setValue1] = useState("Apple");
+  const { login, isLoading } = useUser();
+  const router = useRouter();
+
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const plainOptions = ["Apple", "Pear", "Orange"];
   const onChange1 = ({ target: { value } }) => {
@@ -17,6 +26,20 @@ const LoginPage = () => {
   };
 
   const [selected, setSelected] = useState("unconfirmed");
+
+  const handleSubmit = async (e) => {
+    e?.preventDefault?.();
+    setError("");
+    setSubmitting(true);
+    try {
+      await login({ phone, password });
+      router.push("/");
+    } catch (err) {
+      setError(err?.message || "فشل تسجيل الدخول");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className=" flex justify-between overflow-hidden">
@@ -32,13 +55,15 @@ const LoginPage = () => {
             مرحبا بعودتك مرة اخرى{" "}
           </p>
         </div>
-        <div className="mx-auto w-full   space-y-[32px] ">
+        <form onSubmit={handleSubmit} className="mx-auto w-full   space-y-[32px] ">
           <div className="grid grid-cols-3 gap-4  mb-4 ">
             <div className="col-span-3">
               <TelephoneButon
                 label="رقم الجوال"
                 subLabel=""
                 placeholder="ادخل رقم جوالك"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
               />
             </div>
             <div className="col-span-3 space-y-2">
@@ -46,6 +71,8 @@ const LoginPage = () => {
                 label="كلمة المرور"
                 subLabel=""
                 placeholder="أدخل كلمة المرور"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
               <Link 
                href={{
@@ -60,11 +87,14 @@ const LoginPage = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="w-full px-12 py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5">
+            {error ? (
+              <div className="text-danger text-sm font-medium">{error}</div>
+            ) : null}
+            <button type="submit" disabled={submitting || isLoading} className="w-full px-12 py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5 disabled:opacity-60">
               <div className="text-right justify-center text-white text-base font-bold ">
-                إنشاء حساب جديد
+                {submitting ? "جارٍ الدخول..." : "تسجيل الدخول"}
               </div>
-            </div>
+            </button>
             <div className="  text-center justify-center">
               <span className="text-text text-sm font-medium ">
                 ليس لديك حساب؟
@@ -80,7 +110,7 @@ const LoginPage = () => {
               </Link>
             </div>
           </div>
-        </div>
+        </form>
       </div>
 
       <div
@@ -158,6 +188,7 @@ export const PasswordInput = ({
   label = "الاسم رباعي باللغة العربية",
   subLabel = "(مطابق للهوية الوطنية)",
   placeholder = "أدخل اسمك بالكامل",
+  ...props
 }) => {
   const [show, setShow] = useState(false);
 
@@ -176,6 +207,7 @@ export const PasswordInput = ({
           type={show ? "text" : "password"}
           placeholder={placeholder}
           className="justify-start h-[62px] gap-2.5 px-4  bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto]"
+          {...props}
         />
         <div
           onClick={() => setShow(!show)}

@@ -3,7 +3,7 @@ import React from "react";
 const CoursesCategoryCard = ({ data, color = "var(--color-secondary)" }) => {
   return (
     <div
-      className="relative w-[267px] h-[350px] rounded-[25px] bg-[linear-gradient(180deg,rgba(0,0,0,0)_60%,rgba(0,0,0,1)_100%)]"
+      className="relative cursor-pointer  group w-[267px] h-[350px] rounded-[25px] bg-[linear-gradient(180deg,rgba(0,0,0,0)_60%,rgba(0,0,0,1)_100%)]"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,1) 100%), url('${data?.image}')`,
         backgroundSize: "cover",
@@ -22,9 +22,9 @@ const CoursesCategoryCard = ({ data, color = "var(--color-secondary)" }) => {
           </div>
         </div>
 
-        <div className="hover:scale-125 cursor-pointer transition flex w-10 h-10 items-center justify-center gap-[5.8px] p-[11.61px] relative bg-bg rounded-full overflow-hidden shadow-[0px_2.32px_2.32px_#00000040] aspect-[1]">
+        <div className="group-hover:scale-125 cursor-pointer transition flex w-10 h-10 items-center justify-center gap-[5.8px] p-[11.61px] relative bg-bg rounded-full overflow-hidden shadow-[0px_2.32px_2.32px_#00000040] aspect-[1]">
           <div className="relative w-6 h-6 aspect-[1]">
-            <ChevronLeft className="fill-secondary" />
+            <ChevronLeft className="fill-secondary " />
           </div>
         </div>
       </div>

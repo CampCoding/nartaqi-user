@@ -1,7 +1,11 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
 
 const ConditionsAndPrivacy = () => {
+  const [selectedSection, setSelectedSection] = useState(1);
+
   return (
     <div className="">
       <PagesBanner
@@ -22,9 +26,15 @@ const ConditionsAndPrivacy = () => {
       />
       <div className="container mx-auto px-[64px] mt-[48px]  ">
         <div className="grid grid-cols-[379px_auto] gap-6 ">
-          <SideNav />
+          <SideNav
+            selectedSection={selectedSection}
+            setSelectedSection={setSelectedSection}
+          />
 
-          <PoliciesSections />
+          <PoliciesSections
+            selectedSection={selectedSection}
+            setSelectedSection={setSelectedSection}
+          />
         </div>
       </div>
     </div>
@@ -52,7 +62,7 @@ const ChevromLeft = (props) => (
   </svg>
 );
 
-const SideNav = () => {
+const SideNav = ({ selectedSection, setSelectedSection }) => {
   const menuItems = [
     {
       id: 1,
@@ -116,16 +126,17 @@ const SideNav = () => {
           className="inline-flex items-center justify-start gap-2 relative flex-[0_0_auto]"
           role="menuitem"
           tabIndex={0}
+          onClick={() => setSelectedSection(item.id)}
         >
           <div className="inline-flex h-4 items-center pl-0 pr-2 py-0 relative flex-[0_0_auto] ">
             <div className="relative w-6 h-6  aspect-[1]">{item.icon}</div>
           </div>
           <div
-            className={`${
-              item.isTitle
+            className={` cursor-pointer ${
+              selectedSection === item.id
                 ? " font-bold !text-primary"
                 : " text-text"
-            } tracking-[0] relative w-fit text-2xl  leading-[normal] overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] `}
+            } tracking-[0] relative w-fit text-xl  leading-[normal] overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] `}
           >
             {item.text}
           </div>
@@ -259,7 +270,7 @@ const privacySections = [
   },
 ];
 
-export const PoliciesSections = () => {
+export const PoliciesSections = ({ selectedSection, setSelectedSection }) => {
   return (
     <section className="space-y-[32px] mb-[100px]">
       {privacySections?.map((privacyData, index) => {
@@ -267,9 +278,10 @@ export const PoliciesSections = () => {
           <main
             className="flex flex-col items-start gap-8 relative"
             role="main"
+            onClick={() => setSelectedSection(index + 1)}
           >
             <header>
-              <h1 className=" font-bold text-primary text-[32px] relative self-stretch mt-[-1.00px] tracking-[0] leading-[normal] ">
+              <h1 className=" font-bold text-primary text-2xl relative self-stretch mt-[-1.00px] tracking-[0] leading-[normal] ">
                 {privacyData.title}
               </h1>
             </header>
@@ -278,14 +290,14 @@ export const PoliciesSections = () => {
               className="flex flex-col items-start gap-2 relative self-stretch w-full flex-[0_0_auto]"
               aria-labelledby="privacy-policy"
             >
-              <p className=" font-medium text-text-duplicate text-2xl relative self-stretch mt-[-1.00px] tracking-[0] leading-[normal] ">
+              <p className=" font-medium text-text-duplicate text-xl relative self-stretch mt-[-1.00px] tracking-[0] leading-[normal] ">
                 {privacyData.introduction}
               </p>
 
               {privacyData.sections.map((section, index) => (
                 <article
                   key={index}
-                  className="relative self-stretch  font-normal text-text-duplicate text-2xl tracking-[0] leading-[normal] "
+                  className="relative self-stretch  font-normal text-text-duplicate text-xl tracking-[0] leading-[normal] "
                 >
                   <h2 className="font-bold">
                     {section.title}

@@ -1,6 +1,4 @@
-
-"use client"
-
+"use client";
 
 import React from "react";
 import {
@@ -16,19 +14,14 @@ import {
   FooterYoutubeIcon,
 } from "../../public/svgs";
 import { usePathname } from "next/navigation";
-
+import Link from "next/link";
 
 const Footer = () => {
+  const pathname = usePathname();
 
-
-  const pathname = usePathname()
-
-  if(pathname.includes("mock-test")){
-    return null
+  if (pathname.includes("mock-test")) {
+    return null;
   }
-
-
-
 
   return (
     <footer
@@ -50,19 +43,23 @@ const Footer = () => {
 export default Footer;
 
 export const Frame = () => {
-  const quickLinks = [
-    { text: "حولنا", width: "w-7" },
-    { text: "الأسئلة الشائعة" },
-    { text: "فريق", width: "w-7" },
-    { text: "سياسة الخصوصية" },
-    { text: "مدونة", width: "w-8" },
+  const aboutPlatform = [
+    
+      { text: "من نحن", href: "/about-us" },
+      { text: "فريق العمل", href: "/team-work" },
+      { text: "الأسئلة الشائعة", href: "/faqs" },
+      { text: "شروط الاستخدام والخصوصية", href: "/conditions-and-privacy" },
+      { text: "المدونة", href: "/blogs" },
+      { text: "تواصل معنا", href: "/contact-us" },
   ];
 
-  const resources = [
-    { text: "دعم", width: "w-[22px]" },
-    { text: "جدول الدراسة" },
-    { text: "النقاط المرجحة" },
-    { text: "اختبار المستوى" },
+  const quickLinks = [
+    { text: "الدورات", href: "/students-courses" },
+    { text: "المدربون", href: "/instructors" },
+    { text: "بوابة الدعم", href: "/support-gate" },
+    { text: "شروط الالتحاق بالدورات", href: "/enroll-terms" },
+    { text: "الدعم الفني", href: "/technical-support" },
+    { text: "الشكاوى والمقترحات", href: "/complaints-and-suggestions" },
   ];
 
   const contactInfo = [
@@ -104,19 +101,19 @@ export const Frame = () => {
         >
           <header className="flex w-[304px] h-6 items-center  relative">
             <h2 className="w-[88px]  text-base leading-6 relative self-stretch text-neutral-50 ">
-              روابط سريعة
+              عن المنصة
             </h2>
           </header>
           <ul className="flex flex-col w-[304px] h-[132px]  gap-2 relative">
-            {quickLinks.map((link, index) => (
+            {aboutPlatform.map((link, index) => (
               <li key={index} className="flex  h-5 items-center  relative">
-                <a
-                  href="#"
+                <Link
+                  href={link.href}
                   className={`${link.width}  font-inter text-sm leading-5 relative self-stretch text-neutral-50  hover:text-neutral-200 focus:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 focus:ring-offset-transparent transition-colors duration-200`}
                   tabIndex={0}
                 >
                   {link.text}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -128,19 +125,19 @@ export const Frame = () => {
         >
           <header className="flex w-[304px] h-6 items-center  relative">
             <h2 className="w-[88px]  text-base leading-6 relative self-stretch text-neutral-50 ">
-              الموارد
+              روابط سريعة
             </h2>
           </header>
           <ul className="flex flex-col w-[304px] h-[132px]  gap-2 relative">
-            {resources.map((link, index) => (
+            {quickLinks.map((link, index) => (
               <li key={index} className="flex  h-5 items-center  relative">
-                <a
-                  href="#"
+                <Link
+                  href={link.href}
                   className={`${link.width}  font-inter text-sm leading-5 relative self-stretch text-neutral-50  hover:text-neutral-200 focus:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 focus:ring-offset-transparent transition-colors duration-200`}
                   tabIndex={0}
                 >
                   {link.text}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -234,7 +231,10 @@ export const Frame = () => {
       </div>
       <div className=" my-8 h-px relative bg-neutral-50/20" />
 
-      <p dir="ltr" className=" text-neutral-50 text-sm text-center leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] font-inter [-webkit-line-clamp:1] [-webkit-box-orient:vertical]">
+      <p
+        dir="ltr"
+        className=" text-neutral-50 text-sm text-center leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] font-inter [-webkit-line-clamp:1] [-webkit-box-orient:vertical]"
+      >
         © 2025 Ma'an Nartaqi. All rights reserved.
       </p>
     </div>

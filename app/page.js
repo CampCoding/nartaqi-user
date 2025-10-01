@@ -22,12 +22,13 @@ export default function Home() {
       <HeaderHero />
       <AboutUs />
       <CoursesCategoriesLable />
+      {/* Is for courses categories */}
       <HomeSection1 />
       <HomeSection2 />
       <HomeSection3 />
       <HomeSection4Courses />
       <WhyChooseUs />
-      <WhatOurXSay   />
+      <WhatOurXSay/>
       <HonorRoll />
       <NewestBlogs />
 

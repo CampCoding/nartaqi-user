@@ -32,7 +32,7 @@ export const ExamQuesionsSummery = ({
               index
             )}`}
           >
-            <div className="font-medium text-text text-lg text-right leading-6 whitespace-nowrap flex relative">
+            <div className="font-medium  text-lg text-right leading-6 whitespace-nowrap flex relative">
               {index + 1}
             </div>
           </button>

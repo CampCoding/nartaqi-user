@@ -10,8 +10,9 @@ import {
   CourseHeartIcon,
   CertificationIcon,
 } from "../../public/svgs";
+import Link from "next/link";
 
-const RegCourseDetailsCard = () => {
+const RegCourseDetailsCard = ({ isDone }) => {
   return (
     <div className="w-[502px] pt-[32px]  relative bg-white rounded-[50px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] overflow-hidden">
       <div className="px-[26px] ">
@@ -48,9 +49,12 @@ const RegCourseDetailsCard = () => {
           </div>
         </div>
       </div>
-      <div className="pt-6  px-[26px] " style={{
-        boxShadow:`inset 0px -14px 15px  rgb(226, 226, 226)`
-      }}>
+      <div
+        className="pt-6  px-[26px] "
+        style={{
+          boxShadow: `inset 0px -14px 15px  rgb(226, 226, 226)`,
+        }}
+      >
         <div className=" inline-flex flex-col justify-start w-full  ">
           <div className="  w-full pb-[16px] border-b-2 border-zinc-100 inline-flex  justify-between items-center">
             <div className="flex justify-start w-[202px] items-center gap-2">
@@ -96,7 +100,7 @@ const RegCourseDetailsCard = () => {
           </div>
           <div className="relative w-[253px] h-[104px]">
             <div className="inline-flex flex-col items-center gap-3 absolute top-0 left-0">
-              <div className="relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold text-text text-2xl tracking-[0] leading-[normal] ">
+              <div className="relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold  text-text text-xl tracking-[0] leading-[normal] ">
                 الساعات
               </div>
 
@@ -106,7 +110,7 @@ const RegCourseDetailsCard = () => {
             </div>
 
             <div className="inline-flex flex-col items-center gap-3 absolute top-0 left-[196px]">
-              <div className="relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold text-text text-2xl tracking-[0] leading-[normal] ">
+              <div className="relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold text-text text-xl tracking-[0] leading-[normal] ">
                 الأيام
               </div>
 
@@ -119,18 +123,26 @@ const RegCourseDetailsCard = () => {
       </div>
 
       <div className="relative bg-white   w-full pt-[45px] px-[35px] pb-[38px] h-[210px] border-t-4  [border-top-style:solid] border-variable-collection-stroke ">
-        <p className="absolute   top-[calc(50.00%_+_43px)] left-[calc(50.00%_-_164px)] h-[30px]  font-medium text-danger text-base flex items-center justify-center text-center tracking-[0] leading-[normal] ">
-          أكمل الدورة حتى تتمكن من تسجيل بيانات الشهادة
-        </p>
+        {!(isDone == "true") && (
+          <p className="absolute   top-[calc(50.00%_+_43px)] left-[calc(50.00%_-_164px)] h-[30px]  font-medium text-danger text-base flex items-center justify-center text-center tracking-[0] leading-[normal] ">
+            أكمل الدورة حتى تتمكن من تسجيل بيانات الشهادة
+          </p>
+        )}
 
-        <div className="flex w-full justify-center px-6 py-4  bg-[#71717A] rounded-[20px] items-center gap-6">
+        <Link
+          onClick={(e) => isDone != "true" && e.preventDefault()}
+          href={isDone == "true" ? "/register-certificate" : "#"}
+          className={`flex w-full justify-center px-6 py-4  ${
+            isDone == "true" ? "bg-primary" : "bg-[#71717A] cursor-not-allowed"
+          }  rounded-[20px] items-center gap-6`}
+        >
           <div className="inline-flex relative flex-[0_0_auto] items-center gap-6">
             <CertificationIcon />
-            <div className="relative w-fit mt-[-1.00px]  font-bold text-white text-2xl flex items-center justify-center text-center tracking-[0] leading-[normal] ">
+            <div className="relative w-fit mt-[-1.00px]  font-bold text-white text-xl flex items-center justify-center text-center tracking-[0] leading-[normal] ">
               تسجيل بيانات الشهادة
             </div>
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );

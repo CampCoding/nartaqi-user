@@ -32,7 +32,7 @@ const WhatOurXSay = ({
           description && <p className="text-text text-[20px] text-center leading-[30px]  flex items-center relative"></p>
         }
       </section>
-      <div className="container mx-auto mt-[64px]">
+      <div className="container mx-auto mt-[64px] relative">
         <Swiper
           modules={[FreeMode, Mousewheel, Navigation]}
           slidesOffsetBefore={64} // right padding (px)
@@ -90,11 +90,11 @@ const WhatOurXSay = ({
         </Swiper>
 
         {/* Navigation buttons */}
-        <div className="swiper-button-prev !text-[#1B3A6F] !w-12 !h-12 !mt-[-24px] !bg-white !rounded-full !shadow-lg hover:!bg-gray-50 transition-colors"></div>
-        <div className="swiper-button-next !text-[#1B3A6F] !w-12 !h-12 !mt-[-24px] !bg-white !rounded-full !shadow-lg hover:!bg-gray-50 transition-colors"></div>
+        {/* <div className="swiper-button-prev !text-[#1B3A6F] !w-12 !h-12  !mt-[-24px] !bg-white !rounded-full !shadow-lg hover:!bg-gray-50 transition-colors"></div>
+        <div className="swiper-button-next !text-[#1B3A6F] !w-12 !h-12  !mt-[-24px] !bg-white !rounded-full !shadow-lg hover:!bg-gray-50 transition-colors"></div> */}
 
         {/* Pagination dots */}
-        <div className="swiper-pagination !mt-8 !relative !bottom-0"></div>
+        {/* <div className="swiper-pagination !mt-8 !relative !bottom-0"></div> */}
       </div>
     </div>
   );

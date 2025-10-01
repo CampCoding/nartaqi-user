@@ -1,13 +1,12 @@
 import React from "react";
-import PagesBanner from "./../../components/ui/PagesBanner";
-import CoursesFilters from "../../components/ui/CoursesFilters";
-import CourseCard from "./../../components/ui/Cards/CourseCard";
-import Testimonials from "../../components/Testimonials";
+import PagesBanner from "../../../components/ui/PagesBanner";
+import CoursesFilters from "../../../components/ui/CoursesFilters";
+import CourseCard from "../../../components/ui/Cards/CourseCard";
+import Testimonials from "../../../components/Testimonials";
 
 const TeachersCourses = () => {
   return (
     <div>
-      {" "}
       {/* variant = "large" or "normal" */}
       <PagesBanner
         variant={"normal"}
@@ -18,7 +17,7 @@ const TeachersCourses = () => {
         <CoursesFilters />
       </div>
       <div className="grid grid-cols-3 gap-[48px] container mx-auto px-[64px]">
-        <CourseCard freeWidth={true} type="teachers" buttonStyle="notnormal" />
+        <CourseCard isRegistered freeWidth={true} type="teachers" buttonStyle="notnormal" />
         <CourseCard freeWidth={true} type="teachers" buttonStyle="notnormal" />
         <CourseCard freeWidth={true} type="teachers" buttonStyle="notnormal" />
         <CourseCard freeWidth={true} type="teachers" buttonStyle="notnormal" />

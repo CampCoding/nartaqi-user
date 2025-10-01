@@ -94,7 +94,7 @@ export const ResetPasswordCode = () => {
               className="flex items-center justify-center gap-2.5 px-12 py-5 relative self-stretch w-full flex-[0_0_auto] bg-primary hover:scale-105 transition rounded-[15px] hover:bg-foundation-bluedarker  duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               aria-label="التالي - المتابعة إلى الخطوة التالية"
             >
-              <div className="text-right justify-center text-white text-base font-bold font-['Cairo']">
+              <div className="text-right justify-center text-white text-base font-bold ">
                 التالي
               </div>
             </button>

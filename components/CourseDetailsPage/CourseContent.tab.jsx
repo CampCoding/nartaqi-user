@@ -7,6 +7,7 @@ import {
   CoursePlayIcon,
 } from "../../public/svgs";
 import CourseContentDrawer from "../ui/CourseContentDrawer";
+import Link from "next/link";
 
 const CourseContent = ({ isRegistered }) => {
   // Track which course content tab is selected; defaults to "foundation"
@@ -188,10 +189,10 @@ className="fill-primary"      />
 
 
   return (
-    <div className="flex items-center group hover:shadow-2xl cursor-pointer duration-75 !transition-all justify-between px-6 py-8 relative bg-white rounded-[20px] border-2 border-solid border-zinc-500">
+    <Link href={"/mock-test/123"} className="flex items-center group hover:shadow-2xl cursor-pointer duration-75 !transition-all justify-between px-6 py-8 relative bg-white rounded-[20px] border-2 border-solid border-zinc-500">
 
       <div className="items-end gap-2 inline-flex relative duration-75 !transition-all flex-[0_0_auto]">
-        <TestIcon />
+      <TestIcon />
         <p className=" group-hover:text-primary !transition-all duration-75   font-medium text-text text-base relative flex items-center justify-center w-fit mt-[-1.00px] tracking-[0] leading-[normal] ">
           الأختبار الأول : مدخل إلى التدريس الفعال
         </p>
@@ -206,6 +207,6 @@ className="fill-primary"      />
         <ChevronLeft />
         </div>
       </div>
-    </div>
+    </Link>
   );
 };

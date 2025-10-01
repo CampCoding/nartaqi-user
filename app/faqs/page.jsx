@@ -181,7 +181,7 @@ const AnswerNotFound = () => {
         </p>
       </div>
       <button
-        className="inline-flex items-center justify-center gap-2 px-8 py-4 relative bg-primary rounded-[20px] cursor-pointer transition-colors hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
+        className="inline-flex items-center justify-center gap-2 px-8 py-4 relative bg-primary rounded-[20px] cursor-pointer transition-colors hover:bg-secondary-dark focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
         type="button"
         aria-label="الاتصال الدعم"
       >

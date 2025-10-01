@@ -3,6 +3,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { Timer } from "../../../../components/ExamPage/Timer";
 import ExamContent from "../../../../components/ExamPage/ExamContent";
+import { FixedResultHero } from "../../../../components/ExamPage/FixedResultHero";
 
 const mockQuestions = [
   {
@@ -15,7 +16,6 @@ const mockQuestions = [
       { id: 3, label: "17" },
       { id: 4, label: "18" },
     ],
-  
   },
   {
     type: "mcq",
@@ -150,13 +150,12 @@ const mockQuestions = [
   },
 ];
 
-
 const ExamPage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const total = mockQuestions.length;
   const [answeredMap, setAnsweredMap] = useState({}); // { [index]: any }
   const [flaggedMap, setFlaggedMap] = useState({}); // { [index]: true }
-
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const handleSelectOption = useCallback((index, value) => {
     setAnsweredMap((prev) => ({ ...prev, [index]: value }));
   }, []);
@@ -178,6 +177,12 @@ const ExamPage = () => {
     console.log("Time is up", answeredMap);
   }, [answeredMap]);
 
+  const [isStarted, setIsStarted] = useState(false);
+
+  const handleSubmitTheExam = () => {
+    setIsSubmitted(true);
+  };
+
   return (
     <div className="container mx-auto flex flex-col px-[64px] py-[48px]">
       <Timer
@@ -185,6 +190,8 @@ const ExamPage = () => {
         totalQuestions={total}
         initialSeconds={initialSeconds}
         onTimeUp={handleTimeUp}
+        isStarted={isStarted}
+        setIsStarted={setIsStarted}
       />
       <ExamContent
         questions={mockQuestions}
@@ -195,7 +202,11 @@ const ExamPage = () => {
         onPrev={handlePrev}
         onNext={handleNext}
         onJumpTo={handleJumpTo}
+        isStarted={isStarted}
+        setIsStarted={setIsStarted}
+        onSubmit={handleSubmitTheExam}
       />
+     <FixedResultHero open={isSubmitted} setOpen={setIsSubmitted} />
     </div>
   );
 };

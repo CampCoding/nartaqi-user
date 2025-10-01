@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 const JoinUsAsMerketer = () => {
@@ -17,11 +18,11 @@ const JoinUsAsMerketer = () => {
               كود خصم دائم – عمولة على كل اشتراك ناجح
             </div>
           </div>
-          <div className="px-12 py-6 bg-gradient-to-r from-primary to-secondary rounded-[20px] inline-flex justify-center items-center gap-2.5">
+          <Link href={"/marketing-team/join-to-marketers"} className="px-12 py-6 bg-gradient-to-r from-primary to-secondary rounded-[20px] inline-flex justify-center items-center gap-2.5">
             <div className="justify-center text-neutral-50 text-base font-bold  leading-tight">
               ابدا التسجيل الأن
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

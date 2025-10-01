@@ -157,11 +157,12 @@ const CartPage = () => {
 
   return (
     <div className="container mx-auto px-[64px]">
-      <CourseTitle title="السلة" />
-      {cartItems &&
-      cartItems.length > 0 &&
-      Array.isArray(cartItems) &&
-      false ? (
+      <CourseTitle title="السلة"  breadcrumbs={[
+            { title: "الرئيسية", link: "/" },
+            { title: "السلة", link: "#" },
+
+      ]} />
+      {Array.isArray(cartItems) && cartItems.length > 0 ? (
         <div className="flex items-start justify-between gap-6 mb-[43px]">
           <div className="flex-1">
             <div className="w-full flex flex-col gap-2">
@@ -170,7 +171,7 @@ const CartPage = () => {
                   <span className="text-text text-2xl font-medium">
                     عدد العناصر:{" "}
                   </span>
-                  <span className="text-secondary text-2xl font-bold">5</span>
+                  <span className="text-secondary text-2xl font-bold">{cartItems.length}</span>
                 </div>
                 <div
                   onClick={() => setCartItems([])}
@@ -181,13 +182,19 @@ const CartPage = () => {
               </div>
               <div className="flex flex-col gap">
                 {cartItems.map((item, index) => (
-                  <CartItem key={index} data={item} />
+                  <CartItem
+                    key={index}
+                    data={item}
+                    onRemove={() =>
+                      setCartItems((prev) => prev.filter((_, i) => i !== index))
+                    }
+                  />
                 ))}
               </div>
             </div>
           </div>
           <div>
-            <CardSummery />
+            <CardSummery  />
           </div>
         </div>
       ) : (

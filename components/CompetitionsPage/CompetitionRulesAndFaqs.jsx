@@ -26,7 +26,7 @@ const CompetitionRulesAndFaqs = () => {
 
   return (
     <div className="mt-[32px]">
-      <div class="self-stretch text-center justify-center text-primary text-3xl font-bold font-['Cairo']">
+      <div class="self-stretch text-center justify-center text-primary text-3xl font-bold ">
         قواعد المسابقة و االأسئلة الشائعة
       </div>
 

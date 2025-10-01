@@ -54,7 +54,7 @@ const ExamResults = ({show , setShow}) => {
         ))}
       </div>
 
-      <button className="mt-[56px] hover:scale-105 transition flex w-[234px] mr-auto items-center justify-center gap-2.5 px-20 py-6 rounded-[20px] bg-gradient-to-r from-primary to-secondary">
+      <button onClick={()=> setShow(false)} className="mt-[56px] hover:scale-105 transition flex w-[234px] mr-auto items-center justify-center gap-2.5 px-20 py-6 rounded-[20px] bg-gradient-to-r from-primary to-secondary">
         <div className="font-bold text-white text-base leading-[50px]">
           إنهاء
         </div>

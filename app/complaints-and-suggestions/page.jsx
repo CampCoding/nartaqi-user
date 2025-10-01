@@ -22,15 +22,15 @@ const ComplaintsAndSuggestions = () => {
       />
 
       <div className="container mx-auto px-[64px] my-[48px]">
-        <div className="text-right justify-center text-secondary text-3xl mb-[48px] font-bold font-['Cairo']">
+        <div className="text-right justify-center text-secondary text-3xl mb-[48px] font-bold ">
           الشكاوى والمقترحات
         </div>
         <div className="flex flex-col gap-[32px] mb-[48px]">
           <div className="self-stretch inline-flex flex-col justify-start items-end gap-4">
-            <div className="self-stretch text-right justify-center text-zinc-800 text-2xl font-bold font-['Cairo']">
+            <div className="self-stretch text-right justify-center text-zinc-800 text-2xl font-bold ">
               آليه الشكاوي والمقترحات
             </div>
-            <div className="self-stretch text-right justify-center text-text-alt leading-loose text-base font-semibold font-['Cairo']">
+            <div className="self-stretch text-right justify-center text-text-alt leading-loose text-base font-semibold ">
               انطلاقا من قيم المركز في خدمة والاهتمام بالمستفيدين وانسجاما مع
               رؤية المركز القائمة على الفعالية والشفافية والجودة، تم فتح (إدارة
               الشكاوى و المقترحات ) استجابة لتطلعات مختلف فئات المستفيدين
@@ -40,10 +40,10 @@ const ComplaintsAndSuggestions = () => {
           </div>
 
           <div className="self-stretch inline-flex flex-col justify-start items-end gap-4">
-            <div className="self-stretch text-right justify-center text-zinc-800 text-2xl font-bold font-['Cairo']">
+            <div className="self-stretch text-right justify-center text-zinc-800 text-2xl font-bold ">
               آلية التعامل مع الشكاوي:
             </div>
-            <div className="self-stretch text-right justify-center text-text-alt leading-loose text-base font-semibold font-['Cairo']">
+            <div className="self-stretch text-right justify-center text-text-alt leading-loose text-base font-semibold ">
               1- يتم تقديم الشكوى من خلال القنوات المتاحة مع ضرورة ذكر البيانات
               المطلوبة وأرقام التواصل. <br /> 2- يتم تسجيل الشكوى وإحالتها إلى
               الادارة المعنية. <br /> 3- يقوم فريق مختص ببحث الشكوى من خلال
@@ -56,10 +56,10 @@ const ComplaintsAndSuggestions = () => {
             </div>
 
             <div className="self-stretch inline-flex flex-col justify-start items-end gap-4">
-              <div className="self-stretch text-right justify-center text-zinc-800 text-2xl font-bold font-['Cairo']">
+              <div className="self-stretch text-right justify-center text-zinc-800 text-2xl font-bold ">
                 المدة المتوقعة لإغلاق الشكوى :
               </div>
-              <div className="self-stretch text-right justify-center text-text-alt leading-loose text-base font-semibold font-['Cairo']">
+              <div className="self-stretch text-right justify-center text-text-alt leading-loose text-base font-semibold ">
                 يتم معالجة المشاكل الأساسية (غير التقنية) خلال 24 ساعة من وقت
                 الرد <br /> بينما يتم معالجة المشاكل التقنية خلال أسبوع إلى
                 أسبوعين <br /> وفي حال لم يتم الالتزام بالأوقات المذكورة، يتم
@@ -68,11 +68,11 @@ const ComplaintsAndSuggestions = () => {
             </div>
 
             <div className="self-stretch inline-flex flex-col justify-start items-end gap-4">
-              <div className="self-stretch text-right justify-center text-zinc-800 text-2xl font-bold font-['Cairo']">
+              <div className="self-stretch text-right justify-center text-zinc-800 text-2xl font-bold ">
                 آلية التعامل مع المقترحات:
               </div>
               <div className="self-stretch text-right justify-center">
-                <span className="text-text-alt leading-loose text-base font-semibold font-['Cairo']">
+                <span className="text-text-alt leading-loose text-base font-semibold ">
                   1- يتم تقديم المقترح من خلال القنوات المتاحة مع ضرورة ذكر
                   البيانات المطلوبة وأرقام التواصل. <br /> 2- يتم تسجيل المقترح
                   وإحالته إلى الإدارة المعنية. <br /> 3- يتم التواصل مع مقدم
@@ -84,13 +84,13 @@ const ComplaintsAndSuggestions = () => {
                   <br />
                   الواتس اب : 
                 </span>
-                <span className="text-primary text-base font-bold font-['Cairo']">
+                <span className="text-primary text-base font-bold ">
                   966559513555
                 </span>
-                <span className="text-text-alt leading-loose text-base font-semibold font-['Cairo']">
+                <span className="text-text-alt leading-loose text-base font-semibold ">
                   <br /> البريد الالكتروني :
                 </span>
-                <span className="text-primary text-base font-bold font-['Cairo']">
+                <span className="text-primary text-base font-bold ">
                    qudrat@albaraah.sa
                 </span>
               </div>

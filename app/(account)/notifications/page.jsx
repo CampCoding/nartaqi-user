@@ -38,10 +38,10 @@ export const NotificationRow = () => {
       <NotificationIcon />
 
       <div className=" !leading-loose flex flex-col gap-2 items-end  w-[507px]  relative">
-        <div className=" !leading-loose  text-black text-base font-normal font-['Cairo']">
+        <div className=" !leading-loose  text-black text-base font-normal ">
           تمت الموافقة على طلب سحب جديد بقيمة 500 ر.س.
         </div>{" "}
-        <div className=" !leading-loose text-text-alt text-sm font-normal font-['Cairo']">
+        <div className=" !leading-loose text-text-alt text-sm font-normal ">
           منذ 10 دقائق
         </div>{" "}
       </div>

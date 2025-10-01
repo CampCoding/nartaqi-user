@@ -6,6 +6,7 @@ import "swiper/css/free-mode";
 import { FreeMode, Mousewheel, Navigation } from "swiper/modules";
 
 import CoursesCategoryCard from "./../ui/Cards/CoursesCategoryCard";
+import Link from "next/link";
 
 const HomeSection2 = () => {
   const CoursesCategoryCardData = [
@@ -80,7 +81,10 @@ const HomeSection2 = () => {
         >
           {CoursesCategoryCardData?.map((item, index) => (
             <SwiperSlide key={index} className="!w-fit">
+                          <Link href={"/courses/123"}>
+
               <CoursesCategoryCard data={item} color="var(--color-primary)" />
+              </Link>
             </SwiperSlide>
           ))}
         </Swiper>

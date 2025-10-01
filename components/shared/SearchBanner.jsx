@@ -6,6 +6,7 @@ import LicturerCard from "./../ui/Cards/LicturerCard";
 import { ProductCard } from "./../Store/ProductCard";
 import { BlogCard } from "./../ui/Cards/BlogCard";
 import { ImageOff } from "lucide-react";
+import Link from "next/link";
 
 const SearchBanner = ({ openSearch, setOpenSearch }) => {
   const [textSearch, setTextSearch] = useState("");
@@ -49,7 +50,7 @@ const SearchBanner = ({ openSearch, setOpenSearch }) => {
 
       {textSearch && (
         <div className="container max-w-[1312px] mx-auto  mt-[48px] mb-[200px]">
-          <div className=" text-right justify-start text-text text-3xl font-bold font-['Cairo'] ">
+          <div className=" text-right justify-start text-text text-3xl font-bold  ">
             نتائج البحث (23)
           </div>
           <div className="mt-[24px] mb-[48px]">
@@ -90,7 +91,7 @@ export const Searchform = ({ onSearchClick }) => {
           <SearchIcon />
           <input
             onChange={(e) => setSearchValue(e.target.value)}
-            className="text-right justify-start text-text placeholder:!text-text-alt flex-1 w-full text-base font-semibold font-['Cairo'] "
+            className="text-right justify-start text-text placeholder:!text-text-alt flex-1 w-full text-base font-semibold  "
             placeholder="ابحث عن دورة، مدرب، أو موضوع…"
           />
         </div>
@@ -156,7 +157,7 @@ const XIcon = (props) => (
 const Courses = () => {
   return (
     <div className="">
-      <div className="self-stretch text-right justify-start text-text text-2xl font-bold font-['Cairo']">
+      <div className="self-stretch text-right justify-start text-text text-2xl font-bold ">
         دورات
       </div>
       <div className="grid grid-cols-3 gap-x-[48px] gap-y-[28px] mt-6">
@@ -172,7 +173,7 @@ const Courses = () => {
 const Lecturers = () => {
   return (
     <div className="">
-      <div className="self-stretch text-right justify-start text-text text-2xl font-bold font-['Cairo']">
+      <div className="self-stretch text-right justify-start text-text text-2xl font-bold ">
         محاضرين
       </div>
       <div className="grid grid-cols-4 gap-x-[29px] gap-y-[28px] mt-6">
@@ -190,7 +191,7 @@ const Lecturers = () => {
 const BooksAndBags = () => {
   return (
     <div className="">
-      <div className="self-stretch text-right justify-start text-text text-2xl font-bold font-['Cairo']">
+      <div className="self-stretch text-right justify-start text-text text-2xl font-bold ">
         كتب وحقائب
       </div>
       <div className="grid grid-cols-4 gap-x-[29px] gap-y-[28px] mt-6">
@@ -212,7 +213,7 @@ const BooksAndBags = () => {
 const Blogs = () => {
   return (
     <div className="">
-      <div className="self-stretch text-right justify-start text-text text-2xl font-bold font-['Cairo']">
+      <div className="self-stretch text-right justify-start text-text text-2xl font-bold ">
         مدونات
       </div>
       <div className="grid grid-cols-3 gap-x-[29px] gap-y-[28px] mt-6">
@@ -224,7 +225,10 @@ const Blogs = () => {
           "/images/FRAME (2).png",
           "/images/FRAME.png",
         ].map((item, index) => (
+          <Link href={"/blogs/blog-details/123"}>
+
           <BlogCard freeWidth={true} key={index} image={item} />
+          </Link>
         ))}
         {/*  */}
       </div>

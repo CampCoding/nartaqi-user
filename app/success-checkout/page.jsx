@@ -2,14 +2,16 @@
 
 import React from "react";
 import CourseTitle from "./../../components/CourseDetailsPage/CourseTitle";
+import Link from "next/link";
 
 const SuccessCheckout = () => {
   return (
     <div className="container mx-auto px-[64px]">
       <CourseTitle title={"الدفع"} />
-
-      <img src="/images/Image_fx 1.svg" alt="" />
-      <BackToHome />
+      <div className="max-w-[834.56px] mx-auto">
+        <img src="/images/Image_fx 1.svg" alt="" />
+        <BackToHome />
+      </div>
     </div>
   );
 };
@@ -23,20 +25,16 @@ export const BackToHome = () => {
   };
 
   return (
-    <div className="flex flex-col pt-[96px] pb-[158px]  w-full items-center justify-center  gap-12 relative">
-      <h1 className="self-stretch text-center text-text-alt text-[56px] relative mt-[-1.00px]  font-bold tracking-[0] leading-[normal] ">
+    <div className="flex flex-col pt-8 pb-[158px]  w-full items-center justify-center  gap-6 relative">
+      <div class="self-stretch text-center justify-center text-text-alt text-3xl font-bold font-['Cairo']">
         تمت عملية الدفع بنجاح , ابدا في التعلم الأن
-      </h1>
+      </div>
 
-      <button
-        onClick={handleReturnHome}
-        className="inline-flex items-center justify-center gap-2.5 px-14 py-6 relative flex-[0_0_auto] bg-primary rounded-[30px] hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
-        aria-label="العودة إلى الصفحة الرئيسية"
-      >
-        <span className="w-fit text-white text-[32px] relative mt-[-1.00px]  font-bold tracking-[0] leading-[normal] ">
-          العودة الي الرئيسية
-        </span>
-      </button>
+      <Link href={"/"} className="px-20 py-6 bg-orange-500 rounded-3xl inline-flex justify-center items-center gap-2.5">
+        <div className="text-right justify-center text-white text-base font-bold font-['Cairo']">
+          العودة إلى الرئيسية
+        </div>
+      </Link>
     </div>
   );
 };

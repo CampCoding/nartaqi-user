@@ -9,7 +9,7 @@ const RegisterCertificate = () => {
   const [isEmailMatchedOnManar, setIsEmailMatchedOnManar] = useState(null);
   const [isIdMatchedOnManar, setIsIdMatchedOnManar] = useState(null);
 
-  const [openInfoModal , setOpenInfoModal]  = useState(true)
+  const [openInfoModal , setOpenInfoModal]  = useState(false)
 
   return (
     <div>
@@ -28,7 +28,7 @@ const RegisterCertificate = () => {
         ]}
       />
 
-      <div className="container mx-auto px-[64px] mt-[48px] ">
+      <div className="container max-w-[1312px] mx-auto px-[64px] mt-[48px] ">
         <div className="px-4 my-6">
           <div className="  mx-auto flex flex-col w-[607px] items-center gap-6 relative">
             <div className="self-stretch mt-[-1.00px] text-text font-bold  text-[32px] text-center relative flex items-center justify-center tracking-[0] leading-[normal] ">
@@ -94,11 +94,11 @@ const RegisterCertificate = () => {
             />
           </div>
 
-          <div className="self-stretch w-full px-12 py-6 bg-secondary hover:bg-secondary-dark transition-all cursor-pointer mt-16 rounded-[20px] inline-flex justify-center items-center gap-2.5">
+          <button onClick={()=>setOpenInfoModal(true)} className="self-stretch w-full px-12 py-6 bg-secondary hover:bg-secondary-dark transition-all cursor-pointer mt-16 rounded-[20px] inline-flex justify-center items-center gap-2.5">
             <div className="text-right justify-center text-white text-2xl font-bold">
               تسجيل
             </div>
-          </div>
+          </button>
         </div>
       </div>
 
