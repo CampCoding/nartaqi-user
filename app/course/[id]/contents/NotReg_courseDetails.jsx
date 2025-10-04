@@ -11,15 +11,16 @@ const NotReg_courseDetails = () => {
           className="w-full h-full object-cover object-top"
           alt=""
         />
-        <div className="absolute top-[202px] !left-[65px]">
-          <CourseDetailsCard />
-        </div>
       </div>
 
-      {/* course details content */}
-      <div className="container mx-auto px-[64px] mt-[48px] mb-[139px]">
-        <div>
-          <CourseDetailsContent />
+      <div className=" mx-auto px-[64px] mt-[48px] mb-[139px] h-[300vh]">
+        <div className="flex justify-between">
+          <div className="max-w-[762px] ">
+            <CourseDetailsContent />
+          </div>
+          <div className=" grid grid-cols-1 gap-[80px] translate-y-[-441px]  ">
+            <CourseDetailsCard />
+          </div>
         </div>
       </div>
     </>

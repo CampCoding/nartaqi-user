@@ -36,7 +36,10 @@ const CourseCard = ({
           href={
             isRegistered ? "/course/123?reg=true&done=false" : "/course/123"
           }
-          className="flex-1 px-4 py-3 bg-secondary rounded-[10px] shadow-[0_4px_12px_rgba(249,115,22,0.4)] flex justify-center items-center gap-2.5"
+          className="flex-1 px-4 py-3 bg-secondary rounded-[10px] flex justify-center items-center gap-2.5 transition-shadow duration-200 hover:shadow-[0_4px_12px_var(--color-secondary,rgba(59,130,246,0.25))] "
+          // style={{
+          //   boxShadow: "0 4px 12px var(--color-secondary, rgba(59,130,246,0.25))",
+          // }}
         >
           <div className="justify-center text-bg text-sm font-semibold">
             {!isRegistered ? "التحق بالدورة" : "ادخل الدورة"}
@@ -183,23 +186,31 @@ const CourseCard = ({
         </div>
         <div className="self-stretch px-3 inline-flex justify-start items-center gap-8">
           <div className="flex justify-start items-center">
-            <div className="w-16 inline-flex flex-col justify-start items-center gap-1">
-              <div className="w-10 h-10 p-px bg-slate-300/20 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-zinc-500 inline-flex justify-center items-center gap-2">
+            <div className=" group cursor-pointer transition-all w-16 inline-flex flex-col justify-start items-center gap-1">
+              <div className="w-10 h-10 p-px transition-all bg-slate-300/20 rounded-[10px] outline  outline-1 outline-offset-[-1px] outline-zinc-500 group-hover:outline-secondary inline-flex justify-center items-center gap-2">
                 <div className="w-4 h-4 relative overflow-hidden">
-                  <FileTextIcon />
+                  <FileTextIcon
+                    className={
+                      "stroke-[#2D2D2D] transition-all group-hover:stroke-secondary"
+                    }
+                  />
                 </div>
               </div>
-              <div className="self-stretch text-center justify-center text-text text-[10px] font-normal ">
+              <div className="self-stretch text-center justify-center text-text group-hover:text-secondary  text-[10px] font-normal ">
                 جدول الدورة
               </div>
             </div>
-            <div className="w-16 inline-flex flex-col justify-start items-center gap-1">
-              <div className="w-10 h-10 p-px bg-slate-300/20 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-zinc-500 inline-flex justify-center items-center gap-2">
+            <div className=" group cursor-pointer w-16 inline-flex flex-col justify-start items-center gap-1">
+              <div className="w-10 h-10 p-px bg-slate-300/20 rounded-[10px] outline outline-1 group-hover:outline-secondary outline-offset-[-1px] outline-zinc-500 inline-flex justify-center items-center gap-2">
                 <div className="w-4 h-4 relative overflow-hidden">
-                  <ShareIcon />
+                  <ShareIcon
+                    className={
+                      "stroke-[#2D2D2D] transition-all group-hover:stroke-secondary"
+                    }
+                  />
                 </div>
               </div>
-              <div className="self-stretch text-center justify-center text-text text-[10px] font-normal ">
+              <div className="self-stretch group-hover:text-secondary text-center justify-center text-text text-[10px] font-normal ">
                 مشاركة
               </div>
             </div>
@@ -216,10 +227,10 @@ export default CourseCard;
 const FavIcon = ({ isFav = false, onClick = () => null }) => {
   return (
     <div
-    onClick={onClick}
+      onClick={onClick}
       data-property-1="true"
       className={`w-8 h-8 relative z-40 cursor-pointer ${
-        isFav ? "bg-secondary" : "bg-transparent border border-white"
+        isFav ? "bg-secondary" : " border border-white"
       }  rounded-[10px]  inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden`}
     >
       <svg
@@ -229,10 +240,10 @@ const FavIcon = ({ isFav = false, onClick = () => null }) => {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         // {...props}
+        className="fill-white"
       >
         <path
           d="M9 16C8.79 16 8.5764 15.9623 8.3592 15.8868C8.142 15.8114 7.9506 15.6907 7.785 15.5248L6.2325 14.099C4.6425 12.6355 3.2061 11.1836 1.9233 9.74303C0.6405 8.3025 -0.000599579 6.71442 4.20757e-07 4.97878C4.20757e-07 3.56058 0.472501 2.37624 1.4175 1.42574C2.3625 0.475247 3.54 0 4.95 0C5.745 0 6.495 0.16958 7.2 0.508741C7.905 0.847902 8.505 1.31198 9 1.90099C9.495 1.31259 10.095 0.848807 10.8 0.509646C11.505 0.170486 12.255 0.000603489 13.05 0C14.46 0 15.6375 0.475247 16.5825 1.42574C17.5275 2.37624 18 3.56058 18 4.97878C18 6.71381 17.3625 8.30552 16.0875 9.75389C14.8125 11.2023 13.365 12.6582 11.745 14.1216L10.215 15.5248C10.05 15.6907 9.8589 15.8114 9.6417 15.8868C9.4245 15.9623 9.2106 16 9 16Z"
-          fill="white"
         />
       </svg>
     </div>

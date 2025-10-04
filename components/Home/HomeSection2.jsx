@@ -30,16 +30,8 @@ const HomeSection2 = () => {
       title: "التكنولوجيا التعليمية",
       courses: 15,
     },
-    {
-      image: "/images/Frame 1000004852.png",
-      title: " إدارة الفصل الدراسي",
-      courses: 15,
-    },
-    {
-      image: "/images/Frame 1000004849.png",
-      title: " منهجيات التدريس",
-      courses: 15,
-    },
+
+    
   ];
 
   return (
@@ -54,15 +46,25 @@ const HomeSection2 = () => {
         </div>
 
         {/* زر عرض المزيد */}
-        <div className="inline-flex items-center justify-center gap-2.5 px-8 py-5 relative bg-bg rounded-[25px] border border-solid border-primary">
-          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold text-primary text-2xl text-left leading-8 whitespace-nowrap">
+        <div className="inline-flex group  items-center justify-center gap-2.5 px-8 py-5 relative bg-bg rounded-[25px] border border-solid border-primary hover:bg-primary cursor-pointer transition-all">
+          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold group-hover:text-white text-primary text-xl text-left leading-8 whitespace-nowrap">
             عرض المزيد
           </div>
         </div>
       </div>
 
       {/* السلايدر */}
-      <div className="mr-[64px]">
+
+      <div className="container mx-auto px-[64px] gap-6  grid grid-cols-4 ">
+        {CoursesCategoryCardData?.map((item, index) => (
+          <Link href={"/courses/123"} key={index}>
+            <CoursesCategoryCard color="primary" data={item} freeWidth={true} />
+          </Link>
+        ))}
+      </div>
+
+
+      {/* <div className="mr-[64px]">
         <Swiper
           slidesPerView="auto"
           spaceBetween={24}
@@ -88,7 +90,7 @@ const HomeSection2 = () => {
             </SwiperSlide>
           ))}
         </Swiper>
-      </div>
+      </div> */}
     </div>
   );
 };

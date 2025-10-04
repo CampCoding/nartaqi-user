@@ -308,7 +308,6 @@ export const ShareIcon = (props) => (
       cx={12}
       cy={3.3335}
       r={2}
-      stroke="#2D2D2D"
       strokeWidth={1.33333}
       strokeLinejoin="round"
     />
@@ -316,7 +315,6 @@ export const ShareIcon = (props) => (
       cx={4}
       cy={8}
       r={2}
-      stroke="#2D2D2D"
       strokeWidth={1.33333}
       strokeLinejoin="round"
     />
@@ -324,20 +322,17 @@ export const ShareIcon = (props) => (
       cx={12}
       cy={12.6665}
       r={2}
-      stroke="#2D2D2D"
       strokeWidth={1.33333}
       strokeLinejoin="round"
     />
     <path
       d="M5.72668 9.00684L10.28 11.6602"
-      stroke="#2D2D2D"
       strokeWidth={1.33333}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M10.2734 4.33984L5.72668 6.99318"
-      stroke="#2D2D2D"
       strokeWidth={1.33333}
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -356,34 +351,29 @@ export const FileTextIcon = (props) => (
   >
     <path
       d="M9.66669 1.3335H4.00002C3.63183 1.3335 3.31756 1.46367 3.05721 1.72402C2.79686 1.98437 2.66669 2.29864 2.66669 2.66683V13.3335C2.66669 13.7017 2.79686 14.016 3.05721 14.2763C3.31756 14.5367 3.63183 14.6668 4.00002 14.6668H12C12.3682 14.6668 12.6825 14.5367 12.9428 14.2763C13.2032 14.016 13.3334 13.7017 13.3334 13.3335V5.00016L9.66669 1.3335Z"
-      stroke="#2D2D2D"
       strokeWidth={1.33333}
       strokeLinejoin="round"
     />
     <path
       d="M9.33331 1.3335V5.3335H13.3333"
-      stroke="#2D2D2D"
       strokeWidth={1.33333}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M10.6666 8.6665H5.33331"
-      stroke="#2D2D2D"
       strokeWidth={1.33333}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M10.6666 11.3335H5.33331"
-      stroke="#2D2D2D"
       strokeWidth={1.33333}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M6.66665 6H5.33331"
-      stroke="#2D2D2D"
       strokeWidth={1.33333}
       strokeLinecap="round"
       strokeLinejoin="round"

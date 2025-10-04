@@ -106,7 +106,7 @@ export const Frame = () => {
           </header>
           <ul className="flex flex-col w-[304px] h-[132px]  gap-2 relative">
             {aboutPlatform.map((link, index) => (
-              <li key={index} className="flex  h-5 items-center  relative">
+              <li key={index} className="flex   items-center  relative">
                 <Link
                   href={link.href}
                   className={`${link.width}  font-inter text-sm leading-5 relative self-stretch text-neutral-50  hover:text-neutral-200 focus:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 focus:ring-offset-transparent transition-colors duration-200`}
@@ -130,7 +130,7 @@ export const Frame = () => {
           </header>
           <ul className="flex flex-col w-[304px] h-[132px]  gap-2 relative">
             {quickLinks.map((link, index) => (
-              <li key={index} className="flex  h-5 items-center  relative">
+              <li key={index} className="flex   items-center  relative">
                 <Link
                   href={link.href}
                   className={`${link.width}  font-inter text-sm leading-5 relative self-stretch text-neutral-50  hover:text-neutral-200 focus:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 focus:ring-offset-transparent transition-colors duration-200`}
@@ -154,11 +154,11 @@ export const Frame = () => {
               </h2>
             </header>
 
-            <div className="flex flex-col mt-4 text-end w-[304px] h-[92px] items-start gap-4 ">
+            <div className="flex flex-col mt-4 text-end w-[304px]  items-start gap-4 ">
               {contactInfo?.map((contact) => (
                 <div
                   key={contact.id}
-                  className="flex w-[304px] h-5 items-center  relative"
+                  className="flex w-[304px]  items-center  relative"
                 >
                   <div
                     className="items-start inline-flex h-4 relative flex-[0_0_auto]"

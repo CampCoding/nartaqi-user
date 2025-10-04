@@ -1,4 +1,5 @@
 import { Cairo, Noto_Sans_Arabic } from "next/font/google";
+import "antd/dist/reset.css";
 import "./globals.css";
 import Header from "../components/shared/Topbar";
 import Footer from "../components/shared/Footer";

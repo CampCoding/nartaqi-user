@@ -30,16 +30,6 @@ const HomeSection1 = () => {
       title: "التكنولوجيا التعليمية",
       courses: 15,
     },
-    {
-      image: "/images/Frame 1000004852.png",
-      title: " إدارة الفصل الدراسي",
-      courses: 15,
-    },
-    {
-      image: "/images/Frame 1000004849.png",
-      title: " منهجيات التدريس",
-      courses: 15,
-    },
   ];
 
   return (
@@ -54,15 +44,24 @@ const HomeSection1 = () => {
         </div>
 
         {/* زر عرض المزيد */}
-        <div className="inline-flex items-center justify-center gap-2.5 px-8 py-5 relative bg-bg rounded-[25px] border border-solid border-secondary">
-          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold text-secondary text-2xl text-left leading-8 whitespace-nowrap ">
+        <div className="inline-flex items-center justify-center gap-2.5 px-8 py-5 relative bg-bg rounded-[25px] border border-solid border-secondary hover:bg-secondary hover:text-white group cursor-pointer transition-all duration-300 ease-in-out">
+          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold group-hover:text-white text-secondary text-xl text-left leading-8 whitespace-nowrap ">
             عرض المزيد
           </div>
         </div>
       </div>
 
       {/* سلايدر */}
-      <div className="mr-[64px]">
+
+      <div className="container mx-auto px-[64px] gap-6  grid grid-cols-4 ">
+        {CoursesCategoryCardData?.map((item, index) => (
+          <Link href={"/courses/123"} key={index}>
+            <CoursesCategoryCard  data={item} freeWidth={true} />
+          </Link>
+        ))}
+      </div>
+
+      {/* <div className="mr-[64px]">
         <Swiper
           slidesPerView="auto"
           spaceBetween={24}
@@ -82,12 +81,12 @@ const HomeSection1 = () => {
           {CoursesCategoryCardData?.map((item, index) => (
             <SwiperSlide key={index} className="!w-fit">
               <Link href={"/courses/123"}>
-              <CoursesCategoryCard data={item} />
+                <CoursesCategoryCard data={item} />
               </Link>
             </SwiperSlide>
           ))}
         </Swiper>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -10,14 +10,24 @@ const TeachersCourses = () => {
       {/* variant = "large" or "normal" */}
       <PagesBanner
         variant={"normal"}
-        title="الرخصة المهنية"
+        title="احدث الدورات"
         image={"/images/Frame 1000005155.png"}
+        breadcrumb={[
+          {
+            title: "الرئيسية",
+            link: "/",
+          },
+          {
+            title: "احدث الدورات",
+            link: "#",
+          },
+        ]}
       />
-      <div className="container mx-auto px-[64px] mt-[32px]">
+      <div className="container mx-auto  w-full max-w-[1312px] mt-[32px]">
         <div className=" mb-[48px]">
           <CoursesFilters />
         </div>
-        <div className="grid grid-cols-3 gap-[48px] ">
+        <div className="grid grid-cols-3 gap-[24px] ">
           <CourseCard
             isRegistered
             freeWidth={true}

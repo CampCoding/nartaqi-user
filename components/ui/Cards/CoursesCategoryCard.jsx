@@ -1,9 +1,21 @@
 import React from "react";
 
-const CoursesCategoryCard = ({ data, color = "var(--color-secondary)" }) => {
+const CoursesCategoryCard = ({
+  data,
+  color = "secondary",
+  freeWidth = false,
+}) => {
+  const [buttonColor, setbuttonColor] = React.useState("secondary");
+
+  React.useEffect(() => {
+    if (color) setbuttonColor(color);
+  }, [color]);
+
   return (
     <div
-      className="relative cursor-pointer  group w-[267px] h-[350px] rounded-[25px] bg-[linear-gradient(180deg,rgba(0,0,0,0)_60%,rgba(0,0,0,1)_100%)]"
+      className={`group   relative cursor-pointer   ${
+        freeWidth ? "w-full" : "w-[267px]"
+      } h-[400px] rounded-[20px] shadow-2xl bg-[linear-gradient(180deg,rgba(0,0,0,0)_60%,rgba(0,0,0,1)_100%)]`}
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,1) 100%), url('${data?.image}')`,
         backgroundSize: "cover",
@@ -11,8 +23,8 @@ const CoursesCategoryCard = ({ data, color = "var(--color-secondary)" }) => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="inline-flex items-center gap-[62px] relative top-[290px]">
-        <div className="inline-flex flex-col items-start gap-1 relative flex-[0_0_auto]">
+      <div className="flex absolute bottom-0 items-center justify-between px-[20px] w-full  gap-[62px]  top-[290px]">
+        <div className=" flex flex-col items-start gap-1 relative ">
           <div className="relative w-fit mt-[-0.58px] font-semibold text-bg text-base text-left leading-[19.2px] whitespace-nowrap ">
             {data?.title}
           </div>
@@ -22,9 +34,13 @@ const CoursesCategoryCard = ({ data, color = "var(--color-secondary)" }) => {
           </div>
         </div>
 
-        <div className="group-hover:scale-125 cursor-pointer transition flex w-10 h-10 items-center justify-center gap-[5.8px] p-[11.61px] relative bg-bg rounded-full overflow-hidden shadow-[0px_2.32px_2.32px_#00000040] aspect-[1]">
+        <div
+          className={`group-hover:scale-125 group-hover:!bg-${buttonColor} cursor-pointer  transition flex min-w-[40px] min-h-[40px] items-center justify-center gap-[5.8px] p-[11.61px] relative bg-white    rounded-full overflow-hidden shadow-[0px_2.32px_2.32px_#00000040] aspect-[1]`}
+        >
           <div className="relative w-6 h-6 aspect-[1]">
-            <ChevronLeft className="fill-secondary " />
+            <ChevronLeft
+              className={`   fill-${buttonColor}  group-hover:fill-${"white"} transition `}
+            />
           </div>
         </div>
       </div>

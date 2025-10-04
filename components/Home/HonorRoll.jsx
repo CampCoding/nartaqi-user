@@ -61,89 +61,117 @@ export const arrowLeft = (
 const firstsStudents = [
   {
     name: "إيهاب توفيق حسن",
-    title: "تخصص غير محدد",
+    title: "تاريخ",
     percentage: "79%",
   },
   {
     name: "سارة عبد الله المطيري",
     title: "إدارة الأعمال",
     percentage: "96%",
-    note: "إنجازات العام الحالي مع ميزات متنوعة",
+    note: "تميز في القيادة وتنظيم المشاريع",
   },
   {
     name: "أحمد محمد الفاروق",
     title: "علم الحاسوب",
     percentage: "98%",
-    note: "أداء متطور وابتكار في العمل",
+    note: "ابتكار في الذكاء الاصطناعي وتطوير البرمجيات",
   },
   {
     name: "خالد عمر الحربي",
-    title: "Mechanical Engineering",
-    percentage: "94%",
-    note: "التزام الجدي بالإنجازات المستمرة طوال العام",
+    title: "الهندسة الميكانيكية",
+    percentage: "91%",
+    note: "تفوق في تصميم الأنظمة الحرارية",
   },
   {
     name: "ليلى عبد اللطيف",
-    title: "تخصص غير محدد",
+    title: "الفيزياء",
+    percentage: "88%",
+    note: "إبداع في البحوث والتجارب العلمية",
+  },
+  {
+    name: "منى علي القحطاني",
+    title: "الكيمياء",
+    percentage: "85%",
+  },
+  {
+    name: "يوسف خالد الزهراني",
+    title: "الهندسة الكهربائية",
+    percentage: "93%",
+    note: "مشاريع في الطاقة المتجددة والتحكم",
+  },
+  {
+    name: "هند سامي الشريف",
+    title: "علوم الأحياء",
+    percentage: "90%",
+    note: "بحوث مميزة في الوراثة والتقنيات الحيوية",
+  },
+  {
+    name: "محمود عبد الرحمن",
+    title: "القانون",
+    percentage: "82%",
+  },
+  {
+    name: "نورة سعيد الشهري",
+    title: "التمريض",
+    percentage: "95%",
+    note: "خدمة إنسانية عالية ومهارات متقدمة",
+  },
+  {
+    name: "فهد ماجد العتيبي",
+    title: "علوم سياسية",
+    percentage: "87%",
+  },
+  {
+    name: "ريم حسن الأنصاري",
+    title: "التربية",
     percentage: "92%",
+    note: "ابتكار في أساليب التعليم الحديثة",
   },
   {
-    name: "إيهاب توفيق حسن",
-    title: "تخصص غير محدد",
-    percentage: "79%",
+    name: "طارق عبد الله مراد",
+    title: "الهندسة المدنية",
+    percentage: "89%",
   },
   {
-    name: "سارة عبد الله المطيري",
-    title: "إدارة الأعمال",
-    percentage: "96%",
-    note: "إنجازات العام الحالي مع ميزات متنوعة",
+    name: "هالة محمد منصور",
+    title: "الطب البشري",
+    percentage: "97%",
+    note: "إنجازات في مجال الجراحة والتشخيص",
   },
   {
-    name: "أحمد محمد الفاروق",
-    title: "علم الحاسوب",
-    percentage: "98%",
-    note: "أداء متطور وابتكار في العمل",
-  },
-  {
-    name: "خالد عمر الحربي",
-    title: "Mechanical Engineering",
-    percentage: "94%",
-    note: "التزام الجدي بالإنجازات المستمرة طوال العام",
-  },
-  {
-    name: "ليلى عبد اللطيف",
-    title: "تخصص غير محدد",
-    percentage: "92%",
-  },
-  {
-    name: "إيهاب توفيق حسن",
-    title: "تخصص غير محدد",
-    percentage: "79%",
-  },
-  {
-    name: "سارة عبد الله المطيري",
-    title: "إدارة الأعمال",
-    percentage: "96%",
-    note: "إنجازات العام الحالي مع ميزات متنوعة",
-  },
-  {
-    name: "أحمد محمد الفاروق",
-    title: "علم الحاسوب",
-    percentage: "98%",
-    note: "أداء متطور وابتكار في العمل",
-  },
-  {
-    name: "خالد عمر الحربي",
-    title: "Mechanical Engineering",
-    percentage: "94%",
-    note: "التزام الجدي بالإنجازات المستمرة طوال العام",
-  },
-  {
-    name: "ليلى عبد اللطيف",
-    title: "تخصص غير محدد",
-    percentage: "92%",
+    name: "سعيد ناصر العبدلي",
+    title: "علوم الأرض",
+    percentage: "80%",
   },
 ];
+
+
+// 1. نحدد أعلى نسبة
+const maxIndex = firstsStudents.reduce((maxIdx, student, idx, arr) => {
+  return parseInt(student.percentage) > parseInt(arr[maxIdx].percentage)
+    ? idx
+    : maxIdx;
+}, 0);
+
+// 2. نجيب العنصر صاحب أعلى نسبة
+const [maxStudent] = firstsStudents.splice(maxIndex, 1);
+
+// 3. نحدد منتصف المصفوفة
+const middleIndex = Math.floor(firstsStudents.length / 2);
+
+// 4. ندخل الطالب في المنتصف
+firstsStudents.splice(middleIndex, 0, maxStudent);
+console.log("firstsStudents" , firstsStudents)
+
+const newmaxIndex = firstsStudents.reduce((maxIdx, student, idx, arr) => {
+  const current = parseInt(student.percentage.replace("%", ""));
+  const max = parseInt(arr[maxIdx].percentage.replace("%", ""));
+  return current > max ? idx : maxIdx;
+}, 0);
+
+
+console.log("newmaxIndex" , newmaxIndex)
+
 
 const SwiperEffect = () => {
   // Sort and restructure the array before rendering
@@ -176,65 +204,87 @@ const SwiperEffect = () => {
           أغسطس 2025
         </p>
       </div>
+      <div className="w-full flex items-center justify-center container mx-auto">
+        <Swiper
+          loopFillGroupWithBlank={true}
+          // ------------------------
+          effect={"coverflow"}
+          grabCursor={true}
+          centeredSlides={true}
+          // slidesPerView={"auto"}
+          // pagination={true}
+          initialSlide={newmaxIndex} // يبدأ من النص
+          spaceBetween={0}
+          // loop={true}
+          navigation={{
+            nextEl: ".custom-next",
+            prevEl: ".custom-prev",
+          }}
+          breakpoints={{
+            0: {
+              slidesPerView: 1,
+              spaceBetween: 0,
+            },
+            480: {
+              slidesPerView: 1.5, // موبايلات كبيرة
+              spaceBetween: 10,
+            },
+            640: {
+              slidesPerView: 2, // تابلت صغير
+              spaceBetween: 10,
+            },
+            768: {
+              slidesPerView: 2.5, // تابلت أفقي
+              spaceBetween: 15,
+            },
+            1024: {
+              slidesPerView: 3, // لابتوب متوسط
+              spaceBetween: 20,
+            },
+            1280: {
+              slidesPerView: 4, // شاشات أكبر
+              spaceBetween: 20,
+            },
+            1536: {
+              slidesPerView: 5, // ديسكتوب عريض أو 2K
+              spaceBetween: 30,
+            },
+            1920: {
+              slidesPerView: 6, // شاشات 1080p واسعة
+              spaceBetween: 30,
+            },
+          }}
+          autoplay={{
+            delay: 2500,
+            disableOnInteraction: false,
+          }}
+          modules={[EffectCoverflow, Pagination, Navigation]}
+          coverflowEffect={{
+            rotate: 10,
+            stretch: 10,
+            depth: 200,
+            modifier: 1,
+          }}
+          className="mySwiper !p-[86px]"
+        >
+          {firstsStudents?.map((item, index) => (
+            <SwiperSlide key={index} className="swiper-slide">
+              <FirstsCard
+                data={item}
+                icon={usersIcons[Math.floor(Math.random() * usersIcons.length)]}
+              />
+            </SwiperSlide>
+          ))}
 
-      <Swiper
-        loopFillGroupWithBlank={true}
-        // ------------------------
-        effect={"coverflow"}
-        grabCursor={true}
-        centeredSlides={true}
-        // slidesPerView={"auto"}
-        // pagination={true}
-        spaceBetween={0}
-        loop={true}
-        navigation={{
-          nextEl: ".custom-next",
-          prevEl: ".custom-prev",
-        }}
-        breakpoints={{
-          0: {
-            slidesPerView: 1,
-            spaceBetween: 0,
-          },
-          768: {
-            slidesPerView: 2,
-            spaceBetween: 0,
-          },
-          1024: {
-            slidesPerView: 4,
-            spaceBetween: 0,
-          },
-        }}
-        autoplay={{
-          delay: 2500,
-          disableOnInteraction: false,
-        }}
-        modules={[EffectCoverflow, Pagination, Navigation]}
-        coverflowEffect={{
-          rotate: 10,
-          stretch: 50,
-          depth: 200,
-          modifier: 1,
-        }}
-        className="mySwiper !p-[86px]"
-      >
-        {arrangedStudents?.map((item, index) => (
-          <SwiperSlide key={index} className="swiper-slide">
-            <FirstsCard
-              data={item}
-              icon={usersIcons[Math.floor(Math.random() * usersIcons.length)]}
-            />
-          </SwiperSlide>
-        ))}
-
-        <div className="custom-navigation pet_food">
-          {/* <div className="custom-prev">{arrowLeft}</div>
+          <div className="custom-navigation pet_food">
+            {/* <div className="custom-prev">{arrowLeft}</div>
           <div className="custom-next">{arrowRight}</div> */}
-        </div>
+          </div>
 
-        {/* <div className="custom-prev">{arrowLeft}</div>
+          {/* <div className="custom-prev">{arrowLeft}</div>
     <div className="custom-next">{arrowRight}</div> */}
-      </Swiper>
+        </Swiper>
+      </div>
     </div>
   );
 };

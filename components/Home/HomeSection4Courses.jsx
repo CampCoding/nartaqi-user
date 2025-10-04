@@ -3,10 +3,11 @@ import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/free-mode";
-import { FreeMode, Mousewheel, Navigation } from "swiper/modules";
+import { FreeMode, Mousewheel, Navigation, Autoplay } from "swiper/modules";
 
 import CoursesCategoryCard from "./../ui/Cards/CoursesCategoryCard";
 import CourseCard from "../ui/Cards/CourseCard";
+import Link from "next/link";
 
 const HomeSection4Courses = () => {
   const CoursesCategoryCardData = [
@@ -40,12 +41,28 @@ const HomeSection4Courses = () => {
       title: " منهجيات التدريس",
       courses: 15,
     },
+    {
+      image: "/images/Frame 1000004851.png",
+      title: "التكنولوجيا التعليمية",
+      courses: 15,
+    },
+    {
+      image: "/images/Frame 1000004852.png",
+      title: " إدارة الفصل الدراسي",
+      courses: 15,
+    },
+    {
+      image: "/images/Frame 1000004849.png",
+      title: " منهجيات التدريس",
+      courses: 15,
+    },
+
   ];
 
   return (
-    <div>
+    <div className="container mx-auto px-[64px] mt-[74px]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 container mx-auto px-[64px] mt-[74px]">
+      <div className="flex items-center justify-between mb-8 ">
         {/* العنوان */}
         <div className="flex w-[261px] items-center justify-center gap-2.5 px-14 py-8 relative rounded-[25px] bg-gradient-to-r from-primary to-secondary">
           <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-bg text-2xl text-left leading-5 whitespace-nowrap ">
@@ -54,25 +71,38 @@ const HomeSection4Courses = () => {
         </div>
 
         {/* زر عرض المزيد */}
-        <div className="inline-flex items-center justify-center gap-2.5 px-8 py-5 relative bg-bg rounded-[25px] border-[none] 
+        <div
+          className="inline-flex items-center justify-center gap-2.5 px-8 py-5 relative bg-bg rounded-[25px] border-[none] 
                         before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[25px] 
                         before:[background:linear-gradient(90deg,var(--color-primary)_0%,var(--color-secondary)_100%)] 
                         before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] 
-                        before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none">
-          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] 
+                        before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none
+                        transition-all duration-200 cursor-pointer hover:scale-105 hover:shadow-lg"
+        >
+          <Link href={"/courses/newest"}
+            className="relative flex items-center justify-center w-fit mt-[-1.00px] 
                           bg-gradient-to-r from-primary to-secondary 
                           [-webkit-background-clip:text] bg-clip-text 
-                          text-transparent font-semibold text-2xl text-left leading-8 whitespace-nowrap ">
+                          text-transparent font-semibold text-xl text-left leading-8 whitespace-nowrap 
+                          transition-all duration-200 group-hover:text-white group-hover:bg-none"
+          >
             عرض المزيد
-          </div>
+          </Link>
         </div>
       </div>
 
       {/* السلايدر */}
-      <div className="mr-[64px]">
+      <div className="">
+        {/* <div className="  gap-[30px]  grid grid-cols-3 ">
+          {CoursesCategoryCardData?.map((item, index) => (
+              <CourseCard freeWidth data={item} color="var(--color-primary)" />
+          ))}
+        </div> */}
+
         <Swiper
           slidesPerView="auto"
           spaceBetween={24}
+          autoplay={{ delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true }}
           freeMode={{
             enabled: true,
             momentum: true,
@@ -83,7 +113,7 @@ const HomeSection4Courses = () => {
             prevEl: ".swiper-button-prev",
             nextEl: ".swiper-button-next",
           }}
-          modules={[FreeMode, Mousewheel, Navigation]}
+          modules={[FreeMode, Mousewheel, Navigation, Autoplay]}
           className="w-full relative pb-8"
         >
           {CoursesCategoryCardData?.map((item, index) => (

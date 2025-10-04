@@ -197,7 +197,7 @@ const BooksAndBags = () => {
       <div className="grid grid-cols-4 gap-x-[29px] gap-y-[28px] mt-6">
         {[
           "FRAME (5).png",
-          "FRAME (6).png",
+          "books.png",
           "FRAME (7).png",
           "FRAME (8).png",
           "FRAME (9).png",

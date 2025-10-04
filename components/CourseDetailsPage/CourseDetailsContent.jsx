@@ -20,7 +20,7 @@ const CourseDetailsContent = () => {
 
   return (
     <div className="flex flex-col gap-[56px]">
-      <div className="w-[762px] inline-flex justify-between items-center">
+      <div className=" inline-flex justify-between items-center">
         {tabs.map((tab) => (
           <div
             key={tab.value}
@@ -41,7 +41,7 @@ const CourseDetailsContent = () => {
           </div>
         ))}
       </div>
-      <div className="w-[762px]">
+      <div className="">
         {activeTab === "overview" && <CourseBriefOverview />}
         {activeTab === "content" && <CourseContent />}
         {activeTab === "features" && <CourseAdvantages />}
