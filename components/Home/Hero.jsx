@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import SwiperCore from "swiper";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
+import Container from "../ui/Container";
 
 export const HeaderHero = () => {
   const swiperRef = useRef(null);
@@ -31,9 +32,9 @@ export const HeaderHero = () => {
           flex: 1,
           color: "var(--color-bg)",
         }}
-        className=" w-full h-full pt-[48px] pb-[37px]  "
+        className=" w-full h-full pt-[48px] pb-[50px]  "
       >
-        <div className="flex container  px-[64px]  mx-auto items-end justify-between">
+        <Container className="flex items-end justify-between">
           <Swiper
             modules={[Autoplay]}
             onSwiper={(instance) => (swiperRef.current = instance)}
@@ -89,7 +90,7 @@ export const HeaderHero = () => {
               <HomeBannerArrowLeft className="!rotate-180 text-text group-hover:fill-white fill-text" />
             </div>
           </div>
-        </div>
+        </Container>
       </div>
     </div>
   );

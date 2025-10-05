@@ -24,7 +24,6 @@ const Leaderboard = () => {
           />
         </div>
       </div>
-
     </section>
   );
 };
@@ -46,7 +45,7 @@ export const Navs = () => {
 
   return (
     <div className="flex w-[1312px] h-fit mx-auto justify-between items-center relative">
-      <h1 className="flex text-primary font-bold text-4xl leading-10 relative items-center justify-center w-fit  text-center whitespace-nowrap [direction:rtl]">
+      <h1 className="flex text-primary font-bold text-3xl leading-10 relative items-center justify-center w-fit  text-center whitespace-nowrap [direction:rtl]">
         لوحة المتصدرين
       </h1>
       <div className="inline-flex justify-end px-6 py-4 flex-[0_0_auto] mt-[-1.00px] mb-[-1.00px] ml-[-1.00px] bg-primary-light rounded-[30px] border-0 border-none items-center relative border-variable-collection-stroke">
@@ -157,4 +156,3 @@ const UserIcon = ({ bgFill, iconFill, ...props }) => (
     </defs>
   </svg>
 );
-

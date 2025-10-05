@@ -106,13 +106,14 @@ const StudyPlannerForm = () => {
             <div className="flex items-start justify-start h-[56px] relative self-stretch w-full flex-[0_0_auto] bg-white rounded-[15px] border border-solid border-zinc-200">
               <div className="w-[550px] overflow-hidden relative h-full">
                 <input
-                  type="text"
-                  value={formData.firstName}
+                  type="number"
+                  dir="ltr"
+                  value={formData?.whatsappNumber}
                   onChange={(e) =>
                     handleInputChange("whatsappNumber", e.target.value)
                   }
-                  placeholder="أدخل رقم واتساب الخاص بك"
-                  className="absolute w-[551px] h-full top-0 -left-px bottom-0  text-text-alt px-5 text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]  bg-transparent border-none outline-none"
+                  placeholder="+966 123 456 789  : مثال"
+                  className="absolute w-[551px] h-full text-end top-0 -left-px bottom-0  text-text-alt px-5 text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]  bg-transparent border-none outline-none"
                 />
               </div>
             </div>
@@ -142,27 +143,6 @@ const StudyPlannerForm = () => {
           <div className="flex items-center justify-between relative self-stretch w-full flex-[0_0_auto]">
             <div className="flex flex-col w-[279px] items-start gap-2.5 px-0 py-[3px] relative">
               <div className="inline-flex h-[18px] items-center justify-start relative">
-                <label className="relative self-stretch w-[118px]  text-text font-[600] text-sm  overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
-                  رقم الصفحة الأخيرة
-                </label>
-              </div>
-              <div className="flex w-[279px] items-start justify-start h-[56px] relative flex-[0_0_auto] bg-white rounded-[15px] border border-solid border-zinc-200">
-                <div className="w-[255px] ml-[-8.00px] overflow-hidden relative h-full">
-                  <input
-                    type="number"
-                    value={formData.endPage}
-                    onChange={(e) =>
-                      handleInputChange("endPage", e.target.value)
-                    }
-                    placeholder="نهاية الصفحة"
-                    className="absolute w-64 h-full top-0 -left-px  text-text-alt px-5 text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]  bg-transparent border-none outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col w-[279px] items-start gap-2.5 px-0 py-[3px] relative">
-              <div className="inline-flex h-[18px] items-center justify-start relative">
                 <label className="relative self-stretch w-[126px]  text-text font-[600] text-sm  overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
                   رقم صفحة البدء
                 </label>
@@ -175,7 +155,28 @@ const StudyPlannerForm = () => {
                     onChange={(e) =>
                       handleInputChange("startPage", e.target.value)
                     }
-                    placeholder="صفحة البدء"
+                    placeholder="1"
+                    className="absolute w-64 h-full top-0 -left-px  text-text-alt px-5 text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]  bg-transparent border-none outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col w-[279px] items-start gap-2.5 px-0 py-[3px] relative">
+              <div className="inline-flex h-[18px] items-center justify-start relative">
+                <label className="relative self-stretch w-[118px]  text-text font-[600] text-sm  overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
+                  رقم الصفحة الأخيرة
+                </label>
+              </div>
+              <div className="flex w-[279px] items-start justify-start h-[56px] relative flex-[0_0_auto] bg-white rounded-[15px] border border-solid border-zinc-200">
+                <div className="w-[255px] ml-[-8.00px] overflow-hidden relative h-full">
+                  <input
+                    type="number"
+                    value={formData.endPage}
+                    onChange={(e) =>
+                      handleInputChange("endPage", e.target.value)
+                    }
+                    placeholder="50"
                     className="absolute w-64 h-full top-0 -left-px  text-text-alt px-5 text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]  bg-transparent border-none outline-none"
                   />
                 </div>
@@ -183,8 +184,8 @@ const StudyPlannerForm = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between relative self-stretch w-full flex-[0_0_auto]">
-            <div className="flex flex-col w-[299px] items-start gap-2.5 p-2.5 relative">
+          <div className="flex  items-center justify-between relative self-stretch w-full flex-[0_0_auto]">
+            <div className="flex flex-1 flex-col w-[299px] items-start gap-2.5 p-2.5 relative">
               <div className="flex flex-col items-start gap-[11px] relative self-stretch w-full flex-[0_0_auto]">
                 <div className="inline-flex h-[18px]  items-center justify-start relative">
                   <label className="relative w-fit  text-zinc-950 text-sm  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
@@ -210,57 +211,58 @@ const StudyPlannerForm = () => {
               </div>
             </div>
 
-            <div className="flex flex-col w-[299px] items-start gap-2.5 p-2.5 relative">
-              <div className="flex flex-col items-start gap-[11px] relative self-stretch w-full flex-[0_0_auto]">
-                <div className="inline-flex h-[18px] items-center justify-start relative">
-                  <label className="relative w-fit  text-zinc-950 text-sm  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
-                    تاريخ بدء الدراسة
-                  </label>
+            <div className="flex flex-1 flex-col items-start  w-[299px] gap-2.5 px-0 py-[3px] relative ">
+              <div className="inline-flex h-[18px] items-center justify-start relative">
+                <label className="relative w-fit  text-text font-[600] text-sm  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
+                  أيام الراحة
+                </label>
+              </div>
+              <div className="flex items-center h-[56px]  relative self-stretch w-full flex-[0_0_auto] bg-white rounded-[15px] border border-solid border-zinc-200">
+                <div className="w-[550px] z-0 overflow-hidden relative h-full">
+                  <select
+                    value={formData.restDays}
+                    onChange={(e) =>
+                      handleInputChange("restDays", e.target.value)
+                    }
+                    className="absolute w-[551px]  h-full top-0 -left-px  text-text-alt px-5 text-sm  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]  bg-transparent border-none outline-none"
+                  >
+                    <option value="">أدخل أيام الراحة الخاصة بك</option>
+                    <option value="friday">الجمعة</option>
+                    <option value="saturday">السبت</option>
+                    <option value="sunday">الأحد</option>
+                    <option value="friday-saturday">الجمعة والسبت</option>
+                  </select>
                 </div>
-                <div className="flex items-center justify-start h-[56px] px-5 relative self-stretch w-full flex-[0_0_auto] bg-white rounded-[15px] border border-solid border-zinc-200">
-                  <div className="flex-1 grow z-0 relative h-full">
-                    <input
-                      type="datetime-local"
-                      value={formData.studyStartDate}
-                      onChange={(e) =>
-                        handleInputChange("studyStartDate", e.target.value)
-                      }
-                      placeholder="اليوم/الساعة/اليوم/اليوم/اليوم"
-                      className="absolute h-full top-0.5 left-[53px]  text-text-alt px-5 text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]  bg-transparent border-none outline-none"
-                    />
-                  </div>
-                  <div className="z-[1] relative w-4 h-4">
-                    <CalenderIcon />
-                  </div>
+                <div className="inline-flex items-center gap-2 relative flex-[0_0_auto] z-[1] ">
+                  <ChevronBottom />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col items-start gap-2.5 px-0 py-[3px] relative self-stretch w-full flex-[0_0_auto]">
-            <div className="inline-flex h-[18px] items-center justify-start relative">
-              <label className="relative w-fit  text-text font-[600] text-sm  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
-                أيام الراحة
-              </label>
-            </div>
-            <div className="flex items-center h-[56px]  relative self-stretch w-full flex-[0_0_auto] bg-white rounded-[15px] border border-solid border-zinc-200">
-              <div className="w-[550px] z-0 overflow-hidden relative h-full">
-                <select
-                  value={formData.restDays}
-                  onChange={(e) =>
-                    handleInputChange("restDays", e.target.value)
-                  }
-                  className="absolute w-[551px]  h-full top-0 -left-px  text-text-alt px-5 text-sm  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]  bg-transparent border-none outline-none"
-                >
-                  <option value="">أدخل أيام الراحة الخاصة بك</option>
-                  <option value="friday">الجمعة</option>
-                  <option value="saturday">السبت</option>
-                  <option value="sunday">الأحد</option>
-                  <option value="friday-saturday">الجمعة والسبت</option>
-                </select>
+          <div className=" flex   flex-col w-full items-start gap-2.5 p-2.5 relative">
+            <div className="flex flex-col items-start gap-[11px] relative self-stretch w-full flex-[0_0_auto]">
+              <div className="inline-flex h-[18px] items-center justify-start relative">
+                <label className="relative w-fit  text-zinc-950 text-sm  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
+                  تاريخ بدء الدراسة
+                </label>
               </div>
-              <div className="inline-flex items-center gap-2 relative flex-[0_0_auto] z-[1] ">
-                <ChevronBottom />
+              <div className="flex items-center justify-start h-[56px] px-5 relative self-stretch w-full flex-[0_0_auto] bg-white rounded-[15px] border border-solid border-zinc-200">
+                <div className="flex-1 grow z-0 relative h-full">
+                  <input
+                    dir="ltr"
+                    type="datetime-local"
+                    value={formData.studyStartDate}
+                    onChange={(e) =>
+                      handleInputChange("studyStartDate", e.target.value)
+                    }
+                    placeholder="اليوم/الساعة/اليوم/اليوم/اليوم"
+                    className=" text-center w-full absolute h-full top-0.5 left-[53px]  text-text-alt px-5 text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]  bg-transparent border-none outline-none"
+                  />
+                </div>
+                <div className="z-[1] relative w-4 h-4">
+                  <CalenderIcon />
+                </div>
               </div>
             </div>
           </div>

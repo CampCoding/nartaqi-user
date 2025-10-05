@@ -147,7 +147,7 @@ const CartItem = ({ data, onRemove }) => {
             >
               <CartTrashIcon className="group-hover:!stroke-white stroke-[#2D2D2D] " />
               <div className="cursor-pointer whitespace-nowrap text-right justify-center text-text group-hover:text-white text-xs font-medium ">
-                حذف من السله
+                حذف من السلة
               </div>
             </div>
           </div>

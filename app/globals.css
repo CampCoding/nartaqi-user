@@ -425,3 +425,23 @@ input[type="search"]::-webkit-search-cancel-button {
 .radio-container input[type="radio"]:checked + label span {
   color: var(--color-secondary);
 }
+
+.custom-pagination{
+  align-items: center;
+}
+
+.custom-pagination .swiper-pagination-bullet {
+  background: var(--color-primary);
+  opacity: 0.5;
+  width: 8px;
+  height: 8px;
+  margin-right:  2px;
+  transition: all 0.3s ease;
+}
+.custom-pagination .swiper-pagination-bullet-active {
+  background: var(--color-primary); /* اللون الثانوي */
+  opacity: 1;
+  width: 30px;
+  height: 8px;
+  border-radius: 10px !important;
+}

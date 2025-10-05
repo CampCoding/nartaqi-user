@@ -15,6 +15,7 @@ import {
 } from "../../public/svgs";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Container from "../ui/Container";
 
 const Footer = () => {
   const pathname = usePathname();
@@ -25,7 +26,7 @@ const Footer = () => {
 
   return (
     <footer
-      className="pt-[126px] pb-[80px] "
+      className=" pt-16 md:pt-[126px] pb-[80px] "
       style={{
         backgroundImage: `url('/images/footer 3.png')`,
         backgroundSize: "cover",
@@ -33,9 +34,9 @@ const Footer = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="container mx-auto px-[64px]">
+      <Container className="">
         <Frame />
-      </div>
+      </Container>
     </footer>
   );
 };
@@ -85,7 +86,7 @@ export const Frame = () => {
 
   return (
     <div className="">
-      <div className="flex items-start justify-between">
+      <div className="flex items-start  flex-col  md:flex-row md:flex-wrap space-y-10 justify-between">
         <div className="">
           <div className=" flex flex-col " />
           <img src="/images/logo.svg" className="w-16 h-16 " alt="Frame" />
@@ -95,16 +96,16 @@ export const Frame = () => {
           </p>{" "}
         </div>
         <nav
-          className="flex flex-col w-[304px] h-44  gap-4 pt-0 pb-1 px-0 relative"
+          className="flex flex-col    gap-4 pt-0 pb-1 px-0 relative"
           role="navigation"
           aria-label="روابط سريعة"
         >
-          <header className="flex w-[304px] h-6 items-center  relative">
-            <h2 className="w-[88px]  text-base leading-6 relative self-stretch text-neutral-50 ">
+          <header className="flex  items-center  relative">
+            <h2 className=" font-bold  text-base leading-6 relative self-stretch text-neutral-50 ">
               عن المنصة
             </h2>
           </header>
-          <ul className="flex flex-col w-[304px] h-[132px]  gap-2 relative">
+          <ul className="flex flex-col    gap-2 relative">
             {aboutPlatform.map((link, index) => (
               <li key={index} className="flex   items-center  relative">
                 <Link
@@ -119,16 +120,16 @@ export const Frame = () => {
           </ul>
         </nav>
         <nav
-          className="flex flex-col w-[304px] h-44  gap-4 pt-0 pb-1 px-0 relative"
+          className="flex flex-col    gap-4 pt-0 pb-1 px-0 relative"
           role="navigation"
           aria-label=" الموارد"
         >
-          <header className="flex w-[304px] h-6 items-center  relative">
-            <h2 className="w-[88px]  text-base leading-6 relative self-stretch text-neutral-50 ">
+          <header className="flex  items-center  relative">
+            <h2 className=" font-bold  text-base leading-6 relative self-stretch text-neutral-50 ">
               روابط سريعة
             </h2>
           </header>
-          <ul className="flex flex-col w-[304px] h-[132px]  gap-2 relative">
+          <ul className="flex flex-col    gap-2 relative">
             {quickLinks.map((link, index) => (
               <li key={index} className="flex   items-center  relative">
                 <Link
@@ -143,22 +144,22 @@ export const Frame = () => {
           </ul>
         </nav>
         <section
-          className="relative w-[304px] "
+          className="relative  "
           role="region"
           aria-label="Contact Information"
         >
           <div>
-            <header className="flex w-[304px] h-6 items-center   top-0 left-0">
-              <h2 className="w-[39px]  text-base leading-6  relative self-stretch text-neutral-50">
+            <header className="flex  items-center   top-0 left-0">
+              <h2 className=" font-bold text-base leading-6  relative self-stretch text-neutral-50">
                 اتصل
               </h2>
             </header>
 
-            <div className="flex flex-col mt-4 text-end w-[304px]  items-start gap-4 ">
+            <div className="flex flex-col mt-4 text-end   items-start gap-4 ">
               {contactInfo?.map((contact) => (
                 <div
                   key={contact.id}
-                  className="flex w-[304px]  items-center  relative"
+                  className="flex   items-center  relative"
                 >
                   <div
                     className="items-start inline-flex h-4 relative flex-[0_0_auto]"

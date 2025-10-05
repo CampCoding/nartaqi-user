@@ -5,11 +5,7 @@ const CoursesCategoryCard = ({
   color = "secondary",
   freeWidth = false,
 }) => {
-  const [buttonColor, setbuttonColor] = React.useState("secondary");
 
-  React.useEffect(() => {
-    if (color) setbuttonColor(color);
-  }, [color]);
 
   return (
     <div
@@ -23,9 +19,9 @@ const CoursesCategoryCard = ({
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="flex absolute bottom-0 items-center justify-between px-[20px] w-full  gap-[62px]  top-[290px]">
+      <div className="flex absolute bottom-0 items-center justify-between px-[20px] w-full   top-[290px]">
         <div className=" flex flex-col items-start gap-1 relative ">
-          <div className="relative w-fit mt-[-0.58px] font-semibold text-bg text-base text-left leading-[19.2px] whitespace-nowrap ">
+          <div className="relative w-fit mt-[-0.58px] font-semibold text-bg text-base text-right leading-[19.2px]  ">
             {data?.title}
           </div>
 
@@ -35,11 +31,11 @@ const CoursesCategoryCard = ({
         </div>
 
         <div
-          className={`group-hover:scale-125 group-hover:!bg-${buttonColor} cursor-pointer  transition flex min-w-[40px] min-h-[40px] items-center justify-center gap-[5.8px] p-[11.61px] relative bg-white    rounded-full overflow-hidden shadow-[0px_2.32px_2.32px_#00000040] aspect-[1]`}
+          className={`group-hover:scale-125 group-hover:!bg-secondary cursor-pointer  transition flex min-w-[40px] min-h-[40px] items-center justify-center gap-[5.8px] p-[11.61px] relative bg-white    rounded-full overflow-hidden shadow-[0px_2.32px_2.32px_#00000040] aspect-[1]`}
         >
           <div className="relative w-6 h-6 aspect-[1]">
             <ChevronLeft
-              className={`   fill-${buttonColor}  group-hover:fill-${"white"} transition `}
+              className={`   fill-secondary  group-hover:fill-${"white"} transition `}
             />
           </div>
         </div>

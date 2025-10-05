@@ -65,7 +65,7 @@ const CoursesFilters = () => {
         <div className="flex flex-1 justify-start items-center gap-4">
           <div className=" flex-1  w-full p-6 bg-zinc-800 rounded-[20px] flex justify-start items-center gap-2.5">
             <input
-              placeholder="ابحث باسم الدوره"
+              placeholder="ابحث باسم الدورة"
               className=" placeholder:text-white justify-center text-white text-base whitespace-nowrap font-semibold "
             />
           </div>

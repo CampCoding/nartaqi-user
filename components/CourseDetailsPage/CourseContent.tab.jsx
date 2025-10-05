@@ -14,8 +14,8 @@ const CourseContent = ({ isRegistered }) => {
   const [selectedTab, setSelectedTab] = useState("foundation");
 
   return (
-    <div className="w-full">
-      <div className="text-right justify-center text-primary text-3xl font-bold mb-8">
+    <div className="w-full flex-1">
+      <div className="text-right justify-center text-primary text-2xl font-bold mb-8">
         محتوي الدورة : إتقان التدريس الفعال
       </div>
       {isRegistered && (

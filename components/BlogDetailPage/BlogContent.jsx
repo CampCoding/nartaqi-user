@@ -90,9 +90,9 @@ export const BlogContent = () => {
         role="img"
         aria-label="Frame background image"
       />
-      <main className="w-full h-[1064px] mt-[24px]">
+      <main className="w-full mb-[50px] mt-[24px]">
         <article
-          className="  text-[#2d2d2d] text-text text-[23px] leading-[56px] "
+          className="  text-text-alt text-lg leading-[50px] "
           lang="ar"
           dir="rtl"
         >

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 
-export const DailyQuizSection = () => {
+export const DailyQuizSection = ({  buttonHoverColor,  color = "primary", border  }) => {
   const [timeRemaining, setTimeRemaining] = useState(15 * 60); // 15 minutes in seconds
 
   useEffect(() => {
@@ -36,7 +36,9 @@ export const DailyQuizSection = () => {
 
   return (
     <section
-      className="shadow-[0px_12px_50px_#3b82f6] w-[419px] h-[622px] flex bg-white rounded-[30px] overflow-hidden border-4 border-solid border-variable-collection-stroke"
+      className={`shadow-[0px_12px_50px_#3b82f6] w-[419px] h-[622px] flex bg-white rounded-[30px] overflow-hidden border-4 border-${
+        border || "primary-light"
+      } `}
       role="region"
       aria-labelledby="quiz-title"
     >
@@ -52,7 +54,7 @@ export const DailyQuizSection = () => {
             <header className="flex items-center justify-center gap-2.5 px-4 py-0 relative self-stretch w-full flex-[0_0_auto]">
               <h1
                 id="quiz-title"
-                className="relative flex   flex-1 mt-[-1.00px]  font-bold text-primary text-2xl tracking-[0] leading-[normal] [direction:rtl]"
+                className={`relative flex   flex-1 mt-[-1.00px]  font-bold text-${color} text-xl tracking-[0] leading-[normal] [direction:rtl]`}
               >
                 {quizData.title}
               </h1>
@@ -102,7 +104,7 @@ export const DailyQuizSection = () => {
                 </div>
 
                 <div
-                  className="relative self-stretch w-full h-1 bg-variable-collection-white-moca rounded-full overflow-hidden rotate-180"
+                  className="relative self-stretch w-full h-1 bg-white rounded-full overflow-hidden rotate-180"
                   role="progressbar"
                   aria-valuenow={progressPercentage}
                   aria-valuemin="0"
@@ -122,7 +124,7 @@ export const DailyQuizSection = () => {
           </div>
 
           <button
-            className="flex w-[387px] items-center justify-center gap-2 px-12 py-4 relative flex-[0_0_auto] bg-primary rounded-[15px] shadow-[0px_6px_24px_#bac6dc33] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200"
+            className={`flex w-[387px] items-center justify-center gap-2 px-12 py-4 relative flex-[0_0_auto] bg-${color} rounded-[15px] shadow-[0px_6px_24px_#bac6dc33] hover:bg-${buttonHoverColor} focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200`}
             type="button"
             aria-label="انضم إلى المسابقة اليومية"
           >

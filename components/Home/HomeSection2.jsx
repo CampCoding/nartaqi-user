@@ -7,6 +7,8 @@ import { FreeMode, Mousewheel, Navigation } from "swiper/modules";
 
 import CoursesCategoryCard from "./../ui/Cards/CoursesCategoryCard";
 import Link from "next/link";
+import CoursesCategoryCardMobile from "../ui/Cards/CoursesCategoryCard.mobile";
+import Container from "../ui/Container";
 
 const HomeSection2 = () => {
   const CoursesCategoryCardData = [
@@ -30,24 +32,21 @@ const HomeSection2 = () => {
       title: "التكنولوجيا التعليمية",
       courses: 15,
     },
-
-    
   ];
 
   return (
-    <div>
+    <Container>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 container mx-auto px-[64px] mt-[74px]">
-        {/* العنوان */}
-        <div className="inline-flex items-center justify-center gap-2.5 px-14 py-8 relative bg-primary rounded-[25px]">
-          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-primary-light text-2xl text-left leading-5 whitespace-nowrap">
+
+      <div className="flex items-center justify-between mb-8   mt-6 md:mt-[74px]">
+        <div className="flex md:w-[261px] items-center justify-center gap-2.5  px-4 py-3  md:px-14 md:py-8 relative bg-primary rounded-[15px] md:rounded-[25px]">
+          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-primary-light  text-[12px] md:text-2xl text-left leading-5 whitespace-nowrap ">
             الرخصة المهنية
           </div>
         </div>
 
-        {/* زر عرض المزيد */}
-        <div className="inline-flex group  items-center justify-center gap-2.5 px-8 py-5 relative bg-bg rounded-[25px] border border-solid border-primary hover:bg-primary cursor-pointer transition-all">
-          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold group-hover:text-white text-primary text-xl text-left leading-8 whitespace-nowrap">
+        <div className="inline-flex items-center justify-center gap-2.5 px-4 py-3 md:px-8 md:py-5 relative bg-bg rounded-[15px] md:rounded-[25px] border border-solid border-primary hover:bg-primary hover:text-white group cursor-pointer transition-all duration-300 ease-in-out">
+          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold group-hover:text-white text-primary  text-[12px] md:text-xl text-left leading-5 whitespace-nowrap ">
             عرض المزيد
           </div>
         </div>
@@ -55,15 +54,18 @@ const HomeSection2 = () => {
 
       {/* السلايدر */}
 
-      <div className="container mx-auto px-[64px] gap-6  grid grid-cols-4 ">
+      <div className=" gap-4  md:gap-6  grid grid-cols-2 md:grid-cols-4 ">
         {CoursesCategoryCardData?.map((item, index) => (
           <Link href={"/courses/123"} key={index}>
-            <CoursesCategoryCard color="primary" data={item} freeWidth={true} />
+            <div className="md:block hidden">
+              <CoursesCategoryCard data={item} freeWidth={true} />
+            </div>
+            <div className="block md:hidden">
+              <CoursesCategoryCardMobile data={item} freeWidth={true} />
+            </div>
           </Link>
         ))}
       </div>
-
-
       {/* <div className="mr-[64px]">
         <Swiper
           slidesPerView="auto"
@@ -91,7 +93,7 @@ const HomeSection2 = () => {
           ))}
         </Swiper>
       </div> */}
-    </div>
+    </Container>
   );
 };
 

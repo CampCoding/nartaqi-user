@@ -8,35 +8,36 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/free-mode";
-
+import Container from "../ui/Container";
 
 const WhatOurXSay = ({
   title = "ماذا يقول طلابنا",
   description = "اكتشف تجارب متعلمينا الذين قاموا بتحويل مهاراتهم ومساراتهم المهنية من خلال منصتنا. كل شهادة تعكس التأثير والجودة والقيمة التي نسعى لتقديمها في كل دورة.",
-  bg="bg-[linear-gradient(178deg,rgba(255,255,255,1)_0%,rgba(240,246,255,1)_38%,rgba(194,216,252,1)_77%,rgba(255,255,255,1)_97%)]"
+  bg = "bg-[linear-gradient(178deg,rgba(255,255,255,1)_0%,rgba(240,246,255,1)_38%,rgba(194,216,252,1)_77%,rgba(255,255,255,1)_97%)]",
 }) => {
   return (
-    <div className={` ${bg}  pt-[32px] pb-[78px]`}>
+    <div className={` ${bg}  pt-[32px] pb-8 md:pb-[78px]`}>
       <section
-        className="flex-col mx-auto font-bold w-[792px] gap-6 flex items-center relative "
+        className="flex-col mx-auto font-bold  gap-6 flex items-center relative "
         role="region"
         aria-labelledby="testimonials-heading"
       >
         <h1
           id="testimonials-heading"
-          className="justify-center self-stretch mt-[-1.00px]  text-text text-[40px] text-center leading-[48px]  flex items-center relative"
+          className="justify-center self-stretch mt-[-1.00px]  text-text text-[28px] md:text-[40px] text-center leading-[48px]  flex items-center relative"
         >
           {title}
         </h1>
-        {
-          description && <p className="text-text text-[20px] text-center leading-[30px]  flex items-center relative"></p>
-        }
+        <div class="self-stretch text-center justify-center max-w-[792px] mx-auto text-text-alt text-xl font-medium font-['Cairo'] leading-10">
+          اكتشف تجارب متعلمينا الذين قاموا بتحويل مهاراتهم ومساراتهم المهنية من
+          خلال منصتنا. كل شهادة تعكس التأثير والجودة والقيمة التي نسعى لتقديمها
+          في كل دورة.
+        </div>
       </section>
-      <div className="container mx-auto mt-[64px] relative">
+
+      <Container className=" mt-8 md:mt-[56px] relative">
         <Swiper
           modules={[FreeMode, Mousewheel, Navigation]}
-          slidesOffsetBefore={64} // right padding (px)
-
           spaceBetween={30}
           slidesPerView={1}
           freeMode={{
@@ -60,10 +61,12 @@ const WhatOurXSay = ({
             640: {
               slidesPerView: 1,
               spaceBetween: 20,
+              freeMode: false,
             },
             768: {
               slidesPerView: 2,
               spaceBetween: 30,
+              freeMode: false,
             },
             1024: {
               slidesPerView: 3,
@@ -72,20 +75,20 @@ const WhatOurXSay = ({
           }}
           className="w-full relative pb-8"
         >
-          <SwiperSlide className="!w-fit">
-            <TestimonialCard />
+          <SwiperSlide className="">
+            <TestimonialCard freeWidth />
           </SwiperSlide>
-          <SwiperSlide className="!w-fit">
-            <TestimonialCard />
+          <SwiperSlide className="">
+            <TestimonialCard freeWidth />
           </SwiperSlide>
-          <SwiperSlide className="!w-fit">
-            <TestimonialCard />
+          <SwiperSlide className="">
+            <TestimonialCard freeWidth />
           </SwiperSlide>
-          <SwiperSlide className="!w-fit">
-            <TestimonialCard />
+          <SwiperSlide className="">
+            <TestimonialCard freeWidth />
           </SwiperSlide>
-          <SwiperSlide className="!w-fit">
-            <TestimonialCard />
+          <SwiperSlide className="">
+            <TestimonialCard freeWidth />
           </SwiperSlide>
         </Swiper>
 
@@ -95,7 +98,7 @@ const WhatOurXSay = ({
 
         {/* Pagination dots */}
         {/* <div className="swiper-pagination !mt-8 !relative !bottom-0"></div> */}
-      </div>
+      </Container>
     </div>
   );
 };

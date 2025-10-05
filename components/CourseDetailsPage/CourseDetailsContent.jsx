@@ -20,17 +20,17 @@ const CourseDetailsContent = () => {
 
   return (
     <div className="flex flex-col gap-[56px]">
-      <div className=" inline-flex justify-between items-center">
+      <div className=" inline-flex gap-[45px] items-center">
         {tabs.map((tab) => (
           <div
             key={tab.value}
             onClick={() => setActiveTab(tab.value)}
             className={`flex justify-center items-center gap-2.5 cursor-pointer ${
-              activeTab === tab.value ? "border-b-[3px] border-primary" : ""
+              activeTab === tab.value ? "border-b-[3px] pb-1 border-primary" : ""
             }`}
           >
             <div
-              className={`text-right justify-center text-2xl  ${
+              className={`text-right justify-center text-xl  ${
                 activeTab === tab.value
                   ? "text-primary font-bold"
                   : "text-text font-medium"

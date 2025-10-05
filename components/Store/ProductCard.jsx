@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export const ProductCard = ({ data }) => {
+export const ProductCard = ({ data, key }) => {
   const [isAddedToCart, setIsAddedToCart] = useState(false);
 
   const handleAddToCart = () => {
@@ -37,9 +37,14 @@ export const ProductCard = ({ data }) => {
             role="text"
             aria-label="السعر: 24.99 ريال سعودي"
           >
-            <span className="self-stretch w-fit text-text  text-text text-base text-left leading-6 whitespace-nowrap relative ">
-              24.99 ر .س
-            </span>
+            <div className="flex flex-col  gap-1 relative  w-full">
+              <span className="self-stretch line-through decoration-red-500  w-fit text-text-alt   text-base text-left leading-6 whitespace-nowrap relative ">
+                  29.99 ر .س
+                </span>
+              <span className="self-stretch w-fit text-text  font-bold text-lg text-left leading-6 whitespace-nowrap relative ">
+                24.99 ر .س
+              </span>
+            </div>
           </div>
           <button
             className="inline-flex items-center justify-center gap-2 px-4 py-2 relative flex-[0_0_auto] bg-primary rounded-[10px] hover:bg-blue-600 focus:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-colors duration-200 cursor-pointer"

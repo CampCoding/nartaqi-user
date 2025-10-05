@@ -27,32 +27,26 @@ const Store = () => {
       <div className="container mx-auto px-[64px] mt-[48px]  ">
         <div className="grid grid-cols-[379px_auto] gap-6 mb-[56px] ">
           <SideNav />
-          <section className=" grid grid-cols-3 mx-auto gap-x-4 gap-y-6" >
-            {
-              [
-                "FRAME (5).png",
-                "books.png",
-                "FRAME (7).png",
-                "FRAME (8).png",
-                "FRAME (9).png",
-                "FRAME (5).png",
-                "books.png",
-                "FRAME (7).png",
-                "FRAME (8).png",
-                "FRAME (9).png",
-                "FRAME (5).png",
-                "books.png",
-                "FRAME (7).png",
-                "FRAME (8).png",
-                "FRAME (9).png",
-              ].map((item , index)=>{
-                return (
-
-                  <ProductCard data={item} key={index} />
-                )
-              })
-            }
-           
+          <section className=" grid grid-cols-3 mx-auto gap-x-4 gap-y-6">
+            {[
+              "FRAME (5).png",
+              "books.png",
+              "FRAME (7).png",
+              "FRAME (8).png",
+              "FRAME (9).png",
+              "FRAME (5).png",
+              "books.png",
+              "FRAME (7).png",
+              "FRAME (8).png",
+              "FRAME (9).png",
+              "FRAME (5).png",
+              "books.png",
+              "FRAME (7).png",
+              "FRAME (8).png",
+              "FRAME (9).png",
+            ].map((item, index) => {
+              return <ProductCard data={item} key={index} />;
+            })}
           </section>
           {/* <PoliciesSections /> */}
         </div>
@@ -63,11 +57,7 @@ const Store = () => {
 
 export default Store;
 
-
-
 const SideNav = () => {
- 
-
   return (
     <nav
       className="  inline-flex flex-col  gap-12 px-8 py-12 relative bg-primary-light rounded-[30px]"
@@ -226,7 +216,8 @@ export const PriceRange = () => {
       {/* Title */}
       <div className="flex w-[280px] h-6 items-center justify-start mb-4">
         <h2 id="price-range-title" className="font-bold text-primary text-2xl">
-          النطاق السعري
+          النطاق السعري{" "}
+          <span className="text-text-alt text-base mx-3 "> ({sliderValue.toFixed("0")} ر.س )</span>
         </h2>
       </div>
 
@@ -238,7 +229,7 @@ export const PriceRange = () => {
           onMouseDown={handleMouseDown}
           role="slider"
           aria-valuemin="0"
-          aria-valuemax="100"
+          aria-valuemax="280"
           aria-valuenow={currentPrice}
           aria-label={`النطاق السعري: ${currentPrice} ريال سعودي`}
           tabIndex="0"
@@ -266,7 +257,7 @@ export const PriceRange = () => {
       {/* Labels */}
       <div className="flex w-[280px] h-5 items-start justify-between ">
         <span className="text-text-alt text-sm">0 ر.س</span>
-        <span className="text-text-alt text-sm">100 ر.س</span>
+        <span className="text-text-alt text-sm">280 ر.س</span>
       </div>
     </div>
   );

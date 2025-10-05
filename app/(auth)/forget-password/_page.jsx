@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 
 const ForgetPassword = () => {
   const [value1, setValue1] = useState("Apple");
-  const [phone , setPhone] = useState("")
+  const [phone, setPhone] = useState("");
   const plainOptions = ["Apple", "Pear", "Orange"];
   const onChange1 = ({ target: { value } }) => {
     console.log("radio1 checked", value);
@@ -25,8 +25,8 @@ const ForgetPassword = () => {
     router.push(`/verification-code?phone=${phone}`);
   };
 
-  const onChangePhone = ({target: { value } }) => {
-    setPhone(value)
+  const onChangePhone = ({ target: { value } }) => {
+    setPhone(value);
   };
 
   return (

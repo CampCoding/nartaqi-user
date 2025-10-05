@@ -13,9 +13,9 @@ const NotReg_courseDetails = () => {
         />
       </div>
 
-      <div className=" mx-auto px-[64px] mt-[48px] mb-[139px] h-[300vh]">
-        <div className="flex justify-between">
-          <div className="max-w-[762px] ">
+      <div className=" mx-auto px-[64px] mt-[48px] mb-[139px] ">
+        <div className="flex justify-between items-start">
+          <div className="max-w-[762px] w-full ">
             <CourseDetailsContent />
           </div>
           <div className=" grid grid-cols-1 gap-[80px] translate-y-[-441px]  ">

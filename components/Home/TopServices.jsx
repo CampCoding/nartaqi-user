@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import Container from "./../ui/Container";
 
 export const TopServices = () => {
   const servicesData = [
@@ -9,7 +10,7 @@ export const TopServices = () => {
       borderColor: "border-primary",
       textColor: "text-primary",
       hoverbg: "hover:bg-primary",
-      href:"/study-planner"
+      href: "/study-planner",
     },
     {
       id: 2,
@@ -17,7 +18,7 @@ export const TopServices = () => {
       borderColor: "border-secondary",
       textColor: "text-secondary",
       hoverbg: "hover:bg-secondary",
-      href:"/weighted-percentage-calculator"
+      href: "/weighted-percentage-calculator",
     },
     {
       id: 1,
@@ -25,15 +26,16 @@ export const TopServices = () => {
       borderColor: "border-primary-dark",
       textColor: "text-primary-dark",
       hoverbg: "hover:bg-primary-dark",
-      href:"/support-gate"
+      href: "/support-gate",
     },
   ];
 
   return (
-    <div className="h-[120px] flex items-center justify-center bg-primary-light">
-      <div className="flex container px-[64px] h-[68px] w-full  relative items-center justify-between">
+    <div className=" hidden md:flex h-[120px] items-center justify-center bg-primary-light">
+      <Container className="flex  h-[68px] w-full  relative items-center justify-between">
         {servicesData.map((service) => (
-          <Link href={service.href}
+          <Link
+            href={service.href}
             key={service.id}
             className={`${service.borderColor} ${service?.hoverbg} cursor-pointer transition-all group hover:text-white flex w-[250px] h-[68px] items-center justify-center gap-2.5 py-5 relative bg-bg rounded-[20px] border-2 border-solid`}
           >
@@ -44,7 +46,7 @@ export const TopServices = () => {
             </div>
           </Link>
         ))}
-      </div>
+      </Container>
     </div>
   );
 };

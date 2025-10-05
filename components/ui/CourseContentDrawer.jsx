@@ -94,10 +94,9 @@ const CourseContentDrawer = ({ isRegistered }) => {
       {isOpen &&
         (isRegistered ? (
           <div className=" w-full flex flex-col gap-4">
-          <RegLecureDrawer isLive />
-          <RegLecureDrawer />
-          <RegLecureDrawer />
-          
+            <RegLecureDrawer isLive />
+            <RegLecureDrawer />
+            <RegLecureDrawer />
           </div>
         ) : (
           <div className="self-stretch flex flex-col justify-start items-start gap-6">
@@ -110,13 +109,8 @@ const CourseContentDrawer = ({ isRegistered }) => {
                   className="flex justify-start items-center gap-2 cursor-pointer"
                   onClick={() => handlePlay(lesson)}
                 >
-                  <CoursePlayIcon />
+                  <CoursePlayIcon className={" stroke-primary "} />
                   <div className="text-right justify-center text-text text-base font-medium ">
-                    <span className=" font-bold text-primary">
-                      {" "}
-                      المحاضرة {index + 1}
-                    </span>{" "}
-                    :{" "}
                     {playingId === lesson.id ? "جاري التشغيل..." : lesson.title}
                   </div>
                 </div>
@@ -136,7 +130,7 @@ const CourseContentDrawer = ({ isRegistered }) => {
 
 export default CourseContentDrawer;
 
-export const RegLecureDrawer = ({isLive = false}) => {
+export const RegLecureDrawer = ({ isLive = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleExpanded = () => {
@@ -157,7 +151,7 @@ export const RegLecureDrawer = ({isLive = false}) => {
             !isExpanded ? "rotate-180" : "rotate-0"
           }`}
         >
-          <CourseChevronTopIcon  />
+          <CourseChevronTopIcon />
         </div>
       </header>
 
@@ -165,29 +159,28 @@ export const RegLecureDrawer = ({isLive = false}) => {
         <section className="flex flex-col items-start self-stretch w-full relative flex-[0_0_auto]">
           <div className="flex items-center justify-between pt-4 pb-6 px-0 self-stretch w-full border-b-[3px] [border-bottom-style:solid] border-variable-collection-stroke relative flex-[0_0_auto]">
             <div className="inline-flex items-start gap-2 relative flex-[0_0_auto]">
-              <RoundedPlayIcon className={isLive ? "stroke-danger" : "stroke-primary"} />
+              <RoundedPlayIcon
+                className={isLive ? "stroke-danger" : "stroke-primary"}
+              />
               <h2 className=" cursor-pointer font-medium relative flex items-center justify-center w-fit mt-[-1.00px] text-text text-base tracking-[0] leading-[normal] ">
                 كيفية إعداد خطة درس ناجحة
               </h2>
             </div>
             <div className="inline-flex items-center justify-start gap-4 relative flex-[0_0_auto]">
-              {
-                isLive ? 
-                  <div className="inline-flex items-center gap-2 relative">
-                          <LiveIcon width={28} height={28} />
-                        <div className="inline-flex items-center justify-end gap-4 relative flex-[0_0_auto]">
-                          <div className="relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold text-[#f91616] text-base tracking-[0] leading-[normal] ">
-                            بث مباشر
-                          </div>
-                        </div>
-                  
-                      </div>
-                
-                : <time className="relative flex items-center justify-center w-fit mt-[-1.00px]  font-medium text-text text-base tracking-[0] leading-[normal] ">
-                18 دقيقة
-              </time>
-             
-              }
+              {isLive ? (
+                <div className="inline-flex items-center gap-2 relative">
+                  <LiveIcon width={28} height={28} />
+                  <div className="inline-flex items-center justify-end gap-4 relative flex-[0_0_auto]">
+                    <div className="relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold text-[#f91616] text-base tracking-[0] leading-[normal] ">
+                      بث مباشر
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <time className="relative flex items-center justify-center w-fit mt-[-1.00px]  font-medium text-text text-base tracking-[0] leading-[normal] ">
+                  18 دقيقة
+                </time>
+              )}
             </div>
           </div>
 

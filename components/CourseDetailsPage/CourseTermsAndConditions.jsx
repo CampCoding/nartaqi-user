@@ -2,12 +2,12 @@ import React from "react";
 
 const CourseTermsAndConditions = () => {
   return (
-    <div>
+    <div className="flex flex-col gap-8">
       <div className="self-stretch inline-flex flex-col justify-start items-start gap-2">
-        <div className="self-stretch text-right justify-center text-primary text-3xl font-bold ">
+        <div className="self-stretch text-right justify-center text-primary text-2xl font-bold ">
           الشروط والأحكام
         </div>
-        <div className="self-stretch h-32 text-right justify-center text-black text-2xl font-medium ">
+        <div className="self-stretch h-32 text-right justify-center leading-loose text-black text-xl font-medium ">
           مرحبًا بك في منصتنا التعليمية. برجاء قراءة هذه الشروط والأحكام بعناية
           قبل استخدام الموقع أو التسجيل في أي دورة، حيث إن دخولك أو استخدامك
           للمنصة يعني موافقتك الكاملة على جميع البنود التالية
@@ -17,7 +17,7 @@ const CourseTermsAndConditions = () => {
       {/* القائمة */}
       <ul className="self-stretch flex flex-col justify-start items-start gap-8 list-disc ">
         <li className="flex flex-col justify-start items-start gap-1">
-          <h3 className="text-right text-text text-2xl font-bold">
+          <h3 className="text-right text-text text-xl font-bold">
             التسجيل واستخدام الحساب
           </h3>
           <p className="w-[762px] text-right text-stone-600 text-base font-medium ">
@@ -30,7 +30,7 @@ const CourseTermsAndConditions = () => {
         </li>
 
         <li className="flex flex-col justify-start items-start gap-1">
-          <h3 className="text-right text-text text-2xl font-bold ">
+          <h3 className="text-right text-text text-xl font-bold ">
             الدورات والمحتوى
           </h3>
           <p className="w-[762px] text-right text-stone-600 text-base font-medium ">
@@ -42,7 +42,7 @@ const CourseTermsAndConditions = () => {
         </li>
 
         <li className="flex flex-col justify-start items-start gap-1">
-          <h3 className="text-right text-text text-2xl font-bold ">
+          <h3 className="text-right text-text text-xl font-bold ">
             الدفع والاشتراكات
           </h3>
           <p className="w-[762px] text-right text-stone-600 text-base font-medium ">
@@ -55,7 +55,7 @@ const CourseTermsAndConditions = () => {
         </li>
 
         <li className="flex flex-col justify-start items-start gap-1">
-          <h3 className="text-right text-text text-2xl font-bold ">
+          <h3 className="text-right text-text text-xl font-bold ">
             حقوق الملكية الفكرية
           </h3>
           <p className="w-[762px] text-right text-stone-600 text-base font-medium ">
@@ -66,7 +66,7 @@ const CourseTermsAndConditions = () => {
         </li>
 
         <li className="flex flex-col justify-start items-start gap-1">
-          <h3 className="text-right text-text text-2xl font-bold ">
+          <h3 className="text-right text-text text-xl font-bold ">
             التزامات المستخدم
           </h3>
           <p className="w-[762px] text-right text-stone-600 text-base font-medium ">
@@ -78,7 +78,7 @@ const CourseTermsAndConditions = () => {
         </li>
 
         <li className="flex flex-col justify-start items-start gap-1">
-          <h3 className="text-right text-text text-2xl font-bold ">
+          <h3 className="text-right text-text text-xl font-bold ">
             إخلاء المسؤولية
           </h3>
           <p className="w-[762px] text-right text-stone-600 text-base font-medium ">
@@ -90,7 +90,7 @@ const CourseTermsAndConditions = () => {
         </li>
 
         <li className="flex flex-col justify-start items-start gap-1">
-          <h3 className="text-right text-text text-2xl font-bold ">
+          <h3 className="text-right text-text text-xl font-bold ">
             التعديلات على الشروط
           </h3>
           <p className="w-[762px] text-right text-stone-600 text-base font-medium ">

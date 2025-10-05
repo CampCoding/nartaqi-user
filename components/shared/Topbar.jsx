@@ -6,12 +6,14 @@ import SearchBanner from "./SearchBanner";
 import { useState } from "react";
 import Link from "next/link";
 import { Dropdown } from "antd";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Menu, X, ChevronDown } from "lucide-react";
 import headerData from "./headerData";
 import { useUser } from "../../lib/useUser";
+import Container from "../ui/Container";
 
 export default function Header() {
   const [openSearch, setOpenSearch] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const pathname = usePathname();
 
@@ -22,35 +24,33 @@ export default function Header() {
   const { isAuthenticated } = useUser();
 
   return (
-    <header className="w-full sticky top-0 z-50 bg-white shadow-sm  py-[35.5px]">
-      <div className="container mx-auto flex items-center justify-between px-[64px]">
+    <header className="w-full sticky top-0 z-50 bg-white shadow-sm py-[35.5px] lg:py-[35.5px]">
+      <Container className="flex items-center justify-between">
         {/* Logo */}
         <Link href={"/"} className="flex items-center space-x-2">
           <img
             src="/images/logo.svg"
             alt="Logo"
-            className="w-[65.5px] h-auto"
+            className="lg:w-[65.5px] w-[45px] h-auto"
           />
         </Link>
 
-        {/* Navigation */}
-        <nav className="hidden md:flex items-center space-x-6 space-x-reverse">
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex items-center space-x-4 md:!space-x-5  xl:space-x-6 space-x-reverse">
           {headerData.map((group, index) => {
-            // If group has no items and has a link, render as a Link
             if ((!group.items || group.items.length === 0) && group.link) {
               return (
                 <Link
                   key={group.key}
                   href={group.link}
                   className={
-                    " cursor-pointer flex items-center border-0 hover:border-b-[3px] hover:border-primary"
+                    ` ${index ==0 ? "ml-5" :""} cursor-pointer  hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-0 hover:border-b-[3px] hover:border-primary`
                   }
                 >
                   {group.title}
                 </Link>
               );
             }
-            // Otherwise, render as Dropdown
             return (
               <Dropdown
                 key={group.key}
@@ -61,7 +61,7 @@ export default function Header() {
               >
                 <div
                   className={
-                    " cursor-pointer  whitespace-nowrap   hover:border-b-[3px] hover:border-primary"
+                    " cursor-pointer  hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base  whitespace-nowrap   hover:border-b-[3px] hover:border-primary"
                   }
                 >
                   {group.title}
@@ -71,17 +71,18 @@ export default function Header() {
           })}
         </nav>
 
-        {/* Actions */}
-        <div className="flex items-center gap-x-4">
+        {/* Desktop Actions */}
+        <div className="hidden lg:flex items-center gap-x-4">
           <div className="flex items-center gap-x-[8px]">
-            {/* Search */}
             <button onClick={() => setOpenSearch(true)}>
               <headerIcons.Search className="text-text stroke-primary " />
             </button>
 
-            {/* Cart */}
-            <Link href="/cart">
+            <Link href="/cart" className="relative">
               <headerIcons.Cart className="text-text stroke-primary" />
+              <div className="absolute w-6 h-6 bg-red-700 text-white text-base font-bold flex items-center justify-center top-[-5px] right-[5px] translate-x-1/2  rounded-full ">
+                8
+              </div>
             </Link>
             {isAuthenticated && (
               <Link href="/notifications" className="relative">
@@ -92,7 +93,6 @@ export default function Header() {
               </Link>
             )}
 
-            {/* Login / Register */}
             {!isAuthenticated && (
               <Link
                 href={"/login"}
@@ -117,16 +117,200 @@ export default function Header() {
             </Link>
           )}
         </div>
-      </div>
+
+        {/* Mobile Actions */}
+        <div className="flex lg:hidden items-center gap-x-2 ">
+          <button onClick={() => setOpenSearch(true)}>
+            <headerIcons.Search className="text-text stroke-primary !w-10 !h-10" />
+          </button>
+
+          <Link href="/cart">
+            <headerIcons.Cart className="text-text stroke-primary !w-10 !h-10" />
+          </Link>
+
+          {isAuthenticated && (
+            <Link href="/notifications" className="relative">
+              <headerIcons.Notification className="text-text stroke-primary !w-10 !h-10" />
+              <div className="absolute w-4 h-4 bg-red-700 text-white text-xs font-bold flex items-center justify-center top-[-5px] right-[5px] translate-x-1/2 rounded-full">
+                5
+              </div>
+            </Link>
+          )}
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6 text-primary" />
+            ) : (
+              <Menu className="w-6 h-6 text-primary" />
+            )}
+          </button>
+        </div>
+      </Container>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <MobileMenu
+          headerData={headerData}
+          isAuthenticated={isAuthenticated}
+          onClose={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       <SearchBanner openSearch={openSearch} setOpenSearch={setOpenSearch} />
     </header>
   );
 }
 
+// Mobile Menu Component
+const MobileMenu = ({ headerData, isAuthenticated, onClose }) => {
+  const [expandedItem, setExpandedItem] = useState(null);
+
+  return (
+    <div className="lg:hidden fixed inset-0 top-[100px] bg-white z-40 overflow-y-auto">
+      <nav className="flex flex-col p-4">
+        {headerData.map((group, index) => {
+          if ((!group.items || group.items.length === 0) && group.link) {
+            return (
+              <Link
+                key={group.key}
+                href={group.link}
+                onClick={onClose}
+                className="py-4 px-2 border-b border-gray-200 text-text font-medium"
+              >
+                {group.title}
+              </Link>
+            );
+          }
+
+          return (
+            <div key={group.key} className="border-b border-gray-200">
+              <button
+                onClick={() =>
+                  setExpandedItem(expandedItem === index ? null : index)
+                }
+                className="w-full flex items-center justify-between py-4 px-2 text-text font-medium"
+              >
+                <span>{group.title}</span>
+                <ChevronDown
+                  className={`w-5 h-5 transition-transform ${
+                    expandedItem === index ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {expandedItem === index && (
+                <MobileSubMenu items={group.items} onClose={onClose} />
+              )}
+            </div>
+          );
+        })}
+
+        {/* Mobile Auth Buttons */}
+        <div className="mt-6 space-y-3">
+          {!isAuthenticated ? (
+            <Link
+              href="/login"
+              onClick={onClose}
+              className="flex items-center justify-center text-sm font-bold relative bg-primary text-white h-[48px] rounded-[100px]"
+            >
+              إنشاء حساب / تسجيل الدخول
+            </Link>
+          ) : (
+            <Link
+              href="/profile"
+              onClick={onClose}
+              className="flex items-center justify-center text-sm font-bold bg-white h-[48px] rounded-[100px] border-2 border-primary text-primary"
+            >
+              حسابي
+            </Link>
+          )}
+        </div>
+      </nav>
+    </div>
+  );
+};
+
+// Mobile SubMenu Component
+const MobileSubMenu = ({ items, onClose }) => {
+  const [expandedSubItem, setExpandedSubItem] = useState(null);
+
+  return (
+    <div className="bg-gray-50 px-4 py-2">
+      {items?.map((item, index) => {
+        const hasSubItems = item.subItems && item.subItems.length > 0;
+
+        return (
+          <div
+            key={item.key || index}
+            className="border-b border-gray-200 last:border-0"
+          >
+            {hasSubItems ? (
+              <>
+                <button
+                  onClick={() =>
+                    setExpandedSubItem(expandedSubItem === index ? null : index)
+                  }
+                  className="w-full flex items-center justify-between py-3 text-sm text-text"
+                >
+                  <span>{item.title}</span>
+                  <div className="flex items-center gap-2">
+                    {typeof item.count === "number" && (
+                      <span className="px-2 py-1 bg-primary-bg rounded-lg text-xs font-medium">
+                        {item.count}
+                      </span>
+                    )}
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform ${
+                        expandedSubItem === index ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
+                </button>
+
+                {expandedSubItem === index && (
+                  <div className="pr-4 pb-2">
+                    {item.subItems.map((subItem, subIndex) => (
+                      <Link
+                        key={subItem.key || subIndex}
+                        href={subItem.link || "#"}
+                        onClick={onClose}
+                        className="block py-2 text-sm text-text hover:text-primary"
+                      >
+                        {subItem.title}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <Link
+                href={item.link || item.href || "#"}
+                onClick={onClose}
+                className="flex items-center justify-between py-3 text-sm text-text"
+              >
+                <span>{item.title}</span>
+                {typeof item.count === "number" && (
+                  <span className="px-2 py-1 bg-primary-bg rounded-lg text-xs font-medium">
+                    {item.count}
+                  </span>
+                )}
+              </Link>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// Desktop DropDown Components (unchanged)
 export const DropDownItems = ({ items }) => {
   if (!Array.isArray(items) || items.length === 0) return null;
 
-  // NEW: state to control which row's submenu is open
   const [openSub, setOpenSub] = useState(null);
 
   return (
@@ -134,7 +318,6 @@ export const DropDownItems = ({ items }) => {
       className="flex rounded-3xl flex-col items-start pt-2 pb-6 px-4 relative bg-white border-2 [border-top-style:solid]  border-variable-collection-stroke"
       role="navigation"
       aria-title="Course categories"
-      // keep parent open while hovering inside
       onMouseLeave={() => setOpenSub(null)}
     >
       {items?.map((course, index) => {
@@ -183,7 +366,6 @@ export const DropDownItems = ({ items }) => {
                 </div>
               ) : null}
 
-              {/* chevron indicates submenu */}
               <span className="relative w-4 h-4  aspect-[1]" aria-hidden="true">
                 <ChevronLeft className="w-4 h-4" />
               </span>
@@ -191,7 +373,6 @@ export const DropDownItems = ({ items }) => {
           </div>
         );
 
-        // Always show a submenu (controlled hover)
         return (
           <Dropdown
             key={rowId}
@@ -208,11 +389,7 @@ export const DropDownItems = ({ items }) => {
             popupClassName="submenu-dropdown"
             zIndex={1000}
           >
-            {/* Note: keep the trigger a single element */}
-            <div
-              onClick={() => setOpenSub(rowId)}
-              // onMouseLeave={() => setOpenSub(null)}
-            >
+            <div onClick={() => setOpenSub(rowId)}>
               {href ? (
                 <Link href={href} className="block">
                   {rowContent}
@@ -246,7 +423,6 @@ const SubMenu = ({ course, subItems }) => {
           const isLast = index === links.length - 1;
           const isFirst = index === 0;
           const href = l.link || l.href;
-          console.log("subcourwse", l);
 
           const rowContent = (
             <div
@@ -279,7 +455,6 @@ const SubMenu = ({ course, subItems }) => {
               </div>
 
               <div className="inline-flex gap-2 flex-[0_0_auto] items-center relative">
-                {/* chevron indicates submenu */}
                 <span
                   className="relative w-4 h-4  aspect-[1]"
                   aria-hidden="true"
@@ -291,10 +466,7 @@ const SubMenu = ({ course, subItems }) => {
           );
 
           return (
-            <div
-              // onMouseLeave={() => setOpenSub(null)}
-              className="hover:!text-primary"
-            >
+            <div key={l.key} className="hover:!text-primary">
               {href ? (
                 <Link href={href} className="block ">
                   {rowContent}

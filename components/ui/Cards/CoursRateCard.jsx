@@ -3,14 +3,14 @@ import { EmptyRatingStar, FullStarIcon, RatingStarIcon } from "../../../public/s
 
 export const CoursRateCard = () => {
   return (
-    <div className="flex flex-col items-start gap-6 px-12 py-8 relative bg-primary-bg rounded-[30px] border-[3px] border-solid border-variable-collection-stroke">
+    <div className="flex flex-col items-start gap-6 px-12 py-8 relative bg-white rounded-[30px] border-[3px] border-solid border-variable-collection-stroke">
       <div className="flex items-start justify-start gap-4 relative self-stretch w-full flex-[0_0_auto]">
         <div className="relative w-12 h-12 rounded-3xl bg-[url(/images/Image-48.png)] bg-cover bg-[50%_50%]" />
         <div className="flex flex-col items-start gap-1 relative flex-1 grow">
-          <div className="relative self-stretch mt-[-1.00px]  text-text-duplicate text-base leading-6 ">
+          <div className="relative self-stretch font-bold mt-[-1.00px]  text-text-duplicate text-base leading-6 ">
             مايكل براون
           </div>
-          <div className=" text-sm leading-5 relative self-stretch text-[color:var(--variable-collection-sup-title-duplicate)] ">
+          <div className=" text-sm leading-5 relative self-stretch text-text-alt ">
             طالب
           </div>
         </div>
@@ -30,7 +30,7 @@ export const CoursRateCard = () => {
         }
 
       </div>
-      <p className=" text-base leading-6 relative self-stretch text-[color:var(--variable-collection-sup-title-duplicate)] ">
+      <p className=" text-base leading-6 relative self-stretch text-text-alt ">
         لوريم إيبسوم دولور سيت آميت، كونسيكتيتور أديبيسينغ إيليت. كورابيتور
         إيجيت إيروس فيتاي أورنا فيرمنتوم فاسيليسيس. سيد تريستيكوي، نيسل إن
         كورسوس تينسيدونت، جوستو لوريم فولوتبات سيم، فيل فيفيرا سابين آركو إت

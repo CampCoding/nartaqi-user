@@ -13,10 +13,10 @@ const CourseBriefOverview = ({isRegistered}) => {
   return (
     <div className=" grid-cols-1 space-y-[32px]  ">
       <div className="self-stretch inline-flex flex-col justify-start items-end gap-1">
-        <div className="self-stretch text-right justify-center text-text text-2xl font-bold ">
+        <div className="self-stretch text-right justify-center text-text text-xl font-bold ">
           مقدمة عن الدورة:
         </div>
-        <div className=" text-right justify-center text-stone-600 text-base font-medium ">
+        <div className=" text-right justify-center text-text-alt text-base leading-loose font-medium ">
           في هذه الدورة الشاملة ستتعلم استراتيجيات وأساليب التدريس الفعّال التي
           تساعدك على توصيل المعلومة بطرق مبتكرة وجاذبة للطلاب. سنبدأ من المبادئ
           الأساسية للتواصل التعليمي، ثم نتدرج إلى تصميم أنشطة تفاعلية، إدارة
@@ -25,20 +25,20 @@ const CourseBriefOverview = ({isRegistered}) => {
         </div>
       </div>
       <div className="self-stretch inline-flex flex-col justify-start items-end gap-1">
-        <div className="self-stretch text-right justify-center text-text text-2xl font-bold ">
+        <div className="self-stretch text-right justify-center text-text text-xl font-bold ">
           لمن هذه الدورة؟
         </div>
-        <div className=" text-right justify-center text-stone-600 text-base font-medium ">
+        <div className=" text-right justify-center text-text-alt text-base leading-loose font-medium ">
           لمعلمين والمعلمات في مختلف المراحل الدراسية المدربين في المجالات
           المهنية والتعليمية الطلاب الجامعيين أو حديثي التخرج الراغبين في دخول
           مجال التدريس أي شخص يسعى لتطوير مهاراته في الإلقاء والعرض والتدريب
         </div>
       </div>
       <div className="self-stretch inline-flex flex-col justify-start items-end gap-1">
-        <div className="self-stretch text-right justify-center text-text text-2xl font-bold ">
+        <div className="self-stretch text-right justify-center text-text text-xl font-bold ">
           أهداف الدورة:
         </div>
-        <div className=" text-right justify-center text-stone-600 text-base font-medium ">
+        <div className=" text-right justify-center text-text-alt text-base leading-loose font-medium ">
           فهم أسس ومبادئ التدريس الفعّال إتقان مهارات التواصل وبناء علاقة
           إيجابية مع المتعلمين تصميم دروس وأنشطة تعليمية محفزة وتفاعلية إدارة
           الصف بطرق عملية تحافظ على تركيز وانضباط المتعلمين التعرف على أدوات
@@ -54,11 +54,11 @@ const CourseBriefOverview = ({isRegistered}) => {
               src="https://placehold.co/45x45"
             />
             <div className="inline-flex flex-col justify-start items-start">
-              <div className="justify-center text-text text-2xl font-semibold  leading-loose">
+              <div className="justify-center text-text text-xl font-semibold  leading-loose">
                 {" "}
                 جون سميث
               </div>
-              <div className="justify-center text-stone-600 text-base font-medium ">
+              <div className="justify-center text-text-alt text-base leading-loose font-medium ">
                 محاضر في إتقان التدريس الفعال{" "}
               </div>
             </div>
@@ -109,11 +109,8 @@ const CourseBriefOverview = ({isRegistered}) => {
           </div>
         </div>
         <div className="flex-1 px-12 py-6  bg-secondary rounded-[20px] flex justify-center items-center gap-2">
-          <div className="w-6 h-6 relative overflow-hidden">
-            <VideoCameraIcon />
-          </div>
           <div className="text-right justify-center text-white text-base font-medium ">
-            الشروحات المجانية
+            اشترك الان
           </div>
         </div>
       </div>

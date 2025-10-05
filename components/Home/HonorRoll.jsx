@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 
@@ -16,6 +16,7 @@ import { EffectCoverflow, Navigation, Pagination } from "swiper/modules";
 
 // import "swiper/css/effect-coverflow";
 import FirstsCard from "../ui/Cards/FirstsCard";
+import Container from "../ui/Container";
 
 const image =
   "http://localhost:3001/static/media/BestSeller_1.dd174a5ab0afd31bca8a.png";
@@ -145,7 +146,6 @@ const firstsStudents = [
   },
 ];
 
-
 // 1. نحدد أعلى نسبة
 const maxIndex = firstsStudents.reduce((maxIdx, student, idx, arr) => {
   return parseInt(student.percentage) > parseInt(arr[maxIdx].percentage)
@@ -161,7 +161,7 @@ const middleIndex = Math.floor(firstsStudents.length / 2);
 
 // 4. ندخل الطالب في المنتصف
 firstsStudents.splice(middleIndex, 0, maxStudent);
-console.log("firstsStudents" , firstsStudents)
+console.log("firstsStudents", firstsStudents);
 
 const newmaxIndex = firstsStudents.reduce((maxIdx, student, idx, arr) => {
   const current = parseInt(student.percentage.replace("%", ""));
@@ -169,9 +169,7 @@ const newmaxIndex = firstsStudents.reduce((maxIdx, student, idx, arr) => {
   return current > max ? idx : maxIdx;
 }, 0);
 
-
-console.log("newmaxIndex" , newmaxIndex)
-
+console.log("newmaxIndex", newmaxIndex);
 
 const SwiperEffect = () => {
   // Sort and restructure the array before rendering
@@ -188,101 +186,98 @@ const SwiperEffect = () => {
   // Merge them: top 3 in front
   const arrangedStudents = [...topThree, ...others];
 
+  const basicsSwiperConfigrations = {
+    loopFillGroupWithBlank: true,
+
+    grabCursor: true,
+    centeredSlides: true,
+    initialSlide: newmaxIndex, // يبدأ من النص
+    spaceBetween: 0,
+    navigation: {
+      nextEl: ".custom-next",
+      prevEl: ".custom-prev",
+    },
+    breakpoints: {
+      0: {
+        slidesPerView: 1.2,
+        spaceBetween: 10,
+      },
+      480: {
+        slidesPerView: 1.5, // موبايلات كبيرة
+        spaceBetween: 10,
+      },
+      640: {
+        slidesPerView: 2, // تابلت صغير
+        spaceBetween: 10,
+      },
+      768: {
+        slidesPerView: 2.5, // تابلت أفقي
+        spaceBetween: 15,
+      },
+      1024: {
+        slidesPerView: 3, // لابتوب متوسط
+        spaceBetween: 20,
+      },
+      1280: {
+        slidesPerView: 4, // شاشات أكبر
+        spaceBetween: 20,
+      },
+      1536: {
+        slidesPerView: 5, // ديسكتوب عريض أو 2K
+        spaceBetween: 30,
+      },
+      1920: {
+        slidesPerView: 6, // شاشات 1080p واسعة
+        spaceBetween: 30,
+      },
+    },
+    autoplay: {
+      delay: 2500,
+      disableOnInteraction: false,
+    },
+  };
+
+  const bigScreenSwiperConfigrations = {
+    ...basicsSwiperConfigrations,
+    effect: "coverflow",
+    modules: [EffectCoverflow, Pagination, Navigation],
+    coverflowEffect: {
+      rotate: 10,
+      stretch: 10,
+      depth: 200,
+      modifier: 1,
+    },
+  };
+
   return (
     <div
-      className="h-[867px] w-full pt-[34px]"
+      className="  w-full pt-[34px] pb-[50px] md:pb-[83px] "
       style={{
         backgroundImage: `url('/images/Desktop - 6.png')`,
         backgroundPosition: "center",
       }}
     >
-      <div className="flex flex-col mx-auto w-[454px] items-center gap-4 relative">
-        <h1 className="relative w-fit mt-[-1.00px] font-bold text-secondary text-4xl text-center leading-10 whitespace-nowrap ">
+      <div className="flex flex-col mx-auto md:w-[454px] items-center gap-4 relative  mb-[40px] md:mb-[64px]">
+        <h1 className="relative w-fit mt-[-1.00px] font-bold text-secondary text-2xl md:text-4xl text-center leading-10 whitespace-nowrap ">
           لوحة الشرف لهذا الشهر
         </h1>
         <p className="relative w-fit  text-white text-lg text-center leading-7 whitespace-nowrap ">
           أغسطس 2025
         </p>
       </div>
-      <div className="w-full flex items-center justify-center container mx-auto">
-        <Swiper
-          loopFillGroupWithBlank={true}
-          // ------------------------
-          effect={"coverflow"}
-          grabCursor={true}
-          centeredSlides={true}
-          // slidesPerView={"auto"}
-          // pagination={true}
-          initialSlide={newmaxIndex} // يبدأ من النص
-          spaceBetween={0}
-          // loop={true}
-          navigation={{
-            nextEl: ".custom-next",
-            prevEl: ".custom-prev",
-          }}
-          breakpoints={{
-            0: {
-              slidesPerView: 1,
-              spaceBetween: 0,
-            },
-            480: {
-              slidesPerView: 1.5, // موبايلات كبيرة
-              spaceBetween: 10,
-            },
-            640: {
-              slidesPerView: 2, // تابلت صغير
-              spaceBetween: 10,
-            },
-            768: {
-              slidesPerView: 2.5, // تابلت أفقي
-              spaceBetween: 15,
-            },
-            1024: {
-              slidesPerView: 3, // لابتوب متوسط
-              spaceBetween: 20,
-            },
-            1280: {
-              slidesPerView: 4, // شاشات أكبر
-              spaceBetween: 20,
-            },
-            1536: {
-              slidesPerView: 5, // ديسكتوب عريض أو 2K
-              spaceBetween: 30,
-            },
-            1920: {
-              slidesPerView: 6, // شاشات 1080p واسعة
-              spaceBetween: 30,
-            },
-          }}
-          autoplay={{
-            delay: 2500,
-            disableOnInteraction: false,
-          }}
-          modules={[EffectCoverflow, Pagination, Navigation]}
-          coverflowEffect={{
-            rotate: 10,
-            stretch: 10,
-            depth: 200,
-            modifier: 1,
-          }}
-          className="mySwiper !p-[86px]"
-        >
+      <div className="w-full flex justify-center">
+        <Swiper {...bigScreenSwiperConfigrations} className="mySwiper ">
           {firstsStudents?.map((item, index) => (
-            <SwiperSlide key={index} className="swiper-slide">
+            <SwiperSlide
+              key={index}
+              className="swiper-slide flex justify-center w-fit items-center"
+            >
               <FirstsCard
                 data={item}
                 icon={usersIcons[Math.floor(Math.random() * usersIcons.length)]}
               />
             </SwiperSlide>
           ))}
-
-          <div className="custom-navigation pet_food">
-            {/* <div className="custom-prev">{arrowLeft}</div>
-          <div className="custom-next">{arrowRight}</div> */}
-          </div>
-
-          {/* <div className="custom-prev">{arrowLeft}</div>
-    <div className="custom-next">{arrowRight}</div> */}
         </Swiper>
       </div>
     </div>
