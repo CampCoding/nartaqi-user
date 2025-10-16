@@ -49,19 +49,19 @@ const CourseFeatures = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6 lg:gap-8">
       {features.map((feature, index) => (
         <div
           key={index}
-          className="self-stretch inline-flex flex-col justify-start items-start gap-1"
+          className="self-stretch flex flex-col justify-start items-start gap-1"
         >
-          <div className="inline-flex justify-start items-center gap-4">
+          <div className="inline-flex justify-start items-center gap-3 lg:gap-4">
             {feature.icon}
-            <div className="text-right justify-center text-text text-xl font-bold ">
+            <div className="text-right justify-center text-text text-lg md:text-xl font-bold">
               {feature.title}
             </div>
           </div>
-          <div className="w-[762px] text-right justify-center leading-loose text-stone-600 text-base font-medium ">
+          <div className="text-right justify-center leading-loose text-stone-600 text-sm md:text-base font-medium">
             {feature.description}
           </div>
         </div>

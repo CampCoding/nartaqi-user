@@ -5,6 +5,7 @@ import CompetitionsSection from "../../../components/CompetitionsPage/Competitio
 import Leaderboard from "../../../components/CompetitionsPage/Leaderboard";
 import CompetitionRulesAndFaqs from "../../../components/CompetitionsPage/CompetitionRulesAndFaqs";
 import SharingWithFriendsHeroSection from "../../../components/CompetitionsPage/SharingWithFriendsHeroSection";
+import Container from "../../../components/ui/Container";
 
 const Compitions = () => {
   return (
@@ -24,18 +25,16 @@ const Compitions = () => {
         image={"/images/competitions-banner.png"}
       />
 
-          <div className="mt-[48px] mb-[100px]">
-
-
-      <main className="container max-w-[1312px] mx-auto ">
-        <FirstSection />
-      </main>
-      <CompetitionsSection />
-      <Leaderboard />
-      <CompetitionRulesAndFaqs />
-      <SharingWithFriendsHeroSection />
+      <div className="mt-[48px] mb-[100px]">
+        <Container className=" ">
+          <FirstSection />
+        </Container>
+        <CompetitionsSection />
+        <Leaderboard />
+        <CompetitionRulesAndFaqs />
+        <SharingWithFriendsHeroSection />
+      </div>
     </div>
-          </div>
   );
 };
 

@@ -26,16 +26,16 @@ const ExamDetails = () => {
       />
 
       {!showResults && (
-        <div className="  container mx-auto px-[64px] mt-[32px] mb-[64px]">
+        <div className="container mx-auto px-4 sm:px-8 lg:px-16 mt-6 sm:mt-8 lg:mt-10 mb-8 sm:mb-12 lg:mb-16">
           <ExamDetailsHeader />
 
-          <div className="flex justify-between items-center">
-            <div className="mt-[32px] mb-[48px] flex flex-col gap-[48px]">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start mt-6 sm:mt-8 lg:mt-10 mb-8 sm:mb-12 lg:mb-14 gap-6 sm:gap-8 lg:gap-12">
+            <div className="flex flex-col gap-6 sm:gap-8 lg:gap-12 w-full lg:w-2/3">
               <Instructions />
               <Alerts />
-            </div>{" "}
+            </div>
             <div
-              className="inline-flex flex-col shadow-[0px_0px_50px_0px_rgba(59,130,246,0.50)]  w-[325px] pt-[32px] px-[64px]  h-[449px] items-center  relative rounded-[30px] overflow-hidden"
+              className="w-full sm:w-80  sm:!m-auto lg:w-96 pt-6 sm:pt-8 px-4 sm:px-8 lg:px-16 h-auto sm:h-[400px] lg:h-[450px] flex flex-col items-center relative rounded-3xl overflow-hidden shadow-[0px_0px_50px_0px_rgba(59,130,246,0.50)]"
               style={{
                 backgroundImage: "url('/images/Frame 1000005493.png')",
                 backgroundSize: "cover",
@@ -43,25 +43,25 @@ const ExamDetails = () => {
                 backgroundRepeat: "no-repeat",
               }}
             >
-              <div className="text-right justify-center text-primary text-3xl font-semibold mb-8  ">
+              <div className="text-right text-primary text-xl sm:text-2xl lg:text-3xl font-semibold mb-6 sm:mb-8">
                 نتيجة الأختبار
               </div>
               <CircularProgress />
-              <div className=" justify-center text-green-600 text-base font-bold bg-white  mt-2 text-center">
+              <div className="text-green-600 text-sm sm:text-base lg:text-lg font-bold bg-white mt-2 text-center px-4 py-2 rounded-lg">
                 تهانينا! لقد نجحت في الأختبار
               </div>
             </div>
           </div>
 
-          <div className="flex  justify-between">
+          <div className="flex flex-col sm:flex-row sm:justify-between gap-4 sm:gap-6">
             <Link href={"/exam-details/1234/exam"}>
               <button
                 type="button"
                 aria-label="إعاده الأختبار"
-                className="flex  mr-auto items-center justify-center gap-2.5 p-[2px]  relative rounded-[30px] bg-gradient-to-r from-primary to-secondary cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="w-full sm:w-auto flex items-center justify-center gap-2.5 p-[2px] rounded-3xl bg-gradient-to-r from-primary to-secondary cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
-                <div className="flex  mr-auto items-center justify-center gap-2.5 px-16 py-5 relative rounded-[30px] bg-white  transition-all duration-200 hover:shadow-lg  active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-                  <div className="relative text-secondary flex items-center justify-center w-fit mt-[-1.00px]  font-bold  text-[20px] tracking-[0] leading-[50px] whitespace-nowrap ">
+                <div className="flex items-center justify-center gap-2.5 px-8  w-full py-4 sm:py-4 bg-white rounded-3xl transition-all duration-200 hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                  <div className="text-secondary font-bold text-base sm:text-lg lg:text-xl leading-tight whitespace-nowrap">
                     إعاده الأختبار
                   </div>
                 </div>
@@ -70,11 +70,11 @@ const ExamDetails = () => {
 
             <button
               onClick={() => setShowResults(true)}
-              className="flex  mr-auto items-center justify-center gap-2.5 px-20 py-5 relative rounded-[30px] bg-gradient-to-r from-primary to-secondary cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 sm:px-12 lg:px-16 py-3 sm:py-4 rounded-3xl bg-gradient-to-r from-primary to-secondary cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               type="button"
               aria-label="ابداء الأختبار الأن"
             >
-              <div className="relative text-white flex items-center justify-center w-fit mt-[-1.00px]  font-bold  text-[20px] tracking-[0] leading-[50px] whitespace-nowrap ">
+              <div className="text-white font-bold text-base sm:text-lg lg:text-xl leading-tight whitespace-nowrap">
                 مراجعة الأختبار
               </div>
             </button>
@@ -90,23 +90,23 @@ const ExamDetails = () => {
 };
 
 export default ExamDetails;
+
 const CircularProgress = ({ value = 80 }) => {
   return (
-    <div className="relative w-[146px] h-[146px] flex items-center justify-center">
+    <div className="relative w-24 sm:w-32 lg:w-36 h-24 sm:h-32 lg:h-36 flex items-center justify-center">
       {/* Outer circle with conic-gradient */}
       <div
         className="absolute inset-0 rounded-full"
         style={{
-          background: `conic-gradient( #3b82f6 ${value}%, #f97316  ${value}% 100%)`,
+          background: `conic-gradient(#3b82f6 ${value}%, #f97316 ${value}% 100%)`,
         }}
       ></div>
 
       {/* White inner circle to create ring effect */}
-      <div className="absolute inset-[10px] bg-white rounded-full"></div>
+      <div className="absolute inset-2 sm:inset-3 bg-white rounded-full"></div>
 
       {/* Percentage text */}
-      <span className="text-2xl font-bold relative  !text-primary">
-        {" "}
+      <span className="text-lg sm:text-xl lg:text-2xl font-bold relative text-primary">
         {value} %
       </span>
     </div>

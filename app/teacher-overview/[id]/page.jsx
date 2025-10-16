@@ -10,6 +10,7 @@ import "swiper/css/free-mode";
 import { FreeMode, Mousewheel, Navigation } from "swiper/modules";
 
 import CourseCard from "../../../components/ui/Cards/CourseCard";
+import Container from "../../../components/ui/Container";
 const TecherOverviewPage = () => {
   const CoursesCategoryCardData = [
     {
@@ -44,7 +45,7 @@ const TecherOverviewPage = () => {
     },
   ];
   return (
-    <div className="container mx-auto px-[64px]">
+    <Container className="">
       <div className="flex flex-col gap-[48px]">
         <CourseTitle title="نبذه عن المدرب" />
         <TeacherTopData />
@@ -80,7 +81,7 @@ const TecherOverviewPage = () => {
           </Swiper>
         </div>
       </div>
-    </div>
+    </Container>
   );
 };
 

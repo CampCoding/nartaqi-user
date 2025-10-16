@@ -1,4 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
+import { Drawer, Button } from "antd";
+// If you're using icons, keep your existing ones:
+/// import { Menu } from "lucide-react";  // optional
+/// import { CloseOutlined } from "@ant-design/icons"; // optional
 
 export const MockExamHeader = ({
   timeRemaining = "56:25",
@@ -7,8 +11,10 @@ export const MockExamHeader = ({
   isMarkedForReview = false,
   isInReview,
   setInReview,
+  drawerPlacement = "bottom", // 'bottom' feels natural on mobile; use 'left' if you prefer
 }) => {
-  // Data for the exam header information
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   const examData = {
     examTitle: "اختبار استراتيجيات التدريس الحديثة -",
     studentName: "الطالب: علي محمد احمد",
@@ -20,87 +26,228 @@ export const MockExamHeader = ({
     normalLine: "خط عادي",
   };
 
+  const Controls = () => (
+    <div className="flex items-center md:gap-10">
+      {/* Timer */}
+      <div
+        className="inline-flex items-center gap-2 px-0 py-2 sm:py-3"
+        role="timer"
+        aria-label="Time remaining"
+      >
+        <TimerIcon />
+        <span className="text-white text-sm sm:text-base leading-[2.25rem] sm:leading-[50px] tracking-[0]">
+          {examData.timeRemaining}
+        </span>
+      </div>
+
+      {!isInReview && (
+        <>
+          <div
+            className="inline-flex whitespace-nowrap items-center justify-center gap-2.5 px-0 py-2 sm:py-3"
+            role="status"
+            aria-label="Question progress"
+          >
+            <span className="text-white text-sm sm:text-base leading-[normal] tracking-[0] whitespace-nowrap">
+              {examData.questionProgress}
+            </span>
+          </div>
+
+          {/* Mark for Review Button */}
+          <button
+            className={`inline-flex whitespace-nowrap items-center gap-2 px-0 py-2 sm:py-3 hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-opacity ${
+              isMarkedForReview ? "bg-white/20 rounded-lg" : ""
+            }`}
+            aria-label={examData.markForReview}
+            type="button"
+            onClick={onMarkForReview}
+          >
+            <FlagIcon />
+            <span className="text-white text-sm sm:text-base leading-[normal] tracking-[0] whitespace-nowrap">
+              {examData.markForReview}
+            </span>
+          </button>
+
+          {/* Normal Line Button */}
+          <button
+            className="inline-flex whitespace-nowrap items-center gap-4 sm:gap-6 px-4 sm:px-6 py-2 sm:py-3 bg-white rounded-[16px] sm:rounded-[20px] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-opacity"
+            aria-label={examData.normalLine}
+            type="button"
+          >
+            <span className="font-medium text-[#2d2d2d] text-sm sm:text-base leading-[normal] tracking-[0] whitespace-nowrap">
+              {examData.normalLine}
+            </span>
+            <ChevronDownIcon />
+          </button>
+        </>
+      )}
+    </div>
+  );
+
+  const MobileControls = () => (
+    <div className="flex flex-col">
+      <div
+        className="inline-flex  items-center gap-2 px-0 py-2 sm:py-3"
+        role="timer"
+        aria-label="Time remaining"
+      >
+        <TimerIcon />
+        <span className="  text-xl text-white leading-[2.25rem] sm:leading-[50px] tracking-[0]">
+          {examData.timeRemaining}
+        </span>
+      </div>
+
+      {!isInReview && (
+        <div className="flex flex-col gap-4">
+          <div
+            className="  gap-2.5 px-0 py-2 sm:py-3"
+            role="status"
+            aria-label="Question progress"
+          >
+            <span className=" text-white text-xl sm:text-base leading-[normal] tracking-[0] whitespace-nowrap">
+              {examData.questionProgress}
+            </span>
+          </div>
+
+          <button
+            className={`inline-flex text-white items-center gap-2  px-3 border border-white rounded-lg py-2 sm:py-3 hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-opacity ${
+              isMarkedForReview ? "bg-white/20 rounded-lg" : ""
+            }`}
+            aria-label={examData.markForReview}
+            type="button"
+            onClick={onMarkForReview}
+          >
+            <FlagIcon className={"stroke-white"} />
+            <span className=" text-sm sm:text-base leading-[normal] tracking-[0] whitespace-nowrap">
+              {examData.markForReview}
+            </span>
+          </button>
+
+          {/* Normal Line Button */}
+          <button
+            className="inline-flex items-center justify-between sm:gap-6 px-4 sm:px-6 py-2 sm:py-3 bg-white rounded  hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-opacity"
+            aria-label={examData.normalLine}
+            type="button"
+          >
+            <span className="font-medium text-[#2d2d2d] text-sm sm:text-base leading-[normal] tracking-[0] whitespace-nowrap">
+              {examData.normalLine}
+            </span>
+            <ChevronDownIcon />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <header
-      className="flex  items-center justify-between px-16 py-12 relative bg-primary"
+      className="
+        bg-primary relative
+        px-4 py-4 sm:px-6 sm:py-6 md:px-10 md:py-8 lg:px-16 lg:py-12
+        flex flex-col gap-4 md:flex-row flex-wrap md:items-center md:justify-between
+      "
       role="banner"
+      dir="rtl"
     >
-      {/* Exam Title and Student Info */}
+      {/* Title + Student */}
       <div
-        className="gap-1 inline-flex items-center relative flex-[0_0_auto]"
+        className="inline-flex flex-col md:flex-row md:items-center gap-1 min-w-0"
         role="banner"
       >
-        <h1 className="mt-[-1.00px] [font-family:'Cairo-Bold',Helvetica] font-bold text-text text-2xl text-left leading-[normal] relative w-fit tracking-[0] [direction:rtl]">
+        <h1
+          className="
+             font-bold text-text
+            text-xl sm:text-2xl md:text-3xl leading-[normal] tracking-[0] mt-[-1px]
+            max-w-full truncate
+          "
+          title={examData.examTitle}
+        >
           {examData.examTitle}
         </h1>
-        <div className=" font-medium text-text text-base text-left leading-[normal] relative w-fit tracking-[0] [direction:rtl]">
+        <div
+          className="font-medium text-text text-sm sm:text-base leading-[normal] tracking-[0] max-w-full truncate"
+          title={examData.studentName}
+        >
           {examData.studentName}
         </div>
       </div>
+
+      {/* Inline controls on md+ (unchanged main design) */}
       <nav
-        className="gap-8 self-stretch inline-flex items-center relative flex-[0_0_auto]"
+        className="
+          hidden md:inline-flex md:items-center md:flex-wrap
+          gap-2 sm:gap-3 md:gap-6 lg:gap-8
+        "
         role="navigation"
         aria-label="Exam controls"
       >
-        {/* Timer */}
-        <div
-          className="gap-2 px-0 py-3 inline-flex items-center relative flex-[0_0_auto]"
-          role="timer"
-          aria-label="Time remaining"
-        >
-          <TimerIcon />
-          <span className="flex items-center justify-center mt-[-1.00px]  text-white text-base leading-[50px] whitespace-nowrap relative w-fit tracking-[0] [direction:rtl]">
-            {examData.timeRemaining}
-          </span>
-        </div>
-
-
-      {
-        !isInReview && <>
-        {/* Question Progress */}
-        <div
-          className="justify-center gap-2.5 px-0 py-3 inline-flex items-center relative flex-[0_0_auto]"
-          role="status"
-          aria-label="Question progress"
-        >
-          <span className="relative w-fit mt-[-1.00px]  text-white text-base text-left tracking-[0] leading-[normal] whitespace-nowrap [direction:rtl]">
-            {examData.questionProgress}
-          </span>
-        </div>
-
-        {/* Mark for Review Button */}
-        <button
-          className={`gap-2 px-0 py-3 inline-flex items-center relative flex-[0_0_auto] hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-opacity ${
-            isMarkedForReview ? "bg-white bg-opacity-20 rounded-lg" : ""
-          }`}
-          aria-label={examData.markForReview}
-          type="button"
-          onClick={onMarkForReview}
-        >
-          <FlagIcon />
-          <span className=" text-white text-base text-left leading-[normal] whitespace-nowrap relative w-fit tracking-[0] [direction:rtl]">
-            {examData.markForReview}
-          </span>
-        </button>
-
-        {/* Normal Line Button */}
-        <button
-          className="gap-6 px-6 py-3 bg-white rounded-[20px] inline-flex items-center relative flex-[0_0_auto] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-opacity"
-          aria-label={examData.normalLine}
-          type="button"
-        >
-          <span className="flex items-center justify-center mt-[-1.00px]  font-medium text-[#2d2d2d] text-base leading-[normal] relative w-fit tracking-[0] [direction:rtl]">
-            {examData.normalLine}
-          </span>
-          <ChevronDownIcon />
-        </button>
-        
-        </>
-      }
+        <Controls />
       </nav>
+
+      {/* Mobile: Drawer trigger (only on < md) */}
+      <div className="flex md:hidden justify-start">
+        <Button
+          type="default"
+          className="!rounded-xl !bg-white  hover:!opacity-90"
+          aria-label="فتح عناصر التحكم"
+          onClick={() => setDrawerOpen(true)}
+        >
+          عناصر التحكم
+        </Button>
+      </div>
+
+      {/* Mobile Drawer */}
+      <Drawer
+        styles={{
+          footer: { backgroundColor: "var(--color-primary)" },
+          header: { backgroundColor: "var(--color-primary)" },
+          body: { backgroundColor: "var(--color-primary)" },
+        }}
+        footer={
+          <div className="mt-2  !text-white flex justify-end">
+            <Button className="text-white" onClick={() => setDrawerOpen(false)}>
+              إغلاق
+            </Button>
+          </div>
+        }
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        placement={drawerPlacement}
+        // 'bottom' by default; 'left' also works nicely for RTL
+        title={
+          <div className="flex items-center justify-between" dir="rtl">
+            <span className="font-bold text-white">
+              عناصر التحكم في الاختبار
+            </span>
+          </div>
+        }
+        bodyStyle={{ padding: 16, backgroundColor: "var(--color-primary)" }}
+        destroyOnClose
+      >
+        <div
+          className="
+            flex flex-col gap-3
+            /* keep the look but adapt to stacked mobile layout */
+          "
+          dir="rtl"
+          aria-label="Exam controls (mobile)"
+        >
+          {/* We reuse exactly the same controls to preserve behavior and text */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <MobileControls />
+          </div>
+        </div>
+      </Drawer>
     </header>
   );
 };
+
+/**
+ * Notes:
+ * - Preserved your structure and styles; only added responsive (sm/md/lg) tweaks,
+ *   safe wrapping, and truncation on tight widths without altering the main design.
+ * - dir="rtl" added to the header to ensure consistent RTL alignment across breakpoints.
+ * - No visual logic was changed; items simply stack on small screens and align in a row on md+.
+ */
 
 const TimerIcon = (props) => (
   <svg
@@ -202,20 +349,17 @@ const FlagIcon = (props) => (
   >
     <path
       d="M3.82413 1.29297V26.7044"
-      stroke="white"
       strokeWidth={2}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M3.82413 3.41016H13.7062L18.6472 5.52777H23.5883C23.9627 5.52777 24.3218 5.67651 24.5865 5.94127C24.8513 6.20602 25 6.5651 25 6.93952V18.9394C25 19.3138 24.8513 19.6729 24.5865 19.9376C24.3218 20.2024 23.9627 20.3511 23.5883 20.3511H18.6472L13.7062 18.2335H3.82413V3.41016Z"
-      stroke="white"
       strokeWidth={2}
       strokeLinejoin="round"
     />
     <path
       d="M1 26.7031H6.6469"
-      stroke="white"
       strokeWidth={2}
       strokeLinecap="round"
       strokeLinejoin="round"

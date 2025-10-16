@@ -3,43 +3,36 @@ import React, { useState } from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
 import { CourseChevronTopIcon, SaudiIcon } from "../../public/svgs";
 import { CertificationRegisterationModal } from "../../components/ui/Modals/CertificationRegisterationModal";
+import Container from "../../components/ui/Container";
 
 const RegisterCertificate = () => {
   const [isPhoneMatchedOnManar, setIsPhoneMatchedOnManar] = useState(null);
   const [isEmailMatchedOnManar, setIsEmailMatchedOnManar] = useState(null);
   const [isIdMatchedOnManar, setIsIdMatchedOnManar] = useState(null);
-
-  const [openInfoModal , setOpenInfoModal]  = useState(false)
+  const [openInfoModal, setOpenInfoModal] = useState(false);
 
   return (
     <div>
       <PagesBanner
         image={"/images/Frame 1000005840.png"}
-        title={" تسجيل بيانات الشهادة"}
+        title={"تسجيل بيانات الشهادة"}
         breadcrumb={[
-          {
-            title: "الرئيسية",
-            link: "/",
-          },
-          {
-            title: "تسجيل بيانات الشهادة",
-            link: "#",
-          },
+          { title: "الرئيسية", link: "/" },
+          { title: "تسجيل بيانات الشهادة", link: "#" },
         ]}
       />
 
-      <div className="container max-w-[1312px] mx-auto px-[64px] mt-[48px] ">
-        <div className="px-4 my-6">
-          <div className="  mx-auto flex flex-col w-[607px] items-center gap-6 relative">
-            <div className="self-stretch mt-[-1.00px] text-text font-bold  text-[32px] text-center relative flex items-center justify-center tracking-[0] leading-[normal] ">
+      <Container className="  mt-6 sm:mt-8 lg:mt-12">
+        <div className="px-4 sm:px-6 py-6">
+          <div className="mx-auto flex flex-col w-full max-w-[607px] items-center gap-4 sm:gap-6">
+            <h1 className="self-stretch text-text font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl text-center tracking-tight leading-tight">
               تسجيل بيانات الشهادة
-            </div>
-
-            <p className="w-fit  font-medium text-text-alt text-2xl text-left relative flex items-center justify-center tracking-[0] leading-[normal] ">
+            </h1>
+            <p className="w-full max-w-2xl font-medium text-text-alt text-base sm:text-lg md:text-xl text-center sm:text-right tracking-tight leading-relaxed">
               لدورة &#34;الرخصة المهنية في مادة التربية الأسرية 1447 هـ&#34;
             </p>
           </div>
-          <div className="flex flex-col gap-8 mt-8">
+          <div className="flex flex-col gap-6 sm:gap-8 mt-6 sm:mt-8">
             <Input />
             <Input
               label="رقم الهوية"
@@ -50,43 +43,40 @@ const RegisterCertificate = () => {
             <TelephoneButon subLabel="رقم جوال المتدرب/المتدربة - يجب ألا يكون الرقم مسجل باسم متدرب آخر فى منصة منار - يكتب الرقم بدون الصفر" />
             <Input
               label="الإيميل"
-              subLabel="(مطابق للإيميل المسجل بمنصة منار) "
+              subLabel="(مطابق للإيميل المسجل بمنصة منار)"
               placeholder="أدخل بريدك الإلكتروني"
             />
             <Input
               label="تأكيد الإيميل"
               subLabel=""
-              placeholder="أدخل  تأكيد بريدك الإلكتروني"
+              placeholder="أدخل تأكيد بريدك الإلكتروني"
             />
           </div>
 
-          <div className="flex flex-col gap-4 mt-8">
-            <p className=" h-[50px] text-text  font-bold  text-base tracking-[0] leading-[50px] whitespace-nowrap ">
+          <div className="flex flex-col gap-3 sm:gap-4 mt-6 sm:mt-8">
+            <p className="text-text font-bold text-sm sm:text-base tracking-tight leading-8 sm:leading-10">
               هل تم التأكد أن رقم الجوال مطابق لرقم جوالك الذي في منصة منار؟
             </p>
-
             <RadioGroup
               name="phone-match-confirmation"
               value={isPhoneMatchedOnManar}
               onChange={setIsPhoneMatchedOnManar}
             />
           </div>
-          <div className="flex flex-col gap-4 mt-8">
-            <p className=" h-[50px] text-text  font-bold  text-base tracking-[0] leading-[50px] whitespace-nowrap ">
-              هل تم التأكد أن ايميلك مطابق لايميلك الذي في منصة منار؟{" "}
+          <div className="flex flex-col gap-3 sm:gap-4 mt-6 sm:mt-8">
+            <p className="text-text font-bold text-sm sm:text-base tracking-tight leading-8 sm:leading-10">
+              هل تم التأكد أن ايميلك مطابق لايميلك الذي في منصة منار؟
             </p>
-
             <RadioGroup
               name="email-match-confirmation"
               value={isEmailMatchedOnManar}
               onChange={setIsEmailMatchedOnManar}
             />
           </div>
-          <div className="flex flex-col gap-4 mt-8">
-            <p className=" h-[50px] text-text  font-bold  text-base tracking-[0] leading-[50px] whitespace-nowrap ">
-              هل تم التأكد من كتابة رقم هويتك بشكل صحيح؟{" "}
+          <div className="flex flex-col gap-3 sm:gap-4 mt-6 sm:mt-8">
+            <p className="text-text font-bold text-sm sm:text-base tracking-tight leading-8 sm:leading-10">
+              هل تم التأكد من كتابة رقم هويتك بشكل صحيح؟
             </p>
-
             <RadioGroup
               name="id-match-confirmation"
               value={isIdMatchedOnManar}
@@ -94,21 +84,24 @@ const RegisterCertificate = () => {
             />
           </div>
 
-          <button onClick={()=>setOpenInfoModal(true)} className="self-stretch w-full px-12 py-6 bg-secondary hover:bg-secondary-dark transition-all cursor-pointer mt-16 rounded-[20px] inline-flex justify-center items-center gap-2.5">
-            <div className="text-right justify-center text-white text-2xl font-bold">
+          <button
+            onClick={() => setOpenInfoModal(true)}
+            className="w-full max-w-full mx-auto px-6 sm:px-8 py-3 sm:py-4 bg-secondary hover:bg-secondary-dark transition-all cursor-pointer mt-8 sm:mt-12 rounded-lg sm:rounded-xl inline-flex justify-center items-center gap-2"
+          >
+            <span className="text-white text-lg sm:text-xl md:text-2xl font-bold text-right">
               تسجيل
-            </div>
+            </span>
           </button>
         </div>
-      </div>
+      </Container>
 
-
-      <CertificationRegisterationModal open={openInfoModal} setOpen={setOpenInfoModal} />
+      <CertificationRegisterationModal
+        open={openInfoModal}
+        setOpen={setOpenInfoModal}
+      />
     </div>
   );
 };
-
-export default RegisterCertificate;
 
 export const Input = ({
   label = "الاسم رباعي باللغة العربية",
@@ -116,27 +109,29 @@ export const Input = ({
   placeholder = "أدخل اسمك بالكامل",
 }) => {
   return (
-    <div className="flex flex-col items-start gap-2 relative">
-      <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+    <div className="flex flex-col items-start gap-2 sm:gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center w-full">
+        <label className="font-bold text-text text-sm sm:text-base tracking-tight leading-normal">
           {label}
-        </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
-          {subLabel}
-        </div>
+        </label>
+        {subLabel && (
+          <span className="font-medium text-danger text-sm sm:text-base tracking-tight leading-normal">
+            {subLabel}
+          </span>
+        )}
       </div>
       <input
         placeholder={placeholder}
-        className="justify-start h-[80px] gap-2.5 px-4  bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto]"
+        className="h-12 sm:h-14 md:h-16 w-full px-3 sm:px-4 bg-white rounded-lg sm:rounded-xl border-2 border-[#c8c9d5] text-right text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-secondary"
       />
     </div>
   );
 };
 
 export const Select = ({
-  label = "الاسم رباعي باللغة العربية",
+  label = "الجنسية",
   subLabel = "(مطابق للهوية الوطنية)",
-  placeholder = "أدخل اسمك بالكامل",
+  placeholder = "اختر من القائمة",
   options = [
     { value: "", label: "اختر من القائمة" },
     { value: "option1", label: "الخيار الأول" },
@@ -145,22 +140,22 @@ export const Select = ({
   ],
 }) => {
   return (
-    <div className="flex flex-col items-start gap-2 relative">
-      <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+    <div className="flex flex-col items-start gap-2 sm:gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center w-full">
+        <label className="font-bold text-text text-sm sm:text-base tracking-tight leading-normal">
           {label}
-        </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
-          {subLabel}
-        </div>
+        </label>
+        {subLabel && (
+          <span className="font-medium text-danger text-sm sm:text-base tracking-tight leading-normal">
+            {subLabel}
+          </span>
+        )}
       </div>
-
-      <div className="justify-start  relative h-[80px] gap-2.5 px-4 bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center self-stretch w-full flex-[0_0_auto]">
-        <div className="absolute top-1/2 left-4 -translate-y-1/2 rotate-180">
-          {<CourseChevronTopIcon className={"fill-text"} />}
+      <div className="relative w-full h-12 sm:h-14 md:h-16">
+        <div className="absolute top-1/2 left-3 sm:left-4 -translate-y-1/2 rotate-180">
+          <CourseChevronTopIcon className="fill-text w-4 h-4 sm:w-5 sm:h-5" />
         </div>
-
-        <select className="h-full w-full" defaultValue="">
+        <select className="h-full w-full px-3 sm:px-4 pr-10 sm:pr-12 bg-white rounded-lg sm:rounded-xl border-2 border-[#c8c9d5] text-right text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-secondary appearance-none">
           {options.map((opt) => (
             <option
               key={opt.value}
@@ -183,32 +178,32 @@ export const TelephoneButon = ({
   ...props
 }) => {
   return (
-    <div className="flex flex-col items-start gap-2 relative w-full">
-      <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+    <div className="flex flex-col items-start gap-2 sm:gap-3 w-full">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center w-full">
+        <label className="font-bold text-text text-sm sm:text-base tracking-tight leading-normal">
           {label}
-        </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+        </label>
+        <span className="font-medium text-danger text-sm sm:text-base tracking-tight leading-normal">
           {subLabel}
-        </div>
+        </span>
       </div>
-      <div className=" h-[80px] justify-between px-4 py-0 bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative w-full">
+      <div className="relative h-12 sm:h-14 md:h-16 w-full flex items-center bg-white rounded-lg sm:rounded-xl border-2 border-[#c8c9d5]">
         <input
-          className="justify-center w-full font-normal text-text placeholder-[#c8c9d5] text-base text-right tracking-[0] leading-[normal] flex items-center relative"
+          className="w-full h-full px-3 sm:px-4 font-normal text-text placeholder-[#c8c9d5] text-sm sm:text-base text-right tracking-tight focus:outline-none focus:ring-2 focus:ring-secondary"
           placeholder={placeholder}
           {...props}
         />
-        <div className="inline-flex items-center gap-2.5 px-4 py-6 relative flex-[0_0_auto] border-r-2 [border-right-style:solid] border-variable-collection-stroke">
-          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold text-text text-base text-right tracking-[0] leading-[normal]">
+        <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 border-r-2 border-[#c8c9d5]">
+          <span className="font-semibold text-text text-sm sm:text-base text-right tracking-tight">
             +966
-          </div>
-          <SaudiIcon />
+          </span>
+          <SaudiIcon className="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
       </div>
     </div>
   );
 };
-// components/RadioGroup.jsx
+
 export const RadioGroup = ({
   name = "radio-group",
   value = null,
@@ -220,9 +215,8 @@ export const RadioGroup = ({
     <div
       role="radiogroup"
       aria-labelledby={`${name}-label`}
-      className="inline-flex items-center gap-12"
+      className="flex items-center gap-6 sm:gap-8"
     >
-      {/* نعم */}
       <label className="flex items-center gap-2 cursor-pointer select-none">
         <input
           type="radio"
@@ -233,27 +227,22 @@ export const RadioGroup = ({
           className="peer sr-only"
           aria-label="نعم"
         />
-
         <span
           className="
-            relative inline-flex items-center justify-center
-            w-6 h-6 rounded-full border-2 border-secondary
+            relative flex items-center justify-center
+            w-5 sm:w-6 h-5 sm:h-6 rounded-full border-2 border-secondary
             focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-secondary
-            after:content-['']
-            after:w-3 after:h-3 after:rounded-full
-            after:bg-secondary
-            after:scale-0 peer-checked:after:scale-100
+            after:content-[''] after:w-2 sm:after:w-3 after:h-2 sm:after:h-3 after:rounded-full
+            after:bg-secondary after:scale-0 peer-checked:after:scale-100
             transition-transform
           "
         />
-        <span className="text-right text-secondary text-xl font-semibold leading-[50px]">
+        <span className="text-secondary text-base sm:text-lg font-semibold leading-8 sm:leading-10 text-right">
           نعم
         </span>
       </label>
 
-      {/* لا */}
       <label className="flex items-center gap-2 cursor-pointer select-none">
-        {/* peer = the actual radio; keep it focusable */}
         <input
           type="radio"
           name={name}
@@ -263,22 +252,22 @@ export const RadioGroup = ({
           className="peer sr-only"
           aria-label="لا"
         />
-
-        {/* visual radio */}
         <span
           className="
-            relative inline-flex items-center justify-center
-            w-6 h-6 rounded-full border-2 border-text
+            relative flex items-center justify-center
+            w-5 sm:w-6 h-5 sm:h-6 rounded-full border-2 border-text
             focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-text
-            after:content-['']
-            after:w-3 after:h-3 after:rounded-full
-            after:scale-0 peer-checked:after:scale-100
-            after:bg-text transition-transform
+            after:content-[''] after:w-2 sm:after:w-3 after:h-2 sm:after:h-3 after:rounded-full
+            after:bg-text after:scale-0 peer-checked:after:scale-100
+            transition-transform
           "
         />
-
-        <span className="text-right text-text text-xl leading-[50px]">لا</span>
+        <span className="text-text text-base sm:text-lg leading-8 sm:leading-10 text-right">
+          لا
+        </span>
       </label>
     </div>
   );
 };
+
+export default RegisterCertificate;

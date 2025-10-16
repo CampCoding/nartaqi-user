@@ -80,7 +80,6 @@ const OurGoals = () => {
       title: "تحقيق التأثير المجتمعي",
       description:
         "نطمح إلى إعداد جيل واعٍ ومبدع قادر على مواجهة التحديات وإيجاد حلول مبتكرة، مما يساهم في دفع عجلة التنمية المجتمعية ويعزز مكانة الفرد في سوق العمل المحلي والعالمي.",
-
       icon: (
         <svg
           width={32}
@@ -137,13 +136,19 @@ const OurGoals = () => {
   ];
 
   return (
-    <div className="bg-primary-bg py-[80px]">
-      <div className="container mx-auto px-[64px]">
+    <div
+      className="bg-primary-bg py-[60px] lg:py-[80px]"
+      dir="rtl"
+      aria-label="أهدافنا"
+    >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-[64px]">
         {/* Header */}
-        <div className=" text-white text-bold text-5xl text-center leading-9 whitespace-nowrap ">
-          أهدافنا{" "}
-        </div>
-        <div className="grid grid-cols-2 gap-8 mt-[48px]">
+        <h2 className="text-white font-bold text-3xl sm:text-4xl lg:text-5xl text-center leading-9 lg:leading-[1.2] whitespace-normal lg:whitespace-nowrap">
+          أهدافنا
+        </h2>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mt-8 lg:mt-[48px]">
           {goals.map((goal, index) => (
             <GoalCard key={index} data={goal} />
           ))}
@@ -157,15 +162,15 @@ export default OurGoals;
 
 const GoalCard = ({ data = {} }) => {
   return (
-    <div className="flex flex-col  items-start gap-2.5 p-[25px] relative bg-primary-light shadow-sm rounded-[30px] border border-solid ">
-      <div className="items-start gap-3 flex flex-col relative self-stretch w-full flex-[0_0_auto]">
-        <div className=" gap-4 flex flex-col relative self-stretch w-full flex-[0_0_auto]">
+    <div className="flex flex-col items-start gap-2.5 p-[25px] relative bg-primary-light shadow-sm rounded-[30px] border border-solid">
+      <div className="items-start gap-3 flex flex-col relative self-stretch w-full">
+        <div className="gap-4 flex flex-col self-stretch w-full">
           <div className="relative w-8 h-8">{data?.icon}</div>
-          <div className=" text-primary-dark font-bold text-xl leading-7 relative self-stretch ">
+          <div className="text-primary-dark font-bold text-lg sm:text-xl leading-7 self-stretch">
             {data?.title}
           </div>
         </div>
-        <p className="h-12  text-text-alt leading-normal text-base  overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] relative self-stretch ">
+        <p className="text-text-alt leading-normal text-sm sm:text-base overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] self-stretch h-auto lg:h-12">
           {data?.description}
         </p>
       </div>

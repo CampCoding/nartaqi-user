@@ -1,20 +1,15 @@
-
-
-"use client"
+"use client";
 import React, { useEffect, useMemo, useState } from "react";
 
-// RewardsNav: interactive nav with controlled/uncontrolled modes.
-// Props:
-// - value?: string (one of: 'all' | 'books' | 'courses' | 'gifts' | 'special')
-// - onChange?: (key: string) => void
 export const RewardsNav = ({ value, onChange }) => {
+  // 1. Removed static padding from the data array to apply responsive classes directly
   const menuItems = useMemo(
     () => [
-      { key: "special", text: "جوائز خاصه", padding: "px-16 py-6" },
-      { key: "gifts", text: "بطاقات هدايا", padding: "px-16 py-6" },
-      { key: "courses", text: "دورات", padding: "px-16 py-6" },
-      { key: "books", text: "كتب", padding: "px-16 py-6" },
-      { key: "all", text: "الكل", padding: "px-16 py-6" },
+      { key: "special", text: "جوائز خاصه" },
+      { key: "gifts", text: "بطاقات هدايا" },
+      { key: "courses", text: "دورات" },
+      { key: "books", text: "كتب" },
+      { key: "all", text: "الكل" },
     ],
     []
   );
@@ -22,49 +17,50 @@ export const RewardsNav = ({ value, onChange }) => {
   const initialKey = value ?? "all";
   const [activeKey, setActiveKey] = useState(initialKey);
 
-  // Sync internal state with controlled value prop
   useEffect(() => {
     if (value !== undefined && value !== activeKey) {
       setActiveKey(value);
     }
-  }, [value]);
+  }, [value, activeKey]);
 
   const handleClick = (key) => {
     setActiveKey(key);
-    if (onChange) onChange(key);
+    onChange?.(key);
   };
 
   return (
     <nav
-      className="flex h-[100px] items-center justify-between px-6 py-4 relative bg-white mb-8 rounded-[20px] border-4 border-solid border-variable-collection-stroke"
+      // 2. Main container is now shorter and has less padding on mobile
+      className="flex sticky md:static top-[80px] z-30 h-auto items-center  bg-white mb-8 shadow-2xl md:shadow-none md:rounded-[20px] lg:border-4 border-solid border-variable-collection-stroke p-2 lg:h-[100px] lg:px-6 lg:py-4"
       role="navigation"
       aria-label="فئات المحتوى"
     >
-      {[...menuItems].reverse().map((item) => {
-        const isActive = item.key === activeKey;
-        return (
-          <button
-            key={item.key}
-            className={`${item.padding} rounded-[20px] flex w-[200px] items-center justify-center relative ${
-              isActive ? "bg-primary" : ""
-            }`}
-            type="button"
-            aria-pressed={isActive}
-            aria-current={isActive ? "page" : undefined}
-            onClick={() => handleClick(item.key)}
-          >
-            <span
-              className={`${
-                isActive ? "text-white" : "text-[#2d2d2d]"
-              } [-webkit-line-clamp:${
-                item.text === "جوائز خاصه" ? "2" : "1"
-              }] relative [display:-webkit-box] items-center justify-center w-fit text-base text-center leading-5 whitespace-nowrap overflow-hidden text-ellipsis [-webkit-box-orient:vertical] [direction:rtl]`}
+      {/* 3. Added a wrapper for horizontal scrolling on mobile */}
+      <div className="flex w-full items-center gap-2 px-4 lg:px-0 overflow-x-auto lg:justify-between hidden-scroll">
+        {[...menuItems].reverse().map((item) => {
+          const isActive = item.key === activeKey;
+          return (
+            <button
+              key={item.key}
+              // 4. Buttons are now flexible on mobile with smaller padding and a fixed width on desktop
+              className={`flex-shrink-0 rounded-[16px] lg:rounded-[20px] flex items-center justify-center relative px-6 py-3 lg:w-[200px] lg:px-16 lg:py-6 transition-colors duration-200 ${
+                isActive ? "bg-primary" : "bg-transparent"
+              }`}
+              type="button"
+              onClick={() => handleClick(item.key)}
             >
-              {item.text}
-            </span>
-          </button>
-        );
-      })}
+              <span
+                // 5. Font size is now smaller on mobile
+                className={`relative w-fit text-center text-sm md:text-base leading-5 whitespace-nowrap transition-colors duration-200 ${
+                  isActive ? "text-white" : "text-[#2d2d2d]"
+                }`}
+              >
+                {item.text}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </nav>
   );
 };

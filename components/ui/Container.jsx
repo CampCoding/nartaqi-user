@@ -7,7 +7,7 @@ import cx from '../../lib/cx'
 
 const Container = ({children , className}) => {
   return (
-    <div className={cx('lg:container mx-auto   px-4 xl:max-w-[1312px]' , className)}>
+    <div className={cx('lg:container mx-auto   px-4 xl:px-10' , className)}>
       {children}
     </div>
   )

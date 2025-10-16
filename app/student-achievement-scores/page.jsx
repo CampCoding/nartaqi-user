@@ -1,13 +1,12 @@
-
-
-import React from 'react'
-import PagesBanner from '../../components/ui/PagesBanner'
-import { StudentResultCard } from '../../components/ui/Cards/StudentResultCard'
+import React from "react";
+import PagesBanner from "../../components/ui/PagesBanner";
+import { StudentResultCard } from "../../components/ui/Cards/StudentResultCard";
+import Container from "../../components/ui/Container";
 
 const StudentAchivementScores = () => {
   return (
     <div>
-       <PagesBanner
+      <PagesBanner
         variant="normal"
         title={" درجات الطلاب بالتحصيلي"}
         breadcrumb={[
@@ -23,19 +22,16 @@ const StudentAchivementScores = () => {
         image={"/images/students-results.png"}
       />
 
-
-
-        <div className='grid grid-cols-3 container mx-auto max-w-[1312px] gap-y-[32px] mt-[32px] mb-[100px]'>
+      <Container className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  lg:grid-cols-4    gap-4 md:gap-4 mt-[32px] mb-[100px]">
         <StudentResultCard />
         <StudentResultCard />
         <StudentResultCard />
         <StudentResultCard />
         <StudentResultCard />
         <StudentResultCard />
-
-        </div>
+      </Container>
     </div>
-  )
-}
+  );
+};
 
-export default StudentAchivementScores
+export default StudentAchivementScores;

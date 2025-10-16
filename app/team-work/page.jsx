@@ -2,6 +2,7 @@ import React from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
 import WorkMemperCard from "./../../components/ui/Cards/WorkMemperCard";
 import Item from "antd/es/list/Item";
+import Container from "../../components/ui/Container";
 
 const teamSections = [
   {
@@ -132,12 +133,12 @@ const TeamWorkPage = () => {
           },
         ]}
       />
-      <div className="container mx-auto px-[64px]  mt-[48px] mb-[100px] flex flex-col gap-[48px]">
+      <Container className="  mt-[48px] mb-[100px] flex flex-col gap-[48px]">
 
       {teamSections.map((item, index) => {
         return <Section data={item} key={index} />;
       })}
-      </div>
+      </Container>
     </div>
   );
 };
@@ -146,22 +147,26 @@ export default TeamWorkPage;
 
 const Section = ({ data }) => {
   return (
-    <div className=" flex items-center justify-center flex-col gap-[32px]     ">
+    <div className="flex items-center justify-center flex-col gap-8 lg:gap-[32px]">
       <div
-        className={` px-[80px] py-4  rounded-[25px] flex justify-center items-center gap-2.5`}
+        className="   px-10 md:px-8 py-4 lg:px-[80px] rounded-[25px] flex justify-center items-center"
         style={{
-          background: data.color ?? "#F97316",
+          background: data.color ?? "#F97316", // Fallback color
         }}
       >
-        <div className="justify-center text-white text-[24px] font-bold  leading-[48px]">
+        <div
+          className="text-center justify-center text-white text-xl lg:text-[24px] font-bold leading-normal lg:leading-[48px]"
+        >
           {data.title}
         </div>
       </div>
-      <div className="flex justify-center  gap-[40px] flex-wrap">
+      <div
+        className="flex justify-center gap-6 lg:gap-[40px] flex-wrap"
+      >
         {data?.members?.map((item, index) => {
           return <WorkMemperCard data={item} color={data.color} key={index} />;
         })}
       </div>
     </div>
   );
-};
+}

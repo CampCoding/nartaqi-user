@@ -1,5 +1,4 @@
-
-"use client"
+"use client";
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -13,7 +12,7 @@ export const MyCompletedCourseCard = () => {
 
   return (
     <article
-      className="flex flex-col w-full items-start gap-2 pt-0 pb-8 px-0 relative bg-white rounded-[20px] border-4 border-solid border-primary"
+      className="flex flex-col w-full items-start gap-2 pt-0 pb-8 px-0 relative bg-white rounded-[20px] border-2 sm:border-4 border-solid border-primary"
       role="article"
       aria-label={`دورة ${courseData.title}`}
     >
@@ -29,10 +28,12 @@ export const MyCompletedCourseCard = () => {
       />
       <div className="flex flex-col items-center gap-8 px-4 py-0 relative self-stretch w-full flex-[0_0_auto]">
         <div className="flex flex-col items-start gap-4 relative self-stretch w-full flex-[0_0_auto]">
-          <h2 className="  font-bold text-text text-2xl relative flex items-center justify-center mt-[-1.00px] tracking-[0] leading-[normal] [direction:rtl]">
+          <h2 className="  font-bold text-text text-lg sm:text-xl md:text-2xl relative flex items-center justify-center mt-[-1.00px] tracking-[0] leading-[normal] [direction:rtl]">
             {courseData.title}
           </h2>
-          <div className="self-stretch text-center justify-center text-text-alt text-base font-medium ">تم الإكمال</div>
+          <div className="self-stretch text-center justify-center text-text-alt text-base font-medium ">
+            تم الإكمال
+          </div>
         </div>
         <Buttons />
       </div>
@@ -40,9 +41,7 @@ export const MyCompletedCourseCard = () => {
   );
 };
 
-
-
- const Buttons = () => {
+const Buttons = () => {
   const [activeTab, setActiveTab] = useState("evaluation");
 
   const tabs = [
@@ -50,14 +49,13 @@ export const MyCompletedCourseCard = () => {
       id: "evaluation",
       label: "تقييم",
       isActive: true,
-      href:"/courses/123/rate-course",
+      href: "/courses/123/rate-course",
     },
     {
       id: "review",
       label: "مراجعه",
       isActive: false,
-      href:"/course/123?reg=true"
-      
+      href: "/course/123?reg=true",
     },
   ];
 
@@ -72,7 +70,8 @@ export const MyCompletedCourseCard = () => {
       aria-label="Navigation tabs"
     >
       {tabs.map((tab) => (
-        <Link href={tab.href}
+        <Link
+          href={tab.href}
           key={tab.id}
           role="tab"
           aria-selected={activeTab === tab.id}
@@ -82,13 +81,11 @@ export const MyCompletedCourseCard = () => {
             activeTab === tab.id
               ? "bg-primary"
               : "bg-primary-light border-2 border-solid border-primary hover:bg-blue-50"
-          }`} 
+          }`}
         >
           <span
             className={`mt-[-1.00px] relative flex items-center justify-center w-fit  font-semibold text-sm text-left tracking-[0] leading-[normal] [direction:rtl] ${
-              activeTab === tab.id
-                ? "text-white"
-                : "text-primary mt-[-2.00px]"
+              activeTab === tab.id ? "text-white" : "text-primary mt-[-2.00px]"
             }`}
           >
             {tab.label}

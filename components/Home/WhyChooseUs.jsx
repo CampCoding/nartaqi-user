@@ -9,7 +9,7 @@ const WhyChooseUs = () => {
       <Container className=" flex flex-col space-y-7 gap-4 md:flex-row justify-between ">
         <div className="flex justify-between flex-col md:flex-row gap-12">
           <div className="inline-flex flex-col justify-start items-start gap-6 md:gap-12">
-            <div className="self-stretch text-right justify-start text-text text-[32px] font-bold md:text-[40px] text-bold   leading-[67.20px]">
+            <div className=" text-text font-bold text-2xl sm:text-3xl lg:text-[40px] w-full text-center leading-normal relative items-center justify-center">
               لماذا تختارنا
             </div>
             <div className="flex flex-col justify-start items-start gap-4 md:gap-7 w-full md:w-auto">
@@ -49,49 +49,49 @@ const WhyChooseUs = () => {
                     </div>
                   </div>
                   <div className="inline-flex flex-col   gap-1">
-                    <div className="text-right justify-start text-text text-[16px] font-bold   leading-7">
+                    <div className="text-right justify-start text-text text-[15px] sm:text-[16px] font-bold   leading-7">
                       شريك التعلم الموثوق
                     </div>
-                    <div className="text-right justify-start text-gray-600 text-base font-normal  leading-normal">
+                    <div className="text-right justify-start text-gray-600 text-[14px] sm:text-base font-normal  leading-normal">
                       دورات عالية الجودة من قبل مدرسين متخصصين
                     </div>
                   </div>
                 </div>
               </div>
               <div className="inline-flex justify-start items-center gap-6 w-full md:w-auto">
-               <div className="p-6 bg-white/10 rounded-[30px] w-full md:w-auto shadow-[10px_25px_100px_0px_rgba(0,43,107,0.25)] outline outline-1 outline-offset-[-1px] outline-gray-100 flex justify-start items-center gap-4">
-                 <div className="inline-flex order-1 flex-col justify-center items-start gap-1">
-                   <div className="text-right justify-start text-text text-[16px] font-bold   leading-7">
-                     مصممة خصيصًا لأهدافك
-                   </div>
-                   <div className=" w-full md:w-60 text-right justify-start text-gray-600 text-base font-normal  leading-normal">
-                     مسارات تعليمية مرنة تناسب احتياجاتك
-                   </div>
-                 </div>
-                 <div className="p-4 order-0 bg-yellow-100 rounded-[43px] flex justify-center items-center gap-2.5 overflow-hidden">
-                   <div className="w-6 h-6 relative overflow-hidden">
-                     <TargetStairs />
-                   </div>
-                 </div>
-               </div>
-               <div className=" hidden md:flex opacity-20 justify-start text-emerald-950 text-[70px] font-medium  ">
-                 02
-               </div>
-             </div>
-              
+                <div className="p-6 bg-white/10 rounded-[30px] w-full md:w-auto shadow-[10px_25px_100px_0px_rgba(0,43,107,0.25)] outline outline-1 outline-offset-[-1px] outline-gray-100 flex justify-start items-center gap-4">
+                  <div className="inline-flex order-1 flex-col justify-center items-start gap-1">
+                    <div className="text-right justify-start text-text text-[15px] sm:text-[16px] font-bold   leading-7">
+                      مصممة خصيصًا لأهدافك
+                    </div>
+                    <div className=" w-full md:w-60 text-right justify-start text-[14px] sm:text-base font-normal  leading-normal">
+                      مسارات تعليمية مرنة تناسب احتياجاتك
+                    </div>
+                  </div>
+                  <div className="p-4 order-0 bg-yellow-100 rounded-[43px] flex justify-center items-center gap-2.5 overflow-hidden">
+                    <div className="w-6 h-6 relative overflow-hidden">
+                      <TargetStairs />
+                    </div>
+                  </div>
+                </div>
+                <div className=" hidden md:flex opacity-20 justify-start text-emerald-950 text-[70px] font-medium  ">
+                  02
+                </div>
+              </div>
+
               <div className="inline-flex justify-start items-center gap-6 w-full mx:w-auto">
                 <div className=" hidden md:flex opacity-20 justify-start text-emerald-950 text-[70px] font-medium  ">
                   03
                 </div>
                 <div className="p-6 bg-white/10 rounded-[30px] w-full md:w-auto shadow-[10px_25px_100px_0px_rgba(0,43,107,0.25)] outline outline-1 outline-offset-[-1px] outline-gray-100 flex justify-start items-center gap-4">
                   <div className="p-4 bg-orange-200 rounded-[43px] flex justify-center items-center gap-2.5 overflow-hidden">
-                  <TrophyIcon />
+                    <TrophyIcon />
                   </div>
                   <div className="inline-flex flex-col justify-start items-start gap-1">
-                    <div className="w-32 text-right justify-start text-text text-[16px] font-bold   leading-7">
+                    <div className="w-32 text-right justify-start text-text text-[15px] sm:text-[16px] font-bold   leading-7">
                       النجاح المثبت
                     </div>
-                    <div className="text-right justify-start text-gray-600 text-base font-normal  leading-normal">
+                    <div className="text-right justify-start text-gray-600 text-[14px] sm:text-base font-normal  leading-normal">
                       مساعدة المتعلمين على تحقيق أحلامهم
                     </div>
                   </div>
@@ -100,7 +100,7 @@ const WhyChooseUs = () => {
             </div>
           </div>
         </div>
-        <div>
+        <div className="flex items-center justify-center">
           <img src="/images/Frame 1000004830.png" alt="" className="" />
         </div>
       </Container>

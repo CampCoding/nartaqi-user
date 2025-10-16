@@ -1,14 +1,10 @@
 import React from "react";
-const discount1 = "";
-const marketing1 = "";
-const performance1 = "";
 
 export const HowProgramWorks = () => {
   const programSteps = [
     {
       id: 1,
       icon: <PerformanceTrackingIcon />,
-
       title: "تتبع الأداء",
       description: "راقب أداءك وأرباحك من خلال لوحة التحكم الخاصة بك.",
       bgColor: "bg-[#c2d8fc]",
@@ -37,46 +33,79 @@ export const HowProgramWorks = () => {
       description: "املأ نموذج التسجيل السريع لتبدأ رحلتك.",
       bgColor: "bg-[#fdd4b7]",
       alt: "Registration",
-      // hasCustomIcon: true,
     },
   ];
 
+  // Create a reversed copy for display without mutating original array
+  const reversedSteps = [...programSteps].reverse();
+
   return (
-    <div className="flex flex-col  items-start gap-8 relative">
+    <div className="flex flex-col items-start gap-6 sm:gap-8 relative px-0 sm:px-0">
       <div className="flex items-center justify-center relative self-stretch w-full flex-[0_0_auto]">
-        <h1 className="w-fit  text-text font-bold text-[40px] text-center leading-[normal] [-webkit-line-clamp:1] relative [display:-webkit-box] items-center justify-center overflow-hidden text-ellipsis [-webkit-box-orient:vertical] ">
+        <h1 className="w-fit text-text font-bold text-2xl sm:text-3xl lg:text-[40px] text-center leading-normal relative items-center justify-center">
           كيف يعمل البرنامج
         </h1>
       </div>
-      <div className="flex items-start justify-between self-stretch w-full relative flex-[0_0_auto]">
-        {programSteps.reverse().map((step) => (
+
+      {/* Desktop Layout */}
+      <div className="hidden lg:flex items-start justify-between self-stretch w-full relative flex-[0_0_auto] gap-4">
+        {reversedSteps.map((step) => (
           <div
             key={step.id}
-            className={`inline-flex flex-col items-start gap-2.5 pt-4 pb-8 px-[25px] relative flex-[0_0_auto] ${
-              step.bgColor
-            } rounded-[15px] ${step.id === 4 ? "h-[184px]" : ""}`}
+            className={`inline-flex flex-col items-start gap-2.5 pt-4 pb-8 px-[25px] relative flex-1 ${step.bgColor} rounded-[15px] min-h-[184px]`}
           >
             <div className="inline-flex flex-col items-start gap-3 relative flex-[0_0_auto]">
               <div className="inline-flex flex-col items-start gap-4 relative flex-[0_0_auto]">
-                {step.hasCustomIcon ? (
-                  <div className="relative w-8 h-8 aspect-[1]">
-                    <div className="absolute w-[65.16%] h-[87.63%] top-[6.02%] left-[6.14%] bg-[url(/vector.svg)] bg-[100%_100%]" />
-                    <div className="absolute w-[31.26%] h-[31.38%] top-[59.15%] left-[62.40%] bg-[url(/image.svg)] bg-[100%_100%]" />
-                  </div>
-                ) : (
-                  step.icon
-                )}
-                <div className="relative flex text-bold items-center justify-center w-fit  text-primary-dark text-base leading-7 whitespace-nowrap ">
+                <div className="w-8 h-8">{step.icon}</div>
+                <div className="relative flex font-bold items-center justify-center w-fit text-primary-dark text-base leading-7 whitespace-nowrap">
                   {step.title}
                 </div>
               </div>
-              <p
-                className={`${
-                  step.id === 4
-                    ? "w-fit whitespace-nowrap [-webkit-line-clamp:1]"
-                    : "w-[249px] [-webkit-line-clamp:2]"
-                }  text-text-alt text-sm leading-6 relative [display:-webkit-box] items-center justify-center overflow-hidden text-ellipsis [-webkit-box-orient:vertical] `}
-              >
+              <p className="w-full text-text-alt text-sm leading-6 relative overflow-hidden text-ellipsis line-clamp-2">
+                {step.description}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tablet Layout */}
+      <div className="hidden sm:grid lg:hidden grid-cols-2 gap-4 self-stretch w-full">
+        {reversedSteps.map((step) => (
+          <div
+            key={step.id}
+            className={`inline-flex flex-col items-start gap-2.5 pt-4 pb-6 px-5 relative ${step.bgColor} rounded-[15px] min-h-[160px]`}
+          >
+            <div className="inline-flex flex-col items-start gap-3 relative flex-[0_0_auto]">
+              <div className="inline-flex flex-col items-start gap-3 relative flex-[0_0_auto]">
+                <div className="w-7 h-7">{step.icon}</div>
+                <div className="relative flex font-bold items-center justify-center w-fit text-primary-dark text-sm leading-6">
+                  {step.title}
+                </div>
+              </div>
+              <p className="w-full text-text-alt text-xs leading-5 relative overflow-hidden text-ellipsis line-clamp-3">
+                {step.description}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Mobile Layout */}
+      <div className="flex sm:hidden flex-col gap-4 self-stretch w-full">
+        {reversedSteps.map((step) => (
+          <div
+            key={step.id}
+            className={`inline-flex flex-col items-start gap-2.5 pt-4 pb-6 px-5 relative ${step.bgColor} rounded-[15px]`}
+          >
+            <div className="inline-flex flex-col items-start gap-3 relative flex-[0_0_auto] w-full">
+              <div className="inline-flex items-center gap-3 relative flex-[0_0_auto]">
+                <div className="w-6 h-6 flex-shrink-0">{step.icon}</div>
+                <div className="relative flex font-bold items-center justify-center text-primary-dark text-sm leading-6">
+                  {step.title}
+                </div>
+              </div>
+              <p className="w-full text-text-alt text-xs leading-5 relative">
                 {step.description}
               </p>
             </div>
@@ -226,7 +255,7 @@ export const LoudspeakerIcon = (props) => (
   </svg>
 );
 
-export const  ManPlusIcon = (props) => (
+export const ManPlusIcon = (props) => (
   <svg
     width={32}
     height={32}

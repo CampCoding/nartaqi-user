@@ -1,6 +1,7 @@
 import React from "react";
 import PagesBanner from "../../components/ui/PagesBanner";
 import { QuestionAccordion } from "../faqs/page";
+import Container from "../../components/ui/Container";
 
 const JoiningCoursesConditions = () => {
   const faqs = [
@@ -26,27 +27,27 @@ const JoiningCoursesConditions = () => {
     <div>
       <PagesBanner
         variant="normal"
-        title={"النسبة الموزونة"}
+        title={"شروط الالتحاق بالدورات"}
         breadcrumb={[
           {
             title: "الرئيسية",
             link: "/",
           },
           {
-            title: "النسبة الموزونة",
+            title: "شروط الالتحاق بالدورات",
             link: "#",
           },
         ]}
         image={"/images/coursesJoingingConditions.png"}
       />
 
-      <div className="container mx-auto px-[64px] mt-[32px] mb-[100px]">
+      <Container className="mt-[32px] mb-[100px]">
         <div className="mt-8 flex flex-col gap-6">
           {faqs.map((item) => (
             <QuestionAccordion key={item.id} item={item} />
           ))}
         </div>
-      </div>
+      </Container>
     </div>
   );
 };

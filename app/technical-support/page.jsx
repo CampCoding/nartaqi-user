@@ -1,5 +1,6 @@
 import React from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
+import Container from "../../components/ui/Container";
 
 const TechnicalSupport = () => {
   return (
@@ -21,70 +22,79 @@ const TechnicalSupport = () => {
         ]}
       />
 
-      <div className="container mx-auto px-[64px] mt-[48px] mb-[132px]">
-        <div className="flex flex-col w-[612px] items-start gap-6 relative mb-[48px]">
-          <h1 className="  font-bold text-primary text-2xl tracking-[0] leading-[normal] ">
+      <Container className="mx-auto mt-6 sm:mt-8 lg:mt-[48px] mb-16 sm:mb-24 lg:mb-[132px] px-4 sm:px-6 lg:px-0">
+        <div className="flex flex-col items-start gap-4 sm:gap-6 relative mb-8 sm:mb-10 lg:mb-[48px]">
+          <h1 className="font-bold text-primary text-xl sm:text-2xl tracking-[0] leading-[normal]">
             ما هي قنوات الدعم الفني؟
           </h1>
 
-          <div className="flex flex-col items-start gap-8 self-stretch w-full relative flex-[0_0_auto]">
-            <div className="inline-flex items-center gap-6 relative flex-[0_0_auto]">
-              <div className="self-stretch w-[291px]  font-semibold text-text text-base relative mt-[-1.00px] tracking-[0] leading-[normal] ">
+          <div className="flex flex-col items-start gap-6 sm:gap-8 self-stretch w-full relative flex-[0_0_auto]">
+            {/* WhatsApp Support */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 relative flex-[0_0_auto] w-full sm:justify-between">
+              <div className="self-stretch w-full sm:w-[291px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
                 المحادثة المباشرة في المنصة
               </div>
-              <div className="inline-flex items-center justify-center gap-2.5 px-4 py-3 bg-[#24ab28] rounded-[15px] relative flex-[0_0_auto]">
-                <WhatsappIcon />
-                <p className="w-fit  font-semibold text-whie text-2xl relative mt-[-1.00px] tracking-[0] leading-[normal] ">
-                  <span className=" font-semibold text-white text-2xl tracking-[0]">
-                    {" "}
-                    عبر واتساب من هنا{" "}
-                  </span>
+              <a
+                href="#"
+                className="inline-flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-3 bg-[#24ab28] rounded-[12px] sm:rounded-[15px] relative flex-[0_0_auto] w-full sm:w-auto hover:bg-[#1e8f23] transition-colors duration-200"
+              >
+                <div className="w-6 h-6 sm:w-6 sm:h-6 flex-shrink-0">
+                  <WhatsappIcon />
+                </div>
+                <p className="w-fit font-semibold text-white text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal] text-center">
+                  عبر واتساب من هنا
                 </p>
-              </div>
+              </a>
             </div>
 
-            <div className="flex items-center justify-between self-stretch w-full relative flex-[0_0_auto]">
-              <div className="self-stretch w-[268px]  font-semibold text-text text-base relative mt-[-1.00px] tracking-[0] leading-[normal] ">
+            {/* Email Support */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 justify-between self-stretch w-full relative flex-[0_0_auto]">
+              <div className="self-stretch w-full sm:w-[268px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
                 البريد الإلكتروني
               </div>
-              <div className="inline-flex items-center justify-center gap-2.5 px-4 py-3 relative flex-[0_0_auto] bg-primary rounded-[15px]">
-                <EmailIcon />
-                <div className="relative w-fit mt-[-1.00px]  font-semibold text-white text-2xl text-right tracking-[0] leading-[normal]">
-                  : Qudrat@albaraah.sa
+              <div className="inline-flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-3 relative flex-[0_0_auto] bg-primary rounded-[12px] sm:rounded-[15px] w-full sm:w-auto">
+                <div className="w-6 h-6 sm:w-6 sm:h-6 flex-shrink-0">
+                  <EmailIcon />
+                </div>
+                <div className="relative w-fit mt-[-1.00px] font-semibold text-white text-sm sm:text-base text-center sm:text-right tracking-[0] leading-[normal] break-all sm:break-normal">
+                  Qudrat@albaraah.sa
                 </div>
               </div>
             </div>
           </div>
         </div>
-      <div className="flex flex-col gap-[48px]">
 
-        <div className="flex flex-col  items-start gap-8 relative">
-          <p className="mt-[-1.00px]  font-bold text-primary text-[24px] relative self-stretch tracking-[0] leading-[normal] ">
-            ما هي الأوقات التي سيتم الإجابة فيها على استفساراتي؟
-          </p>
+        <div className="flex flex-col gap-8 sm:gap-10 lg:gap-[48px]">
+          {/* Response Times Section */}
+          <div className="flex flex-col items-start gap-6 sm:gap-8 relative">
+            <h2 className="mt-[-1.00px] font-bold text-primary text-lg sm:text-xl lg:text-[24px] relative self-stretch tracking-[0] leading-[normal]">
+              ما هي الأوقات التي سيتم الإجابة فيها على استفساراتي؟
+            </h2>
 
-          <p className=" font-medium text-text text-base relative self-stretch tracking-[0] leading-[normal] ">
-            خلال أوقات الدوام الرسمي من الأحد إلى الخميس من الساعة 10 صباحا حتى
-            الساعة 4 مساء، يكون الرد خلال ساعة من خلال المحادثة المباشرة بينما
-            يكون الرد خلال 24 ساعة في حال التواصل عن طريق البريد الإلكتروني
-            الخاص بالدعم. ونقوم بالرد خلال 48 ساعة في أيام عطلة نهاية الأسبوع
-          </p>
-        </div>
-
-        <div className="flex flex-col  items-start gap-8 relative">
-          <div className="mt-[-1.00px]  font-bold text-primary text-[24px] relative self-stretch tracking-[0] leading-[normal] ">
-            الوقت المتوقع لمعالجة المشكلة
+            <p className="font-medium text-text text-sm sm:text-base relative self-stretch tracking-[0] leading-6 sm:leading-7">
+              خلال أوقات الدوام الرسمي من الأحد إلى الخميس من الساعة 10 صباحا
+              حتى الساعة 4 مساء، يكون الرد خلال ساعة من خلال المحادثة المباشرة
+              بينما يكون الرد خلال 24 ساعة في حال التواصل عن طريق البريد
+              الإلكتروني الخاص بالدعم. ونقوم بالرد خلال 48 ساعة في أيام عطلة
+              نهاية الأسبوع
+            </p>
           </div>
 
-          <p className=" font-medium text-text text-base relative self-stretch tracking-[0] leading-[normal] ">
-            ستتم معالجة المشاكل الأساسية (غير التقنية) خلال 24 ساعة من وقت الرد
-            بينما يتم معالجة المشاكل التقنية خلال أسبوع إلى أسبوعين وفي حال لم
-            يتم الالتزام بالأوقات المذكورة، يتم رفع المشكلة مباشرة للمدير التقني
-          </p>
-        </div>
-      </div>
+          {/* Problem Resolution Section */}
+          <div className="flex flex-col items-start gap-6 sm:gap-8 relative">
+            <h2 className="mt-[-1.00px] font-bold text-primary text-lg sm:text-xl lg:text-[24px] relative self-stretch tracking-[0] leading-[normal]">
+              الوقت المتوقع لمعالجة المشكلة
+            </h2>
 
-      </div>
+            <p className="font-medium text-text text-sm sm:text-base relative self-stretch tracking-[0] leading-6 sm:leading-7">
+              ستتم معالجة المشاكل الأساسية (غير التقنية) خلال 24 ساعة من وقت
+              الرد بينما يتم معالجة المشاكل التقنية خلال أسبوع إلى أسبوعين وفي
+              حال لم يتم الالتزام بالأوقات المذكورة، يتم رفع المشكلة مباشرة
+              للمدير التقني
+            </p>
+          </div>
+        </div>
+      </Container>
     </div>
   );
 };
@@ -93,8 +103,8 @@ export default TechnicalSupport;
 
 const WhatsappIcon = (props) => (
   <svg
-    width={32}
-    height={33}
+    width="100%"
+    height="100%"
     viewBox="0 0 32 33"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -109,8 +119,8 @@ const WhatsappIcon = (props) => (
 
 const EmailIcon = (props) => (
   <svg
-    width={32}
-    height={33}
+    width="100%"
+    height="100%"
     viewBox="0 0 32 33"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"

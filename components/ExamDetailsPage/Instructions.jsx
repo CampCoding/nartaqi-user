@@ -4,45 +4,41 @@ import React from "react";
 // import iconParkSolidCheckOne from "./icon-park-solid-check-one.svg";
 // import image from "./image.svg";
 // import info1 from "./info-1.svg";
-
 export const Instructions = () => {
   return (
-    <div className="flex-col  items-start gap-2 flex relative">
-      <div className="inline-flex items-center justify-start gap-4 relative flex-[0_0_auto]">
-        <InfoIcon className="fill-primary" />
-        <div className="relative flex   items-center justify-center w-fit mt-[-1.00px]  font-bold text-primary text-2xl tracking-[0] leading-[50px] whitespace-nowrap ">
+    <div className="flex flex-col items-start gap-2 sm:gap-4 lg:gap-6 w-full">
+      <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-3 lg:gap-4 w-full">
+        <InfoIcon className="fill-primary w-5 sm:w-6 lg:w-7 h-5 sm:h-6 lg:h-7 flex-shrink-0" />
+        <div className="font-bold text-primary text-xl sm:text-2xl lg:text-3xl leading-tight">
           التعليمات
         </div>
       </div>
 
-      <div className="flex flex-col items-start gap-2 self-stretch w-full relative flex-[0_0_auto]">
-        <div className="inline-flex items-center gap-6 relative flex-[0_0_auto]">
-          <CheckIcon />
-          <p className=" text-text-alt  items-center justify-center w-fit mt-[-1.00px]  font-medium  text-base tracking-[0] leading-[50px] whitespace-nowrap  flex relative">
+      <div className="flex flex-col items-start gap-2 sm:gap-4 lg:gap-6 w-full">
+        <div className="flex items-start gap-4 sm:gap-6 lg:gap-8 w-full">
+          <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 flex-shrink-0 mt-0.5" />
+          <p className="font-medium text-text-alt text-sm sm:text-base lg:text-lg leading-tight sm:leading-relaxed flex-1">
             يجب الإجابة على جميع الأسئلة خلال الوقت المحدد.
           </p>
         </div>
 
-        <div className="flex items-center justify-start gap-6 self-stretch w-full relative flex-[0_0_auto]">
-          <CheckIcon />
-
-          <p className=" text-text-alt  items-center justify-center w-fit mt-[-1.00px]  font-medium  text-base tracking-[0] leading-[50px] whitespace-nowrap  flex relative">
+        <div className="flex items-start gap-4 sm:gap-6 lg:gap-8 w-full">
+          <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 flex-shrink-0 mt-0.5" />
+          <p className="font-medium text-text-alt text-sm sm:text-base lg:text-lg leading-tight sm:leading-relaxed flex-1">
             الأسئلة من نوع اختيار من متعدد، وبعضها يحتوي على مقاطع نصية للقراءة.
           </p>
         </div>
 
-        <div className="inline-flex items-center gap-6 relative flex-[0_0_auto]">
-          <CheckIcon />
-
-          <p className=" text-text-alt  items-center justify-center w-fit mt-[-1.00px]  font-medium  text-base tracking-[0] leading-[50px] whitespace-nowrap  flex relative">
-            يمكنك الانتقال بين الأسئلة بالضغط على (التإلى) أو (السابق).
+        <div className="flex items-start gap-4 sm:gap-6 lg:gap-8 w-full">
+          <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 flex-shrink-0 mt-0.5" />
+          <p className="font-medium text-text-alt text-sm sm:text-base lg:text-lg leading-tight sm:leading-relaxed flex-1">
+            يمكنك الانتقال بين الأسئلة بالضغط على (التالي) أو (السابق).
           </p>
         </div>
 
-        <div className="inline-flex items-center gap-6 relative flex-[0_0_auto]">
-          <CheckIcon />
-
-          <p className=" text-text-alt  items-center justify-center w-fit mt-[-1.00px]  font-medium  text-base tracking-[0] leading-[50px] whitespace-nowrap  flex relative">
+        <div className="flex items-start gap-4 sm:gap-6 lg:gap-8 w-full">
+          <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 flex-shrink-0 mt-0.5" />
+          <p className="font-medium text-text-alt text-sm sm:text-base lg:text-lg leading-tight sm:leading-relaxed flex-1">
             النجاح يبدأ من نسبة 50% فأكثر.
           </p>
         </div>
@@ -50,7 +46,6 @@ export const Instructions = () => {
     </div>
   );
 };
-
 const InfoIcon = (props) => (
   <svg
     width={24}

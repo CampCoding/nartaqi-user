@@ -2,12 +2,12 @@
 
 import React, { useState } from "react";
 
-const MockExamQuestion = ({ 
-  questionData, 
-  questionNumber = 1, 
-  passage, 
-  selectedAnswer, 
-  onAnswerSelect 
+const MockExamQuestion = ({
+  questionData,
+  questionNumber = 1,
+  passage,
+  selectedAnswer,
+  onAnswerSelect,
 }) => {
   if (!questionData) {
     return <div>جاري تحميل السؤال...</div>;
@@ -16,7 +16,7 @@ const MockExamQuestion = ({
   return (
     <div>
       {passage && (
-        <div className="w-[624px] h-[120px] mb-6">
+        <div className=" mb-6">
           <p className="flex items-center justify-center font-medium text-zinc-500 text-base tracking-[0] leading-[normal] [direction:rtl]">
             &quot;{passage}&quot;
           </p>
@@ -24,7 +24,7 @@ const MockExamQuestion = ({
       )}
 
       <div className="grid grid-cols-1 gap-6 mt-6">
-        <SingleQuestion 
+        <SingleQuestion
           questionData={questionData}
           questionNumber={questionNumber}
           selectedAnswer={selectedAnswer}
@@ -37,11 +37,11 @@ const MockExamQuestion = ({
 
 export default MockExamQuestion;
 
-export const SingleQuestion = ({ 
-  questionData, 
-  questionNumber = 1, 
-  selectedAnswer, 
-  onAnswerSelect 
+export const SingleQuestion = ({
+  questionData,
+  questionNumber = 1,
+  selectedAnswer,
+  onAnswerSelect,
 }) => {
   const handleOptionChange = (optionId) => {
     onAnswerSelect(optionId);

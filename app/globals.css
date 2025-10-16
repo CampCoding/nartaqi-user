@@ -41,6 +41,7 @@
 body {
   font-family: var(--font-cairo), sans-serif;
   color: #2d2d2d;
+  height:auto !important;
 }
 
 @layer base {
@@ -358,6 +359,18 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .custom-scroll::-webkit-scrollbar-corner {
   background: var(--color-bg-alt);
+}
+
+
+
+
+.hidden-scroll {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.hidden-scroll::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
 }
 
 

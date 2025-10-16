@@ -1,35 +1,42 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CourseBriefOverview from "./CourseBriefOverview.tab";
 import CourseContent from "./CourseContent.tab";
 import CourseAdvantages from "./CourseAdvantages.tab";
 import CourseTermsAndConditions from "./CourseTermsAndConditions";
 import CourseRatings from "./CourseRatings.tab";
+import CourseSources from "./CourseSources";
 
-const RegCourseDetailsContent = () => {
+const RegCourseDetailsContent = ({ onTabsChange = () => {} }) => {
   const [activeTab, setActiveTab] = useState("overview");
 
   const tabs = [
     { label: "معلومات الدورة", value: "overview" },
     { label: " محتوى الدورة", value: "content" },
-    { label: "مصادر الدورة", value: "features" },
-
+    { label: "مصادر الدورة", value: "sourses" },
   ];
 
+  useEffect(()=>{
+    onTabsChange(activeTab)
+  },[activeTab])
+  
+
   return (
-    <div className="flex flex-col gap-[56px]">
-      <div className="w-[762px] inline-flex justify-between items-center">
+    <div className="flex flex-col gap-4 md:gap-[56px] ">
+      <div className=" sticky md:static py-4   z-30  bg-white md:bg-transparent top-[83px]  inline-flex gap-8 md:gap-[45px] items-center overflow-auto hidden-scroll">
         {tabs.map((tab) => (
           <div
             key={tab.value}
             onClick={() => setActiveTab(tab.value)}
             className={`flex justify-center items-center gap-2.5 cursor-pointer ${
-              activeTab === tab.value ? "border-b-[3px] border-primary" : ""
+              activeTab === tab.value
+                ? "border-b-[3px] pb-1 border-primary"
+                : ""
             }`}
           >
             <div
-              className={`text-right justify-center text-2xl  ${
+              className={`text-right whitespace-nowrap  justify-center text-lg  ${
                 activeTab === tab.value
                   ? "text-primary font-bold"
                   : "text-text font-medium"
@@ -40,13 +47,10 @@ const RegCourseDetailsContent = () => {
           </div>
         ))}
       </div>
-      <div className="w-[762px]">
+      <div className="mb-10">
         {activeTab === "overview" && <CourseBriefOverview isRegistered />}
         {activeTab === "content" && <CourseContent isRegistered />}
-        {activeTab === "features" && <CourseAdvantages />}
-        {activeTab === "terms" && <CourseTermsAndConditions />}
-        {activeTab === "reviews" && <CourseRatings />} 
-      
+        {activeTab === "sourses" && <CourseSources />}
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import { ChevronLeft, Menu, X, ChevronDown } from "lucide-react";
 import headerData from "./headerData";
 import { useUser } from "../../lib/useUser";
 import Container from "../ui/Container";
+import { AnimatePresence } from "framer-motion";
 
 export default function Header() {
   const [openSearch, setOpenSearch] = useState(false);
@@ -24,7 +25,7 @@ export default function Header() {
   const { isAuthenticated } = useUser();
 
   return (
-    <header className="w-full sticky top-0 z-50 bg-white shadow-sm py-[35.5px] lg:py-[35.5px]">
+    <header className="w-full sticky top-0 z-50 bg-white shadow-sm  py-[20px] md:py-[35.5px] lg:py-[35.5px]">
       <Container className="flex items-center justify-between">
         {/* Logo */}
         <Link href={"/"} className="flex items-center space-x-2">
@@ -43,9 +44,9 @@ export default function Header() {
                 <Link
                   key={group.key}
                   href={group.link}
-                  className={
-                    ` ${index ==0 ? "ml-5" :""} cursor-pointer  hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-0 hover:border-b-[3px] hover:border-primary`
-                  }
+                  className={` ${
+                    index == 0 ? "ml-5" : ""
+                  } cursor-pointer  hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-0 hover:border-b-[3px] hover:border-primary`}
                 >
                   {group.title}
                 </Link>
@@ -160,7 +161,11 @@ export default function Header() {
         />
       )}
 
-      <SearchBanner openSearch={openSearch} setOpenSearch={setOpenSearch} />
+      <AnimatePresence  > 
+        {openSearch && (
+          <SearchBanner openSearch={openSearch} setOpenSearch={setOpenSearch} />
+        )}
+      </AnimatePresence>
     </header>
   );
 }
@@ -170,7 +175,7 @@ const MobileMenu = ({ headerData, isAuthenticated, onClose }) => {
   const [expandedItem, setExpandedItem] = useState(null);
 
   return (
-    <div className="lg:hidden fixed inset-0 top-[100px] bg-white z-40 overflow-y-auto">
+    <div className="lg:hidden fixed inset-0 top-[70px] bg-white z-40 overflow-y-auto">
       <nav className="flex flex-col p-4">
         {headerData.map((group, index) => {
           if ((!group.items || group.items.length === 0) && group.link) {
@@ -360,7 +365,7 @@ export const DropDownItems = ({ items }) => {
             <div className="inline-flex gap-2 flex-[0_0_auto] items-center relative">
               {typeof course.count === "number" ? (
                 <div className="flex flex-col w-6 h-6 justify-center gap-2.5 px-1 py-0 bg-primary-bg rounded-xl items-center relative">
-                  <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-variable-collection-text text-sm tracking-[0] leading-6 whitespace-nowrap">
+                  <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-text text-sm tracking-[0] leading-6 whitespace-nowrap">
                     {course.count}
                   </span>
                 </div>

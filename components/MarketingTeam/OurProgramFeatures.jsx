@@ -1,4 +1,5 @@
 import React from "react";
+import Container from "../ui/Container";
 
 const OurProgramFeatures = () => {
   const goals = [
@@ -63,7 +64,6 @@ const OurProgramFeatures = () => {
     {
       title: "تحديثات مستمرة",
       description: "تطوير مستمر للبرنامج لضمان أفضل الفرص.",
-
       icon: (
         <svg
           width={32}
@@ -119,18 +119,19 @@ const OurProgramFeatures = () => {
   ];
 
   return (
-    <div className=" bg-gradient-to-b  from-white to-primary-light py-[80px]">
-      <div className="container mx-auto px-[64px]">
+    <div className="bg-gradient-to-b from-white to-primary-light py-12 sm:py-16 lg:py-[80px]">
+      <Container className=" mx-auto px-0 sm:px-8 lg:px-[64px]">
         {/* Header */}
-        <div className=" text-text text-bold text-5xl text-center leading-9 whitespace-nowrap ">
-          ميزات برنامجنا{" "}
-        </div>
-        <div className="grid grid-cols-2 gap-8 mt-[48px]">
+        <h2 className="text-text font-bold text-2xl sm:text-3xl lg:text-5xl text-center leading-8 sm:leading-9 lg:leading-9 mb-8 sm:mb-10 lg:mb-[48px]">
+          ميزات برنامجنا
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {goals.map((goal, index) => (
             <GoalCard key={index} data={goal} />
           ))}
         </div>
-      </div>
+      </Container>
     </div>
   );
 };
@@ -139,15 +140,19 @@ export default OurProgramFeatures;
 
 const GoalCard = ({ data = {} }) => {
   return (
-    <div className="flex flex-col  items-start gap-2.5 p-[25px] relative bg-primary-light shadow-sm rounded-[30px] border border-solid ">
+    <div className="flex flex-col items-start gap-2.5 p-4 sm:p-5 lg:p-[25px] relative bg-primary-light shadow-sm rounded-[20px] sm:rounded-[25px] lg:rounded-[30px] border border-solid">
       <div className="items-start gap-3 flex flex-col relative self-stretch w-full flex-[0_0_auto]">
-        <div className=" gap-4 flex flex-col relative self-stretch w-full flex-[0_0_auto]">
-          <div className="relative w-8 h-8">{data?.icon}</div>
-          <div className=" text-primary-dark font-bold text-xl leading-7 relative self-stretch ">
-            {data?.title}
+        <div className="gap-3 sm:gap-4 flex flex-col relative self-stretch w-full flex-[0_0_auto]">
+          <div className="relative w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8">
+            <div className="scale-75 sm:scale-90 lg:scale-100 origin-top-left">
+              {data?.icon}
+            </div>
           </div>
+          <h3 className="text-primary-dark font-bold text-lg sm:text-xl leading-6 sm:leading-7 relative self-stretch">
+            {data?.title}
+          </h3>
         </div>
-        <p className="h-12  text-text-alt leading-normal text-base  overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] relative self-stretch ">
+        <p className="min-h-[48px] sm:h-12 text-text-alt leading-normal text-sm sm:text-base overflow-hidden text-ellipsis line-clamp-2 relative self-stretch">
           {data?.description}
         </p>
       </div>

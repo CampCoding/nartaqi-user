@@ -3,20 +3,25 @@
 import React, { useState } from "react";
 
 const BlogComments = () => {
+  const comments = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }];
+
   return (
-    <section className="px-[32px] flex flex-col gap-[32px] mt-[56px]">
-      <header className="  h-[60px] text-bold text-secondary text-[32px] leading-[normal] ">
-        تعليقات (١٢)
+    <section className=" flex flex-col gap-6 sm:gap-8 md:gap-10 mt-8 sm:mt-10 md:mt-12 lg:mt-14 max-w-7xl mx-auto">
+      {/* Header */}
+      <header className="flex items-center justify-between">
+        <h2 className="font-bold text-secondary text-2xl leading-8 sm:text-[28px] sm:leading-9 md:text-[30px] md:leading-10 lg:text-[32px] lg:leading-[44px]">
+          تعليقات (١٢)
+        </h2>
       </header>
 
-      <main className="flex flex-col gap-[24px]">
-        <BlogCommentCard />
-        <BlogCommentCard />
-        <BlogCommentCard />
-        <BlogCommentCard />
-        <BlogCommentCard />
+      {/* Comments List */}
+      <main className="flex flex-col gap-4 sm:gap-5 md:gap-6">
+        {comments.map((comment) => (
+          <BlogCommentCard key={comment.id} />
+        ))}
       </main>
 
+      {/* Add Comment Form */}
       <AddBlogComment />
     </section>
   );
@@ -24,8 +29,7 @@ const BlogComments = () => {
 
 export default BlogComments;
 
-// import FRAME1 from "./FRAME.svg";
-
+// Comment Card Component
 const BlogCommentCard = () => {
   const reviewData = {
     date: "6 مارس 2024",
@@ -38,13 +42,12 @@ const BlogCommentCard = () => {
 
   const renderStars = (rating) => {
     return (
-      <div dir="ltr" className="flex items-center gap-1">
+      <div dir="ltr" className="flex items-center gap-0.5 sm:gap-1">
         {Array.from({ length: 5 }, (_, index) => (
           <div key={index}>
             {index < rating ? (
               <svg
-                width={16}
-                height={16}
+                className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                 viewBox="0 0 16 16"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -59,8 +62,7 @@ const BlogCommentCard = () => {
               </svg>
             ) : (
               <svg
-                width={16}
-                height={16}
+                className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                 viewBox="0 0 16 16"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -81,52 +83,58 @@ const BlogCommentCard = () => {
 
   return (
     <article
-      className="flex items-center justify-between px-6 py-8 relative bg-white rounded-[30px] border border-solid border-zinc-200"
+      className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6 px-4 py-5 sm:px-5 sm:py-6 md:px-6 md:py-7 lg:px-6 lg:py-8 relative bg-white rounded-2xl sm:rounded-[25px] md:rounded-[30px] border border-solid border-zinc-200 hover:border-zinc-300 transition-all duration-300 hover:shadow-md"
       role="article"
       aria-label="مراجعة المستخدم"
     >
-      <div className="inline-flex flex-col items-start gap-4 relative flex-[0_0_auto]">
-        <header className="inline-flex items-start gap-4 relative flex-[0_0_auto]">
+      {/* Main Content */}
+      <div className="flex flex-col gap-3 sm:gap-4 flex-1">
+        {/* Header with Avatar and User Info */}
+        <header className="flex items-start gap-3 sm:gap-4">
           <div
-            className="relative w-10 h-10 rounded-full bg-[url('/images/Image-124.png')] bg-cover bg-[50%_50%]"
+            className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex-shrink-0 rounded-full bg-[url('/images/Image-124.png')] bg-cover bg-center ring-2 ring-neutral-100"
             role="img"
             aria-label={`صورة المستخدم ${reviewData.author}`}
           />
-          <div className="inline-flex flex-col items-start gap-2 relative flex-[0_0_auto]">
-            <h3 className="self-stretch text-bold  relative text-text text-base leading-6 ">
+          <div className="flex flex-col gap-1.5 sm:gap-2 flex-1">
+            <h3 className="font-bold text-text text-sm sm:text-base md:text-lg leading-5 sm:leading-6">
               {reviewData.author}
             </h3>
-            {renderStars(4)}
+            {renderStars(reviewData.rating)}
           </div>
         </header>
 
-        <p className="w-fit  whitespace-nowrap relative text-text text-base leading-6 ">
+        {/* Comment Text */}
+        <p className="text-text text-sm sm:text-[15px] md:text-base leading-6 sm:leading-7 md:leading-7 break-words">
           {reviewData.comment}
         </p>
       </div>
 
+      {/* Date */}
       <time
-        className="inline-flex h-5 items-center relative flex-[0_0_auto]"
+        className="flex items-center justify-start sm:justify-end sm:flex-shrink-0 sm:self-start"
         dateTime="2024-03-06"
       >
-        <div className="relative self-stretch w-[84px]  text-text-alt text-sm leading-5 ">
+        <span className="text-text-alt text-xs sm:text-sm md:text-sm leading-5 whitespace-nowrap">
           {reviewData.date}
-        </div>
+        </span>
       </time>
     </article>
   );
 };
 
+// Add Comment Component
 export const AddBlogComment = () => {
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
 
   const starIcons = [
-    { id: 1, src: <StarIcon />, alt: "Star 1" },
-    { id: 2, src: <StarIcon />, alt: "Star 2" },
-    { id: 3, src: <StarIcon />, alt: "Star 3" },
-    { id: 4, src: <StarIcon />, alt: "Star 4" },
-    { id: 5, src: <StarIcon />, alt: "Star 5" },
+    { id: 1, label: "نجمة واحدة" },
+    { id: 2, label: "نجمتان" },
+    { id: 3, label: "ثلاث نجوم" },
+    { id: 4, label: "أربع نجوم" },
+    { id: 5, label: "خمس نجوم" },
   ];
 
   const handleStarClick = (starId) => {
@@ -139,23 +147,28 @@ export const AddBlogComment = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic here
     console.log("Comment:", comment, "Rating:", rating);
+    // Reset form
+    setComment("");
+    setRating(0);
   };
 
   return (
-    <div className="flex flex-col items-start gap-7  relative bg-white">
-      <header className="flex flex-col items-start gap-4 px-4 py-0 self-stretch w-full relative flex-[0_0_auto]">
-        <div className="flex flex-col items-start gap-4 self-stretch w-full relative flex-[0_0_auto]">
-          <h1 className="relative self-stretch mt-[-1.00px]  font-bold text-text text-[32px] tracking-[-0.60px] leading-6 ">
+    <div className="flex flex-col gap-5 sm:gap-6 md:gap-7 lg:gap-8 p-4 sm:p-5 md:p-6 lg:p-8 bg-white rounded-2xl sm:rounded-[25px] md:rounded-[30px] border border-zinc-200 shadow-sm">
+      {/* Header */}
+      <header className="flex flex-col gap-3 sm:gap-4">
+        <div className="flex flex-col gap-2 sm:gap-3">
+          <h2 className="font-bold text-text text-xl sm:text-2xl md:text-[28px] lg:text-[30px] xl:text-[32px] leading-7 sm:leading-8 md:leading-9 lg:leading-10">
             أضف تعليقك
-          </h1>
-          <p className="self-stretch  text-text-alt text-sm leading-5 relative ">
+          </h2>
+          <p className="text-text-alt text-sm sm:text-[15px] md:text-base leading-5 sm:leading-6">
             شاركنا أفكارك حول هذه المقالة
           </p>
         </div>
+
+        {/* Star Rating */}
         <div
-          className="inline-flex items-center gap-2 relative flex-[0_0_auto]"
+          className="flex items-center gap-1 sm:gap-1.5 md:gap-2"
           role="group"
           aria-label="تقييم بالنجوم"
         >
@@ -164,21 +177,22 @@ export const AddBlogComment = () => {
               key={star.id}
               type="button"
               onClick={() => handleStarClick(star.id)}
-              className="relative w-[22px] h-[21.02px] mt-[-1.00px] mb-[-1.00px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded-sm"
-              aria-label={`تقييم ${star.id} نجوم`}
+              onMouseEnter={() => setHoverRating(star.id)}
+              onMouseLeave={() => setHoverRating(0)}
+              className="relative w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded-sm transition-transform hover:scale-110 active:scale-95"
+              aria-label={star.label}
               aria-pressed={rating >= star.id}
             >
-              {star.src}
+              <StarIcon filled={star.id <= (hoverRating || rating)} />
             </button>
           ))}
         </div>
       </header>
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col items-start gap-4 self-stretch w-full relative flex-[0_0_auto]"
-      >
-        <div className="flex items-start justify-end px-4  relative self-stretch w-full flex-[0_0_auto] bg-white rounded-[30px] border border-solid border-zinc-200">
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-5">
+        {/* Textarea */}
+        <div className="relative w-full bg-white rounded-xl sm:rounded-2xl md:rounded-[25px] lg:rounded-[30px] border border-zinc-200 focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20 transition-all">
           <label htmlFor="comment-input" className="sr-only">
             اكتب تعليقك هنا
           </label>
@@ -187,25 +201,31 @@ export const AddBlogComment = () => {
             value={comment}
             onChange={handleCommentChange}
             placeholder="اكتب تعليقك هنا..."
-            className="w-full h-full resize-none py-14 text-text-alt text-lg leading-5  bg-transparent border-0 outline-none focus:text-zinc-700"
-            rows="1d"
-            style={{ minHeight: "auto" }}
+            className="w-full resize-none px-4 py-4 sm:px-5 sm:py-5 md:px-6 md:py-6 text-text text-sm sm:text-base md:text-lg leading-6 sm:leading-7 md:leading-8 bg-transparent border-0 outline-none placeholder:text-text-alt/60"
+            rows="6"
+            maxLength="500"
           />
+          <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 text-xs sm:text-sm text-text-alt/60">
+            {comment.length}/500
+          </div>
         </div>
 
+        {/* Submit Button */}
         <button
-          className="inline-flex mr-auto items-center justify-center gap-2 px-12 py-6 relative bg-secondary rounded-[30px] cursor-pointer hover:bg-secondary-dark focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 transition-colors duration-200"
-          type="button"
+          className="self-start inline-flex items-center justify-center gap-2 px-8 py-3 sm:px-10 sm:py-3.5 md:px-12 md:py-4 lg:px-14 lg:py-4 bg-secondary rounded-full sm:rounded-[25px] md:rounded-[30px] cursor-pointer hover:bg-secondary/90 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          type="submit"
+          disabled={!comment.trim() || rating === 0}
           aria-label="تقديم تعليق"
         >
-          <span className="relative flex items-center justify-center w-fit  text-neutral-50 text-base text-center leading-[normal] ">
+          <span className="text-white text-sm sm:text-base md:text-lg font-semibold leading-normal">
             تقديم تعليق
           </span>
         </button>
       </form>
 
-      <footer>
-        <p className="self-stretch  text-text-alt text-xl leading-5 relative ">
+      {/* Footer Note */}
+      <footer className="pt-3 sm:pt-4 border-t border-zinc-100">
+        <p className="text-text-alt text-xs sm:text-sm md:text-base leading-5 sm:leading-6 md:leading-7">
           ملاحظة: يجب أن تكون مسجلا دخولك لتقديم تعليق. يتم مراجعة جميع
           التعليقات قبل نشرها.
         </p>
@@ -214,18 +234,21 @@ export const AddBlogComment = () => {
   );
 };
 
-const StarIcon = (props) => (
+// Star Icon Component
+const StarIcon = ({ filled = false, ...props }) => (
   <svg
-    width={22}
-    height={22}
+    width="100%"
+    height="100%"
     viewBox="0 0 22 22"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    className="transition-all duration-200"
     {...props}
   >
     <path
       d="M11 1L14.09 7.26L21 8.27L16 13.14L17.18 20.02L11 16.77L4.82 20.02L6 13.14L1 8.27L7.91 7.26L11 1Z"
-      stroke="#71717A"
+      fill={filled ? "#FACC15" : "none"}
+      stroke={filled ? "#FACC15" : "#71717A"}
       strokeWidth={2}
       strokeLinejoin="round"
     />

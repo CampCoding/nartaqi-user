@@ -3,8 +3,26 @@
 import React, { useState, useRef, useEffect } from "react";
 import PagesBanner from "../../components/ui/PagesBanner";
 import { ProductCard } from "../../components/Store/ProductCard";
+import { FiltersIcon } from "../../public/svgs";
+import { ChevronLeft } from "lucide-react";
+import Container from "../../components/ui/Container";
+import { BottomDrawer } from "../../components/ui/BottomDrawer";
+import { PoliciesSections } from "../conditions-and-privacy/page";
+import cx from "../../lib/cx";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { FreeMode } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/free-mode";
 
 const Store = () => {
+  const [selectedCategoryId, setSelectedCategoryId] = useState("all");
+  const categories = [
+    { id: "all", label: "الكل" },
+    { id: "books", label: "الكتب" },
+    { id: "courses", label: "الدورات" },
+    { id: "bags", label: "الحقائب" },
+  ];
+
   return (
     <div>
       <PagesBanner
@@ -23,11 +41,41 @@ const Store = () => {
           },
         ]}
       />
+      <Container className="mt-[48px] ">
+        <StoreHeaderMobile rootClassName={"lg:hidden"} />
 
-      <div className="container mx-auto px-[64px] mt-[48px]  ">
-        <div className="grid grid-cols-[379px_auto] gap-6 mb-[56px] ">
-          <SideNav />
-          <section className=" grid grid-cols-3 mx-auto gap-x-4 gap-y-6">
+        <div className="py-6 sticky top-[83px] md:top-[112px] z-30 bg-white lg:hidden" dir="rtl">
+          <Swiper
+            modules={[FreeMode]}
+            freeMode={{ enabled: true, sticky: false, momentumBounce: true }}
+            slidesPerView="auto"
+            spaceBetween={12}
+            className="!px-1"
+         >
+            {categories.map((cat) => {
+              const isActive = selectedCategoryId === cat.id;
+              return (
+                <SwiperSlide key={cat.id} className="!w-auto">
+                  <button
+                    onClick={() => setSelectedCategoryId(cat.id)}
+                    className={cx(
+                      "px-4 py-2 rounded-full border transition-colors",
+                      isActive
+                        ? "bg-primary text-white border-primary"
+                        : "bg-white text-text border-zinc-200 hover:border-zinc-300"
+                    )}
+                    aria-pressed={isActive}
+                  >
+                    {cat.label}
+                  </button>
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-[379px_auto] gap-6 mb-[56px] ">
+          <SideNav rootClassName={"hidden lg:inline-flex"} />
+          <section className=" grid grid-cols-1  sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-6">
             {[
               "FRAME (5).png",
               "books.png",
@@ -48,19 +96,21 @@ const Store = () => {
               return <ProductCard data={item} key={index} />;
             })}
           </section>
-          {/* <PoliciesSections /> */}
         </div>
-      </div>
+      </Container>
     </div>
   );
 };
 
 export default Store;
 
-const SideNav = () => {
+const SideNav = ({ rootClassName }) => {
   return (
     <nav
-      className="  inline-flex flex-col  gap-12 px-8 py-12 relative bg-primary-light rounded-[30px]"
+      className={cx(
+        "  flex-col  gap-12 px-8 py-12 relative bg-primary-light rounded-[30px]",
+        rootClassName
+      )}
       role="navigation"
       aria-label="قائمة شروط الاستخدام"
     >
@@ -217,7 +267,10 @@ export const PriceRange = () => {
       <div className="flex w-[280px] h-6 items-center justify-start mb-4">
         <h2 id="price-range-title" className="font-bold text-primary text-2xl">
           النطاق السعري{" "}
-          <span className="text-text-alt text-base mx-3 "> ({sliderValue.toFixed("0")} ر.س )</span>
+          <span className="text-text-alt text-base mx-3 ">
+            {" "}
+            ({sliderValue.toFixed("0")} ر.س )
+          </span>
         </h2>
       </div>
 
@@ -341,6 +394,30 @@ export const SortBy = () => {
           </div>
         </button>
       </div>
+    </div>
+  );
+};
+
+export const StoreHeaderMobile = ({rootClassName}) => {
+  const [openDrawer, serOpenDrawer] = useState(false);
+  return (
+    <div className={rootClassName}>
+      <header className="flex items-center justify-between ">
+        <FiltersIcon
+          onClick={() => serOpenDrawer(true)}
+          className="w-10 h-10 p-1 cursor-pointer hover:bg-neutral-200 transition-all active:border active:border-neutral-400   active:bg-neutral-300 rounded-full"
+        />
+
+        <h2 className="font-bold">المتجر</h2>
+        <div></div>
+      </header>
+
+      <BottomDrawer open={openDrawer} setOpen={serOpenDrawer}>
+        <div className="flex flex-col gap-10">
+          <PriceRange />
+          <SortBy />
+        </div>
+      </BottomDrawer>
     </div>
   );
 };

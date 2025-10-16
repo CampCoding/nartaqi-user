@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
+import Container from "../../components/ui/Container";
+import cx from "../../lib/cx";
 
 const ConditionsAndPrivacy = () => {
   const [selectedSection, setSelectedSection] = useState(1);
@@ -24,9 +26,11 @@ const ConditionsAndPrivacy = () => {
           },
         ]}
       />
-      <div className="container mx-auto px-[64px] mt-[48px]  ">
-        <div className="grid grid-cols-[379px_auto] gap-6 ">
+      <Container className=" mt-[48px]  ">
+        <div className="grid  grid-cols-1 lg:grid-cols-[379px_auto] gap-6 ">
+          
           <SideNav
+            rootClassName="h-fit"
             selectedSection={selectedSection}
             setSelectedSection={setSelectedSection}
           />
@@ -36,7 +40,7 @@ const ConditionsAndPrivacy = () => {
             setSelectedSection={setSelectedSection}
           />
         </div>
-      </div>
+      </Container>
     </div>
   );
 };
@@ -62,7 +66,7 @@ const ChevromLeft = (props) => (
   </svg>
 );
 
-const SideNav = ({ selectedSection, setSelectedSection }) => {
+const SideNav = ({ selectedSection, setSelectedSection , rootClassName }) => {
   const menuItems = [
     {
       id: 1,
@@ -116,7 +120,7 @@ const SideNav = ({ selectedSection, setSelectedSection }) => {
 
   return (
     <nav
-      className=" h-fit inline-flex flex-col items-start gap-6 px-8 py-12 relative bg-primary-light rounded-[30px]"
+      className={cx(" h-fit inline-flex flex-col items-start  gap-3 md:gap-6 px-4 md:px-8 py-8 md:py-12 relative bg-primary-light rounded-[30px]"  , rootClassName)}
       role="navigation"
       aria-label="قائمة شروط الاستخدام"
     >
@@ -136,7 +140,7 @@ const SideNav = ({ selectedSection, setSelectedSection }) => {
               selectedSection === item.id
                 ? " font-bold !text-primary"
                 : " text-text"
-            } tracking-[0] relative w-fit text-xl  leading-[normal] overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] `}
+            } tracking-[0] relative w-fit  texst-lg md:text-xl  leading-[normal] overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] `}
           >
             {item.text}
           </div>
@@ -272,16 +276,16 @@ const privacySections = [
 
 export const PoliciesSections = ({ selectedSection, setSelectedSection }) => {
   return (
-    <section className="space-y-[32px] mb-[100px]">
+    <section className="flex flex-col gap-[32px] mb-[100px]">
       {privacySections?.map((privacyData, index) => {
         return (
           <main
-            className="flex flex-col items-start gap-8 relative"
+            className="flex flex-col items-start gap-4 relative"
             role="main"
             onClick={() => setSelectedSection(index + 1)}
           >
             <header>
-              <h1 className=" font-bold text-primary text-2xl relative self-stretch mt-[-1.00px] tracking-[0] leading-[normal] ">
+              <h1 className=" font-bold text-primary  text-xl md:text-2xl relative self-stretch mt-[-1.00px] tracking-[0] leading-[normal] ">
                 {privacyData.title}
               </h1>
             </header>
@@ -290,21 +294,21 @@ export const PoliciesSections = ({ selectedSection, setSelectedSection }) => {
               className="flex flex-col items-start gap-2 relative self-stretch w-full flex-[0_0_auto]"
               aria-labelledby="privacy-policy"
             >
-              <p className=" font-medium text-text-duplicate text-xl relative self-stretch mt-[-1.00px] tracking-[0] leading-[normal] ">
+              <p className=" font-medium text-text-alt text-lg  md:text-xl relative self-stretch mt-[-1.00px] tracking-[0] leading-[normal] ">
                 {privacyData.introduction}
               </p>
 
               {privacyData.sections.map((section, index) => (
                 <article
                   key={index}
-                  className="relative self-stretch  font-normal text-text-duplicate text-xl tracking-[0] leading-[normal] "
+                  className=" mb-4 relative self-stretch  font-normal text-text-duplicate  text-lg md:text-xl tracking-[0] leading-[normal] "
                 >
                   <h2 className="font-bold">
                     {section.title}
                     <br />
                   </h2>
 
-                  <div className=" font-medium">
+                  <div className=" font-medium leading-loose">
                     {section.content.map((item, itemIndex) => (
                       <React.Fragment key={itemIndex}>
                         {item}

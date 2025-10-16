@@ -1,15 +1,15 @@
 import React from "react";
 
 export const TestimonialCard = ({ type = "students", freeWidth = false }) => {
-  const width = freeWidth ? "w-full" : "w-[485px]";
+  const width = freeWidth ? "w-full" : "w-full max-w-[485px]";
   return (
     <div
-      className={`flex flex-col shadow-2xl ${width} items-center md:items-start gap-6 px-6 md:!px-12  py-6 md:py-8    relative rounded-[25px] bg-white shadow-[var(--shadow-card)]`}
+      className={`flex flex-col shadow-2xl ${width} items-center md:items-start gap-4 sm:gap-6 px-4 sm:px-6 md:!px-12 py-6 md:py-8 relative rounded-[20px] sm:rounded-[25px] bg-white shadow-[var(--shadow-card)] mx-auto`}
     >
       {/* خلفية أيقونة التخرج */}
-      <div className="absolute bottom-0 left-0 aspect-[1]">
+      <div className="absolute bottom-0 left-0 aspect-[1] opacity-10 sm:opacity-100">
         <div
-          className="relative w-[117px] h-[118px]"
+          className="relative w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] lg:w-[117px] lg:h-[118px]"
           style={{
             backgroundImage: `url('/images/graduation-diploma 1 (1).svg')`,
             backgroundSize: "cover",
@@ -20,10 +20,10 @@ export const TestimonialCard = ({ type = "students", freeWidth = false }) => {
       </div>
 
       {/* صورة أيقونة أعلى الكارت */}
-      <div className="absolute top-[7px] right-[4px]">
+      <div className="absolute top-[5px] sm:top-[7px] right-[3px] sm:right-[4px] opacity-10 sm:opacity-100">
         <div className="relative left-1">
           <img
-            className="w-[128px] h-auto"
+            className="w-[90px] sm:w-[110px] lg:w-[128px] h-auto"
             alt="Graduation Icon"
             src={"/images/graduation 1.png"}
           />
@@ -31,41 +31,43 @@ export const TestimonialCard = ({ type = "students", freeWidth = false }) => {
       </div>
 
       {/* رأس البطاقة (الصورة + الاسم + التخصص) */}
-      <div className="     flex flex-col md:flex-row w-full items-center md:items-start gap-4 relative flex-[0_0_auto]">
+      <div className="flex flex-col md:flex-row w-full items-center md:items-start gap-3 sm:gap-4 relative flex-[0_0_auto] z-10">
         <img
           src={`/images/Image-48.png`}
-          alt=""
-          className= "  w-28 h-28 md:w-12 md:h-12 rounded-full object-cover"
+          alt="صورة المتدرب"
+          className="w-20 h-20 sm:w-24 sm:h-24 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full object-cover flex-shrink-0"
         />
-        <div className="flex flex-col items-start gap-4 md:gap-1 relative flex-1 grow">
-          <div className="relative text-text text-start font-bold self-stretch mt-[-1px] text-2xl md:text-base leading-6">
+        <div className="flex flex-col items-center md:items-start gap-2 sm:gap-3 md:gap-1 relative flex-1 grow">
+          <h3 className="relative text-text text-center md:text-start font-bold self-stretch mt-[-1px] text-lg sm:text-xl md:text-base lg:text-lg leading-6 sm:leading-7">
             مايكل براون
-          </div>
-          <div className="text-text-alt text-center md:text-start text-sm leading-5 relative self-stretch">
+          </h3>
+          <p className="text-text-alt text-center md:text-start text-xs sm:text-sm leading-4 sm:leading-5 relative self-stretch">
             طالب
-          </div>
+          </p>
         </div>
-
-        {/* البادج */}
-        {/* <div className="px-4 mr-auto py-3 bg-[color:var(--primary-light,#C2D8FC)] rounded-2xl inline-flex justify-center items-center gap-2.5">
-          <div className="justify-center text-[color:var(--text)] text-xs font-medium ">
-            مهارات التعليم والتدريس
-          </div>
-        </div> */}
       </div>
 
-      {/* فاصل زخرفي */}
-      
-     <div dir="ltr" className="flex items-center gap-1">
-     <FilledStarIcon />
-     <FilledStarIcon />
-     <FilledStarIcon />
-     <FilledStarIcon />
-     <OutlinedStarIcon />
-     </div>
+      {/* تقييم النجوم */}
+      <div dir="ltr" className="flex items-center gap-0.5 sm:gap-1 z-10">
+        <div className="w-5 h-5 sm:w-6 sm:h-6">
+          <FilledStarIcon />
+        </div>
+        <div className="w-5 h-5 sm:w-6 sm:h-6">
+          <FilledStarIcon />
+        </div>
+        <div className="w-5 h-5 sm:w-6 sm:h-6">
+          <FilledStarIcon />
+        </div>
+        <div className="w-5 h-5 sm:w-6 sm:h-6">
+          <FilledStarIcon />
+        </div>
+        <div className="w-5 h-5 sm:w-6 sm:h-6">
+          <OutlinedStarIcon />
+        </div>
+      </div>
 
       {/* نص الشهادة */}
-      <p className="text-base text-text-alt text-center md:text-start leading-6 relative self-stretch">
+      <p className="text-xs sm:text-sm md:text-base text-text-alt text-center md:text-start leading-5 sm:leading-6 relative self-stretch z-10">
         لوريم ابسوم دولور سيت اميت، كونسيكتيتور اديبيسسينغ ايليت. كورابيتور
         ايجيت ايروس فيتاي اورنا فرمنتوم فاسيليسيس. سيد تريستيكوي، نيسل ان كورسوس
         تينكيدونت، جوستو لوريم فولوتبات سيم، فيل فيفيرا سابين اركو ات اورنا.
@@ -74,11 +76,10 @@ export const TestimonialCard = ({ type = "students", freeWidth = false }) => {
   );
 };
 
-
-const FilledStarIcon =  (props) => (
+const FilledStarIcon = (props) => (
   <svg
-    width={24}
-    height={24}
+    width="100%"
+    height="100%"
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -95,10 +96,10 @@ const FilledStarIcon =  (props) => (
   </svg>
 );
 
-const OutlinedStarIcon =  (props) => (
+const OutlinedStarIcon = (props) => (
   <svg
-    width={22}
-    height={22}
+    width="100%"
+    height="100%"
     viewBox="0 0 22 22"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"

@@ -23,7 +23,7 @@ const RadioButtons = ({
             htmlFor={opt.id}
             className="flex items-center cursor-pointer gap-2"
           >
-            <div className="custom-radio w-5 h-5 border-2 border-gray-400 rounded-full peer-checked:border-blue-500 peer-checked:bg-blue-500 transition" />
+            <div className="custom-radio w-5 h-5 border-2 border-gray-400 rounded-full peer-checked:border-blue-500 peer-checked:bg-primary transition" />
             <span className="font-[600]">{opt.label}</span>
           </label>
         </div>

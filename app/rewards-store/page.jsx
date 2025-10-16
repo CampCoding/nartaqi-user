@@ -3,6 +3,7 @@ import PagesBanner from "../../components/ui/PagesBanner";
 import { RewardsPointsHeader } from "../../components/rewards-store/rewards-points-header";
 import { RewardsNav } from "../../components/rewards-store/rewards-navs";
 import { RewardCard } from "../../components/ui/Cards/RewardCard";
+import Container from "../../components/ui/Container";
 
 const RewardsStorePage = () => {
   return (
@@ -22,12 +23,10 @@ const RewardsStorePage = () => {
         image={"/images/rewards-store.png"}
       />
 
-      <div className="container  max-w-[1312px] mt-8 mb-28  mx-auto  ">
+      <Container className="my-8 ">
         <RewardsPointsHeader />
-
         <RewardsNav />
-
-        <div className="grid grid-cols-3 content-center justify-items-center gap-y-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 lg:grid-cols-4 gap-6 content-center justify-items-center ">
           <RewardCard />
           <RewardCard />
           <RewardCard />
@@ -36,11 +35,11 @@ const RewardsStorePage = () => {
         </div>
 
         <div className="">
-          <div className=" h-[90px]  mt-10 mb-5 flex items-center justify-start  text-secondary text-4xl font-bold  leading-[normal] [direction:rtl]">
+          <div className="   mt-10 mb-5 flex items-center justify-start  text-secondary text-xl md:text-3xl font-bold  leading-[normal] [direction:rtl]">
             المستوى الفضي
           </div>
 
-          <div className="grid grid-cols-3 content-center justify-items-center gap-y-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 lg:grid-cols-4 gap-6 content-center justify-items-center ">
             <RewardCard locked />
             <RewardCard locked />
             <RewardCard locked />
@@ -49,7 +48,7 @@ const RewardsStorePage = () => {
             <RewardCard locked />
           </div>
         </div>
-      </div>
+      </Container>
     </div>
   );
 };

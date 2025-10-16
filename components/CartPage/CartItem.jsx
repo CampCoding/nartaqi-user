@@ -15,11 +15,13 @@ const CartItem = ({ data, onRemove }) => {
   };
 
   return (
-    <div className="self-stretch w-full py-8 bg-white border-t-2 border-b-2 border-slate-300 inline-flex justify-start items-center">
-      <div className="flex-1 flex justify-between items-center">
-        {/* Thumbnail */}
+    // Main container: Stacks vertically on mobile, row on desktop. Added gap for mobile.
+    <div className="self-stretch w-full py-8 bg-white border-b-2 border-slate-300 flex flex-col md:flex-row justify-start items-center gap-6 md:gap-0">
+      {/* Container for Thumbnail + Info/Price */}
+      <div className="w-full flex-1 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4">
+        {/* Thumbnail: Full width with fixed height on mobile, original style on desktop */}
         <div
-          className="w-64 self-stretch relative overflow-hidden"
+          className="w-full h-56 md:h-auto md:max-w-[256px] self-stretch relative overflow-hidden rounded-lg md:rounded-none"
           style={{
             backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.05) 100%), url("${data.image}")`,
             backgroundSize: "cover",
@@ -36,9 +38,9 @@ const CartItem = ({ data, onRemove }) => {
           )}
         </div>
 
-        {/* Info */}
-        <div className="flex-1 flex justify-between items-start">
-          <div className=" inline-flex flex-col justify-start items-start gap-4">
+        {/* Info: Stacks vertically on mobile, row on desktop */}
+        <div className="w-full md:flex-1 flex flex-col md:flex-row justify-between items-start gap-4 md:gap-0">
+          <div className="w-full inline-flex flex-col justify-start items-start gap-4">
             <div className="self-stretch flex flex-col justify-start items-start gap-4">
               <div className="self-stretch px-3 flex flex-col justify-start items-start gap-1">
                 <div className="self-stretch text-right justify-center text-text text-base font-bold ">
@@ -54,10 +56,10 @@ const CartItem = ({ data, onRemove }) => {
                 {data.badge && (
                   <div
                     className={`px-9 py-3 ${
-                      data.store ?"bg-primary-bg" : "bg-red-400/25"
-                    } rounded-[10px]   flex justify-center items-center gap-2.5`}
+                      data.store ? "bg-primary-bg" : "bg-red-400/25"
+                    } rounded-[10px] flex justify-center items-center gap-2.5`}
                   >
-                    <div className="justify-center  text-alt text-xs font-medium ">
+                    <div className="justify-center text-alt text-xs font-medium ">
                       {data.store ? data.tag : data.badge}
                     </div>
                   </div>
@@ -93,12 +95,13 @@ const CartItem = ({ data, onRemove }) => {
                 </div>
               </div>
 
-              <div className="w-80 h-0 border-b-2 border-dashed border-neutral-400"></div>
+              <div className="w-full md:w-80 h-0 border-b-2 border-dashed border-neutral-400"></div>
 
               <div className="inline-flex justify-start items-center gap-[5px]">
                 <img
                   className="w-6 h-6 relative rounded-xl"
                   src={data.teacherImage}
+                  alt={data.teacher}
                 />
                 <div className="justify-center text-text text-[10px] font-medium ">
                   المدرس: {data.teacher}
@@ -136,9 +139,9 @@ const CartItem = ({ data, onRemove }) => {
             </div>
           </div>
 
-          {/* Price + Remove */}
-          <div className="w-36 self-stretch pl-4 inline-flex flex-col justify-between items-center">
-            <div className="self-stretch text-center justify-center text-primary text-2xl font-bold ">
+          {/* Price + Remove: Row on mobile, column on desktop */}
+          <div className="w-full px-4 md:px-0 md:w-36 md:self-stretch md:pl-4 flex flex-row-reverse md:flex-col justify-between items-center">
+            <div className="self-stretch text-right md:text-center justify-center text-primary text-2xl font-bold ">
               {data.price} ر.س
             </div>
             <div

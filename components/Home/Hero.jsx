@@ -47,7 +47,7 @@ export const HeaderHero = () => {
                 <SwiperSlide key={index}>
                   <div className="select-none">
                     <div className="w-[714px] ">
-                      <h1 className=" w-[714px] text-bold h-[154px] flex flex-col justify-center   text-bg text-[40px] leading-[60px] overflow-hidden text-ellipsis ">
+                      <h1 className=" w-[714px] text-bold h-[154px] flex flex-col justify-center text-bg text-[40px] leading-[60px] overflow-hidden text-ellipsis ">
                         ابنِ مستقبلك مع أفضل الدورات{" "}
                         <span className="text-secondary font-bold">التعليمية</span>
                       </h1>

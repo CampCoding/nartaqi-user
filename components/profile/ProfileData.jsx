@@ -2,53 +2,46 @@ import React from "react";
 
 const ProfileData = () => {
   return (
-    <main className="flex flex-col items-center  flex-1">
-      <div className="flex flex-col items-center relative" role="main">
+    <main className="flex flex-col items-center flex-1 w-full">
+      <div className="flex flex-col items-center relative w-full" role="main">
         <div
           className="inline-flex flex-col items-center gap-1.5 relative flex-[0_0_auto]"
           aria-labelledby="profile-name"
         >
           <div
-            className="relative w-20 h-20 rounded-[100px] aspect-[1] bg-[url(/images/Image-12422.png)] bg-cover bg-[50%_50%]"
+            className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-[100px] aspect-[1] bg-[url(/images/Image-12422.png)] bg-cover bg-[50%_50%]"
             role="img"
             aria-label="Profile picture of محمد علي عبد الحميد"
           />
 
-
-          <button className="absolute hover:scale-105 bottom-0 left-0">
+          <button className="absolute hover:scale-105 bottom-0 left-0 transition-transform duration-200">
             <EditIcon />
           </button>
         </div>
-
         <h1
           id="profile-name"
-          className="relative flex items-center justify-center self-stretch  font-bold text-text text-2xl text-center tracking-[0] leading-[normal] "
+          className="relative flex items-center justify-center self-stretch font-bold text-text text-lg sm:text-xl md:text-2xl text-center tracking-[0] leading-[normal] mt-2 sm:mt-4"
         >
           محمد علي عبد الحميد
         </h1>
       </div>
 
-
       <button
-      className="inline-flex mt-4 items-center justify-center gap-2.5 px-12 py-4 relative rounded-[20px] border-2 border-solid border-variable-collection-sup-title hover:bg-variable-collection-sup-title hover:bg-opacity-5 focus:outline-none focus:ring-2 focus:ring-variable-collection-sup-title focus:ring-opacity-50 transition-all duration-200 cursor-pointer"
-      type="button"
-      aria-label="تعديل الملف الشخصي"
-    >
-      <span className="relative flex items-center justify-center w-fit mt-[-2.00px]  font-semibold text-text-alt text-base text-left tracking-[0] leading-8 whitespace-nowrap ">
-        تعديل الملف الشخصي
-      </span>
-    </button>
+        className="inline-flex mt-4 sm:mt-6 items-center justify-center gap-2.5 px-6 sm:px-8 md:px-12 py-3 sm:py-4 relative rounded-[20px] border-2 border-solid border-variable-collection-sup-title hover:bg-variable-collection-sup-title hover:bg-opacity-5 focus:outline-none focus:ring-2 focus:ring-variable-collection-sup-title focus:ring-opacity-50 transition-all duration-200 cursor-pointer w-full sm:w-auto"
+        type="button"
+        aria-label="تعديل الملف الشخصي"
+      >
+        <span className="relative flex items-center justify-center w-fit font-semibold text-text-alt text-sm sm:text-base text-left tracking-[0] leading-8 whitespace-nowrap">
+          تعديل الملف الشخصي
+        </span>
+      </button>
 
-
-    <div className="grid grid-cols-2 w-full gap-x-[29px] gap-y-[31px] mt-[32px] ">
-    <Input  label="الأسم الأول" subLabel="" placeholder=""/>
-    <Input  label="الأسم الوسط" subLabel="" placeholder=""/>
-    <Input  label="اسم العائله" subLabel="" placeholder=""/>
-    <Input  label="رقم الجوال" subLabel="" placeholder=""/>
-    </div>
-
-
-
+      <div className="grid grid-cols-1 sm:grid-cols-2 w-full gap-4 sm:gap-x-[29px] sm:gap-y-[31px] mt-6 sm:mt-[32px]">
+        <Input label="الأسم الأول" subLabel="" placeholder="" />
+        <Input label="الأسم الوسط" subLabel="" placeholder="" />
+        <Input label="اسم العائله" subLabel="" placeholder="" />
+        <Input label="رقم الجوال" subLabel="" placeholder="" />
+      </div>
     </main>
   );
 };
@@ -57,11 +50,12 @@ export default ProfileData;
 
 const EditIcon = (props) => (
   <svg
-    width={24}
-    height={24}
+    width={20}
+    height={20}
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    className="sm:w-6 sm:h-6"
     {...props}
   >
     <rect width={24} height={24} rx={12} fill="#3B82F6" />
@@ -82,10 +76,6 @@ const EditIcon = (props) => (
   </svg>
 );
 
-
-
-
-
 export const Input = ({
   label = "الاسم رباعي باللغة العربية",
   subLabel = "(مطابق للهوية الوطنية)",
@@ -94,16 +84,18 @@ export const Input = ({
   return (
     <div className="flex w-full flex-col items-start gap-2 relative">
       <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+        <div className="font-bold text-text relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
           {label}
         </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
-          {subLabel}
-        </div>
+        {subLabel && (
+          <div className="font-medium text-danger relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
+            {subLabel}
+          </div>
+        )}
       </div>
       <input
         placeholder={placeholder}
-        className="justify-start h-[78px] gap-2.5 px-4  bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto]"
+        className="justify-start h-[60px] sm:h-[70px] md:h-[78px] gap-2.5 px-3 sm:px-4 bg-white rounded-[15px] sm:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
       />
     </div>
   );

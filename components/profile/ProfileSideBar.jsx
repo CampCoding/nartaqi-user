@@ -11,7 +11,7 @@ import { useUser } from "../../lib/useUser";
 export const ProfileSideBar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const {logout} = useUser()
+  const { logout } = useUser();
   const menuItems = [
     {
       id: "account",
@@ -27,32 +27,32 @@ export const ProfileSideBar = () => {
     },
     {
       id: "courses",
-      path:"/my-courses",
+      path: "/my-courses",
       label: "دوراتي",
       icon: OpenBook, // ✅
     },
     {
       id: "badges",
-      path:"/my-badges",
+      path: "/my-badges",
       label: "شاراتي",
       icon: Badge,
     },
     {
       id: "certificates",
-      path:"/my-certificates",
+      path: "/my-certificates",
       label: "شهاداتي",
       icon: Certificate,
     },
     {
       id: "notifications",
       label: "إشعارات",
-      path:"/notifications",
+      path: "/notifications",
       icon: Notification,
     },
     {
       id: "favorites",
       label: "المفضلة",
-      path:"/my-favourites",
+      path: "/my-favourites",
       icon: Heart,
     },
   ];
@@ -117,7 +117,10 @@ export const ProfileSideBar = () => {
           <div className="relative w-6 h-6 aspect-[1]">
             <LogoutIcon />
           </div>
-          <button onClick={()=> logout()} className="mt-[-1.00px] text-[#e84242] relative flex items-center justify-center w-fit  font-bold text-base text-left tracking-[0] leading-6 whitespace-nowrap ">
+          <button
+            onClick={() => logout()}
+            className="mt-[-1.00px] text-[#e84242] relative flex items-center justify-center w-fit  font-bold text-base text-left tracking-[0] leading-6 whitespace-nowrap "
+          >
             تسجيل الخروج
           </button>
         </button>

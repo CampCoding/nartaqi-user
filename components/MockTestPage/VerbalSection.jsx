@@ -2,7 +2,7 @@ import React from "react";
 
 const VerbalSection = () => {
   return (
-      <div className="w-[584px]  inline-flex flex-col justify-start items-start gap-8">
+      <div className="  inline-flex flex-col justify-start items-start gap-8">
         <div className=" inline-flex justify-end items-center gap-6">
           <div className="text-right justify-center text-text text-3xl font-bold ">
             القسم اللفظي

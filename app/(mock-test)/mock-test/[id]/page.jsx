@@ -186,6 +186,7 @@ const MockTest = () => {
   return (
     <div className="bg-primary">
       <MockExamHeader
+        drawerPlacement="right"
         isInReview={isInReview}
         setIsInReview={setIsInReview}
         timeRemaining={formatTime(timeRemaining)}
@@ -199,8 +200,8 @@ const MockTest = () => {
       {isInReview ? (
         <MockTestReview />
       ) : (
-        <div className="grid grid-cols-2 gap-[32px] min-h-screen">
-          <div className="bg-white px-[64px] py-[32px]">
+        <div className="grid grid-cols-1 md:grid-cols-2  gap-4 md:gap-[32px] min-h-screen">
+          <div className="bg-white px-6 md:px-[64px] py-[32px]">
             {isStart ? (
               <MockExamQuestion
                 questionData={currentQuestionData}
@@ -219,7 +220,7 @@ const MockTest = () => {
             )}
           </div>
 
-          <div className="bg-white p-[64px]">
+          <div className="bg-white  p-6  md:p-[64px]">
             {isStart ? (
               <p className="  flex flex-col   font-normal text-[#be1919] text-base tracking-[0] leading-[normal] [direction:rtl]">
                 <span className="font-bold">استيعاب المقروء</span>

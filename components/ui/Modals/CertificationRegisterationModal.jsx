@@ -3,156 +3,150 @@ import React from "react";
 export const CertificationRegisterationModal = ({ open, setOpen }) => {
   const [agreed, setAgreed] = React.useState(false);
 
-  if (open) {
-    return (
-      <div className="fixed z-50 bg-black/50 flex justify-center  inset-0 overflow-y-auto">
-        <div className="bg-white shadow-lg  rounded-[60px] h-fit p-8 w-full max-w-[800px]  flex flex-col m-9">
-          <p className="h-[45px] w-[386px] self-center mt-8  font-bold text-secondary text-2xl tracking-[0] leading-[normal] ">
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50  items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white shadow-2xl rounded-3xl sm:rounded-[60px] w-full max-w-[800px] flex flex-col mx-auto">
+        {/* Header */}
+        <div className="px-4 sm:px-8 py-6 sm:py-8 text-center">
+          <h2 className="font-bold text-secondary text-xl sm:text-2xl md:text-3xl tracking-tight leading-tight">
             تعليمات هامة جدا قبل تعبئة النموذج
-          </p>
+          </h2>
           <img
-            className="ml-[0.9px] h-[145.58px] w-[279.26px] self-center mt-6"
+            className="mx-auto mt-4 sm:mt-6 w-48 sm:w-72 h-auto"
             alt="Frame"
             src={"/images/Frame 1000005529.png"}
           />
+        </div>
 
-          <div className="flex ml-8 w-[736px]  relative mt-[24.4px] flex-col items-start gap-6">
-            <div className="flex flex-col items-start gap-4 relative self-stretch w-full flex-[0_0_auto]">
-              <div className="flex items-center gap-4 relative self-stretch w-full flex-[0_0_auto]">
-                <div className="bg-primary-light flex items-center justify-center rounded-[150px] overflow-hidden relative w-14 h-14 aspect-[1]">
-                  <ManIcon className="fill-primary" />
-                </div>
-
-                <p className="relative flex-1 mt-[-1.00px] font-medium text-text text-lg tracking-[0] leading-[normal] ">
-                  يجب أن يكون لديك حساب بمنصة منار (المنصة الحكومية الخاصة
-                  بالشهادات المعتمدة من المؤسسة العامة للتدريب المهني والتقني)
-                </p>
+        {/* Content */}
+        <div className="px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8 flex flex-col gap-4 sm:gap-6">
+          <div className="flex flex-col items-start gap-3 sm:gap-4">
+            {/* Item 1 */}
+            <div className="flex items-start gap-3 sm:gap-4 w-full">
+              <div className="bg-primary-light flex items-center justify-center rounded-full overflow-hidden w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0">
+                <ManIcon className="fill-primary w-6 h-6 sm:w-7 sm:h-7" />
               </div>
-
-              <div className="flex items-center gap-4 relative self-stretch w-full flex-[0_0_auto]">
-                <div className="bg-primary-light flex items-center justify-center rounded-[150px] overflow-hidden relative w-14 h-14 aspect-[1]">
-                  <ManPlus className="fill-primary" />
-                </div>
-                <p className="relative flex-1 mt-[-1.00px] font-normal text-transparent text-lg tracking-[0] leading-[normal] ">
-                  <span className="font-medium text-[#2d2d2d]">
-                    إذا لم يكن لديك حساب يمكنكم انشاء حساب من هنا{" "}
-                  </span>
-
-                  <span className=" font-bold text-primary">
-                    ( https://example.com/login )
-                  </span>
-
-                  <span className=" font-bold text-[#2d2d2d]">&nbsp;</span>
-
-                  <span className="font-medium text-[#2d2d2d]">
-                    وإذا لديك حساب يفضل الدخول للتأكد من بياناتك
-                  </span>
-                </p>
-              </div>
-
-              <div className="flex items-center gap-4 relative self-stretch w-full flex-[0_0_auto]">
-                <div className="bg-primary-light flex items-center justify-center rounded-[150px] overflow-hidden relative w-14 h-14 aspect-[1]">
-                  <CheckList className="fill-primary" />
-                </div>
-
-                <p className="relative flex-1 mt-[-1.00px] font-medium text-text text-lg tracking-[0] leading-[normal] ">
-                  جميع بياناتك في النموذج هذا يجب أن تكون متوافقة ١٠٠٪� مع
-                  بياناتك بمنصة منار، حيث أي اختلاف يتسبب في تأخير الشهادة حسب
-                  نظام المؤسسة العامة للتدريب التقني والمهني
-                </p>
-              </div>
-
-              <div className="flex items-center gap-4 relative self-stretch w-full flex-[0_0_auto]">
-                <div className="bg-primary-light flex items-center justify-center rounded-[150px] overflow-hidden relative w-14 h-14 aspect-[1]">
-                  <SupportMessageIcon className="fill-primary" />
-                </div>
-
-                <p className="relative flex-1 mt-[-1.00px] font-normal text-transparent text-lg tracking-[0] leading-[normal] ">
-                  <span className="font-medium text-[#2d2d2d]">
-                    أي مشكلة مع منصة منار يمكنك التواصل معهم عبر ايقونة الدعم
-                    الفني بموقعهم. أي صعوبات في التسجيل او استرداد الرقم السري
-                    يمكنكم التواصل مع منصة منار من خلال الدعم الفني و الرقم
-                    الموحد
-                  </span>
-
-                  <span className=" font-bold text-primary"> 123456789 </span>
-
-                  <span className="font-medium text-[#2d2d2d]"> والايميل</span>
-
-                  <span className=" font-bold text-primary">
-                    {" "}
-                    example@gmail.com
-                  </span>
-                </p>
-              </div>
+              <p className="flex-1 font-medium text-text text-sm sm:text-base md:text-lg leading-relaxed text-right">
+                يجب أن يكون لديك حساب بمنصة منار (المنصة الحكومية الخاصة
+                بالشهادات المعتمدة من المؤسسة العامة للتدريب المهني والتقني)
+              </p>
             </div>
 
-            <p className="relative self-stretch font-medium text-danger text-base tracking-[0] leading-[normal] ">
+            {/* Item 2 */}
+            <div className="flex items-start gap-3 sm:gap-4 w-full">
+              <div className="bg-primary-light flex items-center justify-center rounded-full overflow-hidden w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0">
+                <ManPlus className="fill-primary w-6 h-6 sm:w-7 sm:h-7" />
+              </div>
+              <p className="flex-1 font-medium text-text text-sm sm:text-base md:text-lg leading-relaxed text-right">
+                <span>إذا لم يكن لديك حساب يمكنكم انشاء حساب من هنا </span>
+                <a
+                  href="https://example.com/login"
+                  className="font-bold text-primary hover:text-primary-dark transition-colors"
+                >
+                  ( https://example.com/login )
+                </a>
+                <span> وإذا لديك حساب يفضل الدخول للتأكد من بياناتك</span>
+              </p>
+            </div>
+
+            {/* Item 3 */}
+            <div className="flex items-start gap-3 sm:gap-4 w-full">
+              <div className="bg-primary-light flex items-center justify-center rounded-full overflow-hidden w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0">
+                <CheckList className="fill-primary w-6 h-6 sm:w-7 sm:h-7" />
+              </div>
+              <p className="flex-1 font-medium text-text text-sm sm:text-base md:text-lg leading-relaxed text-right">
+                جميع بياناتك في النموذج هذا يجب أن تكون متوافقة ١٠٠٪ مع بياناتك
+                بمنصة منار، حيث أي اختلاف يتسبب في تأخير الشهادة حسب نظام
+                المؤسسة العامة للتدريب التقني والمهني
+              </p>
+            </div>
+
+            {/* Item 4 */}
+            <div className="flex items-start gap-3 sm:gap-4 w-full">
+              <div className="bg-primary-light flex items-center justify-center rounded-full overflow-hidden w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0">
+                <SupportMessageIcon className="fill-primary w-6 h-6 sm:w-7 sm:h-7" />
+              </div>
+              <p className="flex-1 font-medium text-text text-sm sm:text-base md:text-lg leading-relaxed text-right">
+                <span>
+                  أي مشكلة مع منصة منار يمكنك التواصل معهم عبر ايقونة الدعم
+                  الفني بموقعهم. أي صعوبات في التسجيل او استرداد الرقم السري
+                  يمكنكم التواصل مع منصة منار من خلال الدعم الفني و الرقم الموحد
+                </span>
+                <strong className="text-primary block">123456789</strong>
+                <span> والايميل </span>
+                <a
+                  href="mailto:example@gmail.com"
+                  className="font-bold text-primary hover:text-primary-dark transition-colors"
+                >
+                  example@gmail.com
+                </a>
+              </p>
+            </div>
+          </div>
+
+          {/* Important Notice */}
+          <div className="bg-red-50 border border-danger/20 rounded-2xl p-4 sm:p-6">
+            <p className="font-medium text-danger text-sm sm:text-base leading-relaxed text-right">
               هذه التعليمات وفقا لنظام المؤسسة العامة للتدريب التقني والمهني
               ودور منصة البراعة هو رفع البيانات كما تم كتابتها من قبلك وأي خطأ
               من قبلك يؤخر صدور الشهادة يمكن الحصول على الشهادة في حسابك بمنصة
               منار بعد نهاية الدورة ب ٣٠ يوم اذا كانت البيانات صحيحة
             </p>
           </div>
+        </div>
 
-          <div className="flex mb-[30px] relative mt-8 items-center justify-between">
-            <div className="inline-flex items-center gap-2 relative flex-[0_0_auto]">
-              <input
-                id="agree"
-                type="checkbox"
-                checked={agreed}
-                onChange={(e) => setAgreed(e.target.checked)}
-                className="
-    peer hidden
-  "
-              />
-              <label
-                htmlFor="agree"
-                className="
-    flex items-center justify-center
-    w-6 h-6
-    border-2 border-gray-400 rounded-md
-    cursor-pointer
-    transition-colors
-    peer-checked:bg-secondary peer-checked:border-secondary
-    peer-checked:[&::after]:content-['✔']
-    peer-checked:[&::after]:text-white
-    peer-checked:[&::after]:text-sm
-  "
-              ></label>
+        {/* Footer */}
+        <div className="px-6 sm:px-8 pb-6 sm:pb-8 pt-4 border-t border-gray-200 flex flex-col sm:flex-row gap-4 sm:gap-6 sm:items-center justify-between">
+          <label className="flex items-center gap-3 cursor-pointer select-none">
+            <input
+              id="agree"
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="sr-only peer"
+            />
+            <span
+              className={`
+                relative flex items-center justify-center
+                w-5 h-5 sm:w-6 sm:h-6 rounded border-2 border-gray-400
+                cursor-pointer transition-all duration-200
+                peer-checked:bg-secondary peer-checked:border-secondary
+                hover:border-gray-500
+                after:absolute after:inset-0 after:flex after:items-center after:justify-center
+                after:text-white after:text-xs after:font-bold
+                peer-checked:after:content-['✔']
+              `}
+            />
+            <span className="font-medium text-text text-sm sm:text-base leading-relaxed text-right">
+              لقد قرأت جميع التعليمات وأوافق عليها
+            </span>
+          </label>
 
-              <label
-                htmlFor="agree"
-                className="relative cursor-pointer select-none w-fit font-medium text-text text-lg tracking-[0] leading-[normal] "
-              >
-                لقد قرأت حميع التعليمات واوافق عليها
-              </label>
-            </div>
-            <button
-              onClick={() => {
-                if (agreed) {
-                  setAgreed(false);
-                  setOpen(false);
-                }
+          <button
+            onClick={() => {
+              if (agreed) {
+                setAgreed(false);
+                setOpen(false);
               }
-              }
-              disabled={!agreed}
-              aria-disabled={!agreed}
-              className=" disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer  size- px-16 py-4 bg-secondary hover:bg-secondary-dark  rounded-[20px] inline-flex justify-center items-center gap-2.5"
-            >
-              <div className="text-right justify-center text-white text-base font-bold ">
-                موافق
-              </div>
-            </button>
-          </div>
+            }}
+            disabled={!agreed}
+            className={`
+              w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4
+              bg-secondary hover:bg-secondary-dark disabled:bg-gray-300 disabled:cursor-not-allowed
+              rounded-xl sm:rounded-2xl font-bold text-white text-sm sm:text-base
+              transition-all duration-200 flex items-center justify-center
+              ${!agreed ? "opacity-50 cursor-not-allowed" : ""}
+            `}
+          >
+            موافق
+          </button>
         </div>
       </div>
-    );
-  } else {
-    return null;
-  }
+    </div>
+  );
 };
-
 const ManIcon = (props) => (
   <svg
     width={32}

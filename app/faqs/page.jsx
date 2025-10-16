@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
+import Container from "../../components/ui/Container";
+import { BadgesNavs } from "../(account)/my-badges/page";
 
 const FAQs = () => {
   const faqData = [
@@ -44,19 +46,20 @@ const FAQs = () => {
         ]}
       />
 
-      <div className="container mx-auto px-[64px] mt-[48px]">
-        <div className="text-right justify-center text-primary text-5xl font-bold  mb-8">
+      <Container className="mt-[48px]">
+        <div className="text-right justify-center text-primary  text-3xl md:text-5xl font-bold  mb-8">
           الأسئلة الشائعة
         </div>
 
-        <NavigationItems />
+        <BadgesNavs />
 
-        <div className="mt-8 flex flex-col gap-6">
+        <div className="mt-8 flex flex-col gap-4 md:gap-6">
           {faqData.map((item) => (
             <QuestionAccordion key={item.id} item={item} />
           ))}
         </div>
-      </div>
+      </Container>
+
       <AnswerNotFound />
     </div>
   );
@@ -107,31 +110,31 @@ export const QuestionAccordion = ({ item }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="w-full bg-white rounded-[30px] overflow-hidden ">
+    <div className="w-full bg-white rounded-xl md:rounded-[30px] overflow-hidden">
       {/* Header */}
       <div
         onClick={() => setOpen(!open)}
-        className={`self-stretch px-6 py-6 transition rounded-tl-[20px] rounded-tr-[20px] flex justify-between items-center cursor-pointer ${
+        // CHANGED: Reduced padding on mobile (`p-4`) and restored it for medium screens (`md:p-6`).
+        className={`self-stretch p-4 gap-3 md:p-6 transition  flex justify-between items-center cursor-pointer ${
           open ? "bg-primary" : "bg-primary-light hover:!bg-primary-bg"
         }`}
       >
         <div
-          className="text-right  text-lg   "
+          className="text-right text-sm leading-loose md:text-lg"
           style={{
             color: open ? "#fff" : "#2d2d2d",
-            // fontWeight: open ? "700" : "400",
           }}
         >
           {item.question}
         </div>
         <div
-          className={`size-12 flex items-center justify-center transition-transform ${
+          className={`size-10 md:size-12 flex items-center justify-center transition-transform ${
             open ? "rotate-180" : ""
           }`}
         >
           <svg
-            width={32}
-            height={32}
+            width={25}
+            height={25}
             viewBox="0 0 48 48"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -147,7 +150,8 @@ export const QuestionAccordion = ({ item }) => {
       {/* Answer */}
       {open && (
         <div
-          className="px-6 py-6 text-right text-text text-base font-medium  leading-[36px]  border-2 border-t-0  border-zinc-500 overflow-hidden rounded-b-[30px]"
+          // CHANGED: Reduced padding and line-height for mobile for better readability.
+          className="p-4 md:p-6 text-right text-text text-base font-medium leading-relaxed md:leading-[36px] border-2 border-t-0 border-zinc-500 overflow-hidden rounded-b-[30px]"
           style={{
             outlineTop: open ? "solid" : "none",
           }}
@@ -159,36 +163,36 @@ export const QuestionAccordion = ({ item }) => {
   );
 };
 
-const AnswerNotFound = () => {
-  return (
-    <div
-      className="h-[276px] flex   flex-col  items-center justify-center mt-[64px] mb-[105px]"
-      style={{
-        backgroundImage: `url('/images/FRAME (3).png')`,
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="w-[202px] ">
-        <div className="  font-bold text-[#2d2d2d] leading-normal text-[32px] text-center  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
-          لم تجد إجابتك؟
-        </div>
-      </div>
-      <div className="w-[307px] mt-[24px] mb-[32px] ">
-        <p className="   text-text-alt text-2xl text-center leading-normal  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
-          فريق الدعم لدينا هنا للمساعدة
-        </p>
-      </div>
-      <button
-        className="inline-flex items-center justify-center gap-2 px-8 py-4 relative bg-primary rounded-[20px] cursor-pointer transition-colors hover:bg-secondary-dark focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
-        type="button"
-        aria-label="الاتصال الدعم"
+  const AnswerNotFound = () => {
+    return (
+      <div
+        className="h-[276px] flex   flex-col  items-center justify-center mt-[64px] mb-[105px]"
+        style={{
+          backgroundImage: `url('/images/FRAME (3).png')`,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
       >
-        <div className="relative self-stretch text-bold w-[109px]  text-neutral-50 text-base text-center leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
-          الاتصال الدعم
+        <div className="w-[202px] ">
+          <div className="  font-bold text-[#2d2d2d] leading-normal text-[32px] text-center  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
+            لم تجد إجابتك؟
+          </div>
         </div>
-      </button>
-    </div>
-  );
-};
+        <div className="w-[307px] mt-[24px] mb-[32px] ">
+          <p className="   text-text-alt text-2xl text-center leading-normal  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
+            فريق الدعم لدينا هنا للمساعدة
+          </p>
+        </div>
+        <button
+          className="inline-flex items-center justify-center gap-2 px-8 py-4 relative bg-primary rounded-[20px] cursor-pointer transition-colors hover:bg-secondary-dark focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
+          type="button"
+          aria-label="الاتصال الدعم"
+        >
+          <div className="relative self-stretch text-bold w-[109px]  text-neutral-50 text-base text-center leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
+            الاتصال الدعم
+          </div>
+        </button>
+      </div>
+    );
+  };

@@ -6,6 +6,7 @@ import { HowProgramWorks } from "../../components/MarketingTeam/HowProgramWorks"
 import OurProgramFeatures from "../../components/MarketingTeam/OurProgramFeatures";
 import WhatOurXSay from "../../components/Home/WhatOurStudentsSay";
 import { BottomBanner } from "../../components/MarketingTeam/BottomBanner";
+import Container from "../../components/ui/Container";
 
 const MarketingTeam = () => {
   return (
@@ -19,16 +20,22 @@ const MarketingTeam = () => {
         ]}
       />
 
-      <div className="container mt-[56px] px-[64px] mx-auto">
+      <Container className=" mt-[56px] mx-auto">
         <JoinUsAsMerketer />
-      </div>
+      </Container>
       <WhyChooseUs />
-      <div className="container mt-[56px] px-[64px] mx-auto">
+      <Container className=" mt-[56px] mx-auto">
         <HowProgramWorks />
-      </div>
+      </Container>
       <OurProgramFeatures />
-      <WhatOurXSay title="ماذا يقول مسوقونا" description="" bg="bg-gradient-to-b  from-primary-light to-primary-bg"   />
-      <BottomBanner />
+      <WhatOurXSay
+        title="ماذا يقول مسوقونا"
+        description=""
+        bg="bg-gradient-to-b  from-primary-light to-primary-bg"
+      />
+      <Container>
+        <BottomBanner />
+      </Container>
     </div>
   );
 };

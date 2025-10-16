@@ -71,17 +71,17 @@ const CourseContentDrawer = ({ isRegistered }) => {
   };
 
   return (
-    <div className="self-stretch w-full px-6 py-[24px] bg-white rounded-[20px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] outline outline-2 outline-offset-[-1px] outline-zinc-500 inline-flex flex-col justify-start items-start gap-8">
+    <div className="self-stretch w-full  px-4 md:px-6  py-4 md:py-[24px] bg-white  rounded-xl md:rounded-[20px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] outline outline-2 outline-offset-[-1px] outline-neutral-300 inline-flex flex-col justify-start items-start gap-8">
       {/* Header */}
       <div
         className="self-stretch inline-flex justify-between items-start cursor-pointer"
         onClick={handleToggle}
       >
-        <div className="text-right justify-center text-text text-base font-bold ">
+        <div className="text-right justify-center text-text text-sm md:text-base font-bold ">
           القسم الأول : مهارات التخطيط للدروس
         </div>
         <div
-          className={`w-6 h-6 transition-transform duration-300 ${
+          className={`  md:w-6 md:h-6 transition-transform duration-300 ${
             !isOpen ? "rotate-180" : "rotate-0"
           }`}
         >
@@ -103,19 +103,19 @@ const CourseContentDrawer = ({ isRegistered }) => {
             {lessons.map((lesson, index) => (
               <div
                 key={lesson.id}
-                className="self-stretch inline-flex justify-between items-center"
+                className="self-stretch inline-flex justify-between items-start gap-3"
               >
                 <div
                   className="flex justify-start items-center gap-2 cursor-pointer"
                   onClick={() => handlePlay(lesson)}
                 >
                   <CoursePlayIcon className={" stroke-primary "} />
-                  <div className="text-right justify-center text-text text-base font-medium ">
+                  <div className="text-right justify-center text-text text-sm  md:text-base font-medium ">
                     {playingId === lesson.id ? "جاري التشغيل..." : lesson.title}
                   </div>
                 </div>
                 <div className="flex justify-start items-center gap-4">
-                  <div className="text-right justify-center text-text text-base font-medium ">
+                  <div className="text-right whitespace-nowrap justify-center text-text text-xs  md:text-sm font-medium ">
                     {lesson.duration}
                   </div>
                   {lesson.locked && <CourseLockIcon />}

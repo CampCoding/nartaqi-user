@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-// import info1 from "./info-1.svg";
-// import onlineLearning1 from "./online-learning-1.svg";
-// import vector from "./vector.svg";
+
+
+
+/* keep your icons as-is */
 
 export const MockTestFooter = ({
   onPrevious,
@@ -16,26 +17,45 @@ export const MockTestFooter = ({
   setIsInReview,
 }) => {
   if (isInReview) {
-    return <ReviewFooter />
+    return <ReviewFooter />;
   }
+
   return (
     <header
-      className="flex w-full items-center justify-between px-16 py-8 relative bg-primary"
+      className="
+        bg-primary relative
+        flex w-full items-center justify-between
+        px-4 py-4
+        sm:px-6 sm:py-6
+        lg:px-16 lg:py-8
+        flex-wrap gap-y-3
+      "
       role="banner"
     >
+      {/* left block */}
       <div
-        className="flex w-[191px] items-center justify-end gap-2 px-0 py-3 relative"
+        className="
+          flex items-center justify-end gap-2 px-0 py-3 relative
+          w-auto
+          md:w-[191px]
+          md:justify-end
+        "
         role="region"
         aria-label="معلومات السؤال"
       >
         <BookIcon />
-        <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-base tracking-[0] leading-[50px] whitespace-nowrap [direction:rtl]">
+        <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-sm sm:text-base tracking-[0] leading-[50px] whitespace-nowrap [direction:rtl]">
           معلومات السؤال
         </span>
       </div>
 
+      {/* middle button */}
       <button
-        className="inline-flex justify-center gap-2 px-0 py-3 flex-[0_0_auto] items-center relative hover:opacity-80 transition-opacity"
+        className="
+          inline-flex justify-center gap-2 px-0 py-3 items-center relative
+          hover:opacity-80 transition-opacity
+          order-3 md:order-none
+        "
         role="region"
         aria-label="صفحة المراجعة"
         onClick={() =>
@@ -43,22 +63,26 @@ export const MockTestFooter = ({
         }
       >
         <InfoIcon />
-        <h1 className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-base tracking-[0] leading-[50px] whitespace-nowrap [direction:rtl]">
+        <h1 className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-sm sm:text-base tracking-[0] leading-[50px] whitespace-nowrap [direction:rtl]">
           صفحة المراجعة
         </h1>
       </button>
 
+      {/* right nav (start/next/prev) */}
       {isStart ? (
         <nav
-          className="inline-flex justify-center gap-[34px] self-stretch flex-[0_0_auto] items-center relative"
+          className="
+            inline-flex justify-center items-center relative
+            gap-4 sm:gap-6 lg:gap-[34px]
+            self-stretch
+            order-2 md:order-none
+          "
           role="navigation"
           aria-label="Primary navigation"
         >
           <button
-            className={`inline-flex gap-[5px] flex-[0_0_auto] items-center relative ${
-              !canGoPrevious
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:opacity-80"
+            className={`inline-flex gap-[5px] items-center relative ${
+              !canGoPrevious ? "opacity-50 cursor-not-allowed" : "hover:opacity-80"
             }`}
             type="button"
             aria-label="السابق"
@@ -67,19 +91,21 @@ export const MockTestFooter = ({
           >
             <OutlinedTriangleRihgt />
             <div className="flex w-[68px] justify-center gap-2.5 px-4 py-1 rounded-[10px] items-center relative">
-              <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-base tracking-[0] leading-[normal] [direction:rtl]">
+              <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-sm sm:text-base tracking-[0] leading-[normal] [direction:rtl]">
                 السابق
               </span>
             </div>
           </button>
+
           <button
-            className="inline-flex gap-[5px] flex-[0_0_auto] items-center relative hover:opacity-80"
+            className="inline-flex gap-[5px] items-center relative hover:opacity-80"
             type="button"
             aria-label={isLastQuestion ? "إرسال الاختبار" : "التالي"}
             onClick={isLastQuestion ? onSubmit : onNext}
+            disabled={!canGoNext}
           >
             <div className="flex w-[68px] justify-center gap-2.5 px-4 py-1 bg-primary-dark rounded-[10px] items-center relative">
-              <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-base tracking-[0] leading-[normal] [direction:rtl]">
+              <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-sm sm:text-base tracking-[0] leading-[normal] [direction:rtl]">
                 {isLastQuestion ? "إرسال" : "التالي"}
               </span>
             </div>
@@ -88,18 +114,23 @@ export const MockTestFooter = ({
         </nav>
       ) : (
         <nav
-          className="inline-flex justify-center gap-[34px] self-stretch flex-[0_0_auto] items-center relative"
+          className="
+            inline-flex justify-center items-center relative
+            gap-4 sm:gap-6 lg:gap-[34px]
+            self-stretch
+            order-2 md:order-none
+          "
           role="navigation"
           aria-label="Primary navigation"
         >
           <button
-            className="inline-flex gap-[5px] flex-[0_0_auto] items-center relative hover:opacity-80"
+            className="inline-flex gap-[5px] items-center relative hover:opacity-80"
             type="button"
             aria-label={isLastQuestion ? "إرسال الاختبار" : "التالي"}
             onClick={() => setIsStart(true)}
           >
             <div className="flex w-[68px] justify-center gap-2.5 px-4 py-1 bg-primary-dark rounded-[10px] items-center relative">
-              <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-base tracking-[0] leading-[normal] [direction:rtl]">
+              <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-sm sm:text-base tracking-[0] leading-[normal] [direction:rtl]">
                 ابدأ
               </span>
             </div>
@@ -110,6 +141,90 @@ export const MockTestFooter = ({
     </header>
   );
 };
+
+export const ReviewFooter = () => {
+  const [activeFilter, setActiveFilter] = useState(null);
+
+  const filterButtons = [
+    { id: "flagged", text: "مراجعة المميز بعلامة", icon: <OutlinedFlagIcon /> },
+    { id: "incomplete", text: "مراجعة الغير مكتمل", icon: <RoundedXIcon /> },
+    { id: "all", text: "مراجعة الكل", icon: <ReviewIcon /> },
+  ];
+
+  const handleFilterClick = (filterId) => setActiveFilter(filterId);
+  const handleFinishReview = () => {
+    console.log("Finishing review...");
+  };
+
+  return (
+    <header
+      className="
+        bg-primary relative
+        flex w-full items-center justify-between
+        px-4 py-4
+        sm:px-6 sm:py-6
+        lg:px-16 lg:py-8
+        flex-wrap gap-y-4
+      "
+      role="banner"
+    >
+      <nav
+        className="
+          inline-flex items-center relative
+          gap-3 sm:gap-6 lg:gap-12
+          flex-wrap
+        "
+        role="navigation"
+        aria-label="مرشحات المراجعة"
+      >
+        {filterButtons
+          .slice() /* keep visual order the same without mutating */
+          .reverse()
+          .map((button) => (
+            <button
+              key={button.id}
+              className={`
+                inline-flex justify-center gap-2 px-4 py-3 flex-[0_0_auto]
+                rounded-[15px] border border-solid border-variable-collection-white-moca
+                items-center relative hover:bg-white hover:bg-opacity-10
+                focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-500
+                transition-colors
+                ${button.id === "incomplete" ? "md:w-[200px]" : ""}
+                ${button.id === "all" ? "md:w-[200px]" : ""}
+              `}
+              onClick={() => handleFilterClick(button.id)}
+              aria-pressed={activeFilter === button.id}
+              aria-label={button.text}
+            >
+              <div aria-hidden="true">{button.icon}</div>
+              <span className="relative flex items-center justify-center w-fit mt-[-1.00px] text-white text-sm sm:text-base tracking-[0] leading-[50px] whitespace-nowrap [direction:rtl]">
+                {button.text}
+              </span>
+            </button>
+          ))}
+      </nav>
+
+      <button
+        className="
+          flex items-center justify-center gap-2 px-6 py-3 relative
+          bg-white rounded-[20px]
+          hover:bg-gray-50
+          focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-500
+          transition-colors
+          w-full sm:w-auto md:w-[200px]
+        "
+        onClick={handleFinishReview}
+        aria-label="إنهاء المراجعة"
+      >
+        <ExitIcon />
+        <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-[#be1919] text-sm sm:text-base tracking-[0] leading-[50px] whitespace-nowrap [direction:rtl]">
+          إنهاء المراجة
+        </span>
+      </button>
+    </header>
+  );
+};
+
 
 const BookIcon = (props) => (
   <svg
@@ -218,85 +333,6 @@ const OutlinedTriangleRihgt = (props) => (
     />
   </svg>
 );
-
-// import image from "./image.svg";
-// import searchData1 from "./search-data-1.svg";
-// import vector2 from "./vector-2.svg";
-// import vector3 from "./vector-3.svg";
-// import vector from "./vector.svg";
-
-export const ReviewFooter = () => {
-  const [activeFilter, setActiveFilter] = useState(null);
-
-  const filterButtons = [
-    {
-      id: "flagged",
-      text: "مراجعة المميز بعلامة",
-      icon: <OutlinedFlagIcon />,
-    },
-    {
-      id: "incomplete",
-      text: "مراجعة الغير مكتمل",
-      icon: <RoundedXIcon />,
-    },
-    {
-      id: "all",
-      text: "مراجعة الكل",
-      icon: <ReviewIcon />,
-    },
-  ];
-
-  const handleFilterClick = (filterId) => {
-    setActiveFilter(filterId);
-  };
-
-  const handleFinishReview = () => {
-    // Handle finish review action
-    console.log("Finishing review...");
-  };
-
-  return (
-    <header
-      className="flex w-[1440px] items-center justify-between px-16 py-8 relative bg-primary"
-      role="banner"
-    >
-      <nav
-        className="inline-flex gap-12 flex-[0_0_auto] items-center relative"
-        role="navigation"
-        aria-label="مرشحات المراجعة"
-      >
-        {filterButtons.reverse().map((button) => (
-          <button
-            key={button.id}
-            className={`inline-flex justify-center gap-2 px-4 py-3 flex-[0_0_auto] rounded-[15px] border border-solid border-variable-collection-white-moca items-center relative hover:bg-white hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-500 transition-colors ${
-              button.id === "incomplete" ? "w-[200px]" : ""
-            } ${button.id === "all" ? "w-[200px]" : ""}`}
-            onClick={() => handleFilterClick(button.id)}
-            aria-pressed={activeFilter === button.id}
-            aria-label={button.text}
-          >
-            <div aria-hidden="true">{button.icon}</div>
-            <span className="relative flex items-center justify-center w-fit mt-[-1.00px]  text-white text-base tracking-[0] leading-[50px] whitespace-nowrap [direction:rtl]">
-              {button.text}
-            </span>
-          </button>
-        ))}
-      </nav>
-
-      <button
-        className="flex w-[200px] items-center justify-center gap-2 px-6 py-3 relative bg-white rounded-[20px] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-500 transition-colors"
-        onClick={handleFinishReview}
-        aria-label="إنهاء المراجعة"
-      >
-        <ExitIcon />
-        <span className="relative flex items-center justify-center w-fit mt-[-1.00px]  font-medium text-[#be1919] text-base tracking-[0] leading-[50px] whitespace-nowrap [direction:rtl]">
-          إنهاء المراجة
-        </span>
-      </button>
-    </header>
-  );
-};
-
 const ReviewIcon = (props) => (
   <svg
     width={25}

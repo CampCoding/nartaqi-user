@@ -1,5 +1,6 @@
 import React from "react";
 import { FFIcons } from "../../public/svgs";
+import Container from "./Container";
 
 const FunFacts = () => {
   return (
@@ -13,65 +14,67 @@ const FunFacts = () => {
           backgroundRepeat: "no-repeat",
         }}
       >
-        <div className=" w-full container px-[64px] mx-auto  inline-flex justify-between items-start">
+        <Container className=" w-full  grid  grid-cols-2 gap-4 md:gap-6 md:grid-cols-4">
           <div className="inline-flex flex-col justify-start items-center gap-7">
-            <div className="  overflow-hidden">
+            <div className="overflow-hidden">
               <FFIcons.ReadBook
                 parentClassName={"fill-primary-bg"}
                 iconClassName={"fill-primary"}
               />
             </div>
-            <div className="self-stretch flex flex-col justify-start items-center gap-4">
+            <div className="self-stretch flex flex-col justify-start items-center gap-3 sm:gap-4">
               <div
                 dir="ltr"
-                className="justify-center text-white text-3xl font-bold font-noto"
+                className="justify-center text-white text-2xl sm:text-3xl font-bold font-noto leading-snug"
               >
                 10,000+
               </div>
-              <div className="justify-center text-secondary text-2xl  font-semibold font-noto">
-                {" "}
+              <div className="text-center justify-center text-secondary text-lg sm:text-2xl font-semibold font-noto leading-snug">
                 الطلاب النشطون
               </div>
-            </div>
+            </div>  
           </div>
+
           <div className="inline-flex flex-col justify-start items-center gap-7">
-            <div className=" overflow-hidden">
+            <div className="overflow-hidden">
               <FFIcons.OnlineGraduate
                 parentClassName={"fill-primary-bg"}
                 iconClassName={"fill-primary"}
               />
             </div>
-            <div className="self-stretch flex flex-col justify-start items-center gap-4">
+            <div className="self-stretch flex flex-col justify-start items-center gap-3 sm:gap-4">
               <div
                 dir="ltr"
-                className="justify-center text-white text-3xl font-bold font-noto"
+                className="justify-center text-white text-2xl sm:text-3xl font-bold font-noto leading-snug"
               >
                 500+
               </div>
-              <div className="text-center justify-center text-secondary text-2xl  font-semibold font-noto">
+              <div className="text-center justify-center text-secondary text-lg sm:text-2xl font-semibold font-noto leading-snug">
                 دورات في مجالات متنوعة
               </div>
             </div>
           </div>
+
           <div className="inline-flex flex-col justify-start items-center gap-7">
-            <div className=" overflow-hidden">
+            <div className="overflow-hidden">
               <FFIcons.Trainer
                 parentClassName={"fill-primary-bg"}
                 iconClassName={"fill-primary"}
               />
             </div>
-            <div className="self-stretch flex flex-col justify-start items-center gap-4">
+            <div className="self-stretch flex flex-col justify-start items-center gap-3 sm:gap-4">
               <div
                 dir="ltr"
-                className="justify-center text-white text-3xl font-bold font-noto"
+                className="justify-center text-white text-2xl sm:text-3xl font-bold font-noto leading-snug"
               >
                 200+
               </div>
-              <div className="justify-center text-secondary text-2xl  font-semibold font-noto">
+              <div className="text-center justify-center text-secondary text-lg sm:text-2xl font-semibold font-noto leading-snug">
                 مدربون معتمدون
               </div>
             </div>
           </div>
+
           <div className="inline-flex flex-col justify-start items-center gap-7">
             <div className="overflow-hidden">
               <FFIcons.FFStats
@@ -79,19 +82,19 @@ const FunFacts = () => {
                 iconClassName={"fill-primary"}
               />
             </div>
-            <div className="self-stretch flex flex-col justify-start items-center gap-4">
+            <div className="self-stretch flex flex-col justify-start items-center gap-3 sm:gap-4">
               <div
                 dir="ltr"
-                className="justify-center text-white text-3xl font-bold font-noto"
+                className="justify-center text-white text-2xl sm:text-3xl font-bold font-noto leading-snug"
               >
                 95%
               </div>
-              <div className="justify-center text-secondary text-2xl  font-semibold font-noto">
+              <div className="text-center justify-center text-secondary text-lg sm:text-2xl font-semibold font-noto leading-snug">
                 معدل رضا الطلاب
               </div>
             </div>
           </div>
-        </div>
+        </Container>
       </div>
     </div>
   );

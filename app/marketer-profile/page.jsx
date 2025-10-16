@@ -1,5 +1,7 @@
 import React from "react";
 import PagesBanner from "../../components/ui/PagesBanner";
+import Container from "../../components/ui/Container";
+import cx from "../../lib/cx";
 
 const MarketerProfile = () => {
   return (
@@ -13,58 +15,67 @@ const MarketerProfile = () => {
         ]}
       />
 
-      <div className="container max-w-[1307px] px-[64px] mx-auto pt-[32px] ">
+      <Container className=" pt-[32px] ">
         {/* Basic Marketer data */}
-        <div className="inline-flex justify-start items-center gap-6 mb-[78px]">
+        <div className="inline-flex justify-start items-center gap-4 sm:gap-6 mb-8 sm:mb-[78px] min-w-0">
           <img
-            className="w-16 h-16 relative rounded-[44px]"
+            className="w-12 h-12 sm:w-16 sm:h-16 rounded-[44px] flex-shrink-0"
             src="https://placehold.co/64x64"
+            alt="صورة محمد علي"
           />
-          <div className="inline-flex flex-col justify-start items-start gap-2">
-            <div className="justify-center text-text text-2xl font-bold ">
+          <div className="inline-flex flex-col justify-start items-start gap-1.5 sm:gap-2 min-w-0">
+            <div className="text-text font-bold text-lg sm:text-2xl leading-tight truncate">
               محمد علي
             </div>
-            <div className="text-right justify-center text-text-alt text-base font-medium ">
+            <div className="text-text-alt font-medium text-sm sm:text-base leading-snug truncate">
               مسوق نشط
             </div>
           </div>
         </div>
 
         {/* Header */}
-        <div className="grid grid-cols-3 gap-[11.5px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-[11.5px]">
           <StartCard />
           <StartCard />
-          <StartCard />
+          <StartCard rootClassName={"col-span-full md:col-span-1"} />
         </div>
-        <div className="grid grid-cols-[384px_auto]  gap-[11.5px] mt-8   ">
-          <div className="w-full flex flex-col space-y-[32px] sticky top-0">
+        <div className="grid md:grid-cols-[384px_auto]  gap-[11.5px] mt-[11.5px] md:mt-8   ">
+          <div className="w-full flex flex-col space-y-[11.5px] md:sticky top-0">
             <StartCard />
-            <LatestWithdrawals /> {/* <LatestWithdrawals />  */}
+            <LatestWithdrawals />
           </div>
           <Notifications />
         </div>
-      </div>
+      </Container>
     </div>
   );
 };
 
 export default MarketerProfile;
 
-const StartCard = () => {
+const StartCard = ({ rootClassName }) => {
   return (
-    <div className=" p-6 !w-full bg-white rounded-[30px] outline outline-[3px] outline-offset-[-3px] outline-[#E4E4E7] inline-flex flex-col justify-start items-start gap-2">
+    <div
+      className={cx(
+        // tighter on small screens, original design on >=sm
+        "w-full bg-white rounded-[30px] outline outline-[3px] outline-offset-[-3px] outline-[#E4E4E7] inline-flex flex-col justify-start items-start gap-2 p-4 sm:p-6",
+        rootClassName
+      )}
+    >
       <div className="self-stretch flex flex-col justify-start items-start">
         <div className="self-stretch inline-flex justify-between items-center">
-          <div className="justify-center text-text text-base font-bold ">
+          <div className="text-text font-bold text-sm sm:text-base">
             نسبة العمولة
           </div>
-          <MoneyInHand className="fill-primary" />
+          <MoneyInHand className="fill-primary shrink-0" />
         </div>
-        <div className="justify-center text-primary text-3xl font-bold ">
+
+        <div className="text-primary font-bold text-2xl sm:text-3xl leading-tight">
           15%
         </div>
       </div>
-      <div className="self-stretch text-right justify-center text-text-alt text-base font-medium ">
+
+      <div className="self-stretch text-right text-text-alt font-medium text-sm sm:text-base">
         نسبة ربحك لكل اشتراك
       </div>
     </div>
@@ -114,70 +125,42 @@ const MoneyInHand = (props) => (
 );
 
 const LatestWithdrawals = () => {
+  // (Optional) keep UI identical while avoiding repetition
+  const items = Array.from({ length: 5 }, () => ({
+    amount: "500 ر.س",
+    time: "منذ 10 دقائق",
+  }));
+
   return (
-    <div className="  w-full flex-1 px-12 py-8 bg-white rounded-[30px] outline outline-[3px] outline-offset-[-3px] outline-[#e4e4e4] inline-flex flex-col justify-start items-start gap-12">
+    <div
+      dir="rtl"
+      className="w-full flex-1 bg-white rounded-[30px] outline outline-[3px] outline-offset-[-3px] outline-[#e4e4e4] inline-flex flex-col items-start
+                 px-4 sm:px-6 md:px-12 py-6 sm:py-8 gap-8 sm:gap-12"
+    >
       <div className="self-stretch inline-flex justify-between items-center">
-        <div className="justify-center text-text text-base font-bold ">
-          اخر عمليات للسحب
+        <div className="text-text font-bold text-sm sm:text-base">
+          آخر عمليات السحب
         </div>
         <MoneyUp />
       </div>
-      <div className="self-stretch flex flex-col justify-start items-start gap-4">
-        <div className="self-stretch inline-flex justify-between items-center">
-          <WithdrawIcon />
-          <div className="inline-flex flex-col justify-center items-end">
-            <div className="text-right justify-center text-primary text-base font-bold ">
-              500 ر.س
-            </div>
-            <div className="text-right justify-center text-sup-title text-sm font-medium ">
-              منذ 10 دقائق
-            </div>
-          </div>
-        </div>
-        <div className="self-stretch inline-flex justify-between items-center">
-          <WithdrawIcon />
-          <div className="inline-flex flex-col justify-center items-end">
-            <div className="text-right justify-center text-primary text-base font-bold ">
-              500 ر.س
-            </div>
-            <div className="text-right justify-center text-text-alt text-sm font-medium ">
-              منذ 10 دقائق
+
+      <div className="self-stretch flex flex-col items-start gap-6  sm:gap-4">
+        {items.map((it, idx) => (
+          <div
+            key={idx}
+            className="self-stretch inline-flex justify-between items-center"
+          >
+            <WithdrawIcon />
+            <div className="inline-flex flex-col justify-center items-end">
+              <div className="text-right text-primary font-bold text-sm sm:text-base">
+                {it.amount}
+              </div>
+              <div className="text-right text-text-alt font-medium text-xs sm:text-sm">
+                {it.time}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="self-stretch inline-flex justify-between items-center">
-          <WithdrawIcon />
-          <div className="inline-flex flex-col justify-center items-end">
-            <div className="text-right justify-center text-primary text-base font-bold ">
-              500 ر.س
-            </div>
-            <div className="text-right justify-center text-text-alt text-sm font-medium ">
-              منذ 10 دقائق
-            </div>
-          </div>
-        </div>
-        <div className="self-stretch inline-flex justify-between items-center">
-          <WithdrawIcon />
-          <div className="inline-flex flex-col justify-center items-end">
-            <div className="text-right justify-center text-primary text-base font-bold ">
-              500 ر.س
-            </div>
-            <div className="text-right justify-center text-text-alt text-sm font-medium ">
-              منذ 10 دقائق
-            </div>
-          </div>
-        </div>
-        <div className="self-stretch inline-flex justify-between items-center">
-          <WithdrawIcon />
-          <div className="inline-flex flex-col justify-center items-end">
-            <div className="text-right justify-center text-primary text-base font-bold ">
-              500 ر.س
-            </div>
-            <div className="text-right justify-center text-text-alt text-sm font-medium ">
-              منذ 10 دقائق
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
@@ -265,26 +248,34 @@ const WithdrawIcon = (props) => (
 
 const Notifications = () => {
   return (
-    <div className=" max-h-[800px] custom-scroll overflow-auto px-12  pb-14 bg-white rounded-[60px] outline outline-[3px] outline-offset-[-3px] outline-[#E4E4E7] inline-flex flex-col justify-start items-end gap-6">
-      <div className="self-stretch sticky top-1 pt-7 pb-8 bg-white text-right justify-center text-secondary text-3xl font-bold ">
+    <div
+      dir="rtl"
+      className="custom-scroll overflow-auto px-4  sm:px-6 md:px-12 pb-10 md:pb-14 bg-white rounded-3xl md:rounded-[60px] outline outline-[3px] outline-offset-[-3px] outline-[#E4E4E7] inline-flex flex-col justify-start items-end gap-4 sm:gap-6 md:max-h-[800px]"
+      role="region"
+      aria-label="الإشعارات"
+    >
+      <div className="self-stretch sticky mt-1 top-0 pt-6 md:pt-7 pb-4 md:pb-8 bg-white z-10 text-right text-secondary text-xl md:text-3xl font-bold">
         الإشعارات
       </div>
-      <div className="self-stretch flex flex-col justify-start items-start gap-3">
-        {Array.from({ length: 10 }).map((_, i) => {
-          return (
-            <div className="self-stretch py-4 border-b border-stroke- inline-flex justify-between items-center">
-              <NotificationsIcon />
-              <div className="w-[507px] flex flex-col justify-end items-end gap-2">
-                <div className="justify-center text-black text-base font-normal ">
-                  تمت الموافقة على طلب سحب جديد بقيمة 500 ر.س.
-                </div>
-                <div className="justify-center text-text-alt text-sm font-normal ">
-                  منذ 10 دقائق
-                </div>
+
+      <div className="self-stretch flex flex-col justify-start items-start gap-2.5 sm:gap-3">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div
+            key={i}
+            className="self-stretch py-3 sm:py-4 gap-3 sm:gap-4 border-b last:border-b-0 border-stroke- inline-flex justify-between items-start"
+            role="listitem"
+          >
+            <NotificationsIcon className="shrink-0" />
+            <div className="w-full sm:w-[507px] flex flex-col justify-end items-end gap-1.5 sm:gap-2">
+              <div className="text-right text-black text-sm md:text-base font-normal break-words">
+                تمت الموافقة على طلب سحب جديد بقيمة 500 ر.س.
+              </div>
+              <div className="text-right text-text-alt text-xs md:text-sm font-normal">
+                منذ 10 دقائق
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -292,26 +283,19 @@ const Notifications = () => {
 
 const NotificationsIcon = (props) => (
   <svg
-    width={32}
-    height={32}
-    viewBox="0 0 32 32"
+    width={25}
+    height={25}
+    viewBox="0 0 41 49"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
-    <g clipPath="url(#clip0_152_1559)">
-      <path
-        opacity={0.955}
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M15.4062 -0.03125C15.7812 -0.03125 16.1562 -0.03125 16.5312 -0.03125C17.6616 0.276352 18.3596 1.00552 18.625 2.15625C18.6562 2.88512 18.6667 3.61429 18.6562 4.34375C21.8693 5.40058 23.9839 7.54644 25 10.7812C25.0994 11.1947 25.1827 11.6114 25.25 12.0312C25.3281 14.0716 25.3697 16.1133 25.375 18.1562C25.6588 20.8078 26.8255 22.9744 28.875 24.6562C29.6151 25.8086 29.4589 26.8191 28.4062 27.6875C28.2114 27.8058 28.0031 27.8891 27.7812 27.9375C25.3855 27.9688 22.9897 27.9792 20.5938 27.9688C20.3094 29.6597 19.3928 30.8785 17.8438 31.625C17.4668 31.7605 17.0918 31.8751 16.7188 31.9688C16.2188 31.9688 15.7188 31.9688 15.2188 31.9688C13.4688 31.6257 12.25 30.6257 11.5625 28.9688C11.4499 28.6432 11.3769 28.3099 11.3438 27.9688C8.94781 27.9792 6.552 27.9688 4.15625 27.9375C3.18142 27.6451 2.66059 26.9889 2.59375 25.9688C2.62319 25.5159 2.75861 25.0992 3 24.7188C5.08544 23.0276 6.27294 20.8401 6.5625 18.1562C6.56775 16.1133 6.60944 14.0716 6.6875 12.0312C7.37081 8.16187 9.56875 5.59941 13.2812 4.34375C13.2708 3.61429 13.2812 2.88512 13.3125 2.15625C13.5779 1.00552 14.2759 0.276352 15.4062 -0.03125ZM15.6562 1.34375C16.4893 1.25452 17.0206 1.60869 17.25 2.40625C17.2812 2.94752 17.2916 3.48918 17.2812 4.03125C16.4062 3.94792 15.5312 3.94792 14.6562 4.03125C14.6459 3.48918 14.6562 2.94752 14.6875 2.40625C14.8285 1.88009 15.1514 1.52592 15.6562 1.34375ZM15.1562 5.34375C19.0974 5.21414 21.8578 6.94331 23.4375 10.5312C23.6521 11.1189 23.7979 11.723 23.875 12.3438C23.9509 14.4053 23.9926 16.4678 24 18.5312C24.3604 21.388 25.6313 23.7422 27.8125 25.5938C27.9718 25.9354 27.9196 26.2375 27.6562 26.5C19.9113 26.6039 12.1613 26.6248 4.40625 26.5625C4.02861 26.3283 3.93486 26.0053 4.125 25.5938C6.30619 23.7422 7.57706 21.388 7.9375 18.5312C7.94494 16.4678 7.98663 14.4053 8.0625 12.3438C8.54831 9.256 10.2254 7.09975 13.0938 5.875C13.7719 5.62739 14.4594 5.45031 15.1562 5.34375ZM12.7188 28.0312C14.8749 27.9585 17.0415 27.9481 19.2188 28C18.7356 29.6188 17.6522 30.4834 15.9688 30.5938C14.2944 30.4813 13.2111 29.6271 12.7188 28.0312Z"
-        fill="#F97316"
-      />
-    </g>
-    <defs>
-      <clipPath id="clip0_152_1559">
-        <rect width={32} height={32} fill="white" />
-      </clipPath>
-    </defs>
+    <path
+      opacity={0.955}
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M20.1094 0.453125C20.6719 0.453125 21.2344 0.453125 21.7969 0.453125C23.4924 0.914528 24.5393 2.00828 24.9375 3.73438C24.9844 4.82768 25 5.92143 24.9844 7.01562C29.804 8.60087 32.9758 11.8197 34.5 16.6719C34.6491 17.292 34.774 17.9171 34.875 18.5469C34.9921 21.6074 35.0546 24.67 35.0625 27.7344C35.4882 31.7116 37.2383 34.9617 40.3125 37.4844C41.4227 39.2129 41.1883 40.7286 39.6094 42.0312C39.3171 42.2087 39.0046 42.3337 38.6719 42.4062C35.0783 42.4531 31.4845 42.4688 27.8906 42.4531C27.4642 44.9896 26.0892 46.8177 23.7656 47.9375C23.2002 48.1408 22.6377 48.3126 22.0781 48.4531C21.3281 48.4531 20.5781 48.4531 19.8281 48.4531C17.2031 47.9385 15.375 46.4385 14.3438 43.9531C14.1748 43.4649 14.0654 42.9649 14.0156 42.4531C10.4217 42.4688 6.828 42.4531 3.23438 42.4062C1.77214 41.9677 0.990891 40.9833 0.890625 39.4531C0.934781 38.7738 1.13791 38.1488 1.5 37.5781C4.62816 35.0413 6.40941 31.7601 6.84375 27.7344C6.85162 24.67 6.91416 21.6074 7.03125 18.5469C8.05622 12.7428 11.3531 8.89911 16.9219 7.01562C16.9062 5.92143 16.9219 4.82768 16.9688 3.73438C17.3669 2.00828 18.4138 0.914528 20.1094 0.453125ZM20.4844 2.51562C21.734 2.38179 22.5308 2.91304 22.875 4.10938C22.9219 4.92128 22.9374 5.73377 22.9219 6.54688C21.6094 6.42188 20.2969 6.42188 18.9844 6.54688C18.9688 5.73377 18.9844 4.92128 19.0312 4.10938C19.2428 3.32013 19.7272 2.78888 20.4844 2.51562ZM19.7344 8.51562C25.6461 8.32122 29.7867 10.915 32.1562 16.2969C32.4782 17.1783 32.6969 18.0845 32.8125 19.0156C32.9263 22.1079 32.9888 25.2016 33 28.2969C33.5407 32.582 35.447 36.1133 38.7188 38.8906C38.9576 39.4031 38.8794 39.8563 38.4844 40.25C26.8669 40.4059 15.2419 40.4371 3.60938 40.3438C3.04292 39.9924 2.90229 39.508 3.1875 38.8906C6.45928 36.1133 8.36559 32.582 8.90625 28.2969C8.91741 25.2016 8.97994 22.1079 9.09375 19.0156C9.82247 14.384 12.3382 11.1496 16.6406 9.3125C17.6579 8.94108 18.6892 8.67546 19.7344 8.51562ZM16.0781 42.5469C19.3123 42.4378 22.5623 42.4221 25.8281 42.5C25.1033 44.9282 23.4783 46.2251 20.9531 46.3906C18.4416 46.2219 16.8166 44.9406 16.0781 42.5469Z"
+      fill="#F97316"
+    />
   </svg>
 );

@@ -1,6 +1,5 @@
 "use client"
 
-
 import React from "react";
 
 const PagesBanner = ({
@@ -19,19 +18,18 @@ const PagesBanner = ({
     },
   ],
 }) => {
-
-
+  // Updated sizes object with responsive classes
+  // Base styles are for mobile, `lg:` prefixed styles are for desktop
   const sizes = {
     large: {
-      height: "h-[473px]",
-      padding: "pt-[89px]",
+      height: "h-[280px] lg:h-[473px]", // Shorter height on mobile, original height on large screens
+      padding: "pt-[40px] lg:pt-[89px]",   // Less padding-top on mobile
     },
     normal: {
-      height: "h-[336px]",
-      padding: "pt-[65px]",
+      height: "h-[240px] lg:h-[336px]",
+      padding: "pt-[40px] lg:pt-[65px]",
     },
-  }
-
+  };
 
   return (
     <div>
@@ -41,31 +39,36 @@ const PagesBanner = ({
         <img
           src={image || "/images/Frame 1000004881.png"}
           alt={title}
-          className={`z-[-1] absolute inset-0 w-full h-full object-cover ${ objectPosition ?? "object-top"}`}
+          className={`z-[-1] absolute inset-0 w-full h-full object-cover ${
+            objectPosition ?? "object-top"
+          }`}
         />
 
-        <div className="inline-flex container mx-auto px-[64px]  flex-col justify-start items-center gap-4">
-          <div className="text-center leading-normal min-h-[75px] flex items-center justify-center text-white text-[40px] font-bold">
+        {/* Updated padding for responsiveness */}
+        <div className="container mx-auto px-4 md:px-8 lg:px-[64px] inline-flex flex-col justify-start items-center gap-4">
+          {/* Updated font size and min-height for responsiveness */}
+          <div className="text-center leading-normal min-h-[60px] lg:min-h-[75px] flex items-center justify-center text-white text-3xl lg:text-[40px] font-bold">
             {title || "نبذه عنا"}
           </div>
 
           {/* Breadcrumb */}
-          <div className="w-fit px-[24px] gap-[16px]  py-4 bg-secondary rounded-2xl inline-flex justify-center items-center">
+          {/* Updated padding for responsiveness */}
+          <div className="w-fit px-4 lg:px-[24px] gap-3 lg:gap-[16px] py-3 lg:py-4 bg-secondary rounded-2xl inline-flex justify-center items-center">
             {breadcrumb.map((item, index) => (
               <React.Fragment key={index}>
                 <div
+                  // Updated font size for responsiveness
                   className={`justify-center ${
-                    index !=0
+                    index !== 0
                       ? "text-white font-semibold"
                       : "text-text font-bold"
-                  } text-2xl leading-normal`}
+                  } text-base lg:text-2xl leading-normal`}
                 >
                   {item.title}
                 </div>
                 {index < breadcrumb.length - 1 && (
                   <svg
-                    width="8"
-                    height="13"
+                    className="w-[6px] h-[11px] lg:w-[8px] lg:h-[13px]" // Scaled down SVG for mobile
                     viewBox="0 0 8 13"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"

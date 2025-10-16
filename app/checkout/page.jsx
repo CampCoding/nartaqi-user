@@ -16,19 +16,21 @@ import InstallmentCheckout from "../../components/CheckoutPage/InstallmentChecko
 import BankCard from "../../components/CheckoutPage/BankCard";
 import CheckoutBanksSection from "../../components/CheckoutPage/CheckoutBanksSection";
 import Link from "next/link";
+import Container from "../../components/ui/Container";
 
 const CheckoutPage = () => {
   const [selectedTab, setSelectedTap] = useState("");
 
   return (
-    <div className="container  max-w-[1312px] !mx-auto px-[64px]">
-      <CourseTitle title={"الدفع"} breadcrumbs={
-        [
+    <Container className="!mx-auto">
+      <CourseTitle
+        title={"الدفع"}
+        breadcrumbs={[
           { title: "الرئيسية", link: "/" },
-            { title: "السلة", link: "/cart" },
-            { title: "الدفع", link: "/#" },
-        ]
-      } />
+          { title: "السلة", link: "/cart" },
+          { title: "الدفع", link: "/#" },
+        ]}
+      />
       <CheckoutSummery />
       <div className="mt-[48px] flex flex-col gap-[24px] mb-[88px]">
         <CheckoutTabs onChange={(val) => setSelectedTap(val)} />
@@ -43,14 +45,17 @@ const CheckoutPage = () => {
                 return <CheckoutBanksSection />;
             }
           })()}
-          <Link href={"/success-checkout"} className="flex  items-center justify-center px-16 py-5 cursor-pointer transition hover:bg-secondary-dark relative bg-secondary rounded-[25px]">
-            <h1 className="relative flex items-center justify-center w-fit mt-[-1.00px] font-bold text-white text-2xl tracking-[0] leading-[normal] ">
+          <Link
+            href={"/success-checkout"}
+            className="flex items-center justify-center px-6 sm:px-8 md:px-12 lg:px-16 py-3 sm:py-4 md:py-5 cursor-pointer transition hover:bg-secondary-dark bg-secondary rounded-[15px] sm:rounded-[20px] md:rounded-[25px] focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 w-full max-w-sm sm:max-w-md md:max-w-lg mx-auto"
+          >
+            <h1 className="font-bold text-white text-base sm:text-lg md:text-xl lg:text-2xl tracking-[0] leading-normal whitespace-nowrap">
               تأكيد الدفع
             </h1>
           </Link>
         </div>
       </div>
-    </div>
+    </Container>
   );
 };
 
@@ -244,9 +249,7 @@ export const CriditFrame = () => {
           <div
             onClick={() => handleInputChange("saveCard", !formData.saveCard)}
             className={` cursor-pointer absolute inset-0 w-6 h-6 rounded border-2 border-[#c8c9d5] ${
-              formData.saveCard
-                ? "bg-primary border-secondary"
-                : "bg-white"
+              formData.saveCard ? "bg-primary border-secondary" : "bg-white"
             } flex items-center justify-center`}
           >
             {formData.saveCard && (

@@ -3,6 +3,7 @@ import PagesBanner from "../../../components/ui/PagesBanner";
 import CoursesFilters from "../../../components/ui/CoursesFilters";
 import CourseCard from "../../../components/ui/Cards/CourseCard";
 import Testimonials from "../../../components/Testimonials";
+import Container from "../../../components/ui/Container";
 
 const TeachersCourses = () => {
   return (
@@ -13,11 +14,11 @@ const TeachersCourses = () => {
         title="الرخصة المهنية"
         image={"/images/Frame 1000005155.png"}
       />
-      <div className="container mx-auto px-[64px] mt-[32px]">
-        <div className=" mb-[48px]">
+      <Container className=" mt-[32px]">
+        <div className="  mb-[32px] md:mb-[48px]">
           <CoursesFilters />
         </div>
-        <div className="grid grid-cols-3 gap-[48px] ">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-colss-2 lg:grid-cols-3 gap-4 sm-gap-6 md:gap-[32px] lg:gap-[42px] ">
           <CourseCard
             isRegistered
             freeWidth={true}
@@ -91,10 +92,12 @@ const TeachersCourses = () => {
           />
           <CourseCard freeWidth={true} type="teachers" />
         </div>
-      </div>
+      </Container>
       <Testimonials title="أراء المعلمين" />
     </div>
   );
 };
 
 export default TeachersCourses;
+
+

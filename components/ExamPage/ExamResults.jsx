@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 
-const ExamResults = ({show , setShow}) => {
+const ExamResults = ({ show, setShow }) => {
   const [activeTab, setActiveTab] = useState("all");
 
   const answeredQuestions = [
@@ -45,17 +45,20 @@ const ExamResults = ({show , setShow}) => {
   });
 
   return (
-    <div className="container mx-auto px-[64px] py-8">
+    <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-[64px] py-4 sm:py-6 md:py-8">
       <Nanigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <div className="flex flex-col gap-12 mt-8">
+      <div className="flex flex-col gap-6 sm:gap-8 md:gap-12 mt-4 sm:mt-6 md:mt-8">
         {filteredQuestions.map((q, i) => (
           <AnsweredQuestion key={i} questionData={q} />
         ))}
       </div>
 
-      <button onClick={()=> setShow(false)} className="mt-[56px] hover:scale-105 transition flex w-[234px] mr-auto items-center justify-center gap-2.5 px-20 py-6 rounded-[20px] bg-gradient-to-r from-primary to-secondary">
-        <div className="font-bold text-white text-base leading-[50px]">
+      <button
+        onClick={() => setShow(false)}
+        className="mt-8 sm:mt-10 md:mt-[56px] hover:scale-105 transition flex w-full sm:w-[234px] ml-auto items-center justify-center gap-2.5 px-8 sm:px-12 md:px-20 py-4 sm:py-5 md:py-6 rounded-[20px] bg-gradient-to-r from-primary to-secondary"
+      >
+        <div className="font-bold text-white text-sm sm:text-base leading-normal sm:leading-[50px]">
           إنهاء
         </div>
       </button>
@@ -74,16 +77,16 @@ const Nanigation = ({ activeTab, setActiveTab }) => {
 
   return (
     <div
-      className="flex h-[110px] items-center justify-center gap-12 p-4 bg-[#ebf3fe] rounded-[30px]"
+      className="flex overflow-x-auto snap-x snap-mandatory sm:overflow-x-visible sm:flex-row min-h-[80px] sm:h-auto md:h-[110px] items-center justify-start sm:justify-center gap-3 sm:gap-6 md:gap-12 p-3 sm:p-4 bg-[#ebf3fe] rounded-[20px] sm:rounded-[30px] scrollbar-hide"
       role="tablist"
     >
       {tabData.map((tab) => (
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
-          className={`px-16 py-4 rounded-[20px] transition-colors ${
+          className={`snap-center flex-shrink-0 min-w-fit sm:min-w-0 sm:w-auto px-6 sm:px-10 md:px-16 py-3 sm:py-3.5 md:py-4 rounded-[15px] sm:rounded-[20px] transition-colors text-sm sm:text-base ${
             activeTab === tab.id
-              ? "bg-blue-500 text-white font-bold"
+              ? "bg-primary text-white font-bold"
               : "hover:bg-blue-100 text-gray-800"
           }`}
         >
@@ -96,14 +99,14 @@ const Nanigation = ({ activeTab, setActiveTab }) => {
 
 export const AnsweredQuestion = ({ questionData }) => {
   return (
-    <main className="flex flex-col items-start gap-14 px-20 py-8 bg-white rounded-[40px] border-[3px] border-solid border-variable-collection-stroke">
+    <main className="flex flex-col items-start gap-6 sm:gap-8 md:gap-14 px-4 sm:px-8 md:px-12 lg:px-20 py-6 sm:py-7 md:py-8 bg-white rounded-[20px] sm:rounded-[30px] md:rounded-[40px] border-2 md:border-[3px] border-solid border-variable-collection-stroke">
       {/* Header */}
-      <header className="flex items-center justify-between w-full">
-        <h1 className="font-bold text-secondary text-2xl">
+      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-3 sm:gap-4">
+        <h1 className="font-bold text-secondary text-lg sm:text-xl md:text-2xl">
           {questionData.title}
         </h1>
         <div
-          className={`inline-flex items-center justify-center gap-2 px-12 py-4 rounded-[15px] ${
+          className={`inline-flex items-center justify-center gap-2 px-6 sm:px-8 md:px-12 py-2 sm:py-3 md:py-4 rounded-[10px] sm:rounded-[15px] text-sm sm:text-base whitespace-nowrap ${
             questionData.answers.find((a) => a.isCorrect)?.id ===
             questionData.answer
               ? "bg-[#c9ffca] text-[#24ab28]"
@@ -118,13 +121,13 @@ export const AnsweredQuestion = ({ questionData }) => {
       </header>
 
       {/* Question */}
-      <section className="flex flex-col items-start gap-6 w-full">
-        <div className="flex flex-col w-[775px] gap-2">
-          <h2 className="font-bold text-text text-base leading-[50px] whitespace-nowrap">
+      <section className="flex flex-col items-start gap-4 sm:gap-5 md:gap-6 w-full">
+        <div className="flex flex-col w-full gap-2">
+          <h2 className="font-bold text-text text-sm sm:text-base leading-normal sm:leading-relaxed md:leading-[50px]">
             {questionData.question}
           </h2>
 
-          <fieldset className="flex flex-col w-[775px] gap-4">
+          <fieldset className="flex flex-col w-full gap-3 sm:gap-4">
             <legend className="sr-only">خيارات الإجابة</legend>
 
             {questionData.answers.map((answer, index) => {
@@ -134,20 +137,18 @@ export const AnsweredQuestion = ({ questionData }) => {
               return (
                 <div
                   key={answer.id}
-                  className={`flex w-[841px] ${
-                    index === 0 ? "ml-[-66px]" : ""
-                  } items-center gap-4`}
+                  className="flex items-center gap-2 sm:gap-3 md:gap-4 w-full"
                 >
                   <label
-                    className={`w-[775px] flex items-center gap-2 p-4 rounded-[20px] ${
+                    className={`flex-1 flex items-center gap-2 sm:gap-3 p-3 sm:p-3.5 md:p-4 rounded-[15px] sm:rounded-[20px] cursor-pointer transition-all ${
                       isCorrect
-                        ? "bg-[#c9ffca] "
+                        ? "bg-[#c9ffca]"
                         : isStudentAnswer
-                        ? "bg-[#FFC4C4]   text-red-700"
-                        : "border-[3px] border-solid "
+                        ? "bg-[#FFC4C4] text-red-700"
+                        : "border-2 md:border-[3px] border-solid"
                     }`}
                   >
-                    <div className="w-6 h-6">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0">
                       {isCorrect ? (
                         <CorrectRadio />
                       ) : isStudentAnswer ? (
@@ -157,7 +158,7 @@ export const AnsweredQuestion = ({ questionData }) => {
                       )}
                     </div>
                     <span
-                      className={`text-base leading-[50px] ${
+                      className={`text-sm sm:text-base leading-normal sm:leading-relaxed md:leading-[50px] ${
                         isCorrect
                           ? "font-semibold text-[#24ab28]"
                           : isStudentAnswer
@@ -170,7 +171,13 @@ export const AnsweredQuestion = ({ questionData }) => {
                   </label>
 
                   {/* أيقونة يمين توضح الصح أو الغلط */}
-                  {isCorrect ? <CheckIcon /> : isStudentAnswer && <RoundedX />}
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 flex-shrink-0">
+                    {isCorrect ? (
+                      <CheckIcon />
+                    ) : (
+                      isStudentAnswer && <RoundedX />
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -178,8 +185,8 @@ export const AnsweredQuestion = ({ questionData }) => {
         </div>
 
         {/* Explanation */}
-        <aside>
-          <p className="text-base text-text">
+        <aside className="w-full">
+          <p className="text-sm sm:text-base text-text leading-normal sm:leading-relaxed">
             <span className="font-bold">الشرح: </span>
             {questionData.explanation}
           </p>
@@ -191,8 +198,8 @@ export const AnsweredQuestion = ({ questionData }) => {
 
 const CheckIcon = (props) => (
   <svg
-    width={32}
-    height={32}
+    width="100%"
+    height="100%"
     viewBox="0 0 32 32"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -224,8 +231,8 @@ const CheckIcon = (props) => (
 
 const RoundedX = (props) => (
   <svg
-    width={32}
-    height={32}
+    width="100%"
+    height="100%"
     viewBox="0 0 32 32"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -250,8 +257,8 @@ const RoundedX = (props) => (
 
 const CorrectRadio = (props) => (
   <svg
-    width={24}
-    height={24}
+    width="100%"
+    height="100%"
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -270,8 +277,8 @@ const CorrectRadio = (props) => (
 
 const WrongRadio = (props) => (
   <svg
-    width={24}
-    height={24}
+    width="100%"
+    height="100%"
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -290,8 +297,8 @@ const WrongRadio = (props) => (
 
 const NotSelectedIcon = (props) => (
   <svg
-    width={24}
-    height={24}
+    width="100%"
+    height="100%"
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
