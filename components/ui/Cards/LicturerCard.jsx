@@ -1,83 +1,85 @@
 import React from "react";
 import { RatingStarIcon } from "../../../public/svgs";
 
-const LicturerCard = () => {
+export const LecturerCard = () => {
+
+  // 1. Define your data for a lecturer
+const lecturerData = {
+  name: "خالد عبد الرحمن يوسف",
+  title: "محاضر في إتقان التدريس الفعال",
+  imageUrl: "/images/Image-12422.png", // Or any other image path
+  rating: 4.5,
+  reviews: 1450,
+  socialLinks: [
+    { name: "Instagram", url: "#", icon: <InstagramIcon /> },
+    { name: "LinkedIn", url: "#", icon: <LinkedInIcon /> },
+    { name: "Facebook", url: "#", icon: <FacebookIcon /> },
+  ],
+};
+
+// 2. Render the component in your application
+// <LecturerCard lecturer={lecturerData} />
+
+  const { name, title, imageUrl, rating, reviews, socialLinks } = lecturerData;
+
   return (
-    <article className="inline-flex flex-col items-center gap-6 p-12 relative bg-white rounded-[30px] border-2 border-solid border-[#909dad]">
+    <article className="inline-flex w-full md:max-w-sm flex-col items-center gap-6 rounded-[30px] border-2 border-solid border-neutral-300 bg-white p-8 md:p-12">
       <div
-        className="relative w-[124px] h-[124px] rounded-[62px] bg-[url(/images/Image-12422.png)] bg-cover bg-[50%_50%]"
+        className="h-28 w-28 rounded-full bg-cover bg-center md:h-[124px] md:w-[124px]"
+        style={{ backgroundImage: `url(${imageUrl})` }}
         role="img"
-        aria-label="خالد عبد الرحمن يوسف profile picture"
+        aria-label={`${name} profile picture`}
       />
 
-      <div className="inline-flex flex-col items-center gap-4 relative flex-[0_0_auto]">
-        <header className="flex flex-col items-center self-stretch w-full relative flex-[0_0_auto]">
-          <h1 className="self-stretch mt-[-1.00px]  font-bold text-text text-xl text-center relative flex items-center justify-center tracking-[0] leading-[normal] [direction:rtl]">
-            خالد عبد الرحمن يوسف
+      <div className="inline-flex flex-col items-center gap-4">
+        <header className="flex w-full flex-col items-center">
+          <h1 className="text-center text-xl font-bold text-text [direction:rtl]">
+            {name}
           </h1>
-
-          <p className="w-fit  text-[16px] font-medium text-text-alt text-base text-center relative flex items-center justify-center tracking-[0] leading-[normal] [direction:rtl]">
-            محاضر في إتقان التدريس الفعال
+          <p className="text-center text-base font-medium text-text-alt [direction:rtl]">
+            {title}
           </p>
         </header>
 
-        <div className="inline-flex flex-col items-center gap-2 relative flex-[0_0_auto]">
+        <div className="inline-flex flex-col items-center gap-3">
           <div
-            className="inline-flex items-center gap-2 relative flex-[0_0_auto]"
+            className="inline-flex items-center gap-2"
             role="group"
             aria-label="Rating information"
           >
-            <div className="relative flex items-center justify-center w-fit mt-[-1.00px]  font-medium text-text-duplicate text-xl tracking-[0] leading-[normal]">
-              <span aria-label="Rating 4.5 out of 5 stars with 1450 reviews">
-                4.5 (1450)
-              </span>
+            <RatingStarIcon className="h-5 w-5" />
+
+            <div
+              className="font-medium text-text-duplicate text-xl"
+              aria-label={`Rating ${rating} out of 5 stars with ${reviews} reviews`}
+            >
+              {rating} ({reviews})
             </div>
-            <RatingStarIcon className="w-[20px] h-[20px]" />
           </div>
 
-          <nav aria-label="Social media links " className="flex items-center gap-[6px]">
-            <button
-              className="flex flex-col w-12 h-12 items-center justify-center gap-2.5 p-2 relative bg-white rounded-[50px] overflow-hidden border border-solid border-blue-500 cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
-              type="button"
-              aria-label="Facebook social media link"
-            >
-              <div className="absolute top-[calc(50.00%_-_20px)] left-[calc(50.00%_-_20px)] w-10 h-10 bg-[#d7e6ff] rounded-[20px] aspect-[1]" />
-
-              <div className="relative w-5 h-5">
-                <InstagramIcon />
-              </div>
-            </button>
-            <button
-              className="flex flex-col w-12 h-12 items-center justify-center gap-2.5 p-2 relative bg-white rounded-[50px] overflow-hidden border border-solid border-blue-500 cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
-              type="button"
-              aria-label="Facebook social media link"
-            >
-              <div className="absolute top-[calc(50.00%_-_20px)] left-[calc(50.00%_-_20px)] w-10 h-10 bg-[#d7e6ff] rounded-[20px] aspect-[1]" />
-
-              <div className="relative w-5 h-5">
-                <LinkedInIcon />
-              </div>
-            </button>
-
-            <button
-              className="flex flex-col w-12 h-12 items-center justify-center gap-2.5 p-2 relative bg-white rounded-[50px] overflow-hidden border border-solid border-blue-500 cursor-pointer hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
-              type="button"
-              aria-label="Facebook social media link"
-            >
-              <div className="absolute top-[calc(50.00%_-_20px)] left-[calc(50.00%_-_20px)] w-10 h-10 bg-[#d7e6ff] rounded-[20px] aspect-[1]" />
-
-              <div className="relative w-5 h-5">
-                <FacebookIcon />
-              </div>
-            </button>
+          <nav
+            aria-label="Social media links"
+            className="flex items-center gap-2"
+          >
+            {socialLinks.map((social) => (
+              <a
+                key={social.name}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Visit ${name}'s ${social.name} profile`}
+                className="relative flex h-12 w-12 items-center justify-center rounded-full border border-solid border-blue-500 bg-white transition-colors duration-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                <div className="absolute inset-1 rounded-full bg-[#d7e6ff]" />
+                <div className="relative h-5 w-5">{social.icon}</div>
+              </a>
+            ))}
           </nav>
         </div>
       </div>
     </article>
   );
 };
-
-export default LicturerCard;
 
 export const FacebookIcon = (props) => (
   <svg

@@ -3,6 +3,7 @@
 import React from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
 import { CheckIcon } from "../../public/svgs";
+import Container from "../../components/ui/Container";
 
 const SupportGate = () => {
   const supportData = [
@@ -47,16 +48,15 @@ const SupportGate = () => {
           },
         ]}
       />
-  <div className="container mx-auto px-[64px] space-y-[64px] mt-[48px] mb-[74px]">
-
-      <div className="  grid grid-cols-1 gap-[32px]">
-        {supportData.map((item, index) => {
-          return <SupportSection data={item} />;
-        })}
-      </div>
-      <GuideLines />
-    </div>
+      <Container className="space-y-[64px] mt-[48px] mb-[74px]">
+        <div className="  grid grid-cols-1   gap-4 md:gap-[32px]">
+          {supportData.map((item, index) => {
+            return <SupportSection data={item} />;
+          })}
         </div>
+        {/* <GuideLines /> */}
+      </Container>
+    </div>
   );
 };
 
@@ -65,37 +65,36 @@ export default SupportGate;
 
 export const SupportSection = ({ data }) => {
   return (
-    <article className="flex flex-col items-start pt-6 pb-8 px-6 gap-6 relative bg-white rounded-[30px] border-[3px] border-solid ">
+    <article className="flex flex-col items-start gap-4 rounded-[30px] border-[3px] border-solid bg-white p-4 md:gap-6 md:p-6 md:pb-8">
       {/* Header */}
-      <header className="flex-col items-start gap-3 flex-[0_0_auto] flex relative self-stretch w-full">
-        <h1 className="font-bold text-secondary text-[32px] tracking-[0] relative self-stretch leading-[normal] ">
+      <header className="flex w-full flex-col items-start gap-2 self-stretch md:gap-3">
+        <h1 className="self-stretch font-bold leading-tight tracking-[0] text-secondary text-2xl md:text-[32px] md:leading-[normal]">
           {data.title}
         </h1>
-        <p className="h-5 text-text text-base relative self-stretch leading-[normal] ">
+        <p className="self-stretch text-base leading-[normal] text-text">
           {data.description}
         </p>
       </header>
 
       {/* Main (image + button) */}
-      <main className="flex-col items-start gap-2.5  py-0 flex-[0_0_auto] flex relative self-stretch w-full">
+      <main className="w-full self-stretch">
         <div
-          className="h-[348px] items-center justify-center rounded-[50px] bg-cover bg-[50%_50%] flex relative self-stretch w-full"
+          className="flex h-[240px] w-full items-center justify-center self-stretch rounded-3xl bg-cover bg-center md:h-[348px] md:rounded-[50px]"
           style={{ backgroundImage: `url(${data.image})` }}
         >
           <button
-            className="flex w-[124px] h-[124px] items-center justify-center gap-2.5 p-5 relative bg-secondary rounded-[100px] overflow-hidden border-8 border-solid border-white aspect-[1] hover:bg-secondary-dark focus:outline-none focus:ring-4 focus:ring-orange-300 transition-colors duration-200"
+            className="flex h-24 w-24 items-center justify-center rounded-full border-[6px] border-solid border-white bg-secondary transition-colors duration-200 hover:bg-secondary-dark focus:outline-none focus:ring-4 focus:ring-orange-300 md:h-[124px] md:w-[124px] md:border-8"
             aria-label={data.buttonAria || "تشغيل الفيديو"}
             type="button"
             onClick={data.onPlay}
           >
-            <div className="relative w-12 h-12 aspect-[1]">
+            <div className="relative h-10 w-10 md:h-12 md:w-12">
               {/* Play Icon */}
               <svg
-                width={48}
-                height={48}
                 viewBox="0 0 48 48"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                className="h-full w-full" // Makes SVG scale to fit its parent
               >
                 <path
                   d="M13.5292 40.657C11.9864 41.595 10 40.4985 10 38.7084L10 10.2915C10 8.50162 11.9864 7.40494 13.5292 8.343L36.8981 22.5514C38.3673 23.4448 38.3673 25.5551 36.8981 26.4486L13.5292 40.657Z"
@@ -111,8 +110,6 @@ export const SupportSection = ({ data }) => {
     </article>
   );
 };
-
-
 
 export const GuideLines = () => {
   const guidelines = [

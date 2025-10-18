@@ -257,6 +257,8 @@ const SwiperEffect = () => {
         backgroundPosition: "center",
       }}
     >
+      <Container className={"!px-0"}>
+
       <div className="flex flex-col mx-auto md:w-[454px] items-center gap-4 relative  mb-[40px] md:mb-[64px]">
         <h1 className="relative w-fit mt-[-1.00px] font-bold text-secondary text-2xl md:text-4xl text-center leading-10 whitespace-nowrap ">
           لوحة الشرف لهذا الشهر
@@ -280,6 +282,8 @@ const SwiperEffect = () => {
           ))}
         </Swiper>
       </div>
+      </Container>
+
     </div>
   );
 };

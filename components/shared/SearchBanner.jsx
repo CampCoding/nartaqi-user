@@ -2,14 +2,14 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import CourseCard from "./../ui/Cards/CourseCard";
-import LicturerCard from "./../ui/Cards/LicturerCard";
 import { ProductCard } from "./../Store/ProductCard";
 import { BlogCard } from "./../ui/Cards/BlogCard";
-import { ImageOff } from "lucide-react";
 import Link from "next/link";
+
 // Import framer-motion
 import { motion, AnimatePresence } from "framer-motion";
 import cx from "../../lib/cx";
+import { LecturerCard } from "../ui/Cards/LicturerCard";
 
 // You will wrap your component with <AnimatePresence> in the parent.
 // See "How to Use It" section below.
@@ -266,12 +266,12 @@ const Lecturers = () => {
       <div className="self-stretch text-right justify-start text-text text-xl lg:text-2xl font-bold ">
         محاضرين{" "}
       </div>{" "}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 lg:gap-x-[29px] gap-y-6 lg:gap-y-[28px] mt-6">
-        <LicturerCard />
-        <LicturerCard />
-        <LicturerCard />
-        <LicturerCard />
-        <LicturerCard />{" "}
+      <div className="grid  grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 lg:gap-x-[29px] gap-y-6 lg:gap-y-[28px] mt-6">
+        <LecturerCard />
+        <LecturerCard />
+        <LecturerCard />
+        <LecturerCard />
+        <LecturerCard />{" "}
       </div>{" "}
     </div>
   );
@@ -284,7 +284,7 @@ const BooksAndBags = () => {
       <div className="self-stretch text-right justify-start text-text text-xl lg:text-2xl font-bold ">
         كتب وحقائب{" "}
       </div>{" "}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 lg:gap-x-[29px] gap-y-6 lg:gap-y-[28px] mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 lg:gap-x-[29px] gap-y-6 lg:gap-y-[28px] mt-6">
         {" "}
         {[
           "FRAME (5).png",
@@ -338,11 +338,11 @@ export const Navs = () => {
 
   return (
     <nav
-      className="flex w-full items-center justify-between p-2 lg:p-4 relative bg-[#ebf3fe] rounded-[20px]"
+      className="flex w-full  items-center justify-between p-2 lg:p-4 relative bg-[#ebf3fe] rounded-[20px]"
       role="navigation"
     >
       {" "}
-      <div className="flex-1 overflow-x-auto whitespace-nowrap">
+      <div className="flex-1 overflow-x-auto whitespace-nowrap hidden-scroll">
         {" "}
         <div className="inline-flex items-center">
           {" "}

@@ -218,8 +218,10 @@ const CartPage = () => {
                     </div>
                   </div>
                 ))}
-
+                <div className="block lg:hidden">
                 <CardSummery />
+                </div>
+
               </div>
             </div>
           </div>

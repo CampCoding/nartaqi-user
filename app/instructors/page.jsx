@@ -1,8 +1,8 @@
 import React from "react";
 import PagesBanner from "../../components/ui/PagesBanner";
 import { StudentResultCard } from "../../components/ui/Cards/StudentResultCard";
-import LicturerCard from "../../components/ui/Cards/LicturerCard";
-
+import Container from "../../components/ui/Container";
+import { LecturerCard } from "../../components/ui/Cards/LicturerCard";
 const Instructors = () => {
   return (
     <div>
@@ -22,21 +22,21 @@ const Instructors = () => {
         image={"/images/trainers.png"}
       />
 
-      <div className="container  mx-auto max-w-[1312px] gap-y-[32px] mt-[48px] mb-[100px]">
-        <div className=" mb-[48px] flex items-center justify-center  font-bold text-secondary text-[40px] text-left tracking-[0] leading-[normal] [direction:rtl]">
-          المدربون
+      <Container className=" gap-y-[32px] mt-[48px] mb-[100px]">
+      <h2 className="mb-8 text-center font-bold text-secondary text-3xl leading-tight md:mb-12 md:text-[40px] md:leading-normal [direction:rtl]">
+  المدربون
+</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4   gap-3 sm:gap-4 md:gap-[27px] ">
+          <LecturerCard />
+          <LecturerCard />
+          <LecturerCard />
+          <LecturerCard />
+          <LecturerCard />
+          <LecturerCard />
+          <LecturerCard />
+          <LecturerCard />
         </div>
-        <div className="grid grid-cols-4  gap-[27px] ">
-          <LicturerCard />
-          <LicturerCard />
-          <LicturerCard />
-          <LicturerCard />
-          <LicturerCard />
-          <LicturerCard />
-          <LicturerCard />
-          <LicturerCard />
-        </div>
-      </div>
+      </Container>
     </div>
   );
 };
