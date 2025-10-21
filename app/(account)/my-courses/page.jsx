@@ -13,11 +13,11 @@ const MyCourses = () => {
         </div>
 
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-[19px]"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-[19px]"
           style={{ justifyItems: "center" }}
         >
           {/* first row */}
-          <MyActiveCourseCard />
+          <MyActiveCourseard />
           <MyActiveCourseCard />
           <MyActiveCourseCard />
         </div>
@@ -29,7 +29,7 @@ const MyCourses = () => {
         </div>
 
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-[19px]"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-[19px]"
           style={{ justifyItems: "center" }}
         >
           {/* first row */}
@@ -53,7 +53,7 @@ export const AchievementRate = () => {
   };
 
   return (
-    <div className="flex flex-col items-start md:items-center justify-between gap-4 md:gap-6 px-4 md:px-6 py-4 relative bg-primary-light rounded-[15px] w-full">
+    <div className="flex  flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-20 px-4 md:px-6 py-4 relative bg-primary-light rounded-[15px] w-full">
       <div
         className="text-text text-right relative flex items-center justify-center w-fit font-bold text-base tracking-[0] leading-[normal] flex-shrink-0"
         lang="ar"
@@ -61,9 +61,9 @@ export const AchievementRate = () => {
         {progressData.label}
       </div>
 
-      <div className="inline-flex items-center gap-4 md:gap-6 relative flex-[0_0_auto] w-full md:w-auto">
+      <div className="inline-flex  flex-1 w-full items-center gap-4 md:gap-6 relative   md:w-auto">
         <div
-          className="relative w-full md:w-[400px] lg:w-[548px] h-[18px] bg-primary-bg rounded-[50px] overflow-hidden"
+          className="relative w-full h-[18px] bg-primary-bg rounded-[50px] overflow-hidden"
           role="progressbar"
           aria-valuenow={progressData.percentage}
           aria-valuemin="0"
@@ -71,7 +71,7 @@ export const AchievementRate = () => {
           aria-label="Overall completion rate"
         >
           <div
-            className="h-full bg-primary rounded-[50px] transition-all duration-300"
+            className="h-full bg-primary mr-auto rounded-[50px] transition-all duration-300"
             style={{
               width: `${progressData.percentage}%`,
             }}
@@ -79,7 +79,7 @@ export const AchievementRate = () => {
         </div>
 
         <div
-          className="text-primary relative flex items-center justify-center w-fit font-bold text-base tracking-[0] leading-[normal] flex-shrink-0"
+          className="text-primary  relative flex items-center justify-center w-fit font-bold text-base md:text-2xl tracking-[0] leading-[normal] flex-shrink-0"
           role="status"
           aria-label={`Progress: ${progressData.percentage} percent`}
         >

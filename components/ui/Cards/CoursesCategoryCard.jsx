@@ -5,7 +5,11 @@ const CoursesCategoryCard = ({
   color = "secondary",
   freeWidth = false,
 }) => {
-
+  const colors = {
+    secondary: "var(--color-secondary)",
+    priamry: "var(--color-praimry)",
+    warning: "var(--color-warning)",
+  };
 
   return (
     <div
@@ -31,11 +35,29 @@ const CoursesCategoryCard = ({
         </div>
 
         <div
-          className={`group-hover:scale-125 group-hover:!bg-secondary cursor-pointer  transition flex min-w-[40px] min-h-[40px] items-center justify-center gap-[5.8px] p-[11.61px] relative bg-white    rounded-full overflow-hidden shadow-[0px_2.32px_2.32px_#00000040] aspect-[1]`}
+          className={`group-hover:scale-125 ${(() => {
+            switch (color) {
+              case "secondary":
+                return "group-hover:!bg-secondary";
+              case "primary":
+                return "group-hover:!bg-primary";
+              case "warning":
+                return "group-hover:!bg-warning";
+            }
+          })()} cursor-pointer  transition flex min-w-[40px] min-h-[40px] items-center justify-center gap-[5.8px] p-[11.61px] relative bg-white    rounded-full overflow-hidden shadow-[0px_2.32px_2.32px_#00000040] aspect-[1]`}
         >
           <div className="relative w-6 h-6 aspect-[1]">
             <ChevronLeft
-              className={`   fill-secondary  group-hover:fill-${"white"} transition `}
+              className={`   ${(() => {
+                switch (color) {
+                  case "secondary":
+                    return "fill-secondary";
+                  case "primary":
+                    return "fill-primary";
+                  case "warning":
+                    return "fill-warning";
+                }
+              })()}  group-hover:fill-${"white"} transition `}
             />
           </div>
         </div>

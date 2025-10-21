@@ -192,7 +192,7 @@ export default function RateCoursePage() {
       />
 
       {isFinished ? (
-        <div className="mt-12 md:mt-20">
+        <div className="my-12 md:mt-20">
           <RateDone />
         </div>
       ) : (

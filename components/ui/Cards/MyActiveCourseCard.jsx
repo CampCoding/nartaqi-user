@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 export const MyActiveCourseCard = () => {
@@ -61,7 +62,7 @@ export const MyActiveCourseCard = () => {
           </div>
         </div>
 
-        <button
+        <Link href={"/course/123?reg=true&done=false"}
           className="flex h-[45px] sm:h-[50px] items-center justify-center gap-2.5 px-3 sm:px-4 py-3 relative self-stretch w-full bg-secondary rounded-[8px] sm:rounded-[10px] shadow-[8px_8px_12px_#fdd4b7] sm:shadow-[11px_11px_15px_#fdd4b7] hover:bg-secondary-dark focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 transition-all duration-200"
           type="button"
           aria-label={`${courseData.buttonText} دورة ${courseData.title}`}
@@ -69,7 +70,7 @@ export const MyActiveCourseCard = () => {
           <span className="w-fit font-semibold text-white text-sm sm:text-base text-left relative flex items-center justify-center tracking-[0] leading-[normal] [direction:rtl]">
             {courseData.buttonText}
           </span>
-        </button>
+        </Link>
       </div>
     </article>
   );

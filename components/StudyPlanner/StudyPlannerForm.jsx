@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Select } from "antd";
+import { Select, Dropdown } from "antd";
+import { MyDatePicker } from "../ui/MyDatePicker";
 // import h19 from "./h-19.svg";
 // import image from "./image.svg";
 // import vector1 from "./vector-1.svg";
@@ -50,8 +51,8 @@ const StudyPlannerForm = () => {
     examTitle: "",
     startPage: "",
     endPage: "",
-    studyStartDate: "",
-    examDate: "",
+    studyStartDate: null,
+    examDate: null,
     restDays: [],
   });
 
@@ -194,20 +195,33 @@ const StudyPlannerForm = () => {
                     تاريخ بدء الدراسة
                   </label>
                 </div>
-                <div className="flex px-5 items-center justify-start h-[56px] relative self-stretch w-full flex-[0_0_auto] bg-white rounded-[15px] border border-solid border-zinc-200">
-                  <div className="flex-1 grow z-0 relative h-full min-w-0">
-                    <input
-                      type="datetime-local"
-                      value={formData.studyStartDate}
-                      onChange={(e) => handleInputChange("studyStartDate", e.target.value)}
-                      placeholder="اليوم/الساعة/اليوم/اليوم/اليوم"
-                      className="h-full top-0.5  text-text-alt  text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] bg-transparent border-none outline-none"
-                    />
+                <Dropdown
+                  dropdownRender={() => (
+                    <div className="bg-white rounded-lg shadow-lg border border-gray-200">
+                      <MyDatePicker
+                        selected={formData.studyStartDate}
+                        onSelect={(date) => handleInputChange("studyStartDate", date)}
+                      />
+                    </div>
+                  )}
+                  trigger={['click']}
+                  placement="bottomLeft"
+                >
+                  <div className="flex px-5 items-center justify-start h-[56px] relative self-stretch w-full flex-[0_0_auto] bg-white rounded-[15px] border border-solid border-zinc-200 cursor-pointer hover:border-orange-300 transition-colors">
+                    <div className="flex-1 grow z-0 relative h-full min-w-0">
+                      <input
+                        type="text"
+                        value={formData.studyStartDate ? formData.studyStartDate.toLocaleDateString('en-US') : ""}
+                        placeholder="اختر تاريخ بدء الدراسة"
+                        readOnly
+                        className="h-full top-0.5 text-text-alt text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] bg-transparent border-none outline-none cursor-pointer"
+                      />
+                    </div>
+                    <div className="z-[1] relative w-4 h-4">
+                      <CalenderIcon />
+                    </div>
                   </div>
-                  <div className="z-[1] relative w-4 h-4">
-                    <CalenderIcon />
-                  </div>
-                </div>
+                </Dropdown>
               </div>
             </div>
             <div className="flex flex-1 flex-col items-start gap-2.5 w-full relative min-w-0">
@@ -217,20 +231,33 @@ const StudyPlannerForm = () => {
                     تاريخ الامتحان
                   </label>
                 </div>
-                <div className="flex px-5 items-center justify-start h-[56px] relative self-stretch w-full flex-[0_0_auto] bg-white rounded-[15px] border border-solid border-zinc-200">
-                  <div className="flex-1 grow z-0 relative h-full min-w-0">
-                    <input
-                      type="datetime-local"
-                      value={formData.examDate}
-                      onChange={(e) => handleInputChange("examDate", e.target.value)}
-                      placeholder="اليوم/الساعة/اليوم/اليوم/اليوم"
-                      className="h-full top-0.5  text-text-alt  text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] bg-transparent border-none outline-none"
-                    />
+                <Dropdown
+                  dropdownRender={() => (
+                    <div className="bg-white rounded-lg shadow-lg border border-gray-200">
+                      <MyDatePicker
+                        selected={formData.examDate}
+                        onSelect={(date) => handleInputChange("examDate", date)}
+                      />
+                    </div>
+                  )}
+                  trigger={['click']}
+                  placement="bottomLeft"
+                >
+                  <div className="flex px-5 items-center justify-start h-[56px] relative self-stretch w-full flex-[0_0_auto] bg-white rounded-[15px] border border-solid border-zinc-200 cursor-pointer hover:border-orange-300 transition-colors">
+                    <div className="flex-1 grow z-0 relative h-full min-w-0">
+                      <input
+                        type="text"
+                        value={formData.examDate ? formData.examDate.toLocaleDateString('en-US') : ""}
+                        placeholder="اختر تاريخ الامتحان"
+                        readOnly
+                        className="h-full top-0.5 text-text-alt text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] bg-transparent border-none outline-none cursor-pointer"
+                      />
+                    </div>
+                    <div className="z-[1] relative w-4 h-4">
+                      <CalenderIcon />
+                    </div>
                   </div>
-                  <div className="z-[1] relative w-4 h-4">
-                    <CalenderIcon />
-                  </div>
-                </div>
+                </Dropdown>
               </div>
             </div>
           </div>

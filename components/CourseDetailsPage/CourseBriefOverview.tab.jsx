@@ -8,8 +8,11 @@ import {
   VideoCameraIcon,
 } from "../../public/svgs";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const CourseBriefOverview = ({ isRegistered }) => {
+  const pathname = usePathname();
+
   return (
     <div className=" grid-cols-1 space-y-[32px]  ">
       <div className="self-stretch inline-flex flex-col justify-start items-end gap-1">
@@ -115,7 +118,7 @@ const CourseBriefOverview = ({ isRegistered }) => {
           {/* Main container: Stacks vertically on mobile, horizontally on desktop */}
           <div className="self-stretch w-full flex flex-col gap-4 mt-8 lg:flex-row lg:justify-end lg:!mt-[48px] lg:items-start lg:gap-12">
             {/* Button 1: Responsive padding */}
-            <div className="flex-1 px-6 py-4 lg:px-12 lg:py-6 bg-primary rounded-[20px] flex justify-center items-center gap-2">
+            <div className="flex-1 cursor-pointer hover:shadow-2xl active:scale-95 transition-all select-none px-6 py-4 lg:px-12 lg:py-6 bg-primary rounded-[20px] flex justify-center items-center gap-2">
               <div className="w-6 h-6 relative overflow-hidden">
                 <FileIcon />
               </div>
@@ -125,11 +128,23 @@ const CourseBriefOverview = ({ isRegistered }) => {
             </div>
 
             {/* Button 2: Responsive padding */}
-            <div className="flex-1 px-6 py-4 lg:px-12 lg:py-6 bg-secondary rounded-[20px] flex justify-center items-center gap-2">
+            <Link
+              href={
+                pathname.startsWith("/course-preview")
+                  ? "/"
+                  : "/course-preview/123"
+              }
+              className="flex-1 cursor-pointer px-6 py-4 hover:shadow-2xl active:scale-95 transition-all select-none lg:px-12 lg:py-6 bg-secondary rounded-[20px] flex justify-center items-center gap-2"
+            >
+             {
+              !pathname.startsWith("/course-preview") && <VideoCameraIcon />
+             }
               <div className="text-right justify-center text-white text-base font-medium">
-                اشترك الان
+                {pathname.startsWith("/course-preview")
+                  ? "اشترك الأن"
+                  : "الشروحات المجانية"}{" "}
               </div>
-            </div>
+            </Link>
           </div>
         </>
       )}

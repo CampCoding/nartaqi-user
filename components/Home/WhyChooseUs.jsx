@@ -9,7 +9,7 @@ const WhyChooseUs = () => {
       <Container className=" flex flex-col space-y-7 gap-4 md:flex-row justify-between ">
         <div className="flex justify-between flex-col md:flex-row gap-12">
           <div className="inline-flex flex-col justify-start items-start gap-6 md:gap-12">
-            <div className=" text-text font-bold text-2xl sm:text-3xl lg:text-[40px] w-full text-center leading-normal relative items-center justify-center">
+            <div className=" text-text font-bold text-2xl sm:text-3xl lg:text-[40px] w-full  leading-normal relative items-center justify-center">
               لماذا تختارنا
             </div>
             <div className="flex flex-col justify-start items-start gap-4 md:gap-7 w-full md:w-auto">

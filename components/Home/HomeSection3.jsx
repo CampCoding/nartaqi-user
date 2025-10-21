@@ -58,7 +58,7 @@ const HomeSection3 = () => {
         {CoursesCategoryCardData?.map((item, index) => (
           <Link href={"/courses/123"} key={index}>
             <div className="md:block hidden">
-              <CoursesCategoryCard data={item} freeWidth={true} />
+              <CoursesCategoryCard color="warning" data={item} freeWidth={true} />
             </div>
             <div className="block md:hidden">
               <CoursesCategoryCardMobile data={item} freeWidth={true} />

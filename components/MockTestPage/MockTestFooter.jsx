@@ -125,7 +125,7 @@ export const MockTestFooter = ({
           >
             <div className="flex w-fit cursor-pointer justify-center gap-2.5 px-4 py-1 bg-primary-dark rounded-[10px] items-center relative">
               <span className="relative flex whitespace-nowrap items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-sm sm:text-base tracking-[0] leading-[normal] [direction:rtl]">
-                {isLastQuestion ? "إنهاء الاختبار" : "التالي"}
+                {isLastQuestion ? "إنهاء القسم" : "التالي"}
               </span>
             </div>
             <TriangleLeft />
@@ -177,9 +177,9 @@ export const MockTestFooter = ({
             setIsSuccessOpen(true);
           }, 500);
         }}
-        title="إنهاء الاختبار"
-        message="هل أنت متأكد من أنك تريد إنهاء الاختبار؟ لن تتمكن من العودة لتعديل إجاباتك بعد الإرسال."
-        confirmText="إنهاء الاختبار"
+        title="إنهاء القسم"
+        message="هل أنت متأكد من أنك تريد إنهاء القسم؟ لن تتمكن من العودة لتعديل إجاباتك بعد الإرسال."
+        confirmText="إنهاء القسم"
         cancelText="إلغاء"
       />
 

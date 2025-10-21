@@ -159,7 +159,7 @@ export const Frame = () => {
               {contactInfo?.map((contact) => (
                 <div
                   key={contact.id}
-                  className="flex   items-center  relative"
+                  className="flex   items-center mb-2  relative"
                 >
                   <div
                     className="items-start inline-flex h-4 relative flex-[0_0_auto]"
@@ -209,7 +209,7 @@ export const Frame = () => {
                   ) : (
                     <address
                       dir="ltr"
-                      className="w-[199.61px]  text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] relative self-stretch text-neutral-50 not-italic"
+                      className="w-[199.61px] !mb-0 text-sm leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] relative self-stretch text-neutral-50 not-italic"
                     >
                       {contact.text}
                     </address>

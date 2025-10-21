@@ -43,7 +43,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row lg:justify-between overflow-hidden min-h-[calc(100vh-64px)])]">
+    <Container className="flex flex-col lg:flex-row lg:justify-between overflow-hidden min-h-[calc(100vh-64px)])]">
       <div className="flex-1 flex justify-center items-center mx-auto flex-col py-8 md:py-16 lg:py-[64px] pl-4 sm:pl-6 md:pl-8 max-w-[719px] w-full">
         <div className="inline-flex flex-col items-center gap-3 md:gap-4 relative mb-8 md:mb-12 lg:mb-[48px]">
           <img
@@ -56,73 +56,73 @@ const LoginPage = () => {
             مرحبا بعودتك مرة اخرى{" "}
           </p>
         </div>
-        <form
-          onSubmit={handleSubmit}
-          className="mx-auto w-full space-y-6 md:space-y-8 lg:space-y-[32px]"
-        >
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="col-span-3">
-              <TelephoneButon
-                label="رقم الجوال"
-                subLabel=""
-                placeholder="ادخل رقم جوالك"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </div>
-            <div className="col-span-3 space-y-2">
-              <PasswordInput
-                label="كلمة المرور"
-                subLabel=""
-                placeholder="أدخل كلمة المرور"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <Link
-                href={{
-                  pathname: "/reset-password",
-                  query: { number: "" },
-                }}
-                className="text-right justify-center text-primary text-sm sm:text-base font-bold block"
-              >
-                نسيت كلمة المرور؟
-              </Link>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {error ? (
-              <div className="text-danger text-sm font-medium">{error}</div>
-            ) : null}
-            <button
-              type="submit"
-              disabled={submitting || isLoading}
-              className="w-full px-6 sm:px-8 md:px-12 py-4 sm:py-5 md:py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5 disabled:opacity-60"
-            >
-              <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
-                {submitting ? "جارٍ الدخول..." : "تسجيل الدخول"}
+          <form
+            onSubmit={handleSubmit}
+            className="mx-auto w-full space-y-6 md:space-y-8 lg:space-y-[32px]"
+          >
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="col-span-3">
+                <TelephoneInput
+                  label="رقم الجوال"
+                  subLabel=""
+                  placeholder="ادخل رقم جوالك"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
               </div>
-            </button>
-            <div className="text-center justify-center">
-              <span className="text-text text-xs sm:text-sm font-medium">
-                ليس لديك حساب؟
-              </span>
-              <span className="text-primary text-xs sm:text-sm font-bold">
-                {" "}
-              </span>
-              <Link
-                href={"/sign-up"}
-                className="text-primary text-xs sm:text-sm font-bold underline"
-              >
-                إنشاء حساب جديد{" "}
-              </Link>
+              <div className="col-span-3 space-y-2">
+                <PasswordInput
+                  label="كلمة المرور"
+                  subLabel=""
+                  placeholder="أدخل كلمة المرور"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <Link
+                  href={{
+                    pathname: "/reset-password",
+                    query: { number: "" },
+                  }}
+                  className="text-right justify-center text-primary text-sm sm:text-base font-bold block"
+                >
+                  نسيت كلمة المرور؟
+                </Link>
+              </div>
             </div>
-          </div>
-        </form>
+
+            <div className="space-y-4">
+              {error ? (
+                <div className="text-danger text-sm font-medium">{error}</div>
+              ) : null}
+              <button
+                type="submit"
+                disabled={submitting || isLoading}
+                className="w-full px-6 sm:px-8 md:px-12 py-4 sm:py-5 md:py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5 disabled:opacity-60"
+              >
+                <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
+                  {submitting ? "جارٍ الدخول..." : "تسجيل الدخول"}
+                </div>
+              </button>
+              <div className="text-center justify-center">
+                <span className="text-text text-xs sm:text-sm font-medium">
+                  ليس لديك حساب؟
+                </span>
+                <span className="text-primary text-xs sm:text-sm font-bold">
+                  {" "}
+                </span>
+                <Link
+                  href={"/sign-up"}
+                  className="text-primary text-xs sm:text-sm font-bold underline"
+                >
+                  إنشاء حساب جديد{" "}
+                </Link>
+              </div>
+            </div>
+          </form>
       </div>
 
       <div
-        className="w-full h-32  sm:h-48 md:h-64 hidden lg:block lg:w-[50%] lg:h-auto relative select-none"
+        className="w-full max-w-[592px] h-32  sm:h-48 md:h-64 hidden lg:block lg:w-[50%] lg:h-auto relative select-none"
         style={{
           backgroundImage: `url("/images/logo-banner.png")`,
           backgroundSize: "cover",
@@ -130,7 +130,7 @@ const LoginPage = () => {
           backgroundRepeat: "no-repeat",
         }}
       />
-    </div>
+    </Container>
   );
 };
 
@@ -159,7 +159,7 @@ export const Input = ({
   );
 };
 
-export const TelephoneButon = ({
+export const TelephoneInput = ({
   label = "رقم الجوال",
   subLabel = "(مثال: ٥٠٠٠٠٠٠٠٠)",
   placeholder = "123456789",
@@ -235,9 +235,9 @@ export const TelephoneButon = ({
           {subLabel}
         </div>
       </div>
-      <div className="h-12 sm:h-14 md:h-[62px] justify-between px-3 sm:px-4 py-0 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative w-full">
+      <div className="h-12 sm:h-14 md:h-[62px] justify-between overflow-hidden py-0 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative w-full">
         <input
-          className="justify-center w-full font-normal text-text placeholder-[#c8c9d5] text-sm sm:text-base text-right tracking-[0] leading-[normal] flex items-center relative"
+          className="justify-center w-full px-3 sm:px-4  h-full font-normal text-text placeholder-[#c8c9d5] text-sm sm:text-base text-right tracking-[0] leading-[normal] flex items-center relative"
           placeholder={placeholder}
           {...props}
         />

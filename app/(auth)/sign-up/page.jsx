@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useUser } from "../../../lib/useUser.jsx";
 import { useRouter } from "next/navigation";
 import Container from "../../../components/ui/Container";
+import { TelephoneInput } from "../login/page";
 
 const SignUpPage = () => {
   const [value1, setValue1] = useState("Apple");
@@ -110,7 +111,7 @@ const SignUpPage = () => {
               />
             </div>
             <div className="col-span-1 md:col-span-3">
-              <TelephoneButon
+              <TelephoneInput
                 label="رقم الجوال"
                 subLabel=""
                 placeholder="ادخل رقم جوالك"
@@ -169,7 +170,7 @@ const SignUpPage = () => {
         </form>
       </div>
       <div
-        className="w-full h-32 sm:h-48 md:h-64 hidden lg:block lg:w-[50%] lg:h-auto relative select-none"
+        className="w-full max-w-[592px] h-32 sm:h-48 md:h-64 hidden lg:block lg:w-[50%] lg:h-auto relative select-none"
         style={{
           backgroundImage: `url("/images/logo-banner.png")`,
           backgroundSize: "cover",

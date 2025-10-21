@@ -1,6 +1,7 @@
 import { TransactionCalenderIcon, UploadPill } from "../../public/svgs";
 import BankCard from "./BankCard";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { MyDatePicker } from "../ui/MyDatePicker";
 
 const CheckoutBanksSection = () => {
   return (
@@ -27,6 +28,10 @@ export const TransactionDetail = () => {
     receiptFile: null,
   });
 
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const datePickerRef = useRef(null);
+  const inputRef = useRef(null);
+
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -41,6 +46,42 @@ export const TransactionDetail = () => {
       receiptFile: file,
     }));
   };
+
+  // Handle date picker selection
+  const handleDateSelect = (date) => {
+    if (date) {
+      const formattedDate = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+      handleInputChange("transferDate", formattedDate);
+    }
+    setIsDatePickerOpen(false);
+  };
+
+  // Handle input click to open date picker
+  const handleInputClick = () => {
+    setIsDatePickerOpen(true);
+  };
+
+  // Handle click outside to close date picker
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        datePickerRef.current &&
+        !datePickerRef.current.contains(event.target) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target)
+      ) {
+        setIsDatePickerOpen(false);
+      }
+    };
+
+    if (isDatePickerOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDatePickerOpen]);
 
   return (
     <div className="flex flex-col items-start gap-4 sm:gap-6 md:gap-8 px-3 sm:px-4 md:px-6 py-6 sm:py-8 md:py-12 relative bg-[#fef1e8] rounded-[20px] sm:rounded-[30px] md:rounded-[40px]">
@@ -82,22 +123,38 @@ export const TransactionDetail = () => {
                 تاريخ التحويل
               </label>
 
-              <div className="flex items-center justify-between px-3 sm:px-4 py-3 sm:py-4 md:py-5 relative self-stretch w-full bg-white rounded-[15px] sm:rounded-[18px] md:rounded-[20px] border-2 border-solid border-[#c8c9d5] focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20">
-                <input
-                  type="date"
-                  id="transferDate"
-                  value={formData.transferDate}
-                  onChange={(e) =>
-                    handleInputChange("transferDate", e.target.value)
-                  }
-                  className="font-normal text-[#c8c9d5] relative w-full text-sm sm:text-base tracking-[0] leading-6 bg-transparent border-none outline-none"
-                  placeholder="اختر التاريخ"
-                />
-                <div className="relative w-5 h-5 sm:w-6 sm:h-6 aspect-[1] flex-shrink-0">
-                  <div className="relative w-[18px] h-[18px] sm:w-[21px] sm:h-[21px] top-0.5 left-px">
-                    <TransactionCalenderIcon />
+              <div className="relative w-full">
+                <div className="flex items-center justify-between px-3 sm:px-4 py-3 sm:py-4 md:py-5 relative self-stretch w-full bg-white rounded-[15px] sm:rounded-[18px] md:rounded-[20px] border-2 border-solid border-[#c8c9d5] focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    id="transferDate"
+                    value={formData.transferDate}
+                    onClick={handleInputClick}
+                    readOnly
+                    className="font-normal text-[#c8c9d5] relative w-full text-sm sm:text-base tracking-[0] leading-6 bg-transparent border-none outline-none cursor-pointer"
+                    placeholder="اختر التاريخ"
+                  />
+                  <div className="relative w-5 h-5 sm:w-6 sm:h-6 aspect-[1] flex-shrink-0">
+                    <div className="relative w-[18px] h-[18px] sm:w-[21px] sm:h-[21px] top-0.5 left-px">
+                      <TransactionCalenderIcon />
+                    </div>
                   </div>
                 </div>
+
+                {/* Date Picker Dropdown */}
+                {isDatePickerOpen && (
+                  <div
+                    ref={datePickerRef}
+                    className="absolute top-full w-fit z-50 mt-2 bg-white rounded-[15px] sm:rounded-[18px] md:rounded-[20px] border-2 border-solid border-[#c8c9d5] shadow-lg"
+                  >
+                    <MyDatePicker
+                      selected={formData.transferDate ? new Date(formData.transferDate) : undefined}
+                      onSelect={handleDateSelect}
+                      onClose={() => setIsDatePickerOpen(false)}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

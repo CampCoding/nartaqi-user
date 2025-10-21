@@ -22,7 +22,7 @@ const TechnicalSupport = () => {
         ]}
       />
 
-      <Container className="mx-auto mt-6 sm:mt-8 lg:mt-[48px] mb-16 sm:mb-24 lg:mb-[132px] px-4 sm:px-6 lg:px-0">
+      <Container className="mx-auto mt-6 sm:mt-8 lg:mt-[48px] mb-16 sm:mb-24 lg:mb-[132px] ">
         <div className="flex flex-col items-start gap-4 sm:gap-6 relative mb-8 sm:mb-10 lg:mb-[48px]">
           <h1 className="font-bold text-primary text-xl sm:text-2xl tracking-[0] leading-[normal]">
             ما هي قنوات الدعم الفني؟
@@ -30,8 +30,8 @@ const TechnicalSupport = () => {
 
           <div className="flex flex-col items-start gap-6 sm:gap-8 self-stretch w-full relative flex-[0_0_auto]">
             {/* WhatsApp Support */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 relative flex-[0_0_auto] w-full sm:justify-between">
-              <div className="self-stretch w-full sm:w-[291px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 relative flex-[0_0_auto] w-full ">
+              <div className="self-stretch flex items-center  w-full sm:w-[291px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
                 المحادثة المباشرة في المنصة
               </div>
               <a
@@ -41,15 +41,15 @@ const TechnicalSupport = () => {
                 <div className="w-6 h-6 sm:w-6 sm:h-6 flex-shrink-0">
                   <WhatsappIcon />
                 </div>
-                <p className="w-fit font-semibold text-white text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal] text-center">
+                <p className="w-fit font-semibold  text-white text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal] text-center">
                   عبر واتساب من هنا
                 </p>
               </a>
             </div>
 
             {/* Email Support */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 justify-between self-stretch w-full relative flex-[0_0_auto]">
-              <div className="self-stretch w-full sm:w-[268px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6  self-stretch w-full relative flex-[0_0_auto]">
+              <div className="self-stretch w-full flex items-center  sm:w-[268px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
                 البريد الإلكتروني
               </div>
               <div className="inline-flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-3 relative flex-[0_0_auto] bg-primary rounded-[12px] sm:rounded-[15px] w-full sm:w-auto">

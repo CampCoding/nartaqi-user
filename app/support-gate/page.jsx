@@ -65,7 +65,7 @@ export default SupportGate;
 
 export const SupportSection = ({ data }) => {
   return (
-    <article className="flex flex-col items-start gap-4 rounded-[30px] border-[3px] border-solid bg-white p-4 md:gap-6 md:p-6 md:pb-8">
+    <article className="flex flex-col  items-start gap-4 rounded-[30px] border-[3px] border-solid bg-white p-4 md:gap-6 md:p-6 md:pb-8">
       {/* Header */}
       <header className="flex w-full flex-col items-start gap-2 self-stretch md:gap-3">
         <h1 className="self-stretch font-bold leading-tight tracking-[0] text-secondary text-xl md:text-[32px] md:leading-[normal]">
@@ -79,7 +79,7 @@ export const SupportSection = ({ data }) => {
       {/* Main (image + button) */}
       <main className="w-full self-stretch">
         <div
-          className="flex h-[240px] w-full items-center justify-center self-stretch rounded-3xl bg-cover bg-center md:h-[348px] md:rounded-[50px]"
+          className="flex h-[240px] w-full items-center justify-center self-stretch rounded-3xl bg-cover bg-center md:h-[582px] md:rounded-[50px]"
           style={{ backgroundImage: `url(${data.image})` }}
         >
           <button
