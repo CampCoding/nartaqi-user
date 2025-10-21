@@ -1,26 +1,123 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { InfoIcon } from "./../../public/svgs";
 
-const MockTestReview = () => {
+const MockTestReview = ({
+  testData,
+  answers,
+  markedForReview,
+  onNavigateToQuestion,
+  onBackToTest,
+  activeFilter,
+  setActiveFilter,
+}) => {
+  const [filteredQuestions, setFilteredQuestions] = useState([]);
+
+  // Calculate question statistics
+  const totalQuestions =
+    testData?.data.reduce(
+      (total, section) => total + section.questions.length,
+      0
+    ) || 0;
+
+  const completedQuestions = Object.keys(answers).length;
+  const flaggedQuestions = markedForReview.size;
+  const incompleteQuestions = totalQuestions - completedQuestions;
+
+  // Filter questions based on active filter
+  useEffect(() => {
+    if (!testData?.data) return;
+
+    let questions = [];
+    let questionNumber = 1;
+
+    testData.data.forEach((section, sectionIndex) => {
+      section.questions.forEach((question, questionIndex) => {
+        const answerKey = `${sectionIndex}-${questionIndex}`;
+        const isAnswered = answers[answerKey] !== undefined;
+        const isFlagged = markedForReview.has(answerKey);
+
+        questions.push({
+          ...question,
+          questionNumber,
+          sectionIndex,
+          questionIndex,
+          answerKey,
+          isAnswered,
+          isFlagged,
+          sectionName: section.section,
+        });
+
+        questionNumber++;
+      });
+    });
+
+    // Apply filter
+    switch (activeFilter) {
+      case "flagged":
+        questions = questions.filter((q) => q.isFlagged);
+        break;
+      case "incomplete":
+        questions = questions.filter((q) => !q.isAnswered);
+        break;
+      case "all":
+      default:
+        break;
+    }
+
+    setFilteredQuestions(questions);
+  }, [testData, answers, markedForReview, activeFilter]);
+
+  const handleQuestionClick = (question) => {
+    if (onNavigateToQuestion) {
+      onNavigateToQuestion(question.sectionIndex, question.questionIndex);
+    }
+  };
+
+  const getFilteredCount = () => {
+    switch (activeFilter) {
+      case "flagged":
+        return flaggedQuestions;
+      case "incomplete":
+        return incompleteQuestions;
+      case "all":
+      default:
+        return totalQuestions;
+    }
+  };
+
+  const getFilteredLabel = () => {
+    switch (activeFilter) {
+      case "flagged":
+        return "أسئلة مميزة";
+      case "incomplete":
+        return "أسئلة غير مكتملة";
+      case "all":
+      default:
+        return "جميع الأسئلة";
+    }
+  };
+
   return (
-    <div className="min-h-screen  bg-white pt-[48px] pb-[32px]">
-      <div className="container max-w-[1312px]  mx-auto ">
-        <div className="text-center  mb-[16px] justify-center text-text text-3xl font-bold  leading-[50px]">
+    <div className="min-h-screen bg-white pt-[48px] pb-[32px]">
+      <div className="container max-w-[1312px] mx-auto">
+        <div className="text-center mb-[16px] justify-center text-text text-3xl font-bold leading-[50px]">
           قسم المراجعة
         </div>
-        <div className=" w-full px-6 py-4 bg-primary-light rounded-2xl inline-flex justify-start items-center gap-4 mb-[24px]">
+
+        <div className="w-full px-6 py-4 bg-primary-light rounded-2xl inline-flex justify-start items-center gap-4 mb-[24px]">
           <div className="flex justify-start items-center gap-4">
             <InfoIcon />
-            <div className="text-right justify-center text-primary text-2xl font-semibold  leading-[50px]">
+            <div className="text-right justify-center text-primary text-2xl font-semibold leading-[50px]">
               التعليمات
             </div>
           </div>
         </div>
-        <div className=" text-right justify-center">
-          <span className="text-black text-base font-bold ">
+
+        <div className="text-right justify-center">
+          <span className="text-black text-base font-bold">
             فيما يلي ملخص الإجاباتك يمكنك مراجعة اسئلتك بثلاث (3) طرق مختلفة
           </span>
-          <span className="text-black text-base font-medium leading-loose ">
+          <span className="text-black text-base font-medium leading-loose">
             <br />
             الأزرار الموجودة في الركن السفلي الأيسر تطابق هذه الخيارات:
             <br />
@@ -38,82 +135,141 @@ const MockTestReview = () => {
           </span>
         </div>
 
-        <div className=" w-full px-6 py-4 bg-primary-light rounded-2xl inline-flex justify-between mt-[32px] items-center gap-4 mb-[24px]">
-          <div className="flex justify-start items-center gap-4">
-            <InfoIcon />
-            <div className="text-right justify-center text-primary text-2xl font-semibold  leading-[50px]">
-            القسم اللفظي
+        {/* Filter Buttons */}
+        {/* <div className="flex flex-wrap gap-4 mt-8 mb-6 justify-center">
+          <button
+            onClick={() => setActiveFilter("all")}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+              activeFilter === "all"
+                ? "bg-primary text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            مراجعة الكل ({totalQuestions})
+          </button>
+          <button
+            onClick={() => setActiveFilter("incomplete")}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+              activeFilter === "incomplete"
+                ? "bg-red-500 text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            مراجعة الغير مكتمل ({incompleteQuestions})
+          </button>
+          <button
+            onClick={() => setActiveFilter("flagged")}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+              activeFilter === "flagged"
+                ? "bg-orange-500 text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            مراجعة المميز بعلامة ({flaggedQuestions})
+          </button>
+        </div> */}
+
+        {/* Statistics */}
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">
+                {totalQuestions}
+              </div>
+              <div className="text-sm text-blue-800">إجمالي الأسئلة</div>
             </div>
           </div>
+          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {completedQuestions}
+              </div>
+              <div className="text-sm text-green-800">أسئلة مكتملة</div>
+            </div>
+          </div>
+          <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600">
+                {flaggedQuestions}
+              </div>
+              <div className="text-sm text-orange-800">أسئلة مميزة</div>
+            </div>
+          </div>
+        </div> */}
 
-          <div className="text-right justify-center text-text text-2xl font-semibold  leading-[50px]">24 أسئلة غير مكتمله</div>
+        {/* Section Header */}
+        <div className="w-full px-6 py-4 bg-primary-light rounded-2xl inline-flex justify-between mt-[32px] items-center gap-4 mb-[24px]">
+          <div className="flex justify-start items-center gap-4">
+            <InfoIcon />
+            <div className="text-right justify-center text-primary text-2xl font-semibold leading-[50px]">
+              { "القسم اللفظي"}
+            </div>
+          </div>
+          <div className="text-right justify-center text-text text-2xl font-semibold leading-[50px]">
+            {getFilteredCount()} {getFilteredLabel()}
+          </div>
         </div>
 
-
-        <div className="grid grid-cols-3 border-2 border-[#E4E4E7] rounded-[30px] overflow-hidden ">
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
-        <Review />
+        {/* Questions Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-2 border-[#E4E4E7] rounded-[30px] overflow-hidden">
+          {filteredQuestions.map((question) => (
+            <Review
+              key={question.answerKey}
+              question={question}
+              onClick={() => handleQuestionClick(question)}
+            />
+          ))}
         </div>
 
-
-
+        {/* Back to Test Button */}
+        {/* <div className="flex justify-center mt-8">
+          <button
+            onClick={onBackToTest}
+            className="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-200 font-medium text-lg"
+          >
+            العودة إلى الاختبار
+          </button>
+        </div> */}
       </div>
-        
     </div>
   );
 };
 
 export default MockTestReview;
 
+export const Review = ({ question, onClick }) => {
+  const getStatusColor = () => {
+    if (question.isAnswered) return "text-green-700";
+    return "text-red-700";
+  };
 
-// import React from "react";
-// import image from "./image.svg";
-// import vector2 from "./vector-2.svg";
-// import vector from "./vector.svg";
+  const getStatusText = () => {
+    if (question.isAnswered) return "مكتمل";
+    return "غير مكتمل";
+  };
 
-export const Review = ({isFlagged = true , isCompleted = true}) => {
   return (
-    <div className="flex items-center justify-between border border-[#E4E4E7] !px-4 !py-6 ">
-
-    <div className="flex items-center justify-start gap-2  relative">
-      {
-        isFlagged ? <FilledFlagIcon/> : <OutlinedFlagIcon />
-      }
-      <div className="relative w-fit  font-medium text-text text-base text-right tracking-[0] leading-[normal] whitespace-nowrap [direction:rtl]">
-        سؤال 1
+    <div
+      className="flex items-center justify-between border border-[#E4E4E7] !px-4 !py-6 cursor-pointer hover:bg-gray-50 transition-colors"
+      onClick={onClick}
+    >
+      <div className="flex items-center justify-start gap-2 relative">
+        {question.isFlagged ? <FilledFlagIcon /> : <OutlinedFlagIcon />}
+        <div className="relative w-fit font-medium text-text text-base text-right tracking-[0] leading-[normal] whitespace-nowrap [direction:rtl]">
+          سؤال {question.questionNumber}
+        </div>
       </div>
 
-    </div>
-
-    <div className="justify-start text-red-700 text-base font-medium font-noto">غير مكتمل</div>
+      <div
+        className={`justify-start text-base font-medium font-noto ${getStatusColor()}`}
+      >
+        {getStatusText()}
+      </div>
     </div>
   );
 };
 
-
-const FilledFlagIcon =  (props) => (
+const FilledFlagIcon = (props) => (
   <svg
     width={24}
     height={24}
@@ -145,7 +301,6 @@ const FilledFlagIcon =  (props) => (
     />
   </svg>
 );
-
 
 const OutlinedFlagIcon = (props) => (
   <svg

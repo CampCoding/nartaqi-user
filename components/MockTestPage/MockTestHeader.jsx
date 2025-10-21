@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Drawer, Button } from "antd";
 // If you're using icons, keep your existing ones:
 /// import { Menu } from "lucide-react";  // optional
@@ -12,8 +12,36 @@ export const MockExamHeader = ({
   isInReview,
   setInReview,
   drawerPlacement = "bottom", // 'bottom' feels natural on mobile; use 'left' if you prefer
+  fontSize = "normal",
+  onFontSizeChange,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isSelectOpen, setIsSelectOpen] = useState(false);
+  const selectRef = useRef(null);
+
+  const fontSizes = [
+    { value: "small", label: "صغير" },
+    { value: "normal", label: "عادي" },
+    { value: "large", label: "كبير" },
+    { value: "xlarge", label: "كبير جداً" },
+  ];
+
+  const currentFontSize =
+    fontSizes.find((fs) => fs.value === fontSize) || fontSizes[1];
+
+  // Close select when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setIsSelectOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const examData = {
     examTitle: "اختبار استراتيجيات التدريس الحديثة -",
@@ -55,29 +83,59 @@ export const MockExamHeader = ({
           {/* Mark for Review Button */}
           <button
             className={`inline-flex whitespace-nowrap items-center gap-2 px-0 py-2 sm:py-3 hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-opacity ${
-              isMarkedForReview ? "bg-white/20 rounded-lg" : ""
+              isMarkedForReview ? "bg-white/20 px-4 rounded-lg" : ""
             }`}
             aria-label={examData.markForReview}
             type="button"
             onClick={onMarkForReview}
           >
-            <FlagIcon />
+            <FlagIcon
+              className={isMarkedForReview ? "fill-white stroke-white rounded-lg" : "stroke-white"}
+            />
             <span className="text-white text-sm sm:text-base leading-[normal] tracking-[0] whitespace-nowrap">
               {examData.markForReview}
             </span>
           </button>
 
-          {/* Normal Line Button */}
-          <button
-            className="inline-flex whitespace-nowrap items-center gap-4 sm:gap-6 px-4 sm:px-6 py-2 sm:py-3 bg-white rounded-[16px] sm:rounded-[20px] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-opacity"
-            aria-label={examData.normalLine}
-            type="button"
-          >
-            <span className="font-medium text-[#2d2d2d] text-sm sm:text-base leading-[normal] tracking-[0] whitespace-nowrap">
-              {examData.normalLine}
-            </span>
-            <ChevronDownIcon />
-          </button>
+          {/* Custom Font Size Select */}
+          <div className="relative" ref={selectRef}>
+            <button
+              className="inline-flex whitespace-nowrap items-center gap-4 sm:gap-6 px-4 sm:px-6 py-2 sm:py-3 bg-white rounded-[16px] sm:rounded-[20px] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-opacity"
+              aria-label="تغيير حجم الخط"
+              type="button"
+              onClick={() => setIsSelectOpen(!isSelectOpen)}
+            >
+              <span className="font-medium text-[#2d2d2d] text-sm sm:text-base leading-[normal] tracking-[0] whitespace-nowrap">
+                حجم الخط: {currentFontSize.label}
+              </span>
+              <ChevronDownIcon
+                className={`transition-transform ${
+                  isSelectOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {isSelectOpen && (
+              <div className="absolute top-full right-0 mt-2 bg-white rounded-[16px] shadow-lg border border-gray-200 z-50 min-w-[160px]">
+                {fontSizes.map((option) => (
+                  <button
+                    key={option.value}
+                    className={`w-full text-right px-4 py-3 text-sm font-medium transition-colors first:rounded-t-[16px] last:rounded-b-[16px] hover:bg-gray-50 ${
+                      option.value === fontSize
+                        ? "bg-blue-50 text-blue-600"
+                        : "text-gray-700"
+                    }`}
+                    onClick={() => {
+                      onFontSizeChange?.(option.value);
+                      setIsSelectOpen(false);
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
@@ -122,17 +180,45 @@ export const MockExamHeader = ({
             </span>
           </button>
 
-          {/* Normal Line Button */}
-          <button
-            className="inline-flex items-center justify-between sm:gap-6 px-4 sm:px-6 py-2 sm:py-3 bg-white rounded  hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-opacity"
-            aria-label={examData.normalLine}
-            type="button"
-          >
-            <span className="font-medium text-[#2d2d2d] text-sm sm:text-base leading-[normal] tracking-[0] whitespace-nowrap">
-              {examData.normalLine}
-            </span>
-            <ChevronDownIcon />
-          </button>
+          {/* Custom Font Size Select */}
+          <div className="relative">
+            <button
+              className="inline-flex items-center justify-between sm:gap-6 px-4 sm:px-6 py-2 sm:py-3 bg-white rounded hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 transition-opacity"
+              aria-label="تغيير حجم الخط"
+              type="button"
+              onClick={() => setIsSelectOpen(!isSelectOpen)}
+            >
+              <span className="font-medium text-[#2d2d2d] text-sm sm:text-base leading-[normal] tracking-[0] whitespace-nowrap">
+                حجم الخط: {currentFontSize.label}
+              </span>
+              <ChevronDownIcon
+                className={`transition-transform ${
+                  isSelectOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {isSelectOpen && (
+              <div className="absolute top-full right-0 mt-2 bg-white rounded-[16px] shadow-lg border border-gray-200 z-50 min-w-[160px]">
+                {fontSizes.map((option) => (
+                  <button
+                    key={option.value}
+                    className={`w-full text-right px-4 py-3 text-sm font-medium transition-colors first:rounded-t-[16px] last:rounded-b-[16px] hover:bg-gray-50 ${
+                      option.value === fontSize
+                        ? "bg-blue-50 text-blue-600"
+                        : "text-gray-700"
+                    }`}
+                    onClick={() => {
+                      onFontSizeChange?.(option.value);
+                      setIsSelectOpen(false);
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -141,8 +227,10 @@ export const MockExamHeader = ({
   return (
     <header
       className="
-        bg-primary relative
-        px-4 py-4 sm:px-6 sm:py-6 md:px-10 md:py-8 lg:px-16 lg:py-12
+        sticky top-0
+        bg-primary
+        z-40 
+        px-4 py-4 sm:px-6 sm:py-6 md:px-10 md:py-8 lg:px-16 lg:py-6
         flex flex-col gap-4 md:flex-row flex-wrap md:items-center md:justify-between
       "
       role="banner"
@@ -156,7 +244,7 @@ export const MockExamHeader = ({
         <h1
           className="
              font-bold text-text
-            text-xl sm:text-2xl md:text-3xl leading-[normal] tracking-[0] mt-[-1px]
+            text-xl sm:text-xl md:text-xl leading-[normal] tracking-[0] mt-[-1px]
             max-w-full truncate
           "
           title={examData.examTitle}
@@ -164,7 +252,7 @@ export const MockExamHeader = ({
           {examData.examTitle}
         </h1>
         <div
-          className="font-medium text-text text-sm sm:text-base leading-[normal] tracking-[0] max-w-full truncate"
+          className="font-medium text-text text-xl sm:text-xl md:text-xl  leading-[normal] tracking-[0] max-w-full truncate"
           title={examData.studentName}
         >
           {examData.studentName}
@@ -220,8 +308,8 @@ export const MockExamHeader = ({
             </span>
           </div>
         }
-        bodyStyle={{ padding: 16, backgroundColor: "var(--color-primary)" }}
-        destroyOnClose
+        // bodyStyle={{ padding: 16, backgroundColor: "var(--color-primary)" }}
+        // destroyOnClose
       >
         <div
           className="

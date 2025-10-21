@@ -7,6 +7,7 @@ import { Instructions } from "../../../components/ExamDetailsPage/Instructions";
 import { Alerts } from "../../../components/ExamDetailsPage/Alerts";
 import ExamResults from "../../../components/ExamPage/ExamResults";
 import Link from "next/link";
+import Container from "../../../components/ui/Container";
 
 const ExamDetails = () => {
   const [showResults, setShowResults] = React.useState(false);
@@ -26,7 +27,7 @@ const ExamDetails = () => {
       />
 
       {!showResults && (
-        <div className="container mx-auto px-4 sm:px-8 lg:px-16 mt-6 sm:mt-8 lg:mt-10 mb-8 sm:mb-12 lg:mb-16">
+        <Container className=" mt-6 sm:mt-8 lg:mt-10 mb-8 sm:mb-12 lg:mb-16">
           <ExamDetailsHeader />
 
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start mt-6 sm:mt-8 lg:mt-10 mb-8 sm:mb-12 lg:mb-14 gap-6 sm:gap-8 lg:gap-12">
@@ -60,7 +61,7 @@ const ExamDetails = () => {
                 aria-label="إعاده الأختبار"
                 className="w-full sm:w-auto flex items-center justify-center gap-2.5 p-[2px] rounded-3xl bg-gradient-to-r from-primary to-secondary cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
-                <div className="flex items-center justify-center gap-2.5 px-8  w-full py-4 sm:py-4 bg-white rounded-3xl transition-all duration-200 hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                <div className="flex items-center justify-center gap-2.5 px-8 sm:px-12 lg:px-16 py-3 sm:py-4 w-full bg-white rounded-3xl transition-all duration-200 hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
                   <div className="text-secondary font-bold text-base sm:text-lg lg:text-xl leading-tight whitespace-nowrap">
                     إعاده الأختبار
                   </div>
@@ -79,7 +80,7 @@ const ExamDetails = () => {
               </div>
             </button>
           </div>
-        </div>
+        </Container>
       )}
 
       {showResults && (

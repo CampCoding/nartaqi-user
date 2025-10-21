@@ -20,7 +20,7 @@ export const ExamQuesionsSummery = ({
   };
 
   return (
-    <div className="flex flex-col items-start gap-2 sm:gap-3 lg:gap-4 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6 bg-white rounded-lg border border-solid border-variable-collection-stroke w-full max-w-[400px] sm:max-w-[500px] lg:max-w-[600px]">
+    <div className="flex flex-col items-start gap-2 sm:gap-3 lg:gap-4 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6 bg-white rounded-lg border border-solid border-variable-collection-stroke w-full max-w-[479px]">
       <div className="font-bold text-text text-lg sm:text-xl lg:text-2xl leading-tight sm:leading-relaxed text-center sm:text-right whitespace-nowrap">
         الأسئلة
       </div>
@@ -43,13 +43,13 @@ export const ExamQuesionsSummery = ({
 
       <div className="flex flex-col w-full items-center gap-2 sm:gap-3 lg:gap-4">
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 w-[120px] ">
+          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 w-[160px] ">
             <div className="bg-primary w-4 sm:w-5 lg:w-6 h-4 sm:h-5 lg:h-6 rounded-md" />
             <span className="font-medium text-text text-xs sm:text-sm lg:text-base leading-tight sm:leading-relaxed">
               الحالي
             </span>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 w-[120px]">
+          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 w-[160px]">
             <div className="bg-yellow-400 w-4 sm:w-5 lg:w-6 h-4 sm:h-5 lg:h-6 rounded-md" />
             <span className="font-medium text-text text-xs sm:text-sm lg:text-base leading-tight sm:leading-relaxed">
               المعلقة
@@ -58,15 +58,15 @@ export const ExamQuesionsSummery = ({
         </div>
 
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 w-[120px]">
+          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 w-[160px]">
             <div className="bg-secondary w-4 sm:w-5 lg:w-6 h-4 sm:h-5 lg:h-6 rounded-md" />
             <span className="font-medium text-text text-xs sm:text-sm lg:text-base leading-tight sm:leading-relaxed">
               المجاب عنه
             </span>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 w-[120px]">
+          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 w-[160px]">
             <div className="bg-[#d9d9d9] w-4 sm:w-5 lg:w-6 h-4 sm:h-5 lg:h-6 rounded-md" />
-            <span className="font-medium text-text text-xs sm:text-sm lg:text-base leading-tight sm:leading-relaxed">
+            <span className="font-medium text-text text-xs sm:text-sm lg:text-base leading-tight sm:leading-relaxed whitespace-nowrap">
               غير مجاب عنه
             </span>
           </div>

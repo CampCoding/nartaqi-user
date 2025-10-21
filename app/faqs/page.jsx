@@ -166,33 +166,61 @@ export const QuestionAccordion = ({ item }) => {
   const AnswerNotFound = () => {
     return (
       <div
-        className="h-[276px] flex   flex-col  items-center justify-center mt-[64px] mb-[105px]"
-        style={{
-          backgroundImage: `url('/images/FRAME (3).png')`,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="w-[202px] ">
-          <div className="  font-bold text-[#2d2d2d] leading-normal text-[32px] text-center  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
-            لم تجد إجابتك؟
-          </div>
+      className="
+        flex flex-col items-center justify-center
+        px-4
+        h-auto py-10 md:py-0 md:h-[276px]
+        mt-10 md:mt-[64px]
+        mb-16 md:mb-[105px]
+      "
+      style={{
+        backgroundImage: `url('/images/FRAME (3).png')`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="w-full max-w-[202px]">
+        <div className="
+          font-bold text-[#2d2d2d] leading-normal text-2xl md:text-[32px] text-center
+          overflow-hidden text-ellipsis whitespace-nowrap
+          [display:-webkit-box] sm:[-webkit-line-clamp:2] md:[-webkit-line-clamp:1] [-webkit-box-orient:vertical]
+        ">
+          لم تجد إجابتك؟
         </div>
-        <div className="w-[307px] mt-[24px] mb-[32px] ">
-          <p className="   text-text-alt text-2xl text-center leading-normal  whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
-            فريق الدعم لدينا هنا للمساعدة
-          </p>
-        </div>
-        <button
-          className="inline-flex items-center justify-center gap-2 px-8 py-4 relative bg-primary rounded-[20px] cursor-pointer transition-colors hover:bg-secondary-dark focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
-          type="button"
-          aria-label="الاتصال الدعم"
-        >
-          <div className="relative self-stretch text-bold w-[109px]  text-neutral-50 text-base text-center leading-5 whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] ">
-            الاتصال الدعم
-          </div>
-        </button>
       </div>
+    
+      <div className="w-full max-w-[307px] mt-3 md:mt-[24px] mb-6 md:mb-[32px]">
+        <p className="
+          text-text-alt text-xl md:text-2xl text-center leading-normal
+          overflow-hidden text-ellipsis
+          [display:-webkit-box] sm:[-webkit-line-clamp:2] md:[-webkit-line-clamp:1] [-webkit-box-orient:vertical]
+        ">
+          فريق الدعم لدينا هنا للمساعدة
+        </p>
+      </div>
+    
+      <button
+        type="button"
+        aria-label="الاتصال الدعم"
+        className="
+          inline-flex items-center justify-center gap-2
+         w-auto
+          px-6 md:px-8 py-3 md:py-4
+          bg-primary rounded-[20px] cursor-pointer
+          transition-colors hover:bg-secondary-dark
+          focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2
+        "
+      >
+        <span className="
+          text-neutral-50 text-sm md:text-base font-bold leading-5 text-center
+          overflow-hidden text-ellipsis whitespace-nowrap
+          [display:-webkit-box] sm:[-webkit-line-clamp:2] md:[-webkit-line-clamp:1] [-webkit-box-orient:vertical]
+        ">
+          الاتصال بالدعم
+        </span>
+      </button>
+    </div>
+    
     );
   };

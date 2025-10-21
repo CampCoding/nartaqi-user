@@ -8,16 +8,30 @@ const MockExamQuestion = ({
   passage,
   selectedAnswer,
   onAnswerSelect,
+  fontSize = "normal",
 }) => {
   if (!questionData) {
     return <div>جاري تحميل السؤال...</div>;
   }
 
+  // Font size mapping
+  const getFontSizeClass = (size) => {
+    const sizeMap = {
+      small: "text-sm",
+      normal: "text-base", 
+      large: "text-lg",
+      xlarge: "text-xl",
+    };
+    return sizeMap[size] || sizeMap.normal;
+  };
+
+  const textSizeClass = getFontSizeClass(fontSize);
+
   return (
     <div>
       {passage && (
         <div className=" mb-6">
-          <p className="flex items-center justify-center font-medium text-zinc-500 text-base tracking-[0] leading-[normal] [direction:rtl]">
+          <p className={`flex items-center justify-center font-medium text-zinc-500 ${textSizeClass} tracking-[0] leading-[normal] [direction:rtl]`}>
             &quot;{passage}&quot;
           </p>
         </div>
@@ -29,6 +43,7 @@ const MockExamQuestion = ({
           questionNumber={questionNumber}
           selectedAnswer={selectedAnswer}
           onAnswerSelect={onAnswerSelect}
+          fontSize={fontSize}
         />
       </div>
     </div>
@@ -42,21 +57,35 @@ export const SingleQuestion = ({
   questionNumber = 1,
   selectedAnswer,
   onAnswerSelect,
+  fontSize = "normal",
 }) => {
   const handleOptionChange = (optionId) => {
     onAnswerSelect(optionId);
   };
 
+  // Font size mapping
+  const getFontSizeClass = (size) => {
+    const sizeMap = {
+      small: "text-sm",
+      normal: "text-base", 
+      large: "text-lg",
+      xlarge: "text-xl",
+    };
+    return sizeMap[size] || sizeMap.normal;
+  };
+
+  const textSizeClass = getFontSizeClass(fontSize);
+
   return (
     <div className="flex flex-col items-start justify-center gap-12 px-0 py-2.5 relative">
       <div className="flex items-center justify-between w-full">
-        <p className="relative flex items-center justify-center mt-[-1.00px] font-bold text-text text-base tracking-[0] leading-[normal] [direction:rtl]">
+        <p className={`relative flex items-center justify-center mt-[-1.00px] font-bold text-text ${textSizeClass} tracking-[0] leading-[normal] [direction:rtl]`}>
           السؤال {questionNumber}:
           <br />
           {questionData.text}
         </p>
         {selectedAnswer && (
-          <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+          <div className={`bg-green-100 whitespace-nowrap text-green-800 px-3 py-1 rounded-full ${textSizeClass} font-medium`}>
             تم الإجابة
           </div>
         )}
@@ -77,7 +106,7 @@ export const SingleQuestion = ({
               onChange={() => handleOptionChange(option.id)}
               className="w-5 h-5 border-2 border-text-alt checked:bg-primary rounded-full checked:border-primary cursor-pointer"
             />
-            <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-black text-base tracking-[0] leading-[normal] [direction:rtl]">
+            <span className={`relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-black ${textSizeClass} tracking-[0] leading-[normal] [direction:rtl]`}>
               {option.text}
             </span>
           </label>

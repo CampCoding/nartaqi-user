@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { Timer } from "../../../../components/ExamPage/Timer";
 import ExamContent from "../../../../components/ExamPage/ExamContent";
 import { FixedResultHero } from "../../../../components/ExamPage/FixedResultHero";
+import Container from "../../../../components/ui/Container";
 
 const mockQuestions = [
   {
@@ -184,7 +185,7 @@ const ExamPage = () => {
   };
 
   return (
-    <div className="container mx-auto flex flex-col px-[64px] py-[48px]">
+    <Container className="flex flex-col  py-[48px]">
       <Timer
         currentQuestionIndex={currentIndex}
         totalQuestions={total}
@@ -207,7 +208,7 @@ const ExamPage = () => {
         onSubmit={handleSubmitTheExam}
       />
      <FixedResultHero open={isSubmitted} setOpen={setIsSubmitted} />
-    </div>
+    </Container>
   );
 };
 

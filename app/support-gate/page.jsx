@@ -68,10 +68,10 @@ export const SupportSection = ({ data }) => {
     <article className="flex flex-col items-start gap-4 rounded-[30px] border-[3px] border-solid bg-white p-4 md:gap-6 md:p-6 md:pb-8">
       {/* Header */}
       <header className="flex w-full flex-col items-start gap-2 self-stretch md:gap-3">
-        <h1 className="self-stretch font-bold leading-tight tracking-[0] text-secondary text-2xl md:text-[32px] md:leading-[normal]">
+        <h1 className="self-stretch font-bold leading-tight tracking-[0] text-secondary text-xl md:text-[32px] md:leading-[normal]">
           {data.title}
         </h1>
-        <p className="self-stretch text-base leading-[normal] text-text">
+        <p className="self-stretch   text-sm md:text-base leading-[normal] text-text">
           {data.description}
         </p>
       </header>
@@ -83,12 +83,12 @@ export const SupportSection = ({ data }) => {
           style={{ backgroundImage: `url(${data.image})` }}
         >
           <button
-            className="flex h-24 w-24 items-center justify-center rounded-full border-[6px] border-solid border-white bg-secondary transition-colors duration-200 hover:bg-secondary-dark focus:outline-none focus:ring-4 focus:ring-orange-300 md:h-[124px] md:w-[124px] md:border-8"
+            className="flex h-20 w-20 items-center justify-center rounded-full border-[4px] border-solid border-white bg-secondary transition-colors duration-200 hover:bg-secondary-dark focus:outline-none focus:ring-4 focus:ring-orange-300 md:h-[124px] md:w-[124px] md:border-8"
             aria-label={data.buttonAria || "تشغيل الفيديو"}
             type="button"
             onClick={data.onPlay}
           >
-            <div className="relative h-10 w-10 md:h-12 md:w-12">
+            <div className="relative h-7 w-7 md:h-12 md:w-12">
               {/* Play Icon */}
               <svg
                 viewBox="0 0 48 48"

@@ -285,7 +285,24 @@ const headerData = [
     key: "join",
     className: "text-text text-base leading-6 whitespace-nowrap",
     title: "انضم إلينا",
-    link:"/marketing-team"
+    items: [
+      {
+        id: 1,
+        title: "انضم إلينا كمدرب",
+        link: "/marketing-team",
+      },
+      {
+        id: 2,
+        title: "انضم إلينا كمسوق",
+        link: "/marketing-team",
+      },
+      {
+        id: 3,
+        title: "انضم إلينا كمشرف",
+        link: "/marketing-team",
+      },
+
+    ],
   
   },
 ];

@@ -21,7 +21,11 @@ const MockTest = () => {
             id: 1,
             text: "أي من الاستراتيجيات المذكورة في النص تهدف إلى دمج التعليم التقليدي مع التعليم الإلكتروني؟",
             options: [
-              { id: 0, text: "التعليم القائم على المشروعات", isCorrect: false },
+              {
+                id: 100,
+                text: "التعليم القائم على المشروعات",
+                isCorrect: false,
+              },
               { id: 1, text: "التعليم المدمج", isCorrect: true },
               { id: 2, text: "التعلم النشط", isCorrect: false },
               { id: 3, text: "التعليم التعاوني", isCorrect: false },
@@ -33,7 +37,7 @@ const MockTest = () => {
             id: 2,
             text: "ما الهدف الرئيسي من الاستراتيجيات المذكورة في النص؟",
             options: [
-              { id: 0, text: "زيادة عدد الطلاب", isCorrect: false },
+              { id: 100, text: "زيادة عدد الطلاب", isCorrect: false },
               {
                 id: 1,
                 text: "تحسين المهارات العملية والتفكير النقدي",
@@ -49,7 +53,7 @@ const MockTest = () => {
             id: 3,
             text: "أي من الاستراتيجيات التالية تركز على استخدام التكنولوجيا في الفصول؟",
             options: [
-              { id: 0, text: "التعليم التقليدي", isCorrect: false },
+              { id: 100, text: "التعليم التقليدي", isCorrect: false },
               {
                 id: 1,
                 text: "استخدام التكنولوجيا في الفصول الدراسية",
@@ -60,6 +64,163 @@ const MockTest = () => {
             ],
             explanation:
               "استخدام التكنولوجيا في الفصول الدراسية هو الاستراتيجية التي تركز على التكنولوجيا.",
+          },
+        ],
+      },
+      {
+        section: "Quantitative Section",
+        passage:
+          "الرياضيات هي لغة الكون، وتلعب دوراً أساسياً في فهم العالم من حولنا. من خلال الرياضيات، يمكننا حل المشكلات المعقدة واتخاذ القرارات المدروسة. تشمل الرياضيات مجالات متعددة مثل الجبر والهندسة والإحصاء والتفاضل والتكامل.",
+        questions: [
+          {
+            id: 4,
+            text: "ما هو المجال الرياضي الذي يتعامل مع الأشكال والمساحات؟",
+            options: [
+              { id: 100, text: "الجبر", isCorrect: false },
+              { id: 1, text: "الهندسة", isCorrect: true },
+              { id: 2, text: "الإحصاء", isCorrect: false },
+              { id: 3, text: "التفاضل والتكامل", isCorrect: false },
+            ],
+            explanation:
+              "الهندسة هي المجال الرياضي الذي يتعامل مع الأشكال والمساحات والأبعاد.",
+          },
+          {
+            id: 5,
+            text: "أي من المجالات التالية يساعد في تحليل البيانات؟",
+            options: [
+              { id: 100, text: "الجبر", isCorrect: false },
+              { id: 1, text: "الهندسة", isCorrect: false },
+              { id: 2, text: "الإحصاء", isCorrect: true },
+              { id: 3, text: "التفاضل والتكامل", isCorrect: false },
+            ],
+            explanation:
+              "الإحصاء هو المجال الرياضي الذي يساعد في تحليل البيانات واستخراج النتائج منها.",
+          },
+          {
+            id: 6,
+            text: "ما هو المجال الرياضي الذي يتعامل مع المعدلات والتغيير؟",
+            options: [
+              { id: 100, text: "الجبر", isCorrect: false },
+              { id: 1, text: "الهندسة", isCorrect: false },
+              { id: 2, text: "الإحصاء", isCorrect: false },
+              { id: 3, text: "التفاضل والتكامل", isCorrect: true },
+            ],
+            explanation:
+              "التفاضل والتكامل هو المجال الرياضي الذي يتعامل مع المعدلات والتغيير والحدود.",
+          },
+        ],
+      },
+      // === Add these two objects to testData.data ===
+
+      // Section 5: Reading Section
+      {
+        section: "Reading Section",
+        passage:
+          "تتطلّب المواطنة الرقمية من الطلاب فهم حقوقهم وواجباتهم أثناء استخدام الإنترنت، بما في ذلك احترام الخصوصية، والتحقق من موثوقية المصادر، والتواصل المسؤول. ويساعد دمج محو الأمية الإعلامية في المناهج على تنمية التفكير النقدي ومهارات التحقق من المعلومات قبل مشاركتها.",
+        questions: [
+          {
+            id: 13,
+            text: "ما العنصران اللذان يؤكد عليهما النص لتعزيز المواطنة الرقمية؟",
+            options: [
+              {
+                id: 100,
+                text: "التحميل العشوائي للمحتوى ونشره",
+                isCorrect: false,
+              },
+              {
+                id: 1,
+                text: "احترام الخصوصية والتحقق من المصادر",
+                isCorrect: true,
+              },
+              { id: 2, text: "الاكتفاء بالعناوين دون قراءة", isCorrect: false },
+              { id: 3, text: "تجاهل حقوق الآخرين الرقمية", isCorrect: false },
+            ],
+            explanation:
+              "يذكر النص احترام الخصوصية والتحقق من موثوقية المصادر كأساس للمواطنة الرقمية.",
+          },
+          {
+            id: 14,
+            text: "ما الفائدة التربوية من دمج محو الأمية الإعلامية في المناهج؟",
+            options: [
+              { id: 100, text: "زيادة وقت الشاشة فقط", isCorrect: false },
+              {
+                id: 1,
+                text: "تنمية التفكير النقدي والتحقق من المعلومات",
+                isCorrect: true,
+              },
+              {
+                id: 2,
+                text: "الاعتماد على الإشاعات الموثوقة!",
+                isCorrect: false,
+              },
+              { id: 3, text: "إلغاء الأنشطة الصفية", isCorrect: false },
+            ],
+            explanation:
+              "المحو الإعلامي يدعم التفكير النقدي ومهارات التحقق قبل مشاركة المعلومات.",
+          },
+          {
+            id: 15,
+            text: "أي ممارسة تعكس التواصل المسؤول عبر الإنترنت؟",
+            options: [
+              {
+                id: 100,
+                text: "نشر أخبار غير مؤكدة لزيادة التفاعل",
+                isCorrect: false,
+              },
+              {
+                id: 1,
+                text: "اختيار لغة محترمة وتوثيق الادعاءات",
+                isCorrect: true,
+              },
+              { id: 2, text: "مهاجمة الآراء المخالفة", isCorrect: false },
+              { id: 3, text: "تجاهل قواعد المنصة", isCorrect: false },
+            ],
+            explanation:
+              "التواصل المسؤول يتضمن لغة محترمة وتوثيق الادعاءات بالمصادر.",
+          },
+        ],
+      },
+
+      // Section 6: Quantitative Section
+      {
+        section: "Quantitative Section",
+        passage:
+          "نفّذت مدرسة برنامجاً رقمياً لتحسين التحصيل. شارك 60٪ من أصل 240 طالباً في دورات إلكترونية. ارتفع متوسط الدرجات العامة من 72 إلى 81 بعد فصل دراسي واحد. خُصصت ميزانية قدرها 50,000 ريال: 40٪ للأجهزة، و35٪ للتدريب، والباقي للصيانة.",
+        questions: [
+          {
+            id: 16,
+            text: "كم عدد الطلاب الذين شاركوا في الدورات الإلكترونية؟",
+            options: [
+              { id: 100, text: "120 طالباً", isCorrect: false },
+              { id: 1, text: "144 طالباً", isCorrect: true }, // 0.60 × 240 = 144
+              { id: 2, text: "160 طالباً", isCorrect: false },
+              { id: 3, text: "180 طالباً", isCorrect: false },
+            ],
+            explanation: "%60 من 240 = 0.60 × 240 = 144 طالباً.",
+          },
+          {
+            id: 17,
+            text: "ما نسبة الزيادة المئوية في المتوسط العام للدرجات؟",
+            options: [
+              { id: 100, text: "9٪", isCorrect: false },
+              { id: 1, text: "12.5٪", isCorrect: true }, // (81−72)/72 = 9/72 = 0.125 = 12.5%
+              { id: 2, text: "15٪", isCorrect: false },
+              { id: 3, text: "18٪", isCorrect: false },
+            ],
+            explanation:
+              "نسبة الزيادة = (81 − 72) ÷ 72 = 9 ÷ 72 = 0.125 = 12.5٪.",
+          },
+          {
+            id: 18,
+            text: "ما المبلغ المخصّص للصيانة؟",
+            options: [
+              { id: 100, text: "10,000 ريال", isCorrect: false },
+              { id: 1, text: "12,500 ريال", isCorrect: true }, // الباقي = 25% من 50,000
+              { id: 2, text: "15,000 ريال", isCorrect: false },
+              { id: 3, text: "17,500 ريال", isCorrect: false },
+            ],
+            explanation:
+              "الأجهزة 40٪ والتدريب 35٪ = 75٪؛ الباقي 25٪ من 50,000 = 12,500 ريال.",
           },
         ],
       },
@@ -74,6 +235,9 @@ const MockTest = () => {
   const [timeRemaining, setTimeRemaining] = useState(60 * 60); // 60 minutes in seconds
   const [isStart, setIsStart] = useState(false);
   const [isInReview, setIsInReview] = useState(false);
+  const [fontSize, setFontSize] = useState("normal");
+  const [activeFilter, setActiveFilter] = useState("all");
+
   // Timer effect
   useEffect(() => {
     const timer = setInterval(() => {
@@ -147,6 +311,22 @@ const MockTest = () => {
     });
   };
 
+  // Handle font size change
+  const handleFontSizeChange = (newFontSize) => {
+    setFontSize(newFontSize);
+  };
+
+  // Font size mapping
+  const getFontSizeClass = (size) => {
+    const sizeMap = {
+      small: "text-sm",
+      normal: "text-base",
+      large: "text-lg",
+      xlarge: "text-xl",
+    };
+    return sizeMap[size] || sizeMap.normal;
+  };
+
   // Handle test submission
   const handleSubmitTest = () => {
     // Calculate score
@@ -195,13 +375,28 @@ const MockTest = () => {
         isMarkedForReview={markedForReview.has(
           `${currentSection}-${currentQuestion}`
         )}
+        fontSize={fontSize}
+        onFontSizeChange={handleFontSizeChange}
       />
 
       {isInReview ? (
-        <MockTestReview />
+        <MockTestReview
+          testData={testData}
+          answers={answers}
+          setIsInReview={setIsInReview}
+          markedForReview={markedForReview}
+          onNavigateToQuestion={(sectionIndex, questionIndex) => {
+            setCurrentSection(sectionIndex);
+            setCurrentQuestion(questionIndex);
+            setIsInReview(false);
+          }}
+          onBackToTest={() => setIsInReview(false)}
+          activeFilter={activeFilter}
+          setActiveFilter={setActiveFilter}
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2  gap-4 md:gap-[32px] min-h-screen">
-          <div className="bg-white px-6 md:px-[64px] py-[32px]">
+        <div className="grid grid-cols-1 md:grid-cols-2  h-auto md:h-[calc(100vh-235px)]   gap-4 md:gap-[32px] ]">
+          <div className="bg-white px-6 md:px-[64px] overflow-auto custom-scroll py-[32px]">
             {isStart ? (
               <MockExamQuestion
                 questionData={currentQuestionData}
@@ -214,6 +409,7 @@ const MockTest = () => {
                     optionId
                   )
                 }
+                fontSize={fontSize}
               />
             ) : (
               <VerbalSection />
@@ -222,7 +418,11 @@ const MockTest = () => {
 
           <div className="bg-white  p-6  md:p-[64px]">
             {isStart ? (
-              <p className="  flex flex-col   font-normal text-[#be1919] text-base tracking-[0] leading-[normal] [direction:rtl]">
+              <p
+                className={`flex flex-col font-normal text-[#be1919] ${getFontSizeClass(
+                  fontSize
+                )} tracking-[0] leading-[normal] [direction:rtl]`}
+              >
                 <span className="font-bold">استيعاب المقروء</span>
 
                 <span className=" font-medium">
@@ -249,9 +449,12 @@ const MockTest = () => {
         canGoNext={
           currentQuestion <
             testData.data[currentSection].questions.length - 1 ||
-          currentSection < testData.length - 1
+          currentSection < testData.data.length - 1
         }
         isLastQuestion={currentQuestionNumber === totalQuestions}
+        fontSize={fontSize}
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
       />
     </div>
   );

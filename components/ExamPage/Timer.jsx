@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 export const Timer = ({
   currentQuestionIndex = 0,
@@ -11,21 +11,53 @@ export const Timer = ({
   setIsStarted,
 }) => {
   const [remainingSeconds, setRemainingSeconds] = useState(initialSeconds);
+  const hasFiredRef = useRef(false);
+  const intervalRef = useRef(null);
 
-  useEffect(() => {
-    if (remainingSeconds <= 0) {
-      if (onTimeUp) onTimeUp();
-      return;
-    }
-    const id = setInterval(() => {
-      setRemainingSeconds((s) => (s > 0 ? s - 1 : 0));
-    }, 1000);
-    return () => clearInterval(id);
-  }, [remainingSeconds, onTimeUp, isStarted]);
-
+  // Reset when initialSeconds changes (and allow time-up to fire again)
   useEffect(() => {
     setRemainingSeconds(initialSeconds);
-  }, [initialSeconds]);
+    hasFiredRef.current = false;
+    // optional: if you want auto-start on reset, uncomment:
+    // setIsStarted?.(true);
+  }, [initialSeconds, setIsStarted]);
+
+  // Ticking logic (runs only while started and time > 0)
+  useEffect(() => {
+    // stop if not started or already at 0
+    if (!isStarted || remainingSeconds <= 0) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
+    }
+
+    intervalRef.current = setInterval(() => {
+      setRemainingSeconds((s) => (s > 0 ? s - 1 : 0));
+    }, 1000);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [isStarted, remainingSeconds]);
+
+  // Fire onTimeUp exactly once when we hit 0
+  useEffect(() => {
+    if (remainingSeconds === 0 && !hasFiredRef.current) {
+      hasFiredRef.current = true;
+      // stop ticking (if any) and mark as not started (optional)
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      setIsStarted?.(false);
+      onTimeUp?.();
+    }
+  }, [remainingSeconds, onTimeUp, setIsStarted]);
 
   const timeLabel = useMemo(() => {
     const m = Math.floor(remainingSeconds / 60)
@@ -38,16 +70,24 @@ export const Timer = ({
   }, [remainingSeconds]);
 
   return (
-    <div className="flex flex-col gap-4 md-flex justify-between w-full mb-12 sm:mb-16 lg:mb-20">
-      <div className="flex flex-col justify-center items-start gap-6 sm:gap-8 lg:gap-10">
+    <div className="flex flex-col  md:items-center gap-4 md:flex-row justify-between w-full mb-12 sm:mb-16 lg:mb-20">
+      <div className="flex flex-col  order-2 md:order-1 justify-center items-start gap-6 sm:gap-8 lg:gap-10">
         <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-text text-right sm:text-right">
           اختبار استراتيجيات التدريس الحديثة
         </div>
+        {
+          isStarted && 
         <div className="text-text-alt text-xl sm:text-2xl lg:text-3xl font-medium text-center sm:text-right">
           {`السؤال ${currentQuestionIndex + 1} من ${totalQuestions}`}
         </div>
+        }
       </div>
-      <div className="flex items-center min-h-[80px] order-[-1] md:order-[-1] justify-end gap-2 sm:gap-3 lg:gap-4 px-4 sm:px-6 lg:px-12 py-2 sm:py-3 lg:py-4 bg-primary-light rounded-lg sm:rounded-xl lg:rounded-2xl">
+
+      <div
+        className="flex items-center  order-1 md:order-2    w-fit  py-4 md:min-h-[80px]  justify-end gap-2 sm:gap-3 lg:gap-4 px-4 sm:px-6 lg:px-12  sm:py-3 lg:py-4 bg-primary-light rounded-lg sm:rounded-xl lg:rounded-2xl"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         <ClockReminderIcon className="fill-primary w-5 sm:w-6 lg:w-7 h-5 sm:h-6 lg:h-7" />
         <div className="font-bold text-text text-sm sm:text-base lg:text-lg leading-tight sm:leading-relaxed text-center sm:text-right whitespace-nowrap">
           {`الوقت المتبقي:\u00A0\u00A0${timeLabel}`}

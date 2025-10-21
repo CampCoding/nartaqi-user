@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-
-
+import QuestionInfoPopup from "../ui/QuestionInfoPopup";
+import { ConfirmationPopup } from "../ui/ConfirmationPopup";
+import { SuccessPopup } from "../ui/SuccessPopup";
 
 /* keep your icons as-is */
 
@@ -15,9 +16,21 @@ export const MockTestFooter = ({
   isStart,
   isInReview,
   setIsInReview,
+  fontSize = "normal",
+  setActiveFilter,
+  activeFilter,
 }) => {
+  const [isQuestionInfoOpen, setIsQuestionInfoOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   if (isInReview) {
-    return <ReviewFooter />;
+    return (
+      <ReviewFooter
+        setActiveFilter={setActiveFilter}
+        activeFilter={activeFilter}
+        setIsInReview={setIsInReview}
+      />
+    );
   }
 
   return (
@@ -33,21 +46,24 @@ export const MockTestFooter = ({
       role="banner"
     >
       {/* left block */}
-      <div
+      <button
         className="
           flex items-center justify-end gap-2 px-0 py-3 relative
           w-auto
           md:w-[191px]
           md:justify-end
+          hover:opacity-80 transition-opacity
+          focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50
         "
-        role="region"
+        role="button"
         aria-label="معلومات السؤال"
+        onClick={() => setIsQuestionInfoOpen(true)}
       >
         <BookIcon />
         <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-sm sm:text-base tracking-[0] leading-[50px] whitespace-nowrap [direction:rtl]">
           معلومات السؤال
         </span>
-      </div>
+      </button>
 
       {/* middle button */}
       <button
@@ -58,9 +74,10 @@ export const MockTestFooter = ({
         "
         role="region"
         aria-label="صفحة المراجعة"
-        onClick={() =>
-          alert("صفحة المراجعة - يمكنك هنا مراجعة جميع الأسئلة والإجابات")
-        }
+        onClick={() => {
+          alert("صفحة المراجعة - يمكنك هنا مراجعة جميع الأسئلة والإجابات");
+          setIsInReview(true);
+        }}
       >
         <InfoIcon />
         <h1 className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-sm sm:text-base tracking-[0] leading-[50px] whitespace-nowrap [direction:rtl]">
@@ -82,7 +99,9 @@ export const MockTestFooter = ({
         >
           <button
             className={`inline-flex gap-[5px] items-center relative ${
-              !canGoPrevious ? "opacity-50 cursor-not-allowed" : "hover:opacity-80"
+              !canGoPrevious
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:opacity-80"
             }`}
             type="button"
             aria-label="السابق"
@@ -101,12 +120,12 @@ export const MockTestFooter = ({
             className="inline-flex gap-[5px] items-center relative hover:opacity-80"
             type="button"
             aria-label={isLastQuestion ? "إرسال الاختبار" : "التالي"}
-            onClick={isLastQuestion ? onSubmit : onNext}
-            disabled={!canGoNext}
+            onClick={isLastQuestion ? () => setIsConfirmOpen(true) : onNext}
+            // disabled={!canGoNext}
           >
-            <div className="flex w-[68px] justify-center gap-2.5 px-4 py-1 bg-primary-dark rounded-[10px] items-center relative">
-              <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-sm sm:text-base tracking-[0] leading-[normal] [direction:rtl]">
-                {isLastQuestion ? "إرسال" : "التالي"}
+            <div className="flex w-fit cursor-pointer justify-center gap-2.5 px-4 py-1 bg-primary-dark rounded-[10px] items-center relative">
+              <span className="relative flex whitespace-nowrap items-center justify-center w-fit mt-[-1.00px] font-medium text-white text-sm sm:text-base tracking-[0] leading-[normal] [direction:rtl]">
+                {isLastQuestion ? "إنهاء الاختبار" : "التالي"}
               </span>
             </div>
             <TriangleLeft />
@@ -138,13 +157,49 @@ export const MockTestFooter = ({
           </button>
         </nav>
       )}
+
+      {/* Question Info Popup */}
+      <QuestionInfoPopup
+        isOpen={isQuestionInfoOpen}
+        onClose={() => setIsQuestionInfoOpen(false)}
+        fontSize={fontSize}
+      />
+
+      {/* Confirmation Popup */}
+      <ConfirmationPopup
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={() => {
+          setIsConfirmOpen(false);
+          // onSubmit();
+          // Show success popup after a short delay
+          setTimeout(() => {
+            setIsSuccessOpen(true);
+          }, 500);
+        }}
+        title="إنهاء الاختبار"
+        message="هل أنت متأكد من أنك تريد إنهاء الاختبار؟ لن تتمكن من العودة لتعديل إجاباتك بعد الإرسال."
+        confirmText="إنهاء الاختبار"
+        cancelText="إلغاء"
+      />
+
+      {/* Success Popup */}
+      <SuccessPopup
+        isOpen={isSuccessOpen}
+        onClose={() => setIsSuccessOpen(false)}
+        title="تم إرسال الاختبار بنجاح!"
+        message="تم إرسال إجاباتك بنجاح. يمكنك الآن مراجعة النتائج أو العودة للصفحة الرئيسية."
+        buttonText="موافق"
+      />
     </header>
   );
 };
 
-export const ReviewFooter = () => {
-  const [activeFilter, setActiveFilter] = useState(null);
-
+export const ReviewFooter = ({
+  activeFilter,
+  setActiveFilter,
+  setIsInReview,
+}) => {
   const filterButtons = [
     { id: "flagged", text: "مراجعة المميز بعلامة", icon: <OutlinedFlagIcon /> },
     { id: "incomplete", text: "مراجعة الغير مكتمل", icon: <RoundedXIcon /> },
@@ -153,7 +208,7 @@ export const ReviewFooter = () => {
 
   const handleFilterClick = (filterId) => setActiveFilter(filterId);
   const handleFinishReview = () => {
-    console.log("Finishing review...");
+    setIsInReview(false);
   };
 
   return (
@@ -224,7 +279,6 @@ export const ReviewFooter = () => {
     </header>
   );
 };
-
 
 const BookIcon = (props) => (
   <svg

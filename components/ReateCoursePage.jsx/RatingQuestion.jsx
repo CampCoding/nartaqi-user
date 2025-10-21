@@ -96,21 +96,37 @@ export function RatingQuestion({
   };
 
   return (
-    <div className="flex flex-col items-start gap-4 relative" dir={dir}>
+    <div
+      className="flex flex-col items-start gap-3 sm:gap-4 w-full max-w-full"
+      dir={dir}
+    >
       {/* Question */}
-      <div className="items-center justify-center gap-2.5 px-4 py-0 flex relative self-stretch w-full">
-        <p className="flex-1 -mt-px font-bold text-text relative flex items-center justify-start text-base tracking-[0] leading-[50px]">
+      <div className="flex items-center w-full px-3 sm:px-4">
+        <p
+          className={cx(
+            "flex-1 font-bold text-text",
+            // أحجام مرنة بدون تغيير الشكل العام
+            "text-sm leading-7 sm:text-base sm:leading-[50px]"
+          )}
+        >
           {question}
           {required && <span className="mr-2 text-red-600">*</span>}
         </p>
       </div>
+
+      {/* Helper (اختياري) */}
+      {helperText && (
+        <div className="w-full px-3 sm:px-4 -mt-2">
+          <p className="text-xs sm:text-sm text-zinc-500">{helperText}</p>
+        </div>
+      )}
 
       {/* Radio Group */}
       <div
         role="radiogroup"
         aria-labelledby={`${groupId}-label`}
         onKeyDown={onKeyDown}
-        className="flex-col items-start gap-6 flex relative self-stretch w-full"
+        className="flex flex-col items-start gap-3 sm:gap-6 w-full  sm:px-0"
       >
         <span id={`${groupId}-label`} className="sr-only">
           {question}
@@ -118,9 +134,7 @@ export function RatingQuestion({
 
         {options.map((opt, i) => {
           const isSelected = selectedVal === opt.value;
-          const border = isSelected
-            ? "border-secondary"
-            : "border-zinc-200";
+          const border = isSelected ? "border-secondary" : "border-zinc-200";
           const text = isSelected
             ? "text-secondary font-semibold"
             : "text-text";
@@ -138,29 +152,34 @@ export function RatingQuestion({
               ref={(el) => (itemsRefs.current[i] = el)}
               onClick={() => handleSelect(opt)}
               className={cx(
-                "items-center justify-start gap-2  p-4 rounded-[30px] border-[3px] border-solid flex relative self-stretch w-full",
+                // نفس الشكل الأساسي مع تحسينات استجابة طفيفة
+                "flex items-center justify-start gap-2 sm:gap-3",
+                "w-full relative border-[3px] border-solid rounded-[30px]",
+                // مسافات داخلية مرنة على الشاشات الصغيرة
+                "p-3 sm:p-4",
                 border,
                 ring,
-                disabledCls
+                disabledCls,
+                // تحسين وضوح التركيز للمستخدمين بلوحة المفاتيح
+                "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:ring-orange-300"
               )}
             >
               {/* Visual radio */}
               <span
                 className={cx(
-                  "relative w-6 h-6 inline-grid place-items-center rounded-full border-[2px]",
-                  isSelected
-                    ? "border-secondary"
-                    : "border-zinc-300"
+                  "grid place-items-center rounded-full border-[2px]",
+                  // تكبير طفيف لسهولة اللمس على الموبايل
+                  "w-6 h-6",
+                  isSelected ? "border-secondary" : "border-zinc-300"
                 )}
                 aria-hidden="true"
               >
                 <span
                   className={cx(
-                    "block w-[12px] h-[12px] rounded-full",
-                    isSelected
-                      ? "bg-secondary scale-100"
-                      : "bg-transparent scale-75",
-                    "transition-transform"
+                    "block rounded-full transition-transform",
+                    // نفس المقاس العام مع الحفاظ على الإحساس البصري
+                    "w-[12px] h-[12px]",
+                    isSelected ? "bg-secondary scale-100" : "bg-transparent scale-75"
                   )}
                 />
               </span>
@@ -168,7 +187,11 @@ export function RatingQuestion({
               {/* Label */}
               <div
                 className={cx(
-                  "relative flex items-center justify-center w-fit -mt-[3px] text-base tracking-[0] leading-[50px] whitespace-nowrap",
+                  "relative flex items-center",
+                  // على الشاشات الصغيرة اسمح بالالتفاف لمنع القص
+                  "text-sm sm:text-base",
+                  "leading-7 sm:leading-[50px]",
+                  "whitespace-normal sm:whitespace-nowrap",
                   text
                 )}
               >
@@ -192,7 +215,13 @@ export function RatingQuestion({
                 <input
                   type="text"
                   placeholder="اذكر التفاصيل..."
-                  className="ml-auto mr-4 w-full max-w-md rounded-2xl border border-zinc-300 px-4 py-2 text-base leading-7 outline-none focus:ring-2 focus:ring-orange-300"
+                  className={cx(
+                    // يحافظ على نفس الروح لكن قابل للتمدد على الشاشات الصغيرة
+                    "ml-auto mr-2 sm:mr-4 w-full max-w-full sm:max-w-md",
+                    "rounded-2xl border border-zinc-300 px-3 sm:px-4 py-2",
+                    "text-sm sm:text-base leading-6 sm:leading-7",
+                    "outline-none focus:ring-2 focus:ring-orange-300"
+                  )}
                   value={
                     typeof selected === "object" && selected.value === opt.value
                       ? selected.text || ""

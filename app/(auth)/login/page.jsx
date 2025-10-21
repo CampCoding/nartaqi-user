@@ -1,13 +1,14 @@
 "use client";
 
-import { Radio } from "antd";
+import { Radio, Dropdown, Menu } from "antd";
 import React, { useState } from "react";
 import RadioButtons from "../../../components/ui/RadioButtons";
-import { SaudiIcon } from "../../../public/svgs";
+import { SaudiIcon, EgyptianIcon } from "../../../public/svgs";
 import { Eye } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "../../../lib/useUser.jsx";
 import { useRouter } from "next/navigation";
+import Container from "../../../components/ui/Container";
 
 const LoginPage = () => {
   const [value1, setValue1] = useState("Apple");
@@ -42,8 +43,8 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row lg:justify-between overflow-hidden">
-      <div className="flex-1 flex justify-center items-center mx-auto flex-col py-8 md:py-16 lg:py-[64px] px-4 sm:px-6 md:px-8 max-w-[604px] w-full">
+    <div className="flex flex-col lg:flex-row lg:justify-between overflow-hidden min-h-[calc(100vh-64px)])]">
+      <div className="flex-1 flex justify-center items-center mx-auto flex-col py-8 md:py-16 lg:py-[64px] pl-4 sm:pl-6 md:pl-8 max-w-[719px] w-full">
         <div className="inline-flex flex-col items-center gap-3 md:gap-4 relative mb-8 md:mb-12 lg:mb-[48px]">
           <img
             className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-[100px] md:h-[95.42px] aspect-[1.05]"
@@ -121,7 +122,7 @@ const LoginPage = () => {
       </div>
 
       <div
-        className="w-full h-32 sm:h-48 md:h-64 hidden md:block lg:w-[592px] lg:h-auto relative select-none"
+        className="w-full h-32  sm:h-48 md:h-64 hidden lg:block lg:w-[50%] lg:h-auto relative select-none"
         style={{
           backgroundImage: `url("/images/logo-banner.png")`,
           backgroundSize: "cover",
@@ -164,6 +165,66 @@ export const TelephoneButon = ({
   placeholder = "123456789",
   ...props
 }) => {
+  const [selectedCountry, setSelectedCountry] = useState({
+    code: "+966",
+    name: "Saudi Arabia",
+    icon: SaudiIcon,
+  });
+
+  const countries = [
+    {
+      code: "+966",
+      name: "Saudi Arabia",
+      icon: SaudiIcon,
+    },
+    {
+      code: "+20",
+      name: "Egypt",
+      icon: EgyptianIcon,
+    },
+  ];
+
+  const handleCountrySelect = ({ key }) => {
+    const country = countries.find((c) => c.code === key);
+    if (country) {
+      setSelectedCountry(country);
+    }
+  };
+
+  const menu = (
+    <Menu onClick={handleCountrySelect} className="min-w-[200px]">
+      {countries.map((country) => (
+        <Menu.Item
+          key={country.code}
+          className="flex items-center gap-3 px-4 py-3"
+        >
+          <div className="w-5 h-5">
+            <country.icon />
+          </div>
+          <div className="flex-1">
+            <div className="font-medium text-sm text-gray-900">
+              {country.name}
+            </div>
+            <div className="text-xs text-gray-500">{country.code}</div>
+          </div>
+          {selectedCountry.code === country.code && (
+            <svg
+              className="w-4 h-4 text-primary"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          )}
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+
   return (
     <div className="flex flex-col items-start gap-2 relative w-full">
       <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
@@ -180,14 +241,29 @@ export const TelephoneButon = ({
           placeholder={placeholder}
           {...props}
         />
-        <div className="inline-flex items-center gap-1 sm:gap-2.5 px-2 sm:px-4 relative flex-[0_0_auto] border-r-2 [border-right-style:solid] border-variable-collection-stroke">
-          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold text-text text-sm sm:text-base text-right tracking-[0] leading-[normal]">
-            +966
+        <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+          <div className="inline-flex items-center gap-1 sm:gap-2.5 px-2 sm:px-4 relative flex-[0_0_auto] border-r-2 [border-right-style:solid] border-variable-collection-stroke cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
+            <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold text-text text-sm sm:text-base text-right tracking-[0] leading-[normal]">
+              {selectedCountry.code}
+            </div>
+            <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6">
+              <selectedCountry.icon />
+            </div>
+            <svg
+              className="w-3 h-3 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
           </div>
-          <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6">
-            <SaudiIcon />
-          </div>
-        </div>
+        </Dropdown>
       </div>
     </div>
   );

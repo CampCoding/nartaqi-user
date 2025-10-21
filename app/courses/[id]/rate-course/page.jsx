@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import PagesBanner from "../../../../components/ui/PagesBanner";
 import { RatingQuestion } from "../../../../components/ReateCoursePage.jsx/RatingQuestion";
 import RateDone from "./RateDone";
+import Container from "../../../../components/ui/Container";
 
 /* Simple Text Question */
 function TextQuestion({
@@ -195,8 +196,8 @@ export default function RateCoursePage() {
           <RateDone />
         </div>
       ) : (
-        <div
-          className="container px-3 md:px-12 mx-auto mt-8 md:mt-12 mb-16 md:mb-24"
+        <Container
+          className=" mt-8 md:mt-12 mb-16 md:mb-24"
           dir="rtl"
         >
           <div className="flex flex-col gap-8 md:gap-12">
@@ -267,7 +268,7 @@ export default function RateCoursePage() {
               </span>
             </button>
           </div>
-        </div>
+        </Container>
       )}
     </div>
   );

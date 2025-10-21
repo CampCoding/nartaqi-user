@@ -268,7 +268,7 @@ const SwiperEffect = () => {
         </p>
       </div>
       <div className="w-full flex justify-center">
-        <Swiper {...bigScreenSwiperConfigrations} className="mySwiper ">
+        <Swiper {...bigScreenSwiperConfigrations} className="mySwiper !py-10">
           {firstsStudents?.map((item, index) => (
             <SwiperSlide
               key={index}
@@ -281,6 +281,9 @@ const SwiperEffect = () => {
             </SwiperSlide>
           ))}
         </Swiper>
+        <style jsx>{`
+          
+        `}</style>
       </div>
       </Container>
 

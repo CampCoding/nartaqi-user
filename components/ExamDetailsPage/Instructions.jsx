@@ -7,7 +7,7 @@ import React from "react";
 export const Instructions = () => {
   return (
     <div className="flex flex-col items-start gap-2 sm:gap-4 lg:gap-6 w-full">
-      <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-3 lg:gap-4 w-full">
+      <div className="flex items-center justify-start sm:justify-start gap-2 sm:gap-3 lg:gap-4 w-full">
         <InfoIcon className="fill-primary w-5 sm:w-6 lg:w-7 h-5 sm:h-6 lg:h-7 flex-shrink-0" />
         <div className="font-bold text-primary text-xl sm:text-2xl lg:text-3xl leading-tight">
           التعليمات

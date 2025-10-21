@@ -20,7 +20,7 @@ const CourseDetailsContent = () => {
 
   return (
     <div className="flex flex-col gap-4 md:gap-[56px]">
-      <div className=" sticky md:static py-4   z-30  bg-white md:bg-transparent top-[83px]  inline-flex gap-8 md:gap-[45px] items-center overflow-auto hidden-scroll">
+      <div className=" sticky md:static py-4   z-30  bg-white md:bg-transparent top-[83px]  flex flex-wrap gap-8 md:gap-[40px] items-center overflow-auto hidden-scroll">
         {tabs.map((tab) => (
           <div
             key={tab.value}

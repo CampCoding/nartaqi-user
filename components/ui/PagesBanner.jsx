@@ -52,23 +52,23 @@ const PagesBanner = ({
           </div>
 
           {/* Breadcrumb */}
-          {/* Updated padding for responsiveness */}
-          <div className="w-fit px-4 lg:px-[24px] gap-3 lg:gap-[16px] py-3 lg:py-4 bg-secondary rounded-2xl inline-flex justify-center items-center">
+          {/* Mobile: horizontal scroll with snap; Desktop: centered inline */}
+          <div
+            dir="rtl"
+            className="w-full lg:w-fit !px-3 lg:px-[24px] py-3 lg:py-4 bg-secondary rounded-2xl inline-flex items-center gap-3 lg:gap-[16px] overflow-auto hidden-scroll lg:overflow-visible whitespace-nowrap lg:whitespace-normal snap-x snap-mandatory"
+          >
             {breadcrumb.map((item, index) => (
               <React.Fragment key={index}>
                 <div
-                  // Updated font size for responsiveness
-                  className={`justify-center ${
-                    index !== 0
-                      ? "text-white font-semibold"
-                      : "text-text font-bold"
+                  className={`shrink-0 snap-start ${
+                    index !== 0 ? "text-white font-semibold" : "text-text font-bold"
                   } text-base lg:text-2xl leading-normal`}
                 >
                   {item.title}
                 </div>
                 {index < breadcrumb.length - 1 && (
                   <svg
-                    className="w-[6px] h-[11px] lg:w-[8px] lg:h-[13px]" // Scaled down SVG for mobile
+                    className="shrink-0 w-[6px] h-[11px] lg:w-[8px] lg:h-[13px]"
                     viewBox="0 0 8 13"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"

@@ -1,4 +1,5 @@
 import * as React from "react";
+import cx from "../lib/cx";
 const CartRoundedOutline = (props) => (
   <svg
     width={48}
@@ -8,12 +9,11 @@ const CartRoundedOutline = (props) => (
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
-    <rect x={0.5} y={1} width={47} height={47} rx={23.5}  />
+    <rect x={0.5} y={1} width={47} height={47} rx={23.5} />
     <circle
       cx={21.3327}
       cy={30.4997}
       r={0.666667}
-      
       strokeWidth={1.33333}
       strokeLinejoin="round"
     />
@@ -21,13 +21,11 @@ const CartRoundedOutline = (props) => (
       cx={28.6667}
       cy={30.4997}
       r={0.666667}
-      
       strokeWidth={1.33333}
       strokeLinejoin="round"
     />
     <path
       d="M17.3672 17.8672H18.7005L20.4739 26.1472C20.5409 26.4599 20.7 26.7155 20.951 26.9138C21.202 27.1121 21.4874 27.2076 21.8072 27.2005H28.3272C28.6397 27.2 28.9178 27.1018 29.1612 26.9057C29.4047 26.7097 29.56 26.4591 29.6272 26.1539L30.7272 21.2005H19.4139"
-      
       strokeWidth={1.33333}
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -44,18 +42,16 @@ const SearchRoundedOutline = (props) => (
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
-    <rect x={0.5} y={1} width={47} height={47} rx={23.5}  />
+    <rect x={0.5} y={1} width={47} height={47} rx={23.5} />
     <circle
       cx={23.3333}
       cy={23.8333}
       r={5.33333}
-      
       strokeWidth={1.33333}
       strokeLinejoin="round"
     />
     <path
       d="M29.9995 30.4995L27.1328 27.6328"
-      
       strokeWidth={1.33333}
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -63,9 +59,7 @@ const SearchRoundedOutline = (props) => (
   </svg>
 );
 
-
-
-const NotificationRoundedOutline =  (props) => (
+const NotificationRoundedOutline = (props) => (
   <svg
     width={48}
     height={49}
@@ -74,7 +68,7 @@ const NotificationRoundedOutline =  (props) => (
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
-    <rect x={0.5} y={1} width={47} height={47} rx={23.5}  />
+    <rect x={0.5} y={1} width={47} height={47} rx={23.5} />
     <g clipPath="url(#clip0_156_2179)">
       <path
         d="M31.255 29.4142C30.7728 28.9844 30.3507 28.4916 30 27.9492C29.6167 27.2006 29.3872 26.3829 29.325 25.5442V23.0742C29.3283 21.757 28.8505 20.484 27.9814 19.4942C27.1122 18.5045 25.9116 17.8661 24.605 17.6992V17.0542C24.605 16.8772 24.5347 16.7074 24.4095 16.5822C24.2843 16.457 24.1145 16.3867 23.9375 16.3867C23.7605 16.3867 23.5907 16.457 23.4655 16.5822C23.3403 16.7074 23.27 16.8772 23.27 17.0542V17.7092C21.9751 17.8882 20.789 18.5303 19.9313 19.5168C19.0735 20.5032 18.6024 21.767 18.605 23.0742V25.5442C18.5428 26.3829 18.3133 27.2006 17.93 27.9492C17.5854 28.4904 17.1701 28.9831 16.695 29.4142C16.6417 29.4611 16.5989 29.5187 16.5696 29.5834C16.5403 29.6481 16.5251 29.7182 16.525 29.7892V30.4692C16.525 30.6018 16.5777 30.729 16.6714 30.8228C16.7652 30.9165 16.8924 30.9692 17.025 30.9692H30.925C31.0576 30.9692 31.1848 30.9165 31.2785 30.8228C31.3723 30.729 31.425 30.6018 31.425 30.4692V29.7892C31.4249 29.7182 31.4097 29.6481 31.3804 29.5834C31.3511 29.5187 31.3083 29.4611 31.255 29.4142ZM17.565 29.9692C18.0301 29.5197 18.4397 29.0161 18.785 28.4692C19.2679 27.5652 19.5493 26.5673 19.61 25.5442V23.0742C19.5902 22.4882 19.6885 21.9043 19.899 21.3571C20.1096 20.8098 20.4281 20.3106 20.8356 19.8891C21.2431 19.4675 21.7313 19.1323 22.2711 18.9034C22.8109 18.6744 23.3912 18.5564 23.9775 18.5564C24.5638 18.5564 25.1441 18.6744 25.6839 18.9034C26.2237 19.1323 26.7119 19.4675 27.1194 19.8891C27.5269 20.3106 27.8454 20.8098 28.056 21.3571C28.2665 21.9043 28.3648 22.4882 28.345 23.0742V25.5442C28.4057 26.5673 28.6871 27.5652 29.17 28.4692C29.5153 29.0161 29.9249 29.5197 30.39 29.9692H17.565Z"
@@ -297,7 +291,6 @@ export const FileIcon = (props) => (
 
 export const ShareIcon = (props) => (
   <svg
-   
     viewBox="0 0 16 16"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -310,13 +303,7 @@ export const ShareIcon = (props) => (
       strokeWidth={1.33333}
       strokeLinejoin="round"
     />
-    <circle
-      cx={4}
-      cy={8}
-      r={2}
-      strokeWidth={1.33333}
-      strokeLinejoin="round"
-    />
+    <circle cx={4} cy={8} r={2} strokeWidth={1.33333} strokeLinejoin="round" />
     <circle
       cx={12}
       cy={12.6665}
@@ -341,7 +328,6 @@ export const ShareIcon = (props) => (
 
 export const FileTextIcon = (props) => (
   <svg
-    
     viewBox="0 0 16 16"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -1214,7 +1200,7 @@ export const CourseChevronTopIcon = (props) => (
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className={props.className ?? "fill-[#3B82F6]"}
+    className={cx("fill-primary", props.className)}
     {...props}
   >
     <path d="M20.528 17.5301C20.3794 17.6791 20.2028 17.7972 20.0084 17.8779C19.8141 17.9585 19.6057 18 19.3953 18C19.1849 18 18.9765 17.9585 18.7821 17.8779C18.5878 17.7972 18.4112 17.6791 18.2625 17.5301L12.0285 11.2961L5.79449 17.5301C5.49407 17.8305 5.08661 17.9993 4.66176 17.9993C4.2369 17.9993 3.82944 17.8305 3.52902 17.5301C3.22861 17.2297 3.05984 16.8223 3.05984 16.3974C3.05984 15.9725 3.22861 15.5651 3.52902 15.2647L10.9038 7.88987C11.0525 7.74092 11.229 7.62275 11.4234 7.54213C11.6178 7.4615 11.8261 7.42 12.0366 7.42C12.247 7.42 12.4553 7.4615 12.6497 7.54213C12.8441 7.62275 13.0206 7.74092 13.1693 7.88987L20.5441 15.2647C21.1546 15.8752 21.1546 16.9035 20.528 17.5301Z" />
@@ -1231,18 +1217,9 @@ export const CoursePlayIcon = (props) => (
     {...props}
   >
     <rect x={1} y={1} width={30} height={30} rx={15} fill="white" />
-    <rect
-      x={1}
-      y={1}
-      width={30}
-      height={30}
-      rx={15}
-      
-      strokeWidth={2}
-    />
+    <rect x={1} y={1} width={30} height={30} rx={15} strokeWidth={2} />
     <path
       d="M12.2604 21.8753C11.7094 22.2164 11 21.8176 11 21.1667L11 10.8333C11 10.1824 11.7094 9.78362 12.2604 10.1247L20.6065 15.2914C21.1312 15.6163 21.1312 16.3837 20.6065 16.7086L12.2604 21.8753Z"
-      
       strokeWidth={2}
       strokeLinejoin="round"
     />
@@ -2136,7 +2113,7 @@ export const RoundedPlayIcon = (props) => (
     viewBox="0 0 32 32"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className={props.className ?? "#3B82F6"}
+    className={props.className ?? "stroke-[#3B82F6]"}
     {...props}
   >
     <rect x={1} y={1} width={30} height={30} rx={15} fill="white" />
@@ -2290,10 +2267,6 @@ export const LiveIcon = (props) => (
   </svg>
 );
 
-
-
-
-
 export const NotificationIcon = (props) => (
   <svg
     width={32}
@@ -2320,9 +2293,7 @@ export const NotificationIcon = (props) => (
   </svg>
 );
 
-
-
-export const InfoIcon =  (props) => (
+export const InfoIcon = (props) => (
   <svg
     width={24}
     height={24}
@@ -2362,8 +2333,6 @@ export const InfoIcon =  (props) => (
   </svg>
 );
 
-
-
 export const CloseIcon = (props) => (
   <svg
     width={32}
@@ -2388,8 +2357,7 @@ export const CloseIcon = (props) => (
   </svg>
 );
 
-
-export const FiltersIcon =  (props) => (
+export const FiltersIcon = (props) => (
   <svg
     width={32}
     height={32}
@@ -2405,10 +2373,7 @@ export const FiltersIcon =  (props) => (
   </svg>
 );
 
-
-
-
-export const SaudiIcon =  (props) => (
+export const SaudiIcon = (props) => (
   <svg
     width={"100%"}
     height={"100%"}
@@ -2444,6 +2409,40 @@ export const SaudiIcon =  (props) => (
   </svg>
 );
 
+export const EgyptianIcon = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" {...props}>
+    <path
+      fill="#ed4c5c"
+      d="M32 2C18.9 2 7.8 10.4 3.7 22h56.6C56.2 10.4 45.1 2 32 2"
+      strokeWidth={1.5}
+      stroke="#ed4c5c"
+    ></path>
+    <path
+      fill="#3e4347"
+      d="M32 62c13.1 0 24.2-8.3 28.3-20H3.7C7.8 53.7 18.9 62 32 62"
+      strokeWidth={1.5}
+      stroke="#3e4347"
+    ></path>
+    <path
+      fill="#f9f9f9"
+      d="M3.7 22C2.6 25.1 2 28.5 2 32s.6 6.9 1.7 10h56.6c1.1-3.1 1.7-6.5 1.7-10s-.6-6.9-1.7-10z"
+      strokeWidth={1.5}
+      stroke="#f9f9f9"
+    ></path>
+    <g fill="#fff" strokeWidth={1.5} stroke="#fff">
+      <path d="M30.6 25.1c.3-.2.5 0 .7.2c.1.2.1.8-.1 1.5c-.1.4-.4.8-.6 1.1c.4 0 .9-.1 1.4-.3c.5.2.9.3 1.4.3c-.2-.4-.4-1.2-.3-1.8c0-.9-.1-1.2-.3-1.4s-.7-.3-1-.3c-.2 0-.2.1-.2.1q-.6-.15-.9 0c-.2.2-.2.7-.1.6"></path>
+      <path d="M37.3 28.1c-.2-1.1-1.3-.8-2.2-.3c-.4.2-.8.4-1.2.4h-.3c-.5 0-1.1-.1-1.6-.3c-.5.2-1.1.3-1.6.3h-.2c-.5 0-.9-.2-1.3-.5c-.8-.4-1.9-.7-2.2.3c.2-.1.4-.3.5-.3l-.4 9.6l.2-.2l.4-9.3c.1.1.5.5.6.5l-.3 8.1l.3-.3l.3-7.7c.1.1.4.3.5.4l-.3 6.7l.8-.7l.8-2.7c-.7-1.5-.6-2.8-.6-2.8h.2c.5 0 1.6-.3 2.1-.6c.1 0 .1-.1.2-.1c0 .1.1.1.2.2c.5.3 1.6.6 2.1.6h.2s.1 1.3-.6 2.8l.7 2.6l.8.7l-.3-6.6c.1-.1.3-.3.5-.4l.3 7.5l.3.3l-.3-8c.1-.1.5-.4.6-.5l.4 9.2l.2.2l-.4-9.5c.1.1.4.3.6.4"></path>
+      <path d="M31.1 29.7v3.9s0 .1.1.1c.1.2.3.3.4.5l.3.3l.3-.3l.5-.5v-3.8c-.3-.1-.6-.2-.8-.4c-.1-.1-.4 0-.8.2"></path>
+    </g>
+    <path
+      fill="#c09300"
+      d="M36.3 37.9c0-.5-.5-.5-.9-.4c-.1 0-.1 0-.2.1l-.6-2.2l3.3 3.2l-.4-10.4c-.1-1.6-1.4-1.2-2.3-.6c-.5.3-.9.5-1.4.5c-.7-1.2-.3-2.8-.8-3.2c-.2-.2-.9-.5-1.4-.5c-.3 0-.2.2-.2.2c-.5-.1-.9-.1-1.1.1c-.2.1 0 1.1.1.9c.3-.3.4-.2.6.1s-.2 1.5-.7 2.4c-.6 0-1.1-.2-1.6-.5c-1-.6-2.3-.9-2.3.6L26 38.5l3.3-3.1l-.6 2.1c-.1 0-.1 0-.2-.1c-.4-.1-.9-.1-.9.4c-.6-.1-.8.8-.2 1c0 .3 0 .5.4.5c.9.3 2.5.4 4.1.4s3.2-.1 4.1-.4c.4-.1.4-.3.4-.5c.8-.2.5-1.1-.1-.9m-5.1-4.3q0-.15 0 0l-.1-.1v-3.8c.4-.1.7-.2.9-.4c.2.2.5.3.8.4v3.8c-.2.2-.3.4-.5.5l-.3.3l-.3-.3c-.2-.1-.3-.3-.5-.4m0-6.7c.2-.7.2-1.3.1-1.5c-.2-.2-.4-.4-.7-.2c-.1.1-.1-.4.1-.5q.3-.15.9 0s0-.2.2-.1c.3 0 .9.2 1 .3s.3.5.3 1.4c0 .6.1 1.4.3 1.8c-.4 0-.9-.1-1.4-.3c-.5.2-.9.3-1.4.3c.2-.4.5-.8.6-1.2m-2.6 8.9l.3-6.7c-.1-.1-.3-.3-.5-.4l-.4 7.6l-.3.3l.3-8.1c-.1-.1-.5-.4-.6-.5l-.4 9.3l-.2.2l.4-9.6c-.1 0-.4.1-.5.3c.3-1 1.4-.7 2.2-.2c.4.3.9.4 1.3.5h.2c.5 0 1-.1 1.6-.3c.6.2 1.1.3 1.6.3h.3c.4-.1.8-.2 1.2-.4c.9-.5 2-.8 2.2.3c-.2-.1-.5-.3-.6-.3l.4 9.5l-.2-.2l-.4-9.4c-.1.1-.5.5-.6.5l.3 8l-.3-.3l-.3-7.5c-.1.1-.4.3-.5.4l.3 6.6l-.8-.7l-.7-2.6c.7-1.5.6-2.8.6-2.8h-.2c-.5 0-1.6-.2-2.1-.6c-.1 0-.1-.1-.2-.2c0 0-.1.1-.2.1c-.5.3-1.6.6-2.1.6h-.2s-.1 1.3.6 2.8l-.8 2.7zm3.4 2h-1.1l.7-3.4c.1.1.2.2.4.3c.1-.1.3-.2.4-.3l.8 3.4z"
+      strokeWidth={1.5}
+      stroke="#c09300"
+    ></path>
+  </svg>
+);
+
 export const HeartIcon = (props) => (
   <svg
     width={28}
@@ -2460,8 +2459,7 @@ export const HeartIcon = (props) => (
   </svg>
 );
 
-
-export const TelegramIcon =  (props) => (
+export const TelegramIcon = (props) => (
   <svg
     width={28}
     height={29}
@@ -2492,7 +2490,7 @@ export const TelegramIcon =  (props) => (
   </svg>
 );
 
-export const PeopleGroup =  (props) => (
+export const PeopleGroup = (props) => (
   <svg
     width={31}
     height={31}
@@ -2548,7 +2546,7 @@ export const headerIcons = {
   Cart: CartRoundedOutline,
   Search: SearchRoundedOutline,
   ArrowLoginButton: ArrowLoginButton,
-  Notification:NotificationRoundedOutline
+  Notification: NotificationRoundedOutline,
 };
 
 export const FFIcons = {
@@ -2556,5 +2554,5 @@ export const FFIcons = {
   OnlineGraduate: FFOnlineGraduate,
   Trainer: FFTrainer,
   FFStats: FFStatsatisfaction,
+  EgyptianIcon: EgyptianIcon,
 };
-

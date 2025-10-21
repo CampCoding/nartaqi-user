@@ -8,6 +8,7 @@ import { Eye } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "../../../lib/useUser.jsx";
 import { useRouter } from "next/navigation";
+import Container from "../../../components/ui/Container";
 
 const SignUpPage = () => {
   const [value1, setValue1] = useState("Apple");
@@ -57,8 +58,8 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row lg:justify-between overflow-hidden min-h-screen">
-      <div className="flex-1 flex justify-center items-center mx-auto flex-col py-8 md:py-16 lg:py-[64px] px-4 sm:px-6 md:px-8 max-w-[719px] w-full">
+    <Container className="flex flex-col lg:flex-row lg:justify-between overflow-hidden min-h-[calc(100vh-64px)])]">
+      <div className="flex-1 flex justify-center items-center mx-auto flex-col py-8 md:py-16 lg:py-[64px] pl-4 sm:pl-6 md:pl-8 max-w-[719px] w-full">
         <div className="inline-flex flex-col items-center gap-3 md:gap-4 relative mb-8 md:mb-12 lg:mb-[48px]">
           <img
             className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-[100px] md:h-[95.42px] aspect-[1.05]"
@@ -168,15 +169,15 @@ const SignUpPage = () => {
         </form>
       </div>
       <div
-        className="w-full h-32 sm:h-48 md:h-64 hidden md:block lg:w-[592px] lg:h-auto relative select-none"
+        className="w-full h-32 sm:h-48 md:h-64 hidden lg:block lg:w-[50%] lg:h-auto relative select-none"
         style={{
-          backgroundImage: 'url("/images/logo-banner.png")',
+          backgroundImage: `url("/images/logo-banner.png")`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
         }}
       />
-    </div>
+    </Container>
   );
 };
 

@@ -74,46 +74,49 @@ const ExamContent = ({
         </div>
 
         {/* Summary Sidebar */}
-        <div className="w-full lg:w-auto lg:min-w-[300px] xl:min-w-[350px]">
-          <ExamQuesionsSummery
-            totalQuestions={questions.length}
-            currentIndex={currentIndex}
-            answeredMap={answeredMap}
-            flaggedMap={flaggedMap}
-            onJumpTo={onJumpTo}
-          />
-        </div>
+        {isStarted && (
+          <div className="w-full lg:w-auto lg:min-w-[300px] xl:min-w-[350px]">
+            <ExamQuesionsSummery
+              totalQuestions={questions.length}
+              currentIndex={currentIndex}
+              answeredMap={answeredMap}
+              flaggedMap={flaggedMap}
+              onJumpTo={onJumpTo}
+            />
+          </div>
+        )}
       </div>
 
       {/* Navigation Buttons */}
       <div className="flex flex-col-reverse sm:flex-row mt-6 sm:mt-8 lg:mt-[64px] justify-between items-stretch sm:items-center gap-3 sm:gap-4">
-        <button
-          onClick={onPrev}
-          className="cursor-pointer px-8 sm:px-12 lg:px-20 py-4 sm:py-5 bg-white hover:bg-primary group transition rounded-[15px] sm:rounded-[20px] outline outline-[3px] outline-offset-[-3px] outline-primary flex justify-center items-center gap-2.5"
-          style={{
-            opacity: currentIndex === 0 ? "0.5" : "1",
-            pointerEvents: currentIndex === 0 ? "none" : "auto",
-          }}
-          disabled={currentIndex === 0}
-        >
-          <span className="text-center text-primary group-hover:text-white transition text-sm sm:text-base font-bold">
-            السابق
-          </span>
-        </button>
-
         {isStarted ? (
-          <button
-            onClick={isLastQuestion ? onSubmit || onNext : onNext}
-            className="px-8 sm:px-12 lg:px-20 py-4 sm:py-5 bg-gradient-to-r from-primary to-secondary hover:scale-105 transition cursor-pointer rounded-[15px] sm:rounded-[20px] flex justify-center items-center gap-2.5"
-          >
-            <span className="text-center text-white text-sm sm:text-base font-bold">
-              {isLastQuestion ? "إنهاء" : "التالي"}
-            </span>
-          </button>
+          <>
+            <button
+              onClick={onPrev}
+              className="cursor-pointer px-8 sm:px-12 lg:px-20 py-4 sm:py-5 bg-white hover:bg-primary group transition rounded-[15px] sm:rounded-[20px] outline outline-[3px] outline-offset-[-3px] outline-primary flex justify-center items-center gap-2.5"
+              style={{
+                opacity: currentIndex === 0 ? "0.5" : "1",
+                pointerEvents: currentIndex === 0 ? "none" : "auto",
+              }}
+              disabled={currentIndex === 0}
+            >
+              <span className="text-center text-primary group-hover:text-white transition text-sm sm:text-base font-bold">
+                السابق
+              </span>
+            </button>
+            <button
+              onClick={isLastQuestion ? onSubmit || onNext : onNext}
+              className="px-8 sm:px-12 lg:px-20 py-4 sm:py-5 bg-gradient-to-r from-primary to-secondary hover:scale-105 transition cursor-pointer rounded-[15px] sm:rounded-[20px] flex justify-center items-center gap-2.5"
+            >
+              <span className="text-center text-white text-sm sm:text-base font-bold">
+                {isLastQuestion ? "إنهاء" : "التالي"}
+              </span>
+            </button>
+          </>
         ) : (
           <button
             onClick={() => setIsStarted(true)}
-            className="px-8 sm:px-12 lg:px-20 py-4 sm:py-5 bg-gradient-to-r from-primary to-secondary hover:scale-105 transition cursor-pointer rounded-[15px] sm:rounded-[20px] flex justify-center items-center gap-2.5"
+            className="px-8 ms-auto sm:px-12 lg:px-20 py-4 sm:py-5 bg-gradient-to-r from-primary to-secondary hover:scale-105 transition cursor-pointer rounded-[15px] sm:rounded-[20px] flex justify-center items-center gap-2.5"
           >
             <span className="text-center text-white text-sm sm:text-base font-bold">
               ابدأ

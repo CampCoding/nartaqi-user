@@ -1,58 +1,67 @@
 import React from "react";
 
-const ExamDetailsHeader = () => {
+const ExamDetailsHeader = ({ title }) => {
   return (
-    <header className="flex flex-col items-start gap-6 sm:gap-8 md:gap-12 relative px-4 sm:px-6 md:px-0">
-      <div className="flex flex-col items-start gap-3 sm:gap-4 self-stretch w-full relative">
-        <div className="font-bold text-text text-2xl sm:text-3xl md:text-4xl leading-tight relative flex items-center justify-center sm:justify-start tracking-[0] w-full text-center sm:text-right">
-          اختبار استراتيجيات التدريس الحديثة
-        </div>
-        <p className="font-medium text-text-alt text-lg sm:text-xl md:text-2xl leading-relaxed relative text-center sm:text-right tracking-[0] w-full">
-          هذا الاختبار يهدف إلى قياس مدى إلمامك بأهم استراتيجيات التدريس الفعال،
-          وإدارة الصف بشكل احترافي، وتقييم الطلاب بطرق مبتكرة.
+    <header
+      dir="rtl"
+      className="flex flex-col items-start gap-6 sm:gap-8 md:gap-12 relative  mx-auto w-full"
+      aria-label="معلومات الاختبار"
+    >
+      {/* Title + Subtitle */}
+      <div className="flex flex-col items-start gap-3 sm:gap-4 self-stretch w-full relative min-w-0">
+        <h1 className="font-bold text-text text-xl sm:text-3xl md:text-4xl leading-tight relative flex items-center justify-center sm:justify-start tracking-[0] w-full text-center sm:text-right">
+          {title || "اختبار استراتيجيات التدريس الحديثة"}
+        </h1>
+        <p className="font-medium text-text-alt leading-loose text-base md:text-2xl max-w-4xl  relative text-center sm:text-right tracking-[0] w-full">
+          {"هذا الاختبار يهدف إلى قياس مدى إلمامك بأهم استراتيجيات التدريس الفعال، وإدارة الصف بشكل احترافي، وتقييم الطلاب بطرق مبتكرة." ||
+            description}
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-between px-2 sm:px-6 py-6 sm:py-8 self-stretch w-full bg-foundation-bluedark rounded-2xl sm:rounded-3xl relative gap-4 sm:gap-0">
-        <div className="inline-flex items-center justify-center sm:justify-end gap-2 sm:gap-3 relative flex-[0_0_auto]">
-          <div className="inline-flex items-center gap-2 sm:gap-3 relative flex-[0_0_auto]">
-            <QuestionsListIcon className="fill-secondary w-5 h-5 sm:w-6 sm:h-6" />
-            <div className="font-medium text-secondary text-sm sm:text-base leading-8 sm:leading-[50px] whitespace-nowrap relative flex items-center justify-center tracking-[0]">
+      {/* Stats Bar */}
+      <div className="flex flex-col md:flex-row md:flex-nowrap flex-wrap items-center md:items-start justify-between  py-6 sm:py-8 self-stretch w-full bg-foundation-bluedark rounded-2xl sm:rounded-3xl relative gap-4">
+        {/* عدد الأسئلة */}
+        <div className="inline-flex items-center justify-between sm:justify-start gap-2 sm:gap-3 relative w-full md:w-auto min-w-0">
+          <div className="inline-flex items-center gap-2 sm:gap-3 relative flex-[0_0_auto] min-w-0">
+            <QuestionsListIcon className="fill-secondary w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
+            <div className="font-medium text-secondary text-sm sm:text-base leading-8 sm:leading-[50px] whitespace-nowrap">
               عدد الأسئلة
             </div>
           </div>
-          <div className="bg-secondary-light inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-1 relative flex-[0_0_auto] rounded-lg">
-            <div className="font-medium text-secondary text-sm sm:text-base tracking-[0] leading-tight sm:leading-normal">
+          <div className="bg-secondary-light inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-1 rounded-lg">
+            <div className="font-medium text-secondary text-sm sm:text-base leading-tight sm:leading-normal">
               20 سؤالا
             </div>
           </div>
         </div>
 
-        <div className="inline-flex items-center justify-center sm:justify-end gap-2 sm:gap-3 relative flex-[0_0_auto]">
-          <div className="bg-foundation-yellowlight-hover inline-flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 py-1 relative flex-[0_0_auto] rounded-lg">
-            <div className="inline-flex items-center gap-2 sm:gap-3 relative flex-[0_0_auto]">
-              <SpeedometerIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-              <div className="font-medium text-warning text-sm sm:text-base leading-8 sm:leading-[50px] whitespace-nowrap relative flex items-center justify-center tracking-[0]">
+        {/* مستوى الصعوبة */}
+        <div className="inline-flex items-center justify-between sm:justify-start gap-2 sm:gap-3 relative w-full md:w-auto min-w-0">
+          <div className="inline-flex items-center justify-between sm:justify-start gap-2 sm:gap-3 relative w-full md:w-auto min-w-0">
+            <div className="inline-flex items-center gap-2 sm:gap-3 min-w-0">
+              <SpeedometerIcon className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
+              <div className="font-medium text-warning text-sm sm:text-base leading-8 sm:leading-[50px] whitespace-nowrap">
                 مستوى الصعوبة
               </div>
             </div>
-            <div className="bg-warning-light inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-1 relative flex-[0_0_auto] rounded-lg">
-              <div className="font-medium text-warning text-sm sm:text-base tracking-[0] leading-tight sm:leading-normal">
+            <div className="bg-warning-light inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-1 rounded-lg">
+              <div className="font-medium text-warning text-sm sm:text-base leading-tight sm:leading-normal">
                 متوسط
               </div>
             </div>
           </div>
         </div>
 
-        <div className="inline-flex items-center justify-center sm:justify-end gap-2 sm:gap-3 relative flex-[0_0_auto]">
-          <div className="inline-flex items-center gap-2 sm:gap-3 relative flex-[0_0_auto]">
-            <ClockReminderIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-            <div className="font-medium text-primary text-sm sm:text-base leading-8 sm:leading-[50px] whitespace-nowrap relative flex items-center justify-center tracking-[0]">
+        {/* مدة الاختبار */}
+        <div className="inline-flex items-center justify-between sm:justify-start gap-2 sm:gap-3 relative w-full md:w-auto min-w-0">
+          <div className="inline-flex items-center gap-2 sm:gap-3 min-w-0">
+            <ClockReminderIcon className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
+            <div className="font-medium text-primary text-sm sm:text-base leading-8 sm:leading-[50px] whitespace-nowrap">
               مدة الاختبار
             </div>
           </div>
-          <div className="inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-1 bg-primary-light rounded-lg relative flex-[0_0_auto]">
-            <div className="font-medium text-primary text-sm sm:text-base tracking-[0] leading-tight sm:leading-normal">
+          <div className="inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-1 bg-primary-light rounded-lg">
+            <div className="font-medium text-primary text-sm sm:text-base leading-tight sm:leading-normal">
               30 دقيقة
             </div>
           </div>

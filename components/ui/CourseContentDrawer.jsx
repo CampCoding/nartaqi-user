@@ -12,12 +12,14 @@ import {
   LockIcon2,
   RoundedPlayIcon,
 } from "./../../public/svgs";
-import React, { useState } from "react";
+import React, { useState, useId } from "react";
 import {
   CourseChevronTopIcon,
   CourseLockIcon,
   CoursePlayIcon,
 } from "../../public/svgs";
+import cx from "../../lib/cx";
+import Link from "next/link";
 
 const CourseContentDrawer = ({ isRegistered }) => {
   const [isOpen, setIsOpen] = useState(false); // فتح/غلق الجزء
@@ -85,7 +87,11 @@ const CourseContentDrawer = ({ isRegistered }) => {
             !isOpen ? "rotate-180" : "rotate-0"
           }`}
         >
-          <CourseChevronTopIcon />
+          <CourseChevronTopIcon
+            className={
+              "  w-[20px] h-[20px] md:w-[24px] md:h-[24px] !fill-primary"
+            }
+          />{" "}
         </div>
       </div>
 
@@ -93,9 +99,9 @@ const CourseContentDrawer = ({ isRegistered }) => {
 
       {isOpen &&
         (isRegistered ? (
-          <div className=" w-full flex flex-col gap-4">
-            <RegLecureDrawer isLive />
-            <RegLecureDrawer />
+          <div className=" w-full flex flex-col  gap-3 sm:gap-4">
+            <RegLecureDrawer isLive isDone={true} />
+            <RegLecureDrawer isDone={true} />
             <RegLecureDrawer />
           </div>
         ) : (
@@ -130,151 +136,269 @@ const CourseContentDrawer = ({ isRegistered }) => {
 
 export default CourseContentDrawer;
 
-export const RegLecureDrawer = ({ isLive = false }) => {
+export const RegLecureDrawer = ({ isLive = false, isDone }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const sectionId = useId();
 
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
-  };
+  const toggleExpanded = () => setIsExpanded((v) => !v);
 
   return (
-    <article className="flex w-full flex-col items-start gap-6 p-6 relative bg-white rounded-[30px] border-2 border-solid border-variable-collection-stroke">
+    <article className="flex w-full flex-col items-start gap-4 sm:gap-6 p-4 sm:p-6 relative bg-white  rounded-xl md:rounded-[30px] border-2 border-solid border-variable-collection-stroke">
       <header
         onClick={toggleExpanded}
-        className="flex cursor-pointer items-center justify-between self-stretch w-full relative flex-[0_0_auto]"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggleExpanded();
+          }
+        }}
+        className="flex cursor-pointer items-center justify-between self-stretch w-full"
+        role="button"
+        tabIndex={0}
+        aria-expanded={isExpanded}
+        aria-controls={sectionId}
       >
-        <h1 className=" font-bold cursor-pointer relative flex items-center justify-center w-fit mt-[-1.00px] text-text text-base tracking-[0] leading-[normal] ">
-          المحاضرة الأولي : كيفية إعداد خطة درس ناجحة
+        <h1 className="font-bold cursor-pointer flex items-center justify-center w-fit -mt-px text-text text-sm sm:text-base  leading-normal">
+          1: كيفية إعداد خطة درس ناجحة
         </h1>
         <div
-          className={`w-6 h-6 transition-transform duration-300 ${
+          className={`shrink-0 w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 ${
             !isExpanded ? "rotate-180" : "rotate-0"
           }`}
+          aria-hidden="true"
         >
-          <CourseChevronTopIcon />
+          <CourseChevronTopIcon
+            className={
+              "  w-[20px] h-[20px] md:w-[24px] md:h-[24px] !fill-primary"
+            }
+          />
         </div>
       </header>
 
       {isExpanded && (
-        <section className="flex flex-col items-start self-stretch w-full relative flex-[0_0_auto]">
-          <div className="flex items-center justify-between pt-4 pb-6 px-0 self-stretch w-full border-b-[3px] [border-bottom-style:solid] border-variable-collection-stroke relative flex-[0_0_auto]">
-            <div className="inline-flex items-start gap-2 relative flex-[0_0_auto]">
-              <RoundedPlayIcon
-                className={isLive ? "stroke-danger" : "stroke-primary"}
-              />
-              <h2 className=" cursor-pointer font-medium relative flex items-center justify-center w-fit mt-[-1.00px] text-text text-base tracking-[0] leading-[normal] ">
-                كيفية إعداد خطة درس ناجحة
-              </h2>
-            </div>
-            <div className="inline-flex items-center justify-start gap-4 relative flex-[0_0_auto]">
-              {isLive ? (
-                <div className="inline-flex items-center gap-2 relative">
-                  <LiveIcon width={28} height={28} />
-                  <div className="inline-flex items-center justify-end gap-4 relative flex-[0_0_auto]">
-                    <div className="relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold text-[#f91616] text-base tracking-[0] leading-[normal] ">
-                      بث مباشر
+        <section
+          id={sectionId}
+          className="flex flex-col items-start self-stretch w-full"
+        >
+          <div className="flex items-start gap-3 pt-3 sm:pt-4 pb-4 sm:pb-6 w-full border-b-[2px] border-solid border-variable-collection-stroke">
+            <RoundedPlayIcon
+              className={cx(
+                " w-[27px] h-[27px]  md:w-[32px] md:h-[32px]",
+                isLive ? "stroke-danger" : "stroke-primary"
+              )}
+            />
+            <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0  self-stretch ">
+              <div className="inline-flex items-center gap-2">
+                <h2 className="cursor-pointer font-medium flex items-center justify-center w-fit -mt-px text-text text-sm sm:text-base leading-normal">
+                  كيفية إعداد خطة درس ناجحة
+                </h2>
+              </div>
+
+              <div className="inline-flex items-center gap-3 sm:gap-4">
+                {isLive ? (
+                  <div className="inline-flex items-center gap-2">
+                    <LiveIcon width={28} height={28} />
+                    <div className="inline-flex items-center justify-end gap-2">
+                      <div className="font-bold text-[#f91616] text-sm sm:text-base leading-normal">
+                        بث مباشر
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <time className="relative flex items-center justify-center w-fit mt-[-1.00px]  font-medium text-text text-base tracking-[0] leading-[normal] ">
-                  18 دقيقة
-                </time>
-              )}
+                ) : (
+                  <time className="font-medium text-text text-sm sm:text-base leading-normal">
+                    18 دقيقة
+                  </time>
+                )}
+              </div>
             </div>
           </div>
-
-          <ExerciseDropDown />
+{/* {alert(isDone)} */}
+          <ExerciseDropDown isDone={isDone} />
         </section>
       )}
     </article>
   );
 };
 
-export const ExerciseDropDown = () => {
+export const ExerciseDropDown = ({ isDone = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
-  };
+  const sectionId = useId();
+
+  const toggleExpanded = () => setIsExpanded((v) => !v);
+
+  // العناصر المتكررة (لا يغيّر التصميم، فقط يزيل تكرار الكود)
+  const items = [
+    { id: 1, title: "أسئلة الأختبار" },
+    // { id: 2, title: "أسئلة الأختبار" },
+  ];
+
   return (
     <>
       <header
         onClick={toggleExpanded}
-        className="flex select-none cursor-pointer items-center justify-between px-0 py-4 relative self-stretch w-full flex-[0_0_auto]"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggleExpanded();
+          }
+        }}
+        className="flex select-none cursor-pointer items-center justify-between py-3 sm:py-4 w-full"
+        role="button"
+        tabIndex={0}
+        aria-expanded={isExpanded}
+        aria-controls={sectionId}
       >
-        <div className="inline-flex select-none items-start gap-2 relative flex-[0_0_auto]">
+        <div className="inline-flex items-center gap-2">
           <CheckListIcon />
-          <span className=" font-medium relative flex items-center justify-center w-fit mt-[-1.00px] text-text text-base tracking-[0] leading-[normal] ">
+          <span className="font-medium text-text text-sm sm:text-base leading-normal">
             تدريب
           </span>
         </div>
         <div
-          className={`w-6 h-6 transition-transform duration-300 ${
+          className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 ${
             !isExpanded ? "rotate-180" : "rotate-0"
           }`}
+          aria-hidden="true"
         >
-          <CourseChevronTopIcon />
-        </div>{" "}
+          <CourseChevronTopIcon
+            className={
+              "  w-[20px] h-[20px] md:w-[24px] md:h-[24px] !fill-primary"
+            }
+          />{" "}
+        </div>
       </header>
+
       {isExpanded && (
-        <>
-          <div className="flex w-full items-center justify-between pt-4 pb-6 px-0 relative bg-white border-b-[3px] last:border-0 [border-bottom-style:solid] border-variable-collection-stroke">
-            <nav className="gap-6 inline-flex items-center relative flex-[0_0_auto]">
-              <button className="justify-end gap-4 bg-white inline-flex items-center relative flex-[0_0_auto] hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded">
-                <div className="relative w-7 h-7 aspect-[1]" aria-hidden="true">
-                  <FileIcon className="fill-primary" />
+        <div id={sectionId} className="w-full">
+          {items.map((it, idx) => (
+            <div className="flex flex-col  ">
+              <div className="flex items-center pt-3 sm:pt-4 pb-4 sm:pb-6 justify-between border-b-[2px] border-solid last:border-none">
+                <div className="inline-flex items-center gap-2 sm:gap-4 ">
+                  <RoundedPlayIcon
+                    className={cx(
+                      " w-[20px] stroke-primary h-[20px]  md:w-[29px] md:h-[29px]"
+                    )}
+                  />
+                  <span className="font-medium text-text text-sm sm:text-base leading-normal">
+                    فيديو توضيحي للاختبار
+                  </span>
                 </div>
-                <span className=" relative flex items-center justify-center w-fit mt-[-1.00px]  font-medium text-base tracking-[0] leading-[normal] ">
-                  أسئلة الأختبار
-                </span>
-              </button>
-              <button
-                className="relative w-7 h-7 aspect-[1] hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded"
-                aria-label="قائمة"
-              >
-                <LockIcon2 className="fill-secondary" />
-              </button>
-            </nav>
-
-            <button
-              className="justify-end gap-2.5 px-8 py-2 bg-secondary rounded-[10px] inline-flex items-center relative flex-[0_0_auto] hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
-              aria-label="تحميل"
-            >
-              <DownloadIcon />
-              <span className=" text-white relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-base tracking-[0] leading-[normal] ">
-                تحميل
-              </span>
-            </button>
-          </div>
-          <div className="flex w-full items-center justify-between pt-4 pb-6 px-0 relative bg-white border-b-[3px] last:border-0 [border-bottom-style:solid] border-variable-collection-stroke">
-            <nav className="gap-6 inline-flex items-center relative flex-[0_0_auto]">
-              <button className="justify-end gap-4 bg-white inline-flex items-center relative flex-[0_0_auto] hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded">
-                <div className="relative w-7 h-7 aspect-[1]" aria-hidden="true">
-                  <FileIcon className="fill-primary" />
+                <div className="text-right whitespace-nowrap justify-center text-text text-xs  md:text-sm font-medium ">
+                  18 دقيقة
                 </div>
-                <span className=" relative flex items-center justify-center w-fit mt-[-1.00px]  font-medium text-base tracking-[0] leading-[normal] ">
-                  أسئلة الأختبار
-                </span>
-              </button>
-              <button
-                className="relative w-7 h-7 aspect-[1] hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded"
-                aria-label="قائمة"
+              </div>
+              <div
+                key={it.id}
+                className="flex w-full flex-row items-center justify-between border-b-[2px] border-solid last:border-none  pt-3 sm:pt-4 pb-4 sm:pb-6  bg-white"
               >
-                <LockIcon2 className="fill-secondary" />
-              </button>
-            </nav>
+                {(() => {
+                  const Tag = isDone ? Link : "div";
+                  return (
+                    <>
+                      <Tag
+                        href={isDone ? "/exam-details/achievement" : undefined}
+                        className="inline-flex items-center gap-4 sm:gap-6"
+                      >
+                        <div
+                          className="inline-flex items-center gap-0 sm:gap-4 bg-white hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded"
+                          type="button"
+                        >
+                          <div
+                            className="relative w-6 h-6 sm:w-7 sm:h-7 aspect-[1]"
+                            aria-hidden="true"
+                          >
+                            <FileIcon
+                              className={
+                                "  w-[20px] h-[20px]  md:w-[28px] md:h-[28px] fill-primary"
+                              }
+                            />
+                          </div>
+                          <span className="font-medium text-text text-sm sm:text-base leading-normal">
+                            {it.title}
+                          </span>
+                        </div>
 
-            <button
-              className="justify-end gap-2.5 px-8 py-2 bg-secondary rounded-[10px] inline-flex items-center relative flex-[0_0_auto] hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
-              aria-label="تحميل"
-            >
-              <DownloadIcon />
-              <span className=" text-white relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-base tracking-[0] leading-[normal] ">
-                تحميل
-              </span>
-            </button>
-          </div>
-        </>
+                        {!isDone && (
+                          <div
+                            className="relative w-6 h-6 sm:w-7 sm:h-7 aspect-[1] hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded"
+                            aria-label="قائمة"
+                            type="button"
+                          >
+                            <LockIcon2 className="fill-secondary w-5 h-5  " />
+                          </div>
+                        )}
+                      </Tag>
+
+                        {<button
+                          className="inline-flex disabled:!opacity-50 disabled:cursor-not-allowed  items-center justify-end gap-2.5  px-4 md:px-6 sm:px-8 py-2 bg-secondary     rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 self-start sm:self-auto"
+                          disabled={!isDone} 
+                          aria-label="تحميل"
+                          type="button"
+                        >
+                          <DownloadIcon
+                            className={
+                              "  w-[20px] h-[20px]  md:w-[28px] md:h-[28px]"
+                            }
+                          />
+                          <span className="text-white font-medium text-sm sm:text-base leading-normal">
+                            تحميل
+                          </span>
+                        </button>}
+                    </>
+                  );
+                })()}
+              </div>
+              <div
+                key={it.id}
+                className="flex w-full flex-row items-center justify-between  pt-3 sm:pt-4 pb-4 sm:pb-6 border-b-[2px] border-solid last:border-none bg-white"
+              >
+                <nav className="inline-flex items-center gap-4 sm:gap-6">
+                  <div
+                    className="inline-flex items-center gap-0 sm:gap-4 bg-white hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded"
+                    type="button"
+                  >
+                    <div
+                      className="relative w-6 h-6 sm:w-7 sm:h-7 aspect-[1]"
+                      aria-hidden="true"
+                    >
+                      <FileIcon
+                        className={
+                          "  w-[20px] h-[20px]  md:w-[28px] md:h-[28px] fill-primary"
+                        }
+                      />
+                    </div>
+                    <span className="font-medium text-text text-sm sm:text-base leading-normal">
+                      اجابات الاختبار
+                    </span>
+                  </div>
+
+                  <button
+                    className="relative w-6 h-6 sm:w-7 sm:h-7 aspect-[1] hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded"
+                    aria-label="قائمة"
+                    type="button"
+                  >
+                    <LockIcon2 className="fill-secondary w-5 h-5  " />
+                  </button>
+                </nav>
+
+                {/* الجانب الأيمن */}
+                <button
+                  disabled={true}
+                  className="inline-flex disabled:!opacity-50 disabled:cursor-not-allowed items-center justify-end gap-2.5  px-4 md:px-6 sm:px-8 py-2 bg-secondary     rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 self-start sm:self-auto"
+                  aria-label="تحميل"
+                  type="button"
+                >
+                  <DownloadIcon
+                    className={"  w-[20px] h-[20px]  md:w-[28px] md:h-[28px]"}
+                  />
+                  <span className="text-white font-medium text-sm sm:text-base leading-normal">
+                    تحميل
+                  </span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </>
   );

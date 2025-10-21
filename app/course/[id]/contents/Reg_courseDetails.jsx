@@ -15,7 +15,7 @@ const Reg_courseDetails = ({ isDone }) => {
     <>
       <div className="lg:hidden space-y-4">
         <MobileCourseDetails isRegestered />
-        <Container >
+        <Container>
           <RegCourseDetailsContent onTabsChange={(e) => setSelectedTab(e)} />
           {selectedTab === "sourses" && <CrouseFaqs />}
         </Container>

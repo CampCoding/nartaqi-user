@@ -24,8 +24,8 @@ const NotReg_courseDetails = () => {
         </div>
 
         <Container className="mt-[48px] mb-[139px] ">
-          <div className=" flex  justify-between items-start">
-            <div className="w-full">
+          <div className=" flex  justify-between gap-10  items-start">
+            <div className="w-full max-w-[762px]">
               <CourseDetailsContent />
             </div>
             <div className="  translate-y-[-441px]  ">

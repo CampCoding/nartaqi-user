@@ -212,7 +212,7 @@ const MobileCourseDetails = ({ isRegestered, isDone }) => {
 
               <div className=" w-full inline-flex flex-col items-start gap-6 relative">
                 <div className="items-center justify-start gap-2 self-stretch w-full flex-[0_0_auto] flex relative">
-                  <div className="text-primary text-[30px] font-bold text-left leading-[var(--cairo-bold-3xl-line-height)] whitespace-nowrap relative flex items-center justify-center w-fit mt-[-1.00px] font-cairo-bold-3xl   [direction:rtl] [font-style:var(--cairo-bold-3xl-font-style)]">
+                  <div className="text-primary  text-2xl md:text-[30px] font-bold text-left leading-[var(--cairo-bold-3xl-line-height)] whitespace-nowrap relative flex items-center justify-center w-fit mt-[-1.00px] font-cairo-bold-3xl   [direction:rtl] [font-style:var(--cairo-bold-3xl-font-style)]">
                     95 ر.س
                   </div>
                   <p className="relative flex items-center justify-center w-fit font-cairo-regular-base  text-text-duplicate  text-left tracking-[var(--cairo-regular-base-letter-spacing)] leading-[var(--cairo-regular-base-line-height)] whitespace-nowrap [direction:rtl] [font-style:var(--cairo-regular-base-font-style)]">
