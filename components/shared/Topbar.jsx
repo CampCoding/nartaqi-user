@@ -16,16 +16,15 @@ export default function Header() {
   const [openSearch, setOpenSearch] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-
-  if (pathname.includes("mock-test")) {
-    return null;
-  }
-
   const { isAuthenticated, user } = useUser();
 
   useEffect(() => {
     console.log("logged User", user);
   }, [user]);
+
+  if (pathname.includes("mock-test")) {
+    return null;
+  }
 
   return (
     <header className="w-full sticky top-0 z-50 bg-white shadow-sm  py-[20px] md:py-[35.5px] lg:py-[35.5px]">

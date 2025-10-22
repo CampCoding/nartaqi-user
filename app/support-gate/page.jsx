@@ -54,7 +54,7 @@ const SupportGate = () => {
             return <SupportSection data={item} />;
           })}
         </div>
-        {/* <GuideLines /> */}
+        <GuideLines />
       </Container>
     </div>
   );
