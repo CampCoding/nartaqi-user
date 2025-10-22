@@ -7,11 +7,20 @@ import { SaudiIcon } from "../../../public/svgs";
 import { Eye } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Container from "../../../components/ui/Container";
 
 const VerificationCode = () => {
   const [value1, setValue1] = useState("Apple");
   const [phone, setPhone] = useState("");
+
+  const [userParams, setUserParams] = useState({
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    gender: "",
+    phone: "",
+  });
   const plainOptions = ["Apple", "Pear", "Orange"];
   const onChange1 = ({ target: { value } }) => {
     console.log("radio1 checked", value);
@@ -19,21 +28,29 @@ const VerificationCode = () => {
   };
 
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [selected, setSelected] = useState("unconfirmed");
-
-  const handleSendVerificationCode = () => {
-    router.push(`/verification-code?phone=${phone}`);
-  };
 
   const onChangePhone = ({ target: { value } }) => {
     setPhone(value);
   };
 
+  useEffect(() => {
+    const firstName = searchParams?.get("firstName") || "";
+    const middleName = searchParams?.get("middleName") || "";
+    const lastName = searchParams?.get("lastName") || "";
+    const gender = searchParams?.get("gender") || "";
+    const p = searchParams?.get("phone") || "";
+
+    setUserParams({ firstName, middleName, lastName, gender, phone: p });
+    if (p) setPhone(p);
+  }, [searchParams]);
+
   return (
     <div className="flex flex-col lg:flex-row lg:justify-between overflow-hidden">
       <div className="flex-1 flex justify-center items-center mx-auto flex-col py-8 md:py-16 lg:py-[64px] sm:px-6 md:px-8 max-w-[604px] w-full">
-        <Frame />
+        <Frame phone={phone} user={userParams} />
       </div>
 
       {/* <div
@@ -147,7 +164,7 @@ export const PasswordInput = ({
   );
 };
 
-export const Frame = () => {
+export const Frame = ({ phone = "", user = {} }) => {
   const [verificationCode, setVerificationCode] = useState([
     "",
     "",
@@ -157,6 +174,8 @@ export const Frame = () => {
     "",
   ]);
   const inputRefs = useRef([]);
+  const router = useRouter();
+  const [error, setError] = useState("");
 
   const handleInputChange = (index, value) => {
     if (value.length > 1) return;
@@ -197,11 +216,12 @@ export const Frame = () => {
     inputRefs.current[focusIndex]?.focus();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const code = verificationCode.join("");
     if (code.length === 6) {
       console.log("Verification code submitted:", code);
-      // Handle verification logic here
+      // TODO: Call your backend to verify the code here.
+      router.push("/");
     }
   };
 
@@ -214,6 +234,12 @@ export const Frame = () => {
     // Focus on first input when component mounts
     inputRefs.current[0]?.focus();
   }, []);
+
+  const maskPhone = (p) => {
+    if (!p) return "********";
+    const last4 = p.slice(-4);
+    return `**** **** ${last4}`;
+  };
 
   return (
     <Container>
@@ -233,7 +259,7 @@ export const Frame = () => {
 
           <p className="self-stretch  font-medium text-text-alt text-base text-center relative flex items-center justify-center tracking-[0] leading-[normal] ">
             لقد أرسلنا رمزا مكونا من 6 أرقام إلى رقم الواتساب الخاص بك المنتهي
-            بـ ٠٥٠ ١٢٣ ٤٥٦٧.
+            بـ {maskPhone(phone)}.
           </p>
 
           <div

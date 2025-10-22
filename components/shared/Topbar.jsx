@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { headerIcons } from "../../public/svgs";
 import SearchBanner from "./SearchBanner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Dropdown } from "antd";
 import { ChevronLeft, Menu, X, ChevronDown } from "lucide-react";
@@ -15,14 +15,17 @@ import { AnimatePresence } from "framer-motion";
 export default function Header() {
   const [openSearch, setOpenSearch] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const pathname = usePathname();
 
   if (pathname.includes("mock-test")) {
     return null;
   }
 
-  const { isAuthenticated } = useUser();
+  const { isAuthenticated, user } = useUser();
+
+  useEffect(() => {
+    console.log("logged User", user);
+  }, [user]);
 
   return (
     <header className="w-full sticky top-0 z-50 bg-white shadow-sm  py-[20px] md:py-[35.5px] lg:py-[35.5px]">
@@ -109,7 +112,7 @@ export default function Header() {
 
           {isAuthenticated && (
             <Link
-              href={"/profile"}
+              href={user?.type == "marketer" ? "/marketer-profile" : "/profile"}
               className="px-16  py-4 bg-white transition-all rounded-[100px] outline outline-1 outline-offset-[-0.50px] outline-primary hover:bg-primary group hover:text-white inline-flex justify-center items-center gap-4"
             >
               <div className="justify-center  group-hover:text-white   text-primary  text-base font-bold font-['Cairo'] leading-normal">
@@ -155,13 +158,14 @@ export default function Header() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <MobileMenu
+          user={user}
           headerData={headerData}
           isAuthenticated={isAuthenticated}
           onClose={() => setMobileMenuOpen(false)}
         />
       )}
 
-      <AnimatePresence  > 
+      <AnimatePresence>
         {openSearch && (
           <SearchBanner openSearch={openSearch} setOpenSearch={setOpenSearch} />
         )}
@@ -171,7 +175,7 @@ export default function Header() {
 }
 
 // Mobile Menu Component
-const MobileMenu = ({ headerData, isAuthenticated, onClose }) => {
+const MobileMenu = ({ headerData, isAuthenticated, onClose , user }) => {
   const [expandedItem, setExpandedItem] = useState(null);
 
   return (
@@ -226,11 +230,11 @@ const MobileMenu = ({ headerData, isAuthenticated, onClose }) => {
             </Link>
           ) : (
             <Link
-              href="/profile"
+              href={user?.type == "marketer" ? "/marketer-profile" : "/profile"}
               onClick={onClose}
               className="flex items-center justify-center text-sm font-bold bg-white h-[48px] rounded-[100px] border-2 border-primary text-primary"
             >
-              حسابي
+              {user?.type == "marketer" ? "الملف الشخصي":"حسابي"}
             </Link>
           )}
         </div>

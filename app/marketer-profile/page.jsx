@@ -1,9 +1,21 @@
+"use client";
+
 import React from "react";
 import PagesBanner from "../../components/ui/PagesBanner";
 import Container from "../../components/ui/Container";
 import cx from "../../lib/cx";
+import { useUser } from "../../lib/useUser";
+import { useRouter } from "next/navigation";
 
 const MarketerProfile = () => {
+  const { logout } = useUser();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
+
   return (
     <div className=" pb-[98px]">
       <PagesBanner
@@ -17,34 +29,69 @@ const MarketerProfile = () => {
 
       <Container className=" pt-[32px] ">
         {/* Basic Marketer data */}
-        <div className="inline-flex justify-start items-center gap-4 sm:gap-6 mb-8 sm:mb-[78px] min-w-0">
-          <img
-            className="w-12 h-12 sm:w-16 sm:h-16 rounded-[44px] flex-shrink-0"
-            src="https://placehold.co/64x64"
-            alt="صورة محمد علي"
-          />
-          <div className="inline-flex flex-col justify-start items-start gap-1.5 sm:gap-2 min-w-0">
-            <div className="text-text font-bold text-lg sm:text-2xl leading-tight truncate">
-              محمد علي
-            </div>
-            <div className="text-text-alt font-medium text-sm sm:text-base leading-snug truncate">
-              مسوق نشط
+        <div className="flex justify-between items-center mb-8 sm:mb-[78px]">
+          <div className="inline-flex justify-start items-center gap-4 sm:gap-6 min-w-0">
+            <img
+              className="w-12 h-12 sm:w-16 sm:h-16 rounded-[44px] flex-shrink-0"
+              src="/images/Image-12422.png"
+              alt="صورة محمد علي"
+            />
+            <div className="inline-flex flex-col justify-start items-start gap-1.5 sm:gap-2 min-w-0">
+              <div className="text-text font-bold text-lg sm:text-2xl leading-tight truncate">
+                محمد علي
+              </div>
+              <div className="text-text-alt font-medium text-sm sm:text-base leading-snug truncate">
+                مسوق نشط
+              </div>
             </div>
           </div>
+
+          <button
+            onClick={handleLogout}
+            className="px-6 sm:px-8 py-2.5 sm:py-3 bg-white transition-all rounded-[100px] outline outline-1 outline-offset-[-0.50px] outline-primary hover:bg-primary group hover:text-white inline-flex justify-center items-center gap-3 text-primary text-sm sm:text-base font-bold"
+          >
+            تسجيل الخروج
+          </button>
         </div>
 
         {/* Header */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-[11.5px]">
-          <StartCard />
-          <StartCard />
-          <StartCard rootClassName={"col-span-full md:col-span-1"} />
+          <StartCard
+            title="نسبة العمولة"
+            icon={<MoneyInHand className="fill-primary shrink-0" />}
+            description="نسبة ربحك لكل اشتراك"
+            value={"15%"}
+          />
+          <StartCard
+            title="رمز الخصم"
+            icon={
+              <DiscountIcon className="fill-primary shrink-0 w-[32px] h-[32px]" />
+            }
+            description="رمز الخصم الخاص بك"
+            value={<div className="text-end w-full">A56FET</div>}
+          />
+          <StartCard
+            title="الاشتراكات الناجحة"
+            icon={
+              <SuccessIcon className="fill-primary shrink-0 w-[32px] h-[32px]" />
+            }
+            value={"75"}
+            description="إجمإلى الاشتراكات المؤهلة"
+            rootClassName={"col-span-full md:col-span-1"}
+          />
         </div>
-        <div className="grid md:grid-cols-[384px_auto]  gap-[11.5px] mt-[11.5px] md:mt-8   ">
-          <div className="w-full flex flex-col space-y-[11.5px] md:sticky top-0">
-            <StartCard />
-            <LatestWithdrawals />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  gap-[11.5px] mt-[11.5px] md:mt-8   ">
+          <div className="w-full flex flex-col col-span-3 md:col-span-1 space-y-[11.5px] md:sticky top-0">
+            <StartCard
+              title="إجمإلى الأرباح"
+              icon={<MoneyUp className="fill-primary shrink-0" />}
+              value={<div className="text-end w-full">9,250.00 ر.س</div>}
+              description="إجمإلى أرباحك حتى الأن"
+              rootClassName={"col-span-full md:col-span-1"}
+            />
+            <LatestWithdrawals rootClassName={"col-span-2"} />
           </div>
-          <Notifications />
+          <Notifications rootClassName={"col-span-2"} />
         </div>
       </Container>
     </div>
@@ -53,7 +100,7 @@ const MarketerProfile = () => {
 
 export default MarketerProfile;
 
-const StartCard = ({ rootClassName }) => {
+const StartCard = ({ title, icon, description, value, rootClassName }) => {
   return (
     <div
       className={cx(
@@ -65,18 +112,18 @@ const StartCard = ({ rootClassName }) => {
       <div className="self-stretch flex flex-col justify-start items-start">
         <div className="self-stretch inline-flex justify-between items-center">
           <div className="text-text font-bold text-sm sm:text-base">
-            نسبة العمولة
+            {title}
           </div>
-          <MoneyInHand className="fill-primary shrink-0" />
+          {icon}
         </div>
 
-        <div className="text-primary font-bold text-2xl sm:text-3xl leading-tight">
-          15%
+        <div className="text-primary w-full py-3 font-bold text-2xl sm:text-3xl leading-tight">
+          {value}
         </div>
       </div>
 
       <div className="self-stretch text-right text-text-alt font-medium text-sm sm:text-base">
-        نسبة ربحك لكل اشتراك
+        {description}
       </div>
     </div>
   );
@@ -124,7 +171,7 @@ const MoneyInHand = (props) => (
   </svg>
 );
 
-const LatestWithdrawals = () => {
+const LatestWithdrawals = ({ rootClassName }) => {
   // (Optional) keep UI identical while avoiding repetition
   const items = Array.from({ length: 5 }, () => ({
     amount: "500 ر.س",
@@ -134,8 +181,10 @@ const LatestWithdrawals = () => {
   return (
     <div
       dir="rtl"
-      className="w-full flex-1 bg-white rounded-[30px] outline outline-[3px] outline-offset-[-3px] outline-[#e4e4e4] inline-flex flex-col items-start
-                 px-4 sm:px-6 md:px-12 py-6 sm:py-8 gap-8 sm:gap-12"
+      className={cx(
+        "w-full flex-1   bg-white rounded-[30px] outline outline-[3px] outline-offset-[-3px] outline-[#e4e4e4] inline-flex flex-col items-start px-4 sm:px-6 md:px-12 py-6 sm:py-8 gap-8 sm:gap-12",
+        rootClassName
+      )}
     >
       <div className="self-stretch inline-flex justify-between items-center">
         <div className="text-text font-bold text-sm sm:text-base">
@@ -246,11 +295,14 @@ const WithdrawIcon = (props) => (
   </svg>
 );
 
-const Notifications = () => {
+const Notifications = ({ rootClassName }) => {
   return (
     <div
       dir="rtl"
-      className="custom-scroll overflow-auto px-4  sm:px-6 md:px-12 pb-10 md:pb-14 bg-white rounded-3xl md:rounded-[60px] outline outline-[3px] outline-offset-[-3px] outline-[#E4E4E7] inline-flex flex-col justify-start items-end gap-4 sm:gap-6 md:max-h-[800px]"
+      className={cx(
+        "custom-scroll overflow-auto px-4  sm:px-6 md:px-12 pb-10 md:pb-14 bg-white rounded-3xl md:rounded-[60px] outline outline-[3px] outline-offset-[-3px] outline-[#E4E4E7] inline-flex flex-col justify-start items-end gap-4 sm:gap-6 md:max-h-[800px]",
+        rootClassName
+      )}
       role="region"
       aria-label="الإشعارات"
     >
@@ -296,6 +348,79 @@ const NotificationsIcon = (props) => (
       clipRule="evenodd"
       d="M20.1094 0.453125C20.6719 0.453125 21.2344 0.453125 21.7969 0.453125C23.4924 0.914528 24.5393 2.00828 24.9375 3.73438C24.9844 4.82768 25 5.92143 24.9844 7.01562C29.804 8.60087 32.9758 11.8197 34.5 16.6719C34.6491 17.292 34.774 17.9171 34.875 18.5469C34.9921 21.6074 35.0546 24.67 35.0625 27.7344C35.4882 31.7116 37.2383 34.9617 40.3125 37.4844C41.4227 39.2129 41.1883 40.7286 39.6094 42.0312C39.3171 42.2087 39.0046 42.3337 38.6719 42.4062C35.0783 42.4531 31.4845 42.4688 27.8906 42.4531C27.4642 44.9896 26.0892 46.8177 23.7656 47.9375C23.2002 48.1408 22.6377 48.3126 22.0781 48.4531C21.3281 48.4531 20.5781 48.4531 19.8281 48.4531C17.2031 47.9385 15.375 46.4385 14.3438 43.9531C14.1748 43.4649 14.0654 42.9649 14.0156 42.4531C10.4217 42.4688 6.828 42.4531 3.23438 42.4062C1.77214 41.9677 0.990891 40.9833 0.890625 39.4531C0.934781 38.7738 1.13791 38.1488 1.5 37.5781C4.62816 35.0413 6.40941 31.7601 6.84375 27.7344C6.85162 24.67 6.91416 21.6074 7.03125 18.5469C8.05622 12.7428 11.3531 8.89911 16.9219 7.01562C16.9062 5.92143 16.9219 4.82768 16.9688 3.73438C17.3669 2.00828 18.4138 0.914528 20.1094 0.453125ZM20.4844 2.51562C21.734 2.38179 22.5308 2.91304 22.875 4.10938C22.9219 4.92128 22.9374 5.73377 22.9219 6.54688C21.6094 6.42188 20.2969 6.42188 18.9844 6.54688C18.9688 5.73377 18.9844 4.92128 19.0312 4.10938C19.2428 3.32013 19.7272 2.78888 20.4844 2.51562ZM19.7344 8.51562C25.6461 8.32122 29.7867 10.915 32.1562 16.2969C32.4782 17.1783 32.6969 18.0845 32.8125 19.0156C32.9263 22.1079 32.9888 25.2016 33 28.2969C33.5407 32.582 35.447 36.1133 38.7188 38.8906C38.9576 39.4031 38.8794 39.8563 38.4844 40.25C26.8669 40.4059 15.2419 40.4371 3.60938 40.3438C3.04292 39.9924 2.90229 39.508 3.1875 38.8906C6.45928 36.1133 8.36559 32.582 8.90625 28.2969C8.91741 25.2016 8.97994 22.1079 9.09375 19.0156C9.82247 14.384 12.3382 11.1496 16.6406 9.3125C17.6579 8.94108 18.6892 8.67546 19.7344 8.51562ZM16.0781 42.5469C19.3123 42.4378 22.5623 42.4221 25.8281 42.5C25.1033 44.9282 23.4783 46.2251 20.9531 46.3906C18.4416 46.2219 16.8166 44.9406 16.0781 42.5469Z"
       fill="#F97316"
+    />
+  </svg>
+);
+
+const DiscountIcon = (props) => (
+  <svg
+    width={48}
+    height={48}
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <g clipPath="url(#clip0_687_9011)">
+      <path
+        opacity={0.987}
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M47.9531 9.51563C47.9531 12.5156 47.9531 15.5156 47.9531 18.5156C47.7518 18.9198 47.4394 19.2167 47.0156 19.4063C44.4642 19.4531 42.8236 20.6875 42.0938 23.1094C41.8402 25.6191 42.8872 27.3221 45.2344 28.2188C45.8254 28.3261 46.4192 28.4198 47.0156 28.5C47.4394 28.6896 47.7518 28.9865 47.9531 29.3906C47.9531 32.3906 47.9531 35.3906 47.9531 38.3906C47.4389 40.2329 46.2514 41.4048 44.3906 41.9063C30.7657 41.9688 17.1406 41.9688 3.51562 41.9063C1.65486 41.4048 0.46736 40.2329 -0.046875 38.3906C-0.046875 35.3906 -0.046875 32.3906 -0.046875 29.3906C0.154378 28.9865 0.466879 28.6896 0.890625 28.5C3.442 28.4531 5.08263 27.2187 5.8125 24.7969C6.06457 22.1433 4.92394 20.4089 2.39062 19.5938C1.73791 19.5893 1.11291 19.4643 0.515625 19.2188C0.269927 19.0206 0.0824271 18.7862 -0.046875 18.5156C-0.046875 15.5156 -0.046875 12.5156 -0.046875 9.51563C0.46736 7.67333 1.65486 6.50145 3.51562 6C17.1406 5.9375 30.7657 5.9375 44.3906 6C46.2514 6.50145 47.4389 7.67333 47.9531 9.51563ZM4.45312 8.95313C17.4532 8.9375 30.4532 8.95313 43.4531 9C44.3125 9.10938 44.7968 9.59372 44.9062 10.4531C44.9843 12.4851 44.9687 14.5163 44.8594 16.5469C41.115 17.6033 39.1463 20.0722 38.9531 23.9531C39.1432 27.8316 41.1119 30.3003 44.8594 31.3594C44.9687 33.3899 44.9843 35.4212 44.9062 37.4531C44.7968 38.3125 44.3125 38.7968 43.4531 38.9063C30.4531 38.9688 17.4532 38.9688 4.45312 38.9063C3.59375 38.7968 3.10938 38.3125 3 37.4531C2.9219 35.4212 2.93753 33.3899 3.04688 31.3594C6.79434 30.3003 8.76309 27.8316 8.95312 23.9531C8.75999 20.0722 6.79124 17.6033 3.04688 16.5469C2.93753 14.5163 2.9219 12.4851 3 10.4531C3.12618 9.59269 3.61055 9.09273 4.45312 8.95313ZM16.4531 18.5156C17.6566 18.4539 18.266 19.0164 18.2812 20.2031C17.8838 21.2846 17.1494 21.6128 16.0781 21.1875C15.1125 20.1441 15.2375 19.2534 16.4531 18.5156ZM32.1094 27.7969C33.5655 27.9291 34.0499 28.6791 33.5625 30.0469C33.0079 30.7393 32.336 30.8799 31.5469 30.4688C30.8436 29.8584 30.7342 29.1553 31.2188 28.3594C31.4853 28.1097 31.7821 27.9222 32.1094 27.7969Z"
+        fill="#3B82F6"
+      />
+      <path
+        opacity={0.962}
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M26.9531 11.3906C27.905 11.6715 28.8425 11.9996 29.7656 12.375C29.8146 12.4276 29.8458 12.4901 29.8594 12.5625C26.8979 20.5631 23.8979 28.5474 20.8594 36.5156C19.9808 36.1967 19.1058 35.8686 18.2344 35.5312C18.1391 35.4826 18.0767 35.4044 18.0469 35.2969C21.0349 27.3325 24.0037 19.3638 26.9531 11.3906Z"
+        fill="#3B82F6"
+      />
+      <path
+        opacity={0.964}
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M16.1718 15.4203C19.3037 15.3496 21.0538 16.8651 21.4218 19.9672C21.0707 23.0372 19.3519 24.5372 16.2656 24.4672C13.4509 23.8241 12.1541 22.0584 12.3749 19.1703C12.8345 17.0915 14.1001 15.8416 16.1718 15.4203ZM16.4531 18.5141C15.2374 19.2519 15.1124 20.1425 16.0781 21.186C17.1493 21.6112 17.8837 21.2831 18.2812 20.2016C18.2659 19.0149 17.6565 18.4524 16.4531 18.5141Z"
+        fill="#3B82F6"
+      />
+      <path
+        opacity={0.964}
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M31.8282 24.7028C34.4994 24.6236 36.1713 25.8736 36.8438 28.4528C37.0959 31.3234 35.8303 33.089 33.047 33.7496C30.6174 33.9652 28.9456 32.9496 28.0313 30.7028C27.4652 28.4313 28.1371 26.6345 30.047 25.3121C30.6179 25.0063 31.2117 24.8032 31.8282 24.7028ZM32.1095 27.7965C31.7822 27.9218 31.4854 28.1093 31.2188 28.359C30.7342 29.1549 30.8436 29.8581 31.547 30.4684C32.3361 30.8796 33.008 30.7389 33.5626 30.0465C34.05 28.6787 33.5656 27.9287 32.1095 27.7965Z"
+        fill="#3B82F6"
+      />
+    </g>
+    <defs>
+      <clipPath id="clip0_687_9011">
+        <rect width={48} height={48} fill="white" />
+      </clipPath>
+    </defs>
+  </svg>
+);
+
+const SuccessIcon = (props) => (
+  <svg
+    width={48}
+    height={48}
+    viewBox="0 0 48 48"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      opacity={0.983}
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M22.8281 2.38995C26.6958 2.23528 30.352 3.03216 33.7969 4.78057C34.6718 5.65557 34.6718 6.53058 33.7969 7.40557C33.2794 7.67139 32.7482 7.70264 32.2031 7.49932C25.6771 4.43454 19.3958 4.87204 13.3594 8.81182C8.31714 12.5515 5.69214 17.5828 5.48435 23.9056C5.82663 31.8055 9.54542 37.4617 16.6406 40.8743C23.6968 43.5852 30.1655 42.5852 36.0469 37.8743C40.4557 33.8508 42.5963 28.8351 42.4687 22.8274C42.9874 21.7795 43.7843 21.5139 44.8594 22.0306C45.4504 22.5538 45.6692 23.21 45.5156 23.9993C45.2745 31.6714 42.0245 37.6714 35.7656 41.9993C29.5703 45.8198 23.039 46.5073 16.1719 44.0618C9.16758 41.1507 4.7457 36.0101 2.90623 28.6399C1.47544 21.2362 3.25669 14.7362 8.24998 9.13995C12.2531 5.0526 17.1124 2.8026 22.8281 2.38995Z"
+      fill="#3B82F6"
+    />
+    <path
+      opacity={0.982}
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M43.5469 7.73438C45.244 7.75875 45.8221 8.57125 45.2813 10.1719C38.6433 16.6536 32.0339 23.1692 25.4531 29.7188C25.0425 30.0982 24.6051 30.442 24.1406 30.75C23.7969 30.8125 23.4532 30.8125 23.1094 30.75C22.7079 30.5048 22.3329 30.2236 21.9844 29.9062C18.9037 26.7942 15.7943 23.7161 12.6563 20.6719C12.1111 19.3244 12.5486 18.512 13.9688 18.2344C14.3215 18.2686 14.6497 18.378 14.9531 18.5625C17.8724 21.388 20.763 24.2474 23.625 27.1406C30.0495 20.7473 36.5026 14.388 42.9844 8.0625C43.1655 7.92577 43.353 7.81639 43.5469 7.73438Z"
+      fill="#C2D8FC"
     />
   </svg>
 );

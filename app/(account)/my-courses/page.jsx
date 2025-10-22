@@ -17,7 +17,7 @@ const MyCourses = () => {
           style={{ justifyItems: "center" }}
         >
           {/* first row */}
-          <MyActiveCourseard />
+          <MyActiveCourseCard/>
           <MyActiveCourseCard />
           <MyActiveCourseCard />
         </div>

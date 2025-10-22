@@ -14,14 +14,35 @@ export const ProductCard = ({ data, key }) => {
       role="article"
       aria-label="مصنف الكتابة العربية - منتج"
     >
-      <div
-        className="relative self-stretch w-full h-[180px] md:h-[222px] rounded-[30px_30px_0px_0px] bg-cover bg-[50%_50%]"
-        role="img"
-        aria-label="صورة مصنف الكتابة العربية"
-        style={{
-          backgroundImage: `url('/images/${data}')`,
-        }}
-      />
+      <div className="relative self-stretch w-full h-[180px] md:h-[222px] rounded-[30px_30px_0px_0px] bg-cover bg-[50%_50%]">
+        {/* Category Badge */}
+        {data.category && (
+          <span
+            className="absolute top-3 left-3 z-10 bg-primary-light text-primary font-bold text-xs md:text-sm px-3 py-1 rounded-full shadow whitespace-nowrap"
+            style={{direction: "rtl"}}
+          >
+            {data.category === "books"
+              ? "الكتب"
+              : data.category === "courses"
+              ? "الدورات"
+              : data.category === "bags"
+              ? "الحقائب"
+              : data.category === "tools"
+              ? "الأدوات"
+              : data.category}
+          </span>
+        )}
+        <div
+          role="img"
+          aria-label="صورة مصنف الكتابة العربية"
+          className="absolute inset-0 w-full h-full rounded-[30px_30px_0px_0px]"
+          style={{
+            backgroundImage: `url('/images/${data.image}')`,
+            backgroundSize: "cover",
+            backgroundPosition: "50% 50%",
+          }}
+        />
+      </div>
       <div className="flex flex-col items-start justify-between px-4 py-0 relative flex-1 self-stretch w-full grow">
         <header className="flex flex-col items-start gap-4 relative self-stretch w-full flex-[0_0_auto]">
           <h1 className="relative w-fit mt-[-1.00px] text-text text-xl md:text-2xl text-left leading-6 whitespace-nowrap ">

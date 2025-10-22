@@ -16,12 +16,62 @@ import "swiper/css/free-mode";
 
 const Store = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
+  const [priceRange, setPriceRange] = useState(280);
+  const [sortBy, setSortBy] = useState("الأحدث أولا");
+  
   const categories = [
     { id: "all", label: "الكل" },
     { id: "books", label: "الكتب" },
     { id: "courses", label: "الدورات" },
     { id: "bags", label: "الحقائب" },
   ];
+
+  // Sample product data with proper structure
+  const products = [
+    { id: 1, image: "FRAME (5).png", category: "bags", title: "حقيبة أنيقة", price: 150, rating: 4.5, date: "2024-01-15" },
+    { id: 2, image: "books.png", category: "books", title: "كتاب البرمجة", price: 80, rating: 4.8, date: "2024-01-20" },
+    { id: 3, image: "FRAME (7).png", category: "books", title: "كتاب الرياضيات", price: 120, rating: 4.2, date: "2024-01-18" },
+    { id: 4, image: "FRAME (8).png", category: "tools", title: "أدوات مكتبية", price: 60, rating: 4.0, date: "2024-01-22" },
+    { id: 5, image: "teacher-course-banner.png", category: "courses", title: "دورة تطوير الويب", price: 200, rating: 4.9, date: "2024-01-10" },
+    { id: 6, image: "FRAME (5).png", category: "bags", title: "حقيبة سفر", price: 180, rating: 4.3, date: "2024-01-25" },
+    { id: 7, image: "books.png", category: "books", title: "كتاب الذكاء الاصطناعي", price: 90, rating: 4.7, date: "2024-01-12" },
+    { id: 8, image: "FRAME (7).png", category: "books", title: "كتاب الفيزياء", price: 110, rating: 4.1, date: "2024-01-28" },
+    { id: 9, image: "FRAME (8).png", category: "tools", title: "أدوات الرسم", price: 45, rating: 3.9, date: "2024-01-30" },
+    { id: 10, image: "teacher-course-banner.png", category: "courses", title: "دورة التصميم", price: 250, rating: 4.6, date: "2024-01-05" },
+    { id: 11, image: "FRAME (5).png", category: "bags", title: "حقيبة يد", price: 70, rating: 4.4, date: "2024-01-08" },
+    { id: 12, image: "books.png", category: "books", title: "كتاب الكيمياء", price: 95, rating: 4.3, date: "2024-01-14" },
+    { id: 13, image: "FRAME (7).png", category: "books", title: "كتاب الأحياء", price: 85, rating: 4.0, date: "2024-01-16" },
+    { id: 14, image: "FRAME (8).png", category: "tools", title: "أدوات الكتابة", price: 35, rating: 3.8, date: "2024-01-24" },
+    { id: 15, image: "teacher-course-banner.png", category: "courses", title: "دورة التسويق", price: 180, rating: 4.5, date: "2024-01-02" },
+  ];
+
+  // Filter and sort products
+  const filteredProducts = products
+    .filter(product => {
+      // Category filter
+      if (selectedCategoryId !== "all" && product.category !== selectedCategoryId) {
+        return false;
+      }
+      // Price filter
+      if (product.price > priceRange) {
+        return false;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "الأحدث أولا":
+          return new Date(b.date) - new Date(a.date);
+        case "الأقدم أولا":
+          return new Date(a.date) - new Date(b.date);
+        case "الأعلى تقييما":
+          return b.rating - a.rating;
+        case "الأقل سعرا":
+          return a.price - b.price;
+        default:
+          return 0;
+      }
+    });
 
   return (
     <div>
@@ -42,16 +92,25 @@ const Store = () => {
         ]}
       />
       <Container className="mt-[48px] ">
-        <StoreHeaderMobile rootClassName={"lg:hidden"} />
+        <StoreHeaderMobile 
+          rootClassName={"lg:hidden"} 
+          priceRange={priceRange}
+          setPriceRange={setPriceRange}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+        />
 
-        <div className="py-6 sticky top-[83px] md:top-[112px] z-30 bg-white lg:hidden" dir="rtl">
+        <div
+          className="py-6 sticky top-[83px] md:top-[112px] z-30 bg-white lg:hidden"
+          dir="rtl"
+        >
           <Swiper
             modules={[FreeMode]}
             freeMode={{ enabled: true, sticky: false, momentumBounce: true }}
             slidesPerView="auto"
             spaceBetween={12}
             className="!px-1"
-         >
+          >
             {categories.map((cat) => {
               const isActive = selectedCategoryId === cat.id;
               return (
@@ -74,26 +133,18 @@ const Store = () => {
           </Swiper>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-[379px_auto] gap-6 mb-[56px] ">
-          <SideNav rootClassName={"hidden lg:inline-flex"} />
+          <SideNav 
+            rootClassName={"hidden lg:inline-flex"} 
+            selectedCategoryId={selectedCategoryId}
+            setSelectedCategoryId={setSelectedCategoryId}
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+          />
           <section className=" grid grid-cols-1  sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-6">
-            {[
-              "FRAME (5).png",
-              "books.png",
-              "FRAME (7).png",
-              "FRAME (8).png",
-              "FRAME (9).png",
-              "FRAME (5).png",
-              "books.png",
-              "FRAME (7).png",
-              "FRAME (8).png",
-              "FRAME (9).png",
-              "FRAME (5).png",
-              "books.png",
-              "FRAME (7).png",
-              "FRAME (8).png",
-              "FRAME (9).png",
-            ].map((item, index) => {
-              return <ProductCard data={item} key={index} />;
+            {filteredProducts.map((product) => {
+              return <ProductCard data={product} key={product.id} />;
             })}
           </section>
         </div>
@@ -104,7 +155,15 @@ const Store = () => {
 
 export default Store;
 
-const SideNav = ({ rootClassName }) => {
+const SideNav = ({ 
+  rootClassName, 
+  selectedCategoryId, 
+  setSelectedCategoryId, 
+  priceRange, 
+  setPriceRange, 
+  sortBy, 
+  setSortBy 
+}) => {
   return (
     <nav
       className={cx(
@@ -114,27 +173,34 @@ const SideNav = ({ rootClassName }) => {
       role="navigation"
       aria-label="قائمة شروط الاستخدام"
     >
-      <FrameExtra />
+      <FrameExtra 
+        selectedCategoryId={selectedCategoryId}
+        setSelectedCategoryId={setSelectedCategoryId}
+      />
 
-      <PriceRange />
+      <PriceRange 
+        priceRange={priceRange}
+        setPriceRange={setPriceRange}
+      />
 
-      <SortBy />
+      <SortBy 
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+      />
     </nav>
   );
 };
 
-export const FrameExtra = () => {
-  const [selectedCategory, setSelectedCategory] = useState("الكتب");
-
+export const FrameExtra = ({ selectedCategoryId, setSelectedCategoryId }) => {
   const categories = [
-    { id: "all", label: "الكل", isSelected: true },
-    { id: "books", label: "الكتب", isSelected: false },
-    { id: "courses", label: "الدورات", isSelected: false },
-    { id: "bags", label: "الحقائب", isSelected: false },
+    { id: "all", label: "الكل" },
+    { id: "books", label: "الكتب" },
+    { id: "courses", label: "الدورات" },
+    { id: "bags", label: "الحقائب" },
   ];
 
-  const handleCategoryChange = (categoryId, categoryLabel) => {
-    setSelectedCategory(categoryLabel);
+  const handleCategoryChange = (categoryId) => {
+    setSelectedCategoryId(categoryId);
   };
 
   return (
@@ -160,22 +226,21 @@ export const FrameExtra = () => {
                   type="radio"
                   name="category"
                   value={category.id}
-                  checked={selectedCategory === category.label}
+                  checked={selectedCategoryId === category.id}
                   onChange={() => {
-                    handleCategoryChange(category.id, category.label);
-                    console.log(category.id, "__", category.label);
+                    handleCategoryChange(category.id);
                   }}
                   className="sr-only"
                   aria-label={`اختر ${category.label}`}
                 />
                 <div
                   className={`relative w-4 h-4 rounded cursor-pointer ${
-                    selectedCategory === category.label
+                    selectedCategoryId === category.id
                       ? "bg-primary"
                       : "border border-solid border-zinc-900"
                   }`}
                 >
-                  {selectedCategory === category.label && (
+                  {selectedCategoryId === category.id && (
                     <svg
                       width={16}
                       height={16}
@@ -212,8 +277,7 @@ export const FrameExtra = () => {
   );
 };
 
-export const PriceRange = () => {
-  const [sliderValue, setSliderValue] = useState(0);
+export const PriceRange = ({ priceRange, setPriceRange }) => {
   const [isDragging, setIsDragging] = useState(false);
   const maxValue = 280;
   const trackRef = useRef(null);
@@ -225,7 +289,7 @@ export const PriceRange = () => {
     const percentage = Math.max(0, Math.min(1, x / rect.width));
     // ✅ عكس الحساب للـ RTL
     const newValue = (1 - percentage) * maxValue;
-    setSliderValue(newValue);
+    setPriceRange(newValue);
   };
 
   const handleMouseDown = (e) => {
@@ -243,15 +307,15 @@ export const PriceRange = () => {
     if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
       e.preventDefault();
       // في RTL السهم لليسار يزيد
-      setSliderValue((prev) => Math.min(maxValue, prev + 10));
+      setPriceRange((prev) => Math.min(maxValue, prev + 10));
     } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
       e.preventDefault();
       // في RTL السهم لليمين ينقص
-      setSliderValue((prev) => Math.max(0, prev - 10));
+      setPriceRange((prev) => Math.max(0, prev - 10));
     }
   };
 
-  const currentPrice = Math.round((sliderValue / maxValue) * 100);
+  const currentPrice = Math.round((priceRange / maxValue) * 100);
 
   return (
     <div
@@ -269,7 +333,7 @@ export const PriceRange = () => {
           النطاق السعري{" "}
           <span className="text-text-alt text-base mx-3 ">
             {" "}
-            ({sliderValue.toFixed("0")} ر.س )
+            ({priceRange.toFixed("0")} ر.س )
           </span>
         </h2>
       </div>
@@ -290,7 +354,7 @@ export const PriceRange = () => {
         >
           <div
             className="h-2 bg-blue-700 rounded-full ml-auto"
-            style={{ width: `${(sliderValue / maxValue) * 100}%` }}
+            style={{ width: `${(priceRange / maxValue) * 100}%` }}
           />
         </div>
 
@@ -298,7 +362,7 @@ export const PriceRange = () => {
         <div
           className="absolute w-5 h-5 top-[4px] bg-white rounded-full border-2 border-primary cursor-grab active:cursor-grabbing focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1"
           style={{
-            right: `${(sliderValue / maxValue) * 280 - 10}px`,
+            right: `${(priceRange / maxValue) * 280 - 10}px`,
           }}
           onMouseDown={handleMouseDown}
           tabIndex="0"
@@ -335,9 +399,8 @@ const H69 = (props) => (
   </svg>
 );
 
-export const SortBy = () => {
+export const SortBy = ({ sortBy, setSortBy }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("الأحدث أولا");
 
   const sortOptions = [
     "الأحدث أولا",
@@ -347,7 +410,7 @@ export const SortBy = () => {
   ];
 
   const handleOptionSelect = (option) => {
-    setSelectedOption(option);
+    setSortBy(option);
     setIsOpen(false);
   };
 
@@ -368,7 +431,7 @@ export const SortBy = () => {
                     className="w-full px-[13px] py-2 text-right hover:bg-gray-50 focus:bg-gray-50 focus:outline-none  font-semibold text-text text-base "
                     onClick={() => handleOptionSelect(option)}
                     role="option"
-                    aria-selected={selectedOption === option}
+                    aria-selected={sortBy === option}
                   >
                     {option}
                   </button>
@@ -386,7 +449,7 @@ export const SortBy = () => {
         >
           <div className="inline-flex h-5 items-center relative flex-[0_0_auto]">
             <div className="mt-[-2.00px] mb-[-2.00px]  font-semibold text-text text-base tracking-[0] overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] relative w-fit text-left leading-6 whitespace-nowrap ">
-              {selectedOption}
+              {sortBy}
             </div>
           </div>
           <div className="relative w-4 h-4">
@@ -398,7 +461,13 @@ export const SortBy = () => {
   );
 };
 
-export const StoreHeaderMobile = ({rootClassName}) => {
+export const StoreHeaderMobile = ({ 
+  rootClassName, 
+  priceRange, 
+  setPriceRange, 
+  sortBy, 
+  setSortBy 
+}) => {
   const [openDrawer, serOpenDrawer] = useState(false);
   return (
     <div className={rootClassName}>
@@ -414,8 +483,14 @@ export const StoreHeaderMobile = ({rootClassName}) => {
 
       <BottomDrawer open={openDrawer} setOpen={serOpenDrawer}>
         <div className="flex flex-col gap-10">
-          <PriceRange />
-          <SortBy />
+          <PriceRange 
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+          />
+          <SortBy 
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+          />
         </div>
       </BottomDrawer>
     </div>

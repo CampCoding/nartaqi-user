@@ -40,14 +40,14 @@ export const MyActiveCourseCard = () => {
                 </span>
               </div>
               <div className="inline-flex h-5 items-center relative flex-[0_0_auto]">
-                <span className="text-secondary font-bold relative flex items-center justify-center self-stretch w-fit text-xs sm:text-sm leading-5 whitespace-nowrap">
+                <span className="text-secondary  font-bold relative flex items-center justify-center self-stretch w-fit text-xs sm:text-sm leading-5 whitespace-nowrap">
                   {courseData.progress}%
                 </span>
               </div>
             </div>
 
             <div
-              className="relative self-stretch w-full h-2 bg-zinc-100 rounded-full overflow-hidden rotate-180"
+              className="relative flex self-stretch w-full h-2 bg-zinc-100 rounded-full overflow-hidden "
               role="progressbar"
               aria-valuenow={courseData.progress}
               aria-valuemin="0"
@@ -55,7 +55,7 @@ export const MyActiveCourseCard = () => {
               aria-label={`${courseData.progressLabel}: ${courseData.progress}%`}
             >
               <div
-                className="relative h-2 bg-secondary rounded-lg transition-all duration-300"
+                className="relative  h-2 bg-secondary rounded-lg transition-all duration-300"
                 style={{ width: `${courseData.progress}%` }}
               />
             </div>

@@ -70,7 +70,7 @@ export const ProfileSideBar = () => {
 
   return (
     <nav
-      className=" sticky top-0 h-[801px] flex flex-col justify-between bg-white rounded-[30px] overflow-hidden border-[5px] border-solid border-variable-collection-stroke"
+      className="  h-full flex flex-col justify-between bg-white rounded-[30px] overflow-hidden border-[5px] border-solid border-variable-collection-stroke"
       role="navigation"
       aria-label="القائمة الرئيسية"
     >

@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
+import { useUser } from "../../../lib/useUser";
 
 export const VerificationCodeModal = ({ show, setShow, setIsVerified }) => {
   const [verificationCode, setVerificationCode] = useState("");
 
+  const { login, user } = useUser();
   const handleInputChange = (e) => {
     const value = e.target.value.replace(/\D/g, "").slice(0, 4);
     setVerificationCode(value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (verificationCode.length === 4) {
-      console.log("Verification code submitted:", verificationCode);
+      await login({ phone: user?.phone, password: "1234", type: "marketer" });
+
+      setIsVerified(true);
+      setShow(false);
     }
   };
 
@@ -60,10 +65,6 @@ export const VerificationCodeModal = ({ show, setShow, setIsVerified }) => {
           {/* Button */}
           <button
             disabled={!verificationCode || verificationCode.length !== 4}
-            onClick={() => {
-              setIsVerified(true);
-              setShow(false);
-            }}
             type="submit"
             className="w-full disabled:bg-gray-300 disabled:cursor-not-allowed max-w-[200px] px-8 py-4 bg-secondary text-white text-base font-bold rounded-[16px] shadow-md transition-transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-secondary"
           >

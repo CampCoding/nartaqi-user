@@ -40,22 +40,19 @@ const SignUpPage = () => {
       setError("كلمتا المرور غير متطابقتين");
       return;
     }
-    setSubmitting(true);
-    try {
-      await register({
-        firstName,
-        middleName,
-        lastName,
-        gender: selected,
-        phone,
-        password,
-      });
-      router.push("/");
-    } catch (err) {
-      setError(err?.message || "فشل إنشاء الحساب");
-    } finally {
-      setSubmitting(false);
-    }
+
+    const params = new URLSearchParams({
+      firstName,
+      middleName,
+      lastName,
+      gender: selected,
+      phone,
+    });
+
+    router.push(`/verification-code?${params.toString()}`);
+
+
+   
   };
 
   return (

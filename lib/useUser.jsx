@@ -40,10 +40,13 @@ export function UserProvider({ children }) {
     } catch (_) {}
   }, [user]);
 
-  const login = useCallback(async ({ phone, password }) => {
+  const login = useCallback(async ({ phone, password, type }) => {
     await new Promise((r) => setTimeout(r, 300));
     if (!phone || !password) throw new Error("Phone and password are required");
-    const mockUser = { id: "demo-user", phone, name: "مستخدم تجريبي" };
+    const mockUser = { id: "demo-user", phone, name: "test-user" };
+    if (type) {
+      mockUser.type = type;
+    }
     setUser(mockUser);
     return mockUser;
   }, []);
