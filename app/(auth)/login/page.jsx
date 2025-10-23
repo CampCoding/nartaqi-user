@@ -56,69 +56,69 @@ const LoginPage = () => {
             مرحبا بعودتك مرة اخرى{" "}
           </p>
         </div>
-          <form
-            onSubmit={handleSubmit}
-            className="mx-auto w-full space-y-6 md:space-y-8 lg:space-y-[32px]"
-          >
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div className="col-span-3">
-                <TelephoneInput
-                  label="رقم الجوال"
-                  subLabel=""
-                  placeholder="ادخل رقم جوالك"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-              </div>
-              <div className="col-span-3 space-y-2">
-                <PasswordInput
-                  label="كلمة المرور"
-                  subLabel=""
-                  placeholder="أدخل كلمة المرور"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <Link
-                  href={{
-                    pathname: "/reset-password",
-                    query: { number: "" },
-                  }}
-                  className="text-right justify-center text-primary text-sm sm:text-base font-bold block"
-                >
-                  نسيت كلمة المرور؟
-                </Link>
-              </div>
+        <form
+          onSubmit={handleSubmit}
+          className="mx-auto w-full space-y-6 md:space-y-8 lg:space-y-[32px]"
+        >
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="col-span-3">
+              <TelephoneInput
+                label="رقم الجوال"
+                subLabel=""
+                placeholder="ادخل رقم جوالك"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
             </div>
-
-            <div className="space-y-4">
-              {error ? (
-                <div className="text-danger text-sm font-medium">{error}</div>
-              ) : null}
-              <button
-                type="submit"
-                disabled={submitting || isLoading}
-                className="w-full px-6 sm:px-8 md:px-12 py-4 sm:py-5 md:py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5 disabled:opacity-60"
+            <div className="col-span-3 space-y-2">
+              <PasswordInput
+                label="كلمة المرور"
+                subLabel=""
+                placeholder="أدخل كلمة المرور"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Link
+                href={{
+                  pathname: "/reset-password",
+                  query: { number: "" },
+                }}
+                className="text-right justify-center text-primary text-sm sm:text-base font-bold block"
               >
-                <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
-                  {submitting ? "جارٍ الدخول..." : "تسجيل الدخول"}
-                </div>
-              </button>
-              <div className="text-center justify-center">
-                <span className="text-text text-xs sm:text-sm font-medium">
-                  ليس لديك حساب؟
-                </span>
-                <span className="text-primary text-xs sm:text-sm font-bold">
-                  {" "}
-                </span>
-                <Link
-                  href={"/sign-up"}
-                  className="text-primary text-xs sm:text-sm font-bold underline"
-                >
-                  إنشاء حساب جديد{" "}
-                </Link>
-              </div>
+                نسيت كلمة المرور؟
+              </Link>
             </div>
-          </form>
+          </div>
+
+          <div className="space-y-4">
+            {error ? (
+              <div className="text-danger text-sm font-medium">{error}</div>
+            ) : null}
+            <button
+              type="submit"
+              disabled={submitting || isLoading}
+              className="w-full px-6 sm:px-8 md:px-12 py-4 sm:py-5 md:py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5 disabled:opacity-60"
+            >
+              <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
+                {submitting ? "جارٍ الدخول..." : "تسجيل الدخول"}
+              </div>
+            </button>
+            <div className="text-center justify-center">
+              <span className="text-text text-xs sm:text-sm font-medium">
+                ليس لديك حساب؟
+              </span>
+              <span className="text-primary text-xs sm:text-sm font-bold">
+                {" "}
+              </span>
+              <Link
+                href={"/sign-up"}
+                className="text-primary text-xs sm:text-sm font-bold underline"
+              >
+                إنشاء حساب جديد{" "}
+              </Link>
+            </div>
+          </div>
+        </form>
       </div>
 
       <div
@@ -196,8 +196,10 @@ export const TelephoneInput = ({
       {countries.map((country) => (
         <Menu.Item
           key={country.code}
-          className="flex items-center gap-3 px-4 py-3"
+          className=""
         >
+          <div className="!flex gap-3 px-4 py-3">
+            
           <div className="w-5 h-5">
             <country.icon />
           </div>
@@ -219,7 +221,10 @@ export const TelephoneInput = ({
                 clipRule="evenodd"
               />
             </svg>
+
           )}
+                    </div>
+
         </Menu.Item>
       ))}
     </Menu>
@@ -291,7 +296,7 @@ export const PasswordInput = ({
         <input
           type={show ? "text" : "password"}
           placeholder={placeholder}
-          className="justify-start h-12 sm:h-14 md:h-[62px] gap-2.5 px-3 sm:px-4 pr-10 sm:pr-12 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base"
+          className="justify-start outline-0 ring-0 h-12 sm:h-14 md:h-[62px] gap-2.5 px-3 sm:px-4 pr-10 sm:pr-12 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base"
           {...props}
         />
         <div

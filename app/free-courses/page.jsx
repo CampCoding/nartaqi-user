@@ -63,7 +63,7 @@ const FreeCourses = () => {
         ]}
         image={"/images/Frame 1000005155.png"}
       />
-      <Container className=" mt-[32px]">
+      <Container className=" my-[32px]">
         <div className="  mb-[32px] md:mb-[48px]">
           <CoursesFilters />
         </div>

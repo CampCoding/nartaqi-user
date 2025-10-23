@@ -13,9 +13,7 @@ const CourseContent = ({ isRegistered }) => {
   const [selectedTab, setSelectedTab] = useState("foundation");
 
   return (
-    // The w-full and flex-1 classes are already responsive.
     <div className="w-full flex-1">
-      {/* Responsive font size and margin for the title */}
       <div className="text-right justify-center text-primary text-lg md:text-2xl font-bold mb-6 lg:mb-8">
         محتوي الدورة : إتقان التدريس الفعال
       </div>

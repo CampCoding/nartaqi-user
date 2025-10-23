@@ -46,6 +46,7 @@ export default function Header() {
                 <Link
                   key={group.key}
                   href={group.link}
+                  target={group.target == "_blank" ? "_blank" : "_self"}
                   className={` ${
                     index == 0 ? "ml-5" : ""
                   } cursor-pointer  hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-0 hover:border-b-[3px] hover:border-primary`}
@@ -174,7 +175,7 @@ export default function Header() {
 }
 
 // Mobile Menu Component
-const MobileMenu = ({ headerData, isAuthenticated, onClose , user }) => {
+const MobileMenu = ({ headerData, isAuthenticated, onClose, user }) => {
   const [expandedItem, setExpandedItem] = useState(null);
 
   return (
@@ -233,7 +234,7 @@ const MobileMenu = ({ headerData, isAuthenticated, onClose , user }) => {
               onClick={onClose}
               className="flex items-center justify-center text-sm font-bold bg-white h-[48px] rounded-[100px] border-2 border-primary text-primary"
             >
-              {user?.type == "marketer" ? "الملف الشخصي":"حسابي"}
+              {user?.type == "marketer" ? "الملف الشخصي" : "حسابي"}
             </Link>
           )}
         </div>
@@ -333,6 +334,7 @@ export const DropDownItems = ({ items }) => {
         const isFirst = index === 0;
         const href = course.link || course.href;
         const rowId = `${course.title || course.id}-${index}`;
+        const target = course.target || "_self";
 
         const rowContent = (
           <div
@@ -399,7 +401,7 @@ export const DropDownItems = ({ items }) => {
           >
             <div onClick={() => setOpenSub(rowId)}>
               {href ? (
-                <Link href={href} className="block">
+                <Link href={href} target={target} className="block">
                   {rowContent}
                 </Link>
               ) : (

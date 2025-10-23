@@ -1,15 +1,60 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import PagesBanner from "../../components/ui/PagesBanner";
 import Container from "../../components/ui/Container";
 import cx from "../../lib/cx";
 import { useUser } from "../../lib/useUser";
 import { useRouter } from "next/navigation";
+import { CopyIcon } from "../../public/svgs";
+import { Copy } from "lucide-react";
 
 const MarketerProfile = () => {
   const { logout } = useUser();
   const router = useRouter();
+  const [copied, setCopied] = useState(false);
+  const handleCopyCode = async () => {
+    try {
+      await navigator.clipboard.writeText("A56FET");
+      setCopied(true);
+      
+      // Show success message
+      const toast = document.createElement('div');
+      toast.textContent = 'تم نسخ الرمز بنجاح!';
+      toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50 transition-all duration-300';
+      document.body.appendChild(toast);
+      
+      // Remove toast after 3 seconds
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+          if (document.body.contains(toast)) {
+            document.body.removeChild(toast);
+          }
+        }, 300);
+      }, 3000);
+      
+      // Reset copied state after 2 seconds
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+      
+      // Show error message
+      const toast = document.createElement('div');
+      toast.textContent = 'فشل في نسخ الرمز';
+      toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg z-50 transition-all duration-300';
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+          if (document.body.contains(toast)) {
+            document.body.removeChild(toast);
+          }
+        }, 300);
+      }, 3000);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -67,7 +112,23 @@ const MarketerProfile = () => {
             icon={
               <DiscountIcon className="fill-primary shrink-0 w-[32px] h-[32px]" />
             }
-            description="رمز الخصم الخاص بك"
+            description={
+              <div className="flex items-center justify-between w-full">
+                <div className=" ">رمز الخصم الخاص بك</div>
+                <button
+                  onClick={handleCopyCode}
+                  className="p-1 hover:bg-gray-100 rounded-md transition-colors duration-200 group"
+                  title={copied ? "تم النسخ!" : "نسخ الرمز"}
+                >
+                  <CopyIcon 
+                    className={cx(
+                      "w-6 h-6 transition-colors duration-200",
+                      copied ? "fill-green-500" : "fill-gray-500 group-hover:fill-primary"
+                    )} 
+                  />
+                </button>
+              </div>
+            }
             value={<div className="text-end w-full">A56FET</div>}
           />
           <StartCard

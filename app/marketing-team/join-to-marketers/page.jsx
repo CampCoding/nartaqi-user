@@ -10,6 +10,7 @@ import {
 import { Check } from "lucide-react";
 import { VerificationCodeModal } from "../../../components/ui/Modals/VerCodeModal";
 import Link from "next/link";
+import Container from "../../../components/ui/Container";
 
 const JoinToMarketers = () => {
   const [formData, setFormData] = useState({
@@ -46,12 +47,12 @@ const JoinToMarketers = () => {
         ]}
       />
 
-      <div
+      <Container
         style={{
           display: isVerified ? "flex" : "none",
         }}
         ref={successRef} // 👈 Attach ref here
-        className="container flex items-center justify-center flex-col max-w-[1312px] px-[64px] mx-auto mt-[32px]"
+        className=" flex !max-w-[1312px] items-center justify-center flex-col  mt-[32px]"
       >
         <img
           src="/images/success-marketer-join-banner.png"
@@ -63,31 +64,31 @@ const JoinToMarketers = () => {
             تم استلام طلبك بنجاح سيتم مراجعة بياناتك وإرسال كود الخصم الخاص بك
             قريباً.
           </div>
-          <Link href="/" className="px-20 py-6 hover:bg-primary-dark transition cursor-pointer bg-primary rounded-[20px] inline-flex justify-center items-center gap-2.5">
+          <Link
+            href="/"
+            className="px-20 py-6 hover:bg-primary-dark transition cursor-pointer bg-primary    rounded-xl md:rounded-[20px] inline-flex justify-center items-center gap-2.5"
+          >
             <div className="text-right text-white text-base font-bold">
               العودة إلى الرئيسية
             </div>
           </Link>
         </div>
-      </div>
-      <main
+      </Container>
+      <Container
         style={{
           display: isVerified ? "none" : "block",
         }}
-        className="container max-w-[1312px] px-[64px] mx-auto mt-[32px]"
+        className=" mt-[32px] !max-w-[1312px]"
       >
         {" "}
-        <header className="flex mx-auto flex-col w-[607px] items-center gap-6 relative">
-          {" "}
-          <h1 className="mt-[-1.00px] font-bold text-text text-[40px] text-center relative flex items-center justify-center self-stretch tracking-[0] leading-[normal] ">
-            {" "}
-            تسجيل مسوق شريك{" "}
-          </h1>{" "}
-          <p className=" font-medium text-text-alt text-2xl text-left relative flex items-center justify-center self-stretch tracking-[0] leading-[normal] ">
-            {" "}
-            يرجى ملء النموذج أدناه للتسجيل في برنامج التسويق بالعمولة.{" "}
-          </p>{" "}
-        </header>{" "}
+        <header className="mx-auto w-full  px-4 sm:px-6 md:px-8 flex flex-col items-center gap-4 sm:gap-6 relative">
+          <h1 className="font-bold text-text text-2xl sm:text-3xl md:text-[40px] text-center tracking-[0] leading-tight sm:leading-snug">
+            تسجيل مسوق شريك
+          </h1>
+          <p className="font-medium text-text-alt text-center text-base sm:text-lg md:text-2xl  tracking-[0] leading-relaxed break-words">
+            يرجى ملء النموذج أدناه للتسجيل في برنامج التسويق بالعمولة.
+          </p>
+        </header>
         <section className="mt-[88px] grid grid-cols-2 gap-[32px]">
           {" "}
           <div className="col-span-2">
@@ -98,21 +99,25 @@ const JoinToMarketers = () => {
               placeholder="أدخل اسمك بالكامل"
             />{" "}
           </div>{" "}
-          <Input
-            subLabel=""
-            label="رقم الهوية"
-            placeholder="أدخل رقم هويتك الوطنية"
-          />{" "}
-          <Select
-            subLabel=""
-            label="المدينة"
-            options={[
-              { value: "", label: "اختر مدينتك " },
-              { value: "option1", label: "الخيار الأول" },
-              { value: "option2", label: "الخيار الثاني" },
-              { value: "option3", label: "الخيار الثالث" },
-            ]}
-          />{" "}
+          <div className="col-span-2 md:col-span-1">
+            <Input
+              subLabel=""
+              label="رقم الهوية"
+              placeholder="أدخل رقم هويتك الوطنية"
+            />{" "}
+          </div>
+          <div className="col-span-2 md:col-span-1">
+            <Select
+              subLabel=""
+              label="المدينة"
+              options={[
+                { value: "", label: "اختر مدينتك " },
+                { value: "option1", label: "الخيار الأول" },
+                { value: "option2", label: "الخيار الثاني" },
+                { value: "option3", label: "الخيار الثالث" },
+              ]}
+            />{" "}
+          </div>
           <div className="col-span-2">
             {" "}
             <Input
@@ -210,7 +215,7 @@ const JoinToMarketers = () => {
         </div>{" "}
         <button
           onClick={() => setOpenVerCode(true)}
-          className="w-full mt-[48px] px-12 py-6 bg-secondary hover:bg-secondary-dark transition cursor-pointer rounded-[20px] inline-flex justify-center items-center gap-2.5"
+          className="w-full mt-[48px] px-12 py-6 bg-secondary hover:bg-secondary-dark transition cursor-pointer    rounded-xl md:rounded-[20px] inline-flex justify-center items-center gap-2.5"
         >
           {" "}
           <div className="text-right justify-center text-white text-lg font-bold ">
@@ -218,7 +223,7 @@ const JoinToMarketers = () => {
             تقديم الطلب{" "}
           </div>{" "}
         </button>{" "}
-      </main>
+      </Container>
 
       <VerificationCodeModal
         setIsVerified={setIsVerified}
@@ -235,20 +240,32 @@ export const Input = ({
   label = "الاسم رباعي باللغة العربية",
   subLabel = "(مطابق للهوية الوطنية)",
   placeholder = "أدخل اسمك بالكامل",
+  ...props
 }) => {
+  const id = props.id || "input-" + Math.random().toString(36).slice(2);
   return (
-    <div className="flex flex-col items-start gap-2 relative">
-      <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+    <div className="flex flex-col items-start gap-2">
+      {/* labels stack on mobile, align sides on sm+ */}
+      <div className="flex w-full items-start sm:items-center justify-between gap-1 sm:gap-2">
+        <label
+          htmlFor={id}
+          className="mt-[-1.00px] font-bold text-text text-sm sm:text-base whitespace-normal"
+        >
           {label}
-        </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+        </label>
+        <div className="mt-[-1.00px] font-medium text-danger text-xs sm:text-base whitespace-normal">
           {subLabel}
         </div>
       </div>
+
       <input
+        id={id}
         placeholder={placeholder}
-        className="justify-start h-[78px] gap-2.5 px-4  bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto]"
+        dir="rtl"
+        className="h-12 sm:h-14 md:h-[78px] px-4 bg-white    rounded-xl md:rounded-[20px] border-2 border-[#c8c9d5] w-full
+                   placeholder-[#c8c9d5] text-text text-base text-right
+                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300"
+        {...props}
       />
     </div>
   );
@@ -257,26 +274,47 @@ export const Input = ({
 export const Upload = ({
   label = "الاسم رباعي باللغة العربية",
   subLabel = "(مطابق للهوية الوطنية)",
-  placeholder = "أدخل اسمك بالكامل",
+  buttonText = "ارفع ملفك الخاص",
+  accept, // e.g. ".pdf,.jpg,.png"
+  onChange,
+  ...props
 }) => {
+  const id = props.id || "upload-" + Math.random().toString(36).slice(2);
   return (
-    <div className="flex flex-col items-start gap-[10px] relative">
-      <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+    <div className="flex flex-col items-start gap-2">
+      <div className="flex w-full items-start sm:items-center justify-between gap-1 sm:gap-2">
+        <label
+          htmlFor={id}
+          className="mt-[-1.00px] font-bold text-text text-sm sm:text-base whitespace-normal"
+        >
           {label}
-        </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+        </label>
+        <div className="mt-[-1.00px] font-medium text-danger text-xs sm:text-base whitespace-normal">
           {subLabel}
         </div>
       </div>
-      <div className="self-stretch px-6 py-12 bg-white rounded-[20px] outline outline-2 outline-offset-[-2px] outline-gray-300 inline-flex justify-center items-center gap-2">
-        <div className="text-right justify-center text-text text-base font-semibold ">
-          ارفع ملفك الخاص
-        </div>
-        <div className="relative overflow-hidden">
-          <UploadPill width={32} height={32} />
-        </div>
-      </div>
+
+      {/* Clickable area with hidden input for accessibility */}
+      <label
+        htmlFor={id}
+        className="w-full px-4 sm:px-6 py-6 sm:py-8 md:py-12 bg-white    rounded-xl md:rounded-[20px] outline outline-2 outline-offset-[-2px] outline-gray-300
+                   inline-flex justify-between sm:justify-center items-center gap-3 cursor-pointer
+                   hover:outline-gray-400 focus-within:outline-indigo-400"
+      >
+        <span className="text-text text-sm sm:text-base font-semibold select-none">
+          {buttonText}
+        </span>
+        <span className="relative overflow-hidden">
+          <UploadPill width={28} height={28} className="sm:w-8 sm:h-8" />
+        </span>
+      </label>
+      <input
+        id={id}
+        type="file"
+        accept={accept}
+        onChange={onChange}
+        className="sr-only"
+      />
     </div>
   );
 };
@@ -286,21 +324,32 @@ export const TextArea = ({
   subLabel = "(مطابق للهوية الوطنية)",
   placeholder = "أدخل اسمك بالكامل",
   rows = 5,
+  ...props
 }) => {
+  const id = props.id || "textarea-" + Math.random().toString(36).slice(2);
   return (
-    <div className="flex flex-col items-start gap-2 relative">
-      <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+    <div className="flex flex-col items-start gap-2">
+      <div className="flex w-full items-start sm:items-center justify-between gap-1 sm:gap-2">
+        <label
+          htmlFor={id}
+          className="mt-[-1.00px] font-bold text-text text-sm sm:text-base whitespace-normal"
+        >
           {label}
-        </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+        </label>
+        <div className="mt-[-1.00px] font-medium text-danger text-xs sm:text-base whitespace-normal">
           {subLabel}
         </div>
       </div>
+
       <textarea
+        id={id}
         rows={rows}
         placeholder={placeholder}
-        className="justify-start  gap-2.5 px-4 pt-8  bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto]"
+        dir="rtl"
+        className="min-h-[140px] sm:min-h-[160px] md:min-h-[180px] px-4 pt-4 sm:pt-6 bg-white    rounded-xl md:rounded-[20px] border-2 border-[#c8c9d5] w-full
+                   text-right text-base placeholder-[#c8c9d5]
+                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300"
+        {...props}
       />
     </div>
   );
@@ -316,24 +365,38 @@ export const Select = ({
     { value: "option2", label: "الخيار الثاني" },
     { value: "option3", label: "الخيار الثالث" },
   ],
+  ...props
 }) => {
+  const id = props.id || "select-" + Math.random().toString(36).slice(2);
   return (
-    <div className="flex flex-col items-start gap-2 relative">
-      <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+    <div className="flex flex-col items-start gap-2">
+      <div className="flex w-full items-start sm:items-center justify-between gap-1 sm:gap-2">
+        <label
+          htmlFor={id}
+          className="mt-[-1.00px] font-bold text-text text-sm sm:text-base whitespace-normal"
+        >
           {label}
-        </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+        </label>
+        <div className="mt-[-1.00px] font-medium text-danger text-xs sm:text-base whitespace-normal">
           {subLabel}
         </div>
       </div>
 
-      <div className="justify-start  relative h-[78px] gap-2.5 px-4 bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center self-stretch w-full flex-[0_0_auto]">
-        <div className="absolute top-1/2 left-4 -translate-y-1/2 rotate-180">
-          {<CourseChevronTopIcon className={"fill-text"} />}
+      <div className="relative w-full">
+        {/* chevron keeps your original left placement for RTL */}
+        <div className="absolute top-1/2 left-4 -translate-y-1/2 rotate-180 pointer-events-none">
+          <CourseChevronTopIcon className="fill-text" />
         </div>
 
-        <select className="h-full w-full" defaultValue="">
+        <select
+          id={id}
+          defaultValue=""
+          dir="rtl"
+          className="appearance-none h-12 sm:h-14 md:h-[78px] w-full pr-4 pl-10 bg-white    rounded-xl md:rounded-[20px] border-2 border-[#c8c9d5]
+                     text-right text-base
+                     focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300"
+          {...props}
+        >
           {options.map((opt) => (
             <option
               key={opt.value}
@@ -353,28 +416,40 @@ export const TelephoneButon = ({
   label = "رقم الجوال",
   subLabel = "(مثال: ٥٠٠٠٠٠٠٠٠)",
   placeholder = "123456789",
+  countryCode = "+966",
   ...props
 }) => {
+  const id = props.id || "tel-" + Math.random().toString(36).slice(2);
   return (
-    <div className="flex flex-col items-start gap-2 relative w-full">
-      <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+    <div className="flex flex-col items-start gap-2 w-full">
+      <div className="flex w-full items-start sm:items-center justify-between gap-1 sm:gap-2">
+        <label
+          htmlFor={id}
+          className="mt-[-1.00px] font-bold text-text text-sm sm:text-base whitespace-normal"
+        >
           {label}
-        </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
+        </label>
+        <div className="mt-[-1.00px] font-medium text-danger text-xs sm:text-base whitespace-normal">
           {subLabel}
         </div>
       </div>
-      <div className=" h-[78px] justify-between px-4 py-0 bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative w-full">
+
+      <div className="flex items-stretch h-12 sm:h-14 md:h-[78px] w-full bg-white    rounded-xl md:rounded-[20px] border-2 border-[#c8c9d5] overflow-hidden">
+        {/* input (RTL) */}
         <input
-          className="justify-center w-full font-normal text-text placeholder-[#c8c9d5] text-base text-right tracking-[0] leading-[normal] flex items-center relative"
+          id={id}
+          inputMode="numeric"
           placeholder={placeholder}
+          dir="rtl"
+          className="flex-1 px-4 text-base text-right text-text placeholder-[#c8c9d5]
+                     focus:outline-none focus:ring-2 focus:ring-indigo-300"
           {...props}
         />
-        <div className="inline-flex items-center gap-2.5 px-4 py-6 relative flex-[0_0_auto] border-r-2 [border-right-style:solid] border-variable-collection-stroke">
-          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold text-text text-base text-right tracking-[0] leading-[normal]">
-            +966
-          </div>
+        {/* country segment (kept visually on the left for RTL) */}
+        <div className="flex items-center gap-2.5 px-3 sm:px-4 border-r-2 border-variable-collection-stroke">
+          <span className="font-semibold text-text text-sm sm:text-base whitespace-nowrap">
+            {countryCode}
+          </span>
           <SaudiIcon />
         </div>
       </div>

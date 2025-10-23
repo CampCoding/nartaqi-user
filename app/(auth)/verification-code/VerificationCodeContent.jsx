@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import Container from "../../../components/ui/Container";
+import { useUser } from "../../../lib/useUser";
 
 const VerificationCode = () => {
   const [value1, setValue1] = useState("Apple");
@@ -165,6 +166,7 @@ export const PasswordInput = ({
 };
 
 export const Frame = ({ phone = "", user = {} }) => {
+  const {login} = useUser()
   const [verificationCode, setVerificationCode] = useState([
     "",
     "",
@@ -221,6 +223,8 @@ export const Frame = ({ phone = "", user = {} }) => {
     if (code.length === 6) {
       console.log("Verification code submitted:", code);
       // TODO: Call your backend to verify the code here.
+      console.log(user)
+      login({phone:user.phone , password:"123456"})
       router.push("/");
     }
   };

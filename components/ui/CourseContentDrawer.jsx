@@ -73,10 +73,15 @@ const CourseContentDrawer = ({ isRegistered }) => {
   };
 
   return (
-    <div className="self-stretch w-full  px-4 md:px-6  py-4 md:py-[24px] bg-white  rounded-xl md:rounded-[20px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] outline outline-2 outline-offset-[-1px] outline-neutral-300 inline-flex flex-col justify-start items-start gap-8">
+    <div
+      className={cx(
+        "self-stretch w-full transition-all bg-white  rounded-xl md:rounded-[20px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] outline outline-2 outline-offset-[-1px] outline-neutral-300 inline-flex flex-col justify-start items-start",
+        !isOpen ? "hover:shadow-2xl" : "shadow-xl"
+      )}
+    >
       {/* Header */}
       <div
-        className="self-stretch inline-flex justify-between items-start cursor-pointer"
+        className="self-stretch px-4 md:px-6  py-4 md:py-[24px] inline-flex justify-between items-start cursor-pointer"
         onClick={handleToggle}
       >
         <div className="text-right justify-center text-text text-sm md:text-base font-bold ">
@@ -99,13 +104,13 @@ const CourseContentDrawer = ({ isRegistered }) => {
 
       {isOpen &&
         (isRegistered ? (
-          <div className=" w-full flex flex-col  gap-3 sm:gap-4">
+          <div className=" w-full flex flex-col  gap-3 sm:gap-4 px-4 md:px-6  pb-4 md:pb-[24px]">
             <RegLecureDrawer isLive isDone={true} />
             <RegLecureDrawer isDone={true} />
             <RegLecureDrawer />
           </div>
         ) : (
-          <div className="self-stretch flex flex-col justify-start items-start gap-6">
+          <div className="self-stretch flex flex-col justify-start items-start gap-6 px-4 md:px-6  pb-4 md:pb-[24px]">
             {lessons.map((lesson, index) => (
               <div
                 key={lesson.id}
@@ -143,7 +148,12 @@ export const RegLecureDrawer = ({ isLive = false, isDone }) => {
   const toggleExpanded = () => setIsExpanded((v) => !v);
 
   return (
-    <article className="flex w-full flex-col items-start gap-4 sm:gap-6 p-4 sm:p-6 relative bg-white  rounded-xl md:rounded-[30px] border-2 border-solid border-variable-collection-stroke">
+    <article
+      className={cx(
+        "flex w-full flex-col items-start   relative bg-white  rounded-xl md:rounded-[30px] border-2 border-solid border-variable-collection-stroke transition-all",
+        isExpanded ? "shadow-xl" : "hover:shadow-2xl"
+      )}
+    >
       <header
         onClick={toggleExpanded}
         onKeyDown={(e) => {
@@ -152,7 +162,7 @@ export const RegLecureDrawer = ({ isLive = false, isDone }) => {
             toggleExpanded();
           }
         }}
-        className="flex cursor-pointer items-center justify-between self-stretch w-full"
+        className="flex cursor-pointer sm:gap-6 p-4 sm:p-6 items-center justify-between self-stretch w-full"
         role="button"
         tabIndex={0}
         aria-expanded={isExpanded}
@@ -178,7 +188,7 @@ export const RegLecureDrawer = ({ isLive = false, isDone }) => {
       {isExpanded && (
         <section
           id={sectionId}
-          className="flex flex-col items-start self-stretch w-full"
+          className="flex flex-col items-start self-stretch w-full sm:gap-6 p-4 sm:p-6 !pt-0"
         >
           <div className="flex items-start gap-3 pt-3 sm:pt-4 pb-4 sm:pb-6 w-full border-b-[2px] border-solid border-variable-collection-stroke">
             <RoundedPlayIcon
@@ -212,7 +222,7 @@ export const RegLecureDrawer = ({ isLive = false, isDone }) => {
               </div>
             </div>
           </div>
-{/* {alert(isDone)} */}
+          {/* {alert(isDone)} */}
           <ExerciseDropDown isDone={isDone} />
         </section>
       )}
@@ -272,21 +282,24 @@ export const ExerciseDropDown = ({ isDone = false }) => {
         <div id={sectionId} className="w-full">
           {items.map((it, idx) => (
             <div className="flex flex-col  ">
-              <div className="flex items-center pt-3 sm:pt-4 pb-4 sm:pb-6 justify-between border-b-[2px] border-solid last:border-none">
+              <Link
+                href={`/course/${123}/view?reg=true&done=true`}
+                className="flex group  items-center pt-3 sm:pt-4 pb-4 sm:pb-6 justify-between border-b-[2px] border-solid last:border-none"
+              >
                 <div className="inline-flex items-center gap-2 sm:gap-4 ">
                   <RoundedPlayIcon
                     className={cx(
                       " w-[20px] stroke-primary h-[20px]  md:w-[29px] md:h-[29px]"
                     )}
                   />
-                  <span className="font-medium text-text text-sm sm:text-base leading-normal">
+                  <span className="font-medium group-hover:underline transition-all text-text text-sm sm:text-base leading-normal">
                     فيديو توضيحي للاختبار
                   </span>
                 </div>
-                <div className="text-right whitespace-nowrap justify-center text-text text-xs  md:text-sm font-medium ">
+                <div className="text-right whitespace-nowrap group-hover:underline justify-center text-text text-xs  md:text-sm font-medium ">
                   18 دقيقة
                 </div>
-              </div>
+              </Link>
               <div
                 key={it.id}
                 className="flex w-full flex-row items-center justify-between border-b-[2px] border-solid last:border-none  pt-3 sm:pt-4 pb-4 sm:pb-6  bg-white"
@@ -329,9 +342,10 @@ export const ExerciseDropDown = ({ isDone = false }) => {
                         )}
                       </Tag>
 
-                        {<button
+                      {
+                        <button
                           className="inline-flex disabled:!opacity-50 disabled:cursor-not-allowed  items-center justify-end gap-2.5  px-4 md:px-6 sm:px-8 py-2 bg-secondary     rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 self-start sm:self-auto"
-                          disabled={!isDone} 
+                          disabled={!isDone}
                           aria-label="تحميل"
                           type="button"
                         >
@@ -343,7 +357,8 @@ export const ExerciseDropDown = ({ isDone = false }) => {
                           <span className="text-white font-medium text-sm sm:text-base leading-normal">
                             تحميل
                           </span>
-                        </button>}
+                        </button>
+                      }
                     </>
                   );
                 })()}
