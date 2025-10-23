@@ -55,7 +55,7 @@ const PagesBanner = ({
           {/* Mobile: horizontal scroll with snap; Desktop: centered inline */}
           <div
             dir="rtl"
-            className="w-full lg:w-fit !px-3 lg:px-[24px] py-3 lg:py-4 bg-secondary rounded-2xl inline-flex items-center gap-3 lg:gap-[16px] overflow-auto hidden-scroll lg:overflow-visible whitespace-nowrap lg:whitespace-normal snap-x snap-mandatory"
+            className=" max-w-full w-fit !px-3 lg:px-[24px] py-3 lg:py-4 bg-secondary rounded-2xl inline-flex items-center gap-3 lg:gap-[16px] overflow-auto hidden-scroll lg:overflow-visible whitespace-nowrap lg:whitespace-normal snap-x snap-mandatory"
           >
             {breadcrumb.map((item, index) => (
               <React.Fragment key={index}>
