@@ -6,7 +6,7 @@ import Container from "../../components/ui/Container";
 import cx from "../../lib/cx";
 import { useUser } from "../../lib/useUser";
 import { useRouter } from "next/navigation";
-import { CopyIcon } from "../../public/svgs";
+import { CopyIcon, CheckIcon } from "../../public/svgs";
 import { Copy } from "lucide-react";
 
 const MarketerProfile = () => {
@@ -117,15 +117,18 @@ const MarketerProfile = () => {
                 <div className=" ">رمز الخصم الخاص بك</div>
                 <button
                   onClick={handleCopyCode}
-                  className="p-1 hover:bg-gray-100 rounded-md transition-colors duration-200 group"
+                  className="p-1 hover:bg-gray-100 rounded-md transition-all duration-200 group"
                   title={copied ? "تم النسخ!" : "نسخ الرمز"}
                 >
-                  <CopyIcon 
-                    className={cx(
-                      "w-6 h-6 transition-colors duration-200",
-                      copied ? "fill-green-500" : "fill-gray-500 group-hover:fill-primary"
-                    )} 
-                  />
+                  {copied ? (
+                    <CheckIcon 
+                      className="w-6 h-6 fill-green-500 transition-all duration-200" 
+                    />
+                  ) : (
+                    <CopyIcon 
+                      className="w-6 h-6 fill-gray-500 group-hover:fill-primary transition-all duration-200" 
+                    />
+                  )}
                 </button>
               </div>
             }

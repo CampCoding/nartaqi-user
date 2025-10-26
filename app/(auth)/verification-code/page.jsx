@@ -1,6 +1,5 @@
-import React, { Suspense } from 'react'
+import React from 'react'
 import VerificationCode from './VerificationCodeContent'
-export const dynamic = "force-dynamic"; // منع SSG لهذه الصفحة
 
 const page = () => {
   return (

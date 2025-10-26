@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React from "react";
 
@@ -23,7 +23,7 @@ const PagesBanner = ({
   const sizes = {
     large: {
       height: "h-[280px] lg:h-[473px]", // Shorter height on mobile, original height on large screens
-      padding: "pt-[40px] lg:pt-[89px]",   // Less padding-top on mobile
+      padding: "pt-[40px] lg:pt-[89px]", // Less padding-top on mobile
     },
     normal: {
       height: "h-[240px] lg:h-[336px]",
@@ -61,7 +61,9 @@ const PagesBanner = ({
               <React.Fragment key={index}>
                 <div
                   className={`shrink-0 snap-start ${
-                    index !== 0 ? "text-white font-semibold" : "text-text font-bold"
+                    index !== 0
+                      ? "text-white font-semibold"
+                      : "text-text font-bold"
                   } text-base lg:text-2xl leading-normal`}
                 >
                   {item.title}

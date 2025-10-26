@@ -1,85 +1,92 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CourseTitle from "../../../components/CourseDetailsPage/CourseTitle";
-import CourseDetailsCard from "../../../components/CourseDetailsPage/CourseDetailsCard";
 import CourseDetailsContent from "../../../components/CourseDetailsPage/CourseDetailsContent";
 import Container from "../../../components/ui/Container";
-import MobileCourseDetails from "../../../components/CourseDetailsPage/MobileCourseDetails";
 import MobileCoursePreview from "../../../components/CourseDetailsPage/MobileCoursePreview";
+import VideoPlayer from "./../../../components/ui/Video";
+import useIsLgUp from "../../../hooks/useLgUp";
+
+
 
 const CoursePreviewPage = () => {
+  const [isLessonStart, setIsLessonStart] = useState(false);
+  const isLgUp = useIsLgUp();
+
   return (
     <>
-      <div className="lg:hidden space-y-4">
-        <MobileCoursePreview />
-        <VideosList />
+      {/* MOBILE / TABLET: < lg */}
+      {!isLgUp && (
+        <div className="space-y-4">
+          {!isLessonStart && (
+            <MobileCoursePreview onClick={() => setIsLessonStart(true)} />
+          )}
+          {isLessonStart && <VideoPlayer defaultPlay={true} />}
+
+          <VideosList />
+          <Container>
+            <CourseDetailsContent />
+          </Container>
+        </div>
+      )}
+
+      {/* DESKTOP: >= lg */}
+      {isLgUp && (
         <Container>
-          <CourseDetailsContent />
-        </Container>
-      </div>
-      <Container className="hidden lg:block">
-        <CourseTitle />
-        <div className="flex flex-col md:flex-row items-start justify-between gap-8">
-          <div className="">
-            <div className="flex-1 h-[300px] sm:h-[380px] lg:h-[455px] relative bg-black/20 rounded-[30px] overflow-hidden">
-              <img
-                src="/images/Frame 1000004932.png"
-                className="w-full h-full object-cover object-top"
-                alt="صورة فيديو توضيحية"
-              />
-
-              {/* overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent pointer-events-none z-10"></div>
-
-              {/* play button */}
-              <div
-                className="
-      absolute z-20 cursor-pointer
-      hover:scale-110 transition-all duration-300
-      top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-      focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/60 focus-visible:rounded-full
-    "
-                role="button"
-                tabIndex={0}
-                aria-label="تشغيل الفيديو"
-              >
+          <CourseTitle />
+          <div className="flex flex-col md:flex-row items-start justify-between gap-8">
+            <div>
+              {!isLessonStart && (
                 <div
-                  className="
-        w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32
-        p-5 bg-secondary rounded-[100px]
-        outline outline-8 outline-offset-[-8px] outline-white
-        inline-flex justify-center items-center gap-2.5 overflow-hidden
-      "
+                  onClick={() => setIsLessonStart(true)}
+                  className="cursor-pointer group flex-1 h-[300px] sm:h-[380px] lg:h-[455px] relative bg-black/20 rounded-[30px] overflow-hidden"
                 >
-                  <div className="w-12 h-12 relative">
-                    <svg
-                      width={48}
-                      height={48}
-                      viewBox="0 0 48 48"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M13.5292 40.657C11.9864 41.595 10 40.4985 10 38.7084L10 10.2915C10 8.50162 11.9864 7.40494 13.5292 8.343L36.8981 22.5514C38.3673 23.4448 38.3673 25.5551 36.8981 26.4486L13.5292 40.657Z"
-                        stroke="white"
-                        strokeWidth={3}
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                  <img
+                    src="/images/Frame 1000004932.png"
+                    className="w-full h-full object-cover object-top"
+                    alt="صورة فيديو توضيحية"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent pointer-events-none z-10" />
+                  <div
+                    className="absolute z-20 cursor-pointer group-hover:scale-110 transition-all duration-300 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/60 focus-visible:rounded-full"
+                    role="button"
+                    tabIndex={0}
+                    aria-label="تشغيل الفيديو"
+                  >
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 p-5 bg-secondary rounded-[100px] outline outline-8 outline-offset-[-8px] outline-white inline-flex justify-center items-center gap-2.5 overflow-hidden">
+                      <div className="w-12 h-12 relative">
+                        <svg
+                          width={48}
+                          height={48}
+                          viewBox="0 0 48 48"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M13.5292 40.657C11.9864 41.595 10 40.4985 10 38.7084L10 10.2915C10 8.50162 11.9864 7.40494 13.5292 8.343L36.8981 22.5514C38.3673 23.4448 38.3673 25.5551 36.8981 26.4486L13.5292 40.657Z"
+                            stroke="white"
+                            strokeWidth={3}
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              )}
+              {isLessonStart && <VideoPlayer defaultPlay={true} />}
+
+              <div className="grid grid-cols-1 my-8 mb-[139px]">
+                <CourseDetailsContent />
               </div>
             </div>
 
-            <div className="  grid grid-cols-1 my-8 mb-[139px]">
-              <CourseDetailsContent />
-            </div>
+            <VideosList />
           </div>
-          <VideosList />
-        </div>
-      </Container>
+        </Container>
+      )}
     </>
   );
 };

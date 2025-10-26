@@ -263,7 +263,7 @@ export const PasswordInput = ({
         <input
           type={show ? "text" : "password"}
           placeholder={placeholder}
-          className="justify-start h-12 sm:h-14 md:h-[62px] gap-2.5 px-3 sm:px-4 pr-10 sm:pr-12 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base"
+          className="justify-start h-12 sm:h-14 md:h-[62px] gap-2.5  px-3 sm:px-4 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base"
           {...props}
         />
         <div

@@ -9,12 +9,42 @@ import {
   RatingStarIcon,
   CourseHeartIcon,
   CertificationIcon,
+  ShareIcon,
+  HeartIcon,
+  HeartFillIcon,
 } from "../../public/svgs";
 import Link from "next/link";
+import ShareBottomDrawer from "../shared/ShareBottomDrawer";
+import { Button, message } from "antd";
 
-const RegCourseDetailsCard = ({ isDone }) => {
+const RegCourseDetailsCard = ({
+  isDone,
+  onShare,
+  onToggleFavorite,
+  isInFavorites,
+}) => {
+  const [openShareDrawer, setOpenShareDrawer] = React.useState(false);
+  const [toastMessage, setToastMessage] = React.useState("");
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const handleToggleFavorite = () => {
+    onToggleFavorite();
+    // Show toast message
+    setToastMessage();
+
+    messageApi.open({
+      type: "success",
+      content: !isInFavorites
+        ? "تم إضافة الدورة إلى المفضلة"
+        : "تم إزالة الدورة من المفضلة",
+      duration: 10,
+      
+    });
+  
+  };
+
   return (
-    <div className="w-full  px-5 pt-6 relative bg-white rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] overflow-hidden">
+    <div className="w-full  px-5 pt-6  bg-white rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] ">
       <div
         className="w-full h-60 relative bg-black/20 rounded-[28px] overflow-hidden"
         style={{
@@ -25,28 +55,27 @@ const RegCourseDetailsCard = ({ isDone }) => {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b to-black/40 via-black/20 from-transparent"></div>
-        <div
-          href={"/course-preview/123"}
-          className="absolute inset-0 flex items-center justify-center"
-        >
-          <div className="p-4 bg-secondary rounded-full shadow-[0px_0px_40px_0px_rgba(249,115,22,1)] inline-flex justify-center items-center overflow-hidden">
-            <div className="w-5 h-5 relative flex justify-center items-center">
-              <svg
-                width="15"
-                height="17"
-                viewBox="0 0 15 17"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M2.5241 15.2741C1.85783 15.6841 1 15.2048 1 14.4224L1 2.00157C1 1.21925 1.85783 0.739905 2.5241 1.14992L12.6161 7.36032C13.2506 7.75082 13.2506 8.67321 12.6161 9.06371L2.5241 15.2741Z"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          </div>
+        <div className="absolute inset-0 flex items-center justify-center"></div>
+        {/* Share and Favorite Icons */}
+        <div className="absolute top-4 right-4 flex items-center gap-3">
+          <button
+            onClick={handleToggleFavorite}
+            className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors duration-200 cursor-pointer active:scale-90"
+            aria-label="Add to favorites"
+          >
+            {isInFavorites ? (
+              <HeartFillIcon className="w-5 h-5 text-white fill-white" />
+            ) : (
+              <HeartIcon className="w-5 h-5 text-white fill-white" />
+            )}
+          </button>
+          <button
+            onClick={() => onShare(true)}
+            className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors duration-200 cursor-pointer active:scale-90"
+            aria-label="Share course"
+          >
+            <ShareIcon className="w-5 h-5 text-white stroke-white" />
+          </button>
         </div>
       </div>
       <div className="inline-flex flex-col justify-start w-full mt-5 mb-7">
@@ -137,6 +166,7 @@ const RegCourseDetailsCard = ({ isDone }) => {
           </div>
         </Link>
       </div>
+      {contextHolder}
     </div>
   );
 };

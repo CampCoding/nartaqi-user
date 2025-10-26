@@ -5,6 +5,7 @@ import { Dropdown } from "antd";
 import { BottomDrawer } from "./BottomDrawer";
 import { CloseIcon, FiltersIcon } from "../../public/svgs";
 import { ChevronDown, ChevronLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const CoursesFilters = () => {
   const [selectedCategory, setSelectedCategory] = useState("اختر القسم");
@@ -12,7 +13,7 @@ const CoursesFilters = () => {
   const [selectedRating, setSelectedRating] = useState("تقييم");
   const [selectedType, setSelectedType] = useState("اختر النوع");
   const [openFiltersDrawer, setOpenFiltersDrawer] = useState(false);
-
+  const router = useRouter();
   const categoryItems = useMemo(
     () => [
       { key: "all", label: "كل الأقسام" },
@@ -221,7 +222,8 @@ const CoursesFilters = () => {
             onClick={() => setOpenFiltersDrawer(true)}
             className="w-10 h-10 p-1 cursor-pointer hover:bg-neutral-200 transition-all active:border active:border-neutral-400   active:bg-neutral-300 rounded-full"
           />
-          <ChevronLeft className="w-10 p-1 h-10 cursor-pointer hover:bg-neutral-200 transition-all active:border active:border-neutral-400   active:bg-neutral-300 rounded-full" />
+          
+          <ChevronLeft onClick={()=> router.back()} className="w-10 p-1 h-10 cursor-pointer hover:bg-neutral-200 transition-all active:border active:border-neutral-400   active:bg-neutral-300 rounded-full" />
         </div>
 
         <MobileCoursesFilters
@@ -236,6 +238,7 @@ const CoursesFilters = () => {
 export default CoursesFilters;
 
 export const MobileCoursesFilters = ({ open, setOpen }) => {
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState("اختر القسم");
   const [selectedSort, setSelectedSort] = useState("عرض الأحدث");
   const [selectedRating, setSelectedRating] = useState("تقييم");

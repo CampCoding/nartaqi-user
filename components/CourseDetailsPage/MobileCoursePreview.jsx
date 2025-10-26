@@ -4,25 +4,40 @@ import {
   CalenderStartIcon,
   GenderIcon,
   SeatsIcon,
-  CycleClock,
-  RatingLike,
-  RatingStarIcon,
   HeartIcon,
-  CertificationIcon,
+  HeartFillIcon,
 } from "../../public/svgs";
-import Link from "next/link";
 import { ShareIcon } from "./../../public/svgs";
-import { ChevronLeft, FileIcon, FileText } from "lucide-react";
-import Container from "../ui/Container";
-const MobileCoursePreview = ({ isRegestered, isDone }) => {
-  const [isExpanded, setIsExpanded] = React.useState(false);
-
+import { ChevronLeft } from "lucide-react";
+import ShareBottomDrawer from "../shared/ShareBottomDrawer";
+const MobileCoursePreview = ({
+  isRegestered,
+  isDone,
+  onClick = () => null,
+}) => {
+  const [openShareDrawer, setOpenShareDrawer] = React.useState(false);
+  const [isFavorited, setIsFavorited] = React.useState(false);
+  const [isStarted, setIsStarted] = React.useState(false);
   const courseTitle = "دورة مهارات التعامل مع اختبار القدرات العامة";
   const courseDescription =
     "في هذه الدورة الشاملة ستتعلم استراتيجيات وأساليب التدريس الفعّال التي تساعدك على توصيل المعلومة بطرق مبتكرة وجاذبة للطلاب. سنبدأ من المبادئ الأساسية للتواصل التعليمي، ثم نتدرج إلى تصميم أنشطة تفاعلية، إدارة الصف، واستخدام أدوات رقمية تدعم عملية التعلم. في نهاية الدورة ستتمكن من تطبيق ما تعلمته في مواقف تدريسية حقيقية لبناء تجربة تعليمية ناجحة.";
 
-  const handleToggleExpand = () => {
-    setIsExpanded(!isExpanded);
+  const handleToggleFavorite = () => {
+    const newFavoritedState = !isFavorited;
+    setIsFavorited(newFavoritedState);
+
+    // Show toast message
+    setToastMessage(
+      newFavoritedState
+        ? "تم إضافة الدورة إلى المفضلة"
+        : "تم إزالة الدورة من المفضلة"
+    );
+    setShowToast(true);
+
+    // Auto hide toast after 3 seconds
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
   };
 
   const courseDetails = [
@@ -62,8 +77,8 @@ const MobileCoursePreview = ({ isRegestered, isDone }) => {
         <div className="absolute inset-0 bg-gradient-to-b to-black/60 via-black/20 from-black/50"></div>
 
         {/* Centered play button for responsive correctness */}
-        <Link
-          href={"/course-preview/123"}
+        <div
+          onClick={() => onClick()}
           className="absolute inset-0 flex items-center justify-center"
         >
           <div className="p-4 bg-secondary rounded-full shadow-[0px_0px_40px_0px_rgba(249,115,22,1)] inline-flex justify-center items-center overflow-hidden">
@@ -84,19 +99,38 @@ const MobileCoursePreview = ({ isRegestered, isDone }) => {
               </svg>
             </div>
           </div>
-        </Link>
+        </div>
 
         <div class="w-full p-5 !pt-10 h-8 relative flex items-center justify-between">
           <div className="flex items-center gap-[22px]">
-            <ShareIcon className="  stroke-white w-7 h-7" />
-            <HeartIcon className=" w-7 h-7" />
+            <ShareIcon
+              onClick={() => setOpenShareDrawer(true)}
+              className="  stroke-white w-7 h-7 cursor-pointer active:scale-90 transition-all duration-300"
+            />
+            <div
+              onClick={handleToggleFavorite}
+              className="cursor-pointer active:scale-90 transition-all duration-300"
+            >
+              {isFavorited ? (
+                <HeartFillIcon className="w-8 h-8 !fill-white" />
+              ) : (
+                <HeartIcon className="w-7 h-7 fill-white" />
+              )}
+            </div>
           </div>
 
-          <ChevronLeft className="stroke-white w-10 h-10" />
+          <ChevronLeft
+            onClick={() => router.back()}
+            className="stroke-white w-10 h-10"
+          />
         </div>
       </div>
-
-   
+      <ShareBottomDrawer
+        open={openShareDrawer}
+        onClose={() => setOpenShareDrawer(false)}
+        title="share"
+        url={"https://www.google.com"}
+      />
     </main>
   );
 };

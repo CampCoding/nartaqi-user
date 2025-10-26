@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { Pause, RotateCcw, RotateCw } from "lucide-react";
 import cx from "../../lib/cx";
 
@@ -26,13 +26,6 @@ export default function VideoPlayer({ rootClassName = "", defaultPlay = false })
     !window.MSStream;
 
   const [iosRotateHack, setIosRotateHack] = useState(false);
-
-  useEffect(() => {
-    if (defaultPlay) {
-      togglePlay();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultPlay]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor((seconds || 0) / 60);
@@ -294,12 +287,12 @@ export default function VideoPlayer({ rootClassName = "", defaultPlay = false })
     <div
       ref={containerRef}
       onContextMenu={(e) => e.preventDefault()}
-      className={`w-full  bg-black shadow-2xl ${rootClassName} ${iosRotateHack ? "ios-landscape-hack" : ""}`}
+      className={`w-full relative select-none flex items-center justify-center bg-black  shadow-2xl ${rootClassName} ${iosRotateHack ? "ios-landscape-hack" : ""}`}
       dir="ltr"
     >
       {/* Video */}
       <div
-        className={cx("relative  mx-auto md:aspect-video cursor-pointer bg-black" , isFullScreen? "" : "md:max-w-5xl")}
+        className={cx("relative  mx-auto  cursor-pointer " , isFullScreen? "w-full" : "md:max-w-7xl")}
         onMouseMove={() => setShowControls(true)}
         onMouseEnter={() => setShowControls(true)}
         onClick={togglePlay}
@@ -323,6 +316,7 @@ export default function VideoPlayer({ rootClassName = "", defaultPlay = false })
           loop={isLooping}
         />
 
+      </div>
         {/* Play Button */}
         {!isPlaying && (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -560,7 +554,6 @@ export default function VideoPlayer({ rootClassName = "", defaultPlay = false })
             </div>
           </div>
         </div>
-      </div>
 
       <style jsx>{`
         .slider::-webkit-slider-thumb {
@@ -603,6 +596,39 @@ export default function VideoPlayer({ rootClassName = "", defaultPlay = false })
           overflow: hidden;
           z-index: 9999;
           background: black;
+        }
+           @keyframes gradient {
+          0% {
+            background: linear-gradient(135deg, #1a0a2e, #16213e, #0f3460);
+            background-size: 200% 200%;
+            background-position: 0% 50%;
+          }
+          25% {
+            background: linear-gradient(135deg, #16213e, #0f3460, #1a0a2e);
+            background-size: 200% 200%;
+            background-position: 100% 50%;
+          }
+          50% {
+            background: linear-gradient(135deg, #0f3460, #1a0a2e, #16213e);
+            background-size: 200% 200%;
+            background-position: 50% 100%;
+          }
+          75% {
+            background: linear-gradient(135deg, #16213e, #1a0a2e, #0f3460);
+            background-size: 200% 200%;
+            background-position: 50% 0%;
+          }
+          100% {
+            background: linear-gradient(135deg, #1a0a2e, #16213e, #0f3460);
+            background-size: 200% 200%;
+            background-position: 0% 50%;
+          }
+        }
+        
+        .animate-gradient {
+          animation: gradient 15s ease infinite alternate;
+          width: 100%;
+          height: 100%;
         }
       `}</style>
     </div>

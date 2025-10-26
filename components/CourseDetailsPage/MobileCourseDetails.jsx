@@ -12,13 +12,26 @@ import {
   FileTextIcon,
   FeaturePlannerFileIcon,
   CertificationIcon,
+  HeartFillIcon,
 } from "../../public/svgs";
 import Link from "next/link";
 import { ShareIcon } from "./../../public/svgs";
-import { ChevronLeft, FileIcon, FileText } from "lucide-react";
+import { ChevronLeft, FileIcon, FileText, Heart } from "lucide-react";
 import Container from "../ui/Container";
-const MobileCourseDetails = ({ isRegestered, isDone }) => {
+import ShareBottomDrawer from "../shared/ShareBottomDrawer";
+import { useRouter } from "next/navigation";
+const MobileCourseDetails = ({
+  isRegestered,
+  isDone,
+  isInFavorites,
+  onToggleFavorite,
+  onShare
+}) => {
+  const router = useRouter();
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const [openShareDrawer, setOpenShareDrawer] = React.useState(false);
+  const [showToast, setShowToast] = React.useState(false);
+  const [toastMessage, setToastMessage] = React.useState("");
 
   const courseTitle = "دورة مهارات التعامل مع اختبار القدرات العامة";
   const courseDescription =
@@ -26,6 +39,23 @@ const MobileCourseDetails = ({ isRegestered, isDone }) => {
 
   const handleToggleExpand = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const handleToggleFavorite = () => {
+    onToggleFavorite();
+
+    // Show toast message
+    setToastMessage(
+      !isInFavorites
+        ? "تم إضافة الدورة إلى المفضلة"
+        : "تم إزالة الدورة من المفضلة"
+    );
+    setShowToast(true);
+
+    // Auto hide toast after 3 seconds
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
   };
 
   const courseDetails = [
@@ -91,11 +121,26 @@ const MobileCourseDetails = ({ isRegestered, isDone }) => {
 
         <div class="w-full p-5 !pt-10 h-8 relative flex items-center justify-between">
           <div className="flex items-center gap-[22px]">
-            <ShareIcon className="  stroke-white w-7 h-7" />
-            <HeartIcon className=" w-7 h-7" />
+            <ShareIcon
+              onClick={() => onShare(true)}
+              className="  stroke-white w-7 h-7 cursor-pointer active:scale-90 transition-all duration-300"
+            />
+            <div
+              onClick={handleToggleFavorite}
+              className="cursor-pointer active:scale-90 transition-all duration-300"
+            >
+              {isInFavorites ? (
+                <HeartFillIcon className="w-8 h-8 !fill-white" />
+              ) : (
+                <HeartIcon className="w-7 h-7 fill-white" />
+              )}
+            </div>
           </div>
 
-          <ChevronLeft className="stroke-white w-10 h-10" />
+          <ChevronLeft
+            onClick={() => router.back()}
+            className="stroke-white w-10 h-10"
+          />
         </div>
       </div>
 
@@ -248,6 +293,44 @@ const MobileCourseDetails = ({ isRegestered, isDone }) => {
           )}
         </>
       </Container>
+
+     
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-bottom-2 duration-300">
+          <div className="bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 max-w-sm mx-4">
+            <div className="flex-shrink-0">
+              {isInFavorites ? (
+                <HeartFillIcon className="w-5 h-5 text-red-500" />
+              ) : (
+                <HeartIcon className="w-5 h-5 text-gray-400" />
+              )}
+            </div>
+            <span className="text-sm font-medium whitespace-nowrap text-center flex-1 [direction:rtl]">
+              {toastMessage}
+            </span>
+            <button
+              onClick={() => setShowToast(false)}
+              className="flex-shrink-0 text-gray-400 hover:text-white transition-colors"
+              aria-label="إغلاق"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 };

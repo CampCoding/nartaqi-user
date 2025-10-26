@@ -20,6 +20,7 @@ import {
 } from "../../public/svgs";
 import cx from "../../lib/cx";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const CourseContentDrawer = ({ isRegistered }) => {
   const [isOpen, setIsOpen] = useState(false); // فتح/غلق الجزء
@@ -105,9 +106,9 @@ const CourseContentDrawer = ({ isRegistered }) => {
       {isOpen &&
         (isRegistered ? (
           <div className=" w-full flex flex-col  gap-3 sm:gap-4 px-4 md:px-6  pb-4 md:pb-[24px]">
-            <RegLecureDrawer isLive isDone={true} />
-            <RegLecureDrawer isDone={true} />
-            <RegLecureDrawer />
+            <RegLectureDrawer isLive isDone={true} />
+            <RegLectureDrawer isDone={true} />
+            <RegLectureDrawer />
           </div>
         ) : (
           <div className="self-stretch flex flex-col justify-start items-start gap-6 px-4 md:px-6  pb-4 md:pb-[24px]">
@@ -141,9 +142,15 @@ const CourseContentDrawer = ({ isRegistered }) => {
 
 export default CourseContentDrawer;
 
-export const RegLecureDrawer = ({ isLive = false, isDone }) => {
+export const RegLectureDrawer = ({ isLive = false, isDone }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const sectionId = useId();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const mergedParams = {
+    ...Object.fromEntries(searchParams.entries()),
+    watch: true,
+  };
 
   const toggleExpanded = () => setIsExpanded((v) => !v);
 
@@ -199,23 +206,33 @@ export const RegLecureDrawer = ({ isLive = false, isDone }) => {
             />
             <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0  self-stretch ">
               <div className="inline-flex items-center gap-2">
-                <h2 className="cursor-pointer font-medium flex items-center justify-center w-fit -mt-px text-text text-sm sm:text-base leading-normal">
-                  كيفية إعداد خطة درس ناجحة
-                </h2>
+                <Link
+                  href={{ pathname, query: mergedParams, hash: "player" }}
+                  onClick={() => console.log(searchParams.entries())}
+                >
+                  <h2 className="cursor-pointer font-medium flex items-center justify-center w-fit -mt-px text-text text-sm sm:text-base leading-normal hover:underline">
+                    كيفية إعداد خطة درس ناجحة
+                  </h2>
+                </Link>
               </div>
 
               <div className="inline-flex items-center gap-3 sm:gap-4">
                 {isLive ? (
-                  <div className="inline-flex items-center gap-2">
-                    <LiveIcon width={28} height={28} />
-                    <div className="inline-flex items-center justify-end gap-2">
-                      <div className="font-bold text-[#f91616] text-sm sm:text-base leading-normal">
-                        بث مباشر
-                      </div>
-                    </div>
+                  <div
+                    className="inline-flex items-center gap-2"
+                    aria-live="polite"
+                  >
+                    <LiveIcon width={28} height={28} aria-hidden="true" />
+                    <span className="font-bold text-[#f91616] text-sm sm:text-base leading-normal">
+                      بث مباشر
+                    </span>
+                    <span className="sr-only">المحتوى يُعرض الآن مباشرة</span>
                   </div>
                 ) : (
-                  <time className="font-medium text-text text-sm sm:text-base leading-normal">
+                  <time
+                    dateTime="PT18M"
+                    className="font-medium text-text text-sm sm:text-base leading-normal"
+                  >
                     18 دقيقة
                   </time>
                 )}
@@ -283,7 +300,7 @@ export const ExerciseDropDown = ({ isDone = false }) => {
           {items.map((it, idx) => (
             <div className="flex flex-col  ">
               <Link
-                href={`/course/${123}/view?reg=true&done=true`}
+                href={`/course/${123}/view?reg=true&done=true&watch=true`}
                 className="flex group  items-center pt-3 sm:pt-4 pb-4 sm:pb-6 justify-between border-b-[2px] border-solid last:border-none"
               >
                 <div className="inline-flex items-center gap-2 sm:gap-4 ">
