@@ -53,7 +53,7 @@ const LoginPage = () => {
           />
 
           <p className="relative flex items-center justify-center w-fit font-bold text-text text-lg sm:text-xl md:text-2xl text-center tracking-[0] leading-[normal] px-4">
-            مرحبا بعودتك مرة اخرى{" "}
+            مرحبا بعودتك مرة اخرى
           </p>
         </div>
         <form
