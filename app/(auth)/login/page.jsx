@@ -9,6 +9,9 @@ import Link from "next/link";
 import { useUser } from "../../../lib/useUser.jsx";
 import { useRouter } from "next/navigation";
 import Container from "../../../components/ui/Container";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { LoginSchema } from "../../../components/utils/Schema/LoginSchema.js";
 
 const LoginPage = () => {
   const [value1, setValue1] = useState("Apple");
@@ -25,22 +28,23 @@ const LoginPage = () => {
     console.log("radio1 checked", value);
     setValue1(value);
   };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      phone: "",
+      password: "",
+    },
+    resolver: yupResolver(LoginSchema),
+  });
+  const onSubmit = (data) => {
+    try {
+    } catch (error) {}
+  };
 
   const [selected, setSelected] = useState("unconfirmed");
-
-  const handleSubmit = async (e) => {
-    e?.preventDefault?.();
-    setError("");
-    setSubmitting(true);
-    try {
-      await login({ phone, password });
-      router.push("/");
-    } catch (err) {
-      setError(err?.message || "فشل تسجيل الدخول");
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   return (
     <Container className="flex flex-col lg:flex-row lg:justify-between overflow-hidden min-h-[calc(100vh-64px)])]">
@@ -57,7 +61,7 @@ const LoginPage = () => {
           </p>
         </div>
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className="mx-auto w-full space-y-6 md:space-y-8 lg:space-y-[32px]"
         >
           <div className="grid grid-cols-3 gap-4 mb-4">
@@ -67,6 +71,14 @@ const LoginPage = () => {
                 subLabel=""
                 placeholder="ادخل رقم جوالك"
                 value={phone}
+                errors={errors.phone}
+                register={register("phone", {
+                  required: "رقم الجوال مطلوب",
+                  pattern: {
+                    value: /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/g,
+                    message: "رقم الجوال غير صحيح",
+                  },
+                })}
                 onChange={(e) => setPhone(e.target.value)}
               />
             </div>
@@ -75,7 +87,9 @@ const LoginPage = () => {
                 label="كلمة المرور"
                 subLabel=""
                 placeholder="أدخل كلمة المرور"
+                errors={errors.password}
                 value={password}
+                {...register("password", { required: "كلمة المرور مطلوبة" })}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <Link
@@ -90,10 +104,7 @@ const LoginPage = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
-            {error ? (
-              <div className="text-danger text-sm font-medium">{error}</div>
-            ) : null}
+          <div className="space-y-4 ">
             <button
               type="submit"
               disabled={submitting || isLoading}
@@ -163,6 +174,8 @@ export const TelephoneInput = ({
   label = "رقم الجوال",
   subLabel = "(مثال: ٥٠٠٠٠٠٠٠٠)",
   placeholder = "123456789",
+  register,
+  errors,
   ...props
 }) => {
   const [selectedCountry, setSelectedCountry] = useState({
@@ -194,37 +207,31 @@ export const TelephoneInput = ({
   const menu = (
     <Menu onClick={handleCountrySelect} className="min-w-[200px]">
       {countries.map((country) => (
-        <Menu.Item
-          key={country.code}
-          className=""
-        >
+        <Menu.Item key={country.code} className="">
           <div className="!flex gap-3 px-4 py-3">
-            
-          <div className="w-5 h-5">
-            <country.icon />
-          </div>
-          <div className="flex-1">
-            <div className="font-medium text-sm text-gray-900">
-              {country.name}
+            <div className="w-5 h-5">
+              <country.icon />
             </div>
-            <div className="text-xs text-gray-500">{country.code}</div>
+            <div className="flex-1">
+              <div className="font-medium text-sm text-gray-900">
+                {country.name}
+              </div>
+              <div className="text-xs text-gray-500">{country.code}</div>
+            </div>
+            {selectedCountry.code === country.code && (
+              <svg
+                className="w-4 h-4 text-primary"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
           </div>
-          {selectedCountry.code === country.code && (
-            <svg
-              className="w-4 h-4 text-primary"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-
-          )}
-                    </div>
-
         </Menu.Item>
       ))}
     </Menu>
@@ -244,7 +251,14 @@ export const TelephoneInput = ({
         <input
           className="justify-center w-full px-3 sm:px-4  h-full font-normal text-text placeholder-[#c8c9d5] text-sm sm:text-base text-right tracking-[0] leading-[normal] flex items-center relative"
           placeholder={placeholder}
+          {...register}
           {...props}
+          onChange={(e) => {
+            // خُد الأرقام فقط من الإدخال
+            const onlyNums = e.target.value.replace(/\D/g, "");
+            e.target.value = onlyNums;
+            if (props.onChange) props.onChange(e);
+          }}
         />
         <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
           <div className="inline-flex items-center gap-1 sm:gap-2.5 px-2 sm:px-4 relative flex-[0_0_auto] border-r-2 [border-right-style:solid] border-variable-collection-stroke cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
@@ -270,6 +284,9 @@ export const TelephoneInput = ({
           </div>
         </Dropdown>
       </div>
+      {errors && (
+        <div className="text-danger text-xs mt-1">{errors.message}</div>
+      )}
     </div>
   );
 };
@@ -278,6 +295,8 @@ export const PasswordInput = ({
   label = "الاسم رباعي باللغة العربية",
   subLabel = "(مطابق للهوية الوطنية)",
   placeholder = "أدخل اسمك بالكامل",
+  register,
+  errors,
   ...props
 }) => {
   const [show, setShow] = useState(false);
@@ -296,7 +315,8 @@ export const PasswordInput = ({
         <input
           type={show ? "text" : "password"}
           placeholder={placeholder}
-          className="justify-start outline-0 ring-0 h-12 sm:h-14 md:h-[62px] gap-2.5  px-3 w-full px-3 sm:px-4 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base"
+          {...register}
+          className="justify-start outline-0 ring-0 h-12 sm:h-14 md:h-[62px] gap-2.5  px-3 w-full  sm:px-4 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch  flex-[0_0_auto] text-sm sm:text-base"
           {...props}
         />
         <div
@@ -306,6 +326,9 @@ export const PasswordInput = ({
           <Eye className="w-full h-full" />
         </div>
       </div>
+      {errors && (
+        <div className="text-danger text-xs mt-1">{errors.message}</div>
+      )}
     </div>
   );
 };
