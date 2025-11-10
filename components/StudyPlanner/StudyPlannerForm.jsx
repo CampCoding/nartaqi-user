@@ -41,7 +41,7 @@ export const ChevronBottom = (props) => (
       strokeLinecap="round"
       strokeLinejoin="round"
     />
-  </svg>
+  </svg>  
 );
 
 const StudyPlannerForm = () => {
