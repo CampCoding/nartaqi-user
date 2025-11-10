@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
     <html lang="ar" dir="rtl">
       <body className={`${cairo.variable} ${notoSansArabic.variable}`}>
         <UserProvider>
-          <Header /> 
+          <Header />
           {children}
           <Footer />
         </UserProvider>
