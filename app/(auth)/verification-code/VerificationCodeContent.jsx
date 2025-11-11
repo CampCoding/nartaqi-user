@@ -18,19 +18,19 @@ import { signupUser } from "../../../components/utils/Store/Slices/authntcationS
 const VerificationCode = () => {
   const { userSignUpdata } = useSelector((state) => state.auth);
   const router = useRouter();
-
+  const [phoneNumber, setPhoneNumber] = useState("");
   console.log(userSignUpdata);
   const phone = userSignUpdata?.phone;
 
   const searchParams = useSearchParams();
 
   const [userParams, setUserParams] = useState({
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    gender: "",
-    phone: "",
-  });
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      gender: "",
+      phone: "",
+    });
 
   useEffect(() => {
     const firstName = searchParams?.get("firstName") || "";
@@ -40,13 +40,13 @@ const VerificationCode = () => {
     const p = searchParams?.get("phone") || "";
 
     setUserParams({ firstName, middleName, lastName, gender, phone: p });
-    if (p) setPhone(p);
+    if (p) setPhoneNumber(p);
   }, [searchParams]);
 
   return (
     <div className="flex flex-col lg:flex-row lg:justify-between overflow-hidden">
       <div className="flex-1 flex justify-center items-center mx-auto flex-col py-8 md:py-16 lg:py-[64px] sm:px-6 md:px-8 max-w-[604px] w-full">
-        <Frame phone={phone} user={userParams} />
+        <Frame phone={phone} user={userSignUpdata} />
       </div>
     </div>
   );

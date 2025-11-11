@@ -16,6 +16,7 @@ import { userSignUpdata } from "../../../components/utils/Store/Slices/authntcat
 import axios from "axios";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUpSchema } from "../../../components/utils/Schema/SignupSchema.js";
+import toast from "react-hot-toast";
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 const SignUpPage = () => {
   const [value1, setValue1] = useState("Apple");
@@ -79,15 +80,17 @@ const SignUpPage = () => {
       const code = await axios.post(`${baseUrl}/authentication/send-code`, {
         phone: payload.phone,
       });
+      toast.success(code.data.message);
+
       router.push("/verification-code");
     } catch (error) {
+      toast.error(error.response.data.message);
+
       console.log(error);
     } finally {
       setLoading(false);
     }
   };
-
-  console.log(errors);
 
   return (
     <Container className="flex flex-col lg:flex-row lg:justify-between overflow-hidden min-h-[calc(100vh-64px)])]">
