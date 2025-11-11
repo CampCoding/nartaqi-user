@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useUser } from "../../lib/useUser";
+import toast from "react-hot-toast";
 // import certificate2 from "./certificate-2.svg";
 // import onlineLearning1 from "./online-learning-1.svg";
 // import vector6 from "./vector-6.svg";
@@ -64,8 +65,8 @@ export const ProfileSideBar = () => {
   };
 
   const handleLogout = () => {
-    // Handle logout functionality
-    console.log("Logout clicked");
+    localStorage.removeItem("token");
+    toast.success("تم تسجيل الخروج بنجاح", { duration: 3000 });
   };
 
   return (

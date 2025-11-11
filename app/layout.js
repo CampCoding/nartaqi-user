@@ -5,6 +5,8 @@ import Header from "../components/shared/Topbar";
 import Footer from "../components/shared/Footer";
 import { UserProvider } from "../lib/useUser.jsx";
 import MarginLabels from "../lib/MarginLabels";
+import Providers from "../components/utils/Store/Provider.jsx";
+import { Toaster } from "react-hot-toast";
 
 const cairo = Cairo({
   subsets: ["latin", "arabic"],
@@ -27,11 +29,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl">
       <body className={`${cairo.variable} ${notoSansArabic.variable}`}>
-        <UserProvider>
-          <Header />
-          {children}
-          <Footer />
-        </UserProvider>
+        <Providers>
+          {" "}
+          <UserProvider>
+            <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+            <Header />
+            {children}
+            <Footer />
+          </UserProvider>
+        </Providers>
       </body>
     </html>
   );

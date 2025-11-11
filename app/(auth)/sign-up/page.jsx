@@ -10,50 +10,84 @@ import { useUser } from "../../../lib/useUser.jsx";
 import { useRouter } from "next/navigation";
 import Container from "../../../components/ui/Container";
 import { TelephoneInput } from "../login/page";
-
+import { set, useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { userSignUpdata } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
+import axios from "axios";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { signUpSchema } from "../../../components/utils/Schema/SignupSchema.js";
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 const SignUpPage = () => {
   const [value1, setValue1] = useState("Apple");
-  const { register, isLoading } = useUser();
-  const router = useRouter();
+  const dispatch = useDispatch();
 
-  const plainOptions = ["Apple", "Pear", "Orange"];
+  const router = useRouter();
+  const [selectedCountry, setSelectedCountry] = useState({
+    code: "+966",
+    name: "Saudi Arabia",
+    icon: SaudiIcon,
+  });
+
   const onChange1 = ({ target: { value } }) => {
     console.log("radio1 checked", value);
     setValue1(value);
   };
+  const [loading, setLoading] = useState(false);
 
   const [firstName, setFirstName] = useState("");
   const [middleName, setMiddleName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  const [selected, setSelected] = useState("unconfirmed");
-
-  const handleSubmit = async (e) => {
-    e?.preventDefault?.();
-    setError("");
-    if (password !== confirmPassword) {
-      setError("كلمتا المرور غير متطابقتين");
-      return;
-    }
-
-    const params = new URLSearchParams({
-      firstName,
-      middleName,
-      lastName,
-      gender: selected,
-      phone,
-    });
-
-    router.push(`/verification-code?${params.toString()}`);
-
-
-   
+  const [selected, setSelected] = useState("male");
+  const handleSelected = (value) => {
+    setSelected(value);
   };
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      gender: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+    },
+    mode: "onChange",
+    resolver: yupResolver(signUpSchema),
+  });
+
+  const onSubmit = async (data) => {
+    setLoading(true);
+    let countryCode = selectedCountry.code.slice(1);
+    if (selectedCountry.code === "+20") {
+      data.phone = data.phone.slice(1);
+    }
+    const payload = {
+      name: `${data.firstName} ${data.middleName} ${data.lastName}`,
+      password: data.password,
+      phone: `${countryCode}${data.phone}`,
+      gender: selected,
+    };
+    try {
+      dispatch(userSignUpdata(payload));
+      const code = await axios.post(`${baseUrl}/authentication/send-code`, {
+        phone: payload.phone,
+      });
+      router.push("/verification-code");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  console.log(errors);
 
   return (
     <Container className="flex flex-col lg:flex-row lg:justify-between overflow-hidden min-h-[calc(100vh-64px)])]">
@@ -70,7 +104,7 @@ const SignUpPage = () => {
           </p>
         </div>
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className="mx-auto w-full max-w-4xl space-y-6 md:space-y-8 lg:space-y-[32px]"
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -79,41 +113,63 @@ const SignUpPage = () => {
               label="الأسم الأول"
               placeholder="أدخل اسمك الأول"
               value={firstName}
+              {...register("firstName", { required: "الاسم الأول مطلوب" })}
+              errors={errors.firstName}
               onChange={(e) => setFirstName(e.target.value)}
             />
+
             <Input
               subLabel=""
               label="الأسم الأوسط"
               placeholder="أدخل اسمك الأوسط"
               value={middleName}
+              {...register("middleName", { required: "الاسم الأوسط مطلوب" })}
               onChange={(e) => setMiddleName(e.target.value)}
+              errors={errors.middleName}
             />
+
             <Input
               subLabel=""
               label="اسم العائله"
               placeholder="أدخل اسم عائلتك"
               value={lastName}
+              {...register("lastName", { required: "اسم العائله مطلوب" })}
               onChange={(e) => setLastName(e.target.value)}
+              errors={errors.lastName}
             />
             <div className="flex col-span-1 md:col-span-3 items-center gap-4 md:gap-6 flex-wrap">
               <div className="text-sm sm:text-base font-bold">النوع:</div>
               <RadioButtons
-                name="status"
-                defaultValue={selected}
+                name="gender"
+                onChange={handleSelected}
+                register={register}
+                defaultValue="male"
                 options={[
-                  { id: "unconfirmed", label: "ذكر", value: "unconfirmed" },
-                  { id: "repair", label: "أنثى", value: "repair" },
+                  { id: "unconfirmed", label: "ذكر", value: "male" },
+                  { id: "repair", label: "أنثى", value: "female" },
                 ]}
-                onChange={(val) => setSelected(val)}
               />
+              {errors && (
+                <p className="text-danger text-xs mt-1">
+                  {errors.gender?.message}
+                </p>
+              )}
             </div>
             <div className="col-span-1 md:col-span-3">
               <TelephoneInput
                 label="رقم الجوال"
                 subLabel=""
+                selectedCountry={selectedCountry}
+                setSelectedCountry={setSelectedCountry}
                 placeholder="ادخل رقم جوالك"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                {...register("phone", {
+                  required: "رقم الجوال مطلوب",
+                  pattern: {
+                    value: /^[0-9]{9,14}$/,
+                    message: "رقم الجوال غير صحيح",
+                  },
+                })}
+                errors={errors.phone}
               />
             </div>
             <div className="col-span-1 md:col-span-3">
@@ -121,18 +177,28 @@ const SignUpPage = () => {
                 label="كلمة المرور"
                 subLabel=""
                 placeholder="أدخل كلمة المرور"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                {...register("password", { required: "كلمة المرور مطلوبة" })}
               />
+              {errors && (
+                <p className="text-danger text-xs mt-1">
+                  {errors.password?.message}
+                </p>
+              )}
             </div>
             <div className="col-span-1 md:col-span-3">
               <PasswordInput
                 label="تأكيد كلمة المرور"
                 subLabel=""
                 placeholder="أدخل تأكيد كلمة المرور"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                {...register("confirmPassword", {
+                  required: "تأكيد كلمة المرور مطلوب",
+                })}
               />
+              {errors && (
+                <p className="text-danger text-xs mt-1">
+                  {errors.confirmPassword?.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -142,11 +208,19 @@ const SignUpPage = () => {
             ) : null}
             <button
               type="submit"
-              disabled={submitting || isLoading}
+              disabled={
+                errors.firstName?.message ||
+                errors.middleName?.message ||
+                errors.lastName?.message ||
+                errors.phone?.message ||
+                errors.password?.message ||
+                errors.confirmPassword?.message ||
+                loading
+              }
               className="w-full px-6 sm:px-8 md:px-12 py-4 sm:py-5 md:py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5 disabled:opacity-60"
             >
               <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
-                {submitting ? "جارٍ الإنشاء..." : "إنشاء حساب جديد"}
+                {loading ? "جارٍ الإنشاء..." : "إنشاء حساب جديد"}
               </div>
             </button>
             <div className="text-center justify-center">
@@ -185,6 +259,10 @@ export const Input = ({
   label = "الاسم رباعي باللغة العربية",
   subLabel = "(مطابق للهوية الوطنية)",
   placeholder = "أدخل اسمك بالكامل",
+  value,
+
+  register,
+  errors,
   ...props
 }) => {
   return (
@@ -201,7 +279,9 @@ export const Input = ({
         placeholder={placeholder}
         className="justify-start h-12 sm:h-14 md:h-[62px] gap-2.5 px-3 sm:px-4 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base"
         {...props}
+        {...register}
       />
+      {errors && <p className="text-danger text-xs mt-1">{errors.message} </p>}
     </div>
   );
 };
@@ -210,6 +290,8 @@ export const TelephoneButon = ({
   label = "رقم الجوال",
   subLabel = "(مثال: ٥٠٠٠٠٠٠٠٠)",
   placeholder = "123456789",
+  register,
+  errors,
   ...props
 }) => {
   return (
@@ -225,7 +307,7 @@ export const TelephoneButon = ({
       <div className="h-12 sm:h-14 md:h-[62px] justify-between px-3 sm:px-4 py-0 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative w-full">
         <input
           className="justify-center w-full font-normal text-text placeholder-[#c8c9d5] text-sm sm:text-base text-right tracking-[0] leading-[normal] flex items-center relative"
-          placeholder={placeholder}
+          /*     placeholder={placeholder} */
           {...props}
         />
         <div className="inline-flex items-center gap-1 sm:gap-2.5 px-2 sm:px-4 relative flex-[0_0_auto] border-r-2 [border-right-style:solid] border-variable-collection-stroke">

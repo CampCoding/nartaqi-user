@@ -6,14 +6,23 @@ import RadioButtons from "../../../components/ui/RadioButtons";
 import { SaudiIcon } from "../../../public/svgs";
 import { Eye } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Container from "../../../components/ui/Container";
 import { useUser } from "../../../lib/useUser";
+import { useDispatch, useSelector } from "react-redux";
+import { useForm, Controller } from "react-hook-form"; // ✅ تمت الإضافة هنا
+import axios from "axios";
+import toast from "react-hot-toast";
+import { signupUser } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
 
 const VerificationCode = () => {
-  const [value1, setValue1] = useState("Apple");
-  const [phone, setPhone] = useState("");
+  const { userSignUpdata } = useSelector((state) => state.auth);
+  const router = useRouter();
+
+  console.log(userSignUpdata);
+  const phone = userSignUpdata?.phone;
+
+  const searchParams = useSearchParams();
 
   const [userParams, setUserParams] = useState({
     firstName: "",
@@ -22,20 +31,6 @@ const VerificationCode = () => {
     gender: "",
     phone: "",
   });
-  const plainOptions = ["Apple", "Pear", "Orange"];
-  const onChange1 = ({ target: { value } }) => {
-    console.log("radio1 checked", value);
-    setValue1(value);
-  };
-
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const [selected, setSelected] = useState("unconfirmed");
-
-  const onChangePhone = ({ target: { value } }) => {
-    setPhone(value);
-  };
 
   useEffect(() => {
     const firstName = searchParams?.get("firstName") || "";
@@ -53,148 +48,39 @@ const VerificationCode = () => {
       <div className="flex-1 flex justify-center items-center mx-auto flex-col py-8 md:py-16 lg:py-[64px] sm:px-6 md:px-8 max-w-[604px] w-full">
         <Frame phone={phone} user={userParams} />
       </div>
-
-      {/* <div
-        className="w-full h-32 sm:h-48 md:h-64 lg:w-[592px] lg:h-auto relative select-none"
-        style={{
-          backgroundImage: `url("/images/logo-banner.png")`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      /> */}
     </div>
   );
 };
 
 export default VerificationCode;
 
-export const Input = ({
-  label = "الاسم رباعي باللغة العربية",
-  subLabel = "(مطابق للهوية الوطنية)",
-  placeholder = "أدخل اسمك بالكامل",
-}) => {
-  return (
-    <div className="flex flex-col items-start gap-2 relative">
-      <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
-          {label}
-        </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
-          {subLabel}
-        </div>
-      </div>
-      <input
-        placeholder={placeholder}
-        className="justify-start h-12 sm:h-14 md:h-[62px] gap-2.5 px-3 sm:px-4 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base"
-      />
-    </div>
-  );
-};
-
-export const TelephoneInput = ({
-  label = "رقم الجوال",
-  subLabel = "(مثال: ٥٠٠٠٠٠٠٠٠)",
-  placeholder = "123456789",
-  ...props
-}) => {
-  return (
-    <div className="flex flex-col items-start gap-2 relative w-full">
-      <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
-          {label}
-        </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
-          {subLabel}
-        </div>
-      </div>
-      <div className="h-12 sm:h-14 md:h-[62px] justify-between px-3 sm:px-4 py-0 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative w-full">
-        <input
-          dir="ltr"
-          className="justify-center w-full font-normal text-text placeholder-[#c8c9d5] text-sm sm:text-base text-right tracking-[0] leading-[normal] flex items-center relative"
-          placeholder={placeholder}
-          {...props}
-        />
-        <div className="inline-flex items-center gap-1 sm:gap-2.5 px-2 sm:px-4 relative flex-[0_0_auto] border-r-2 [border-right-style:solid] border-variable-collection-stroke">
-          <div
-            dir="ltr"
-            className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold text-text text-sm sm:text-base text-right tracking-[0] leading-[normal]"
-          >
-            +966
-          </div>
-          <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6">
-            <SaudiIcon />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export const PasswordInput = ({
-  label = "الاسم رباعي باللغة العربية",
-  subLabel = "(مطابق للهوية الوطنية)",
-  placeholder = "أدخل اسمك بالكامل",
-}) => {
-  const [show, setShow] = useState(false);
-
-  return (
-    <div className="flex flex-col items-start gap-2 relative">
-      <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
-          {label}
-        </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
-          {subLabel}
-        </div>
-      </div>
-      <div className="relative w-full">
-        <input
-          type={show ? "text" : "password"}
-          placeholder={placeholder}
-          className="justify-start h-12 sm:h-14 md:h-[62px] gap-2.5 px-3 sm:px-4 pr-10 sm:pr-12 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base"
-        />
-        <div
-          onClick={() => setShow(!show)}
-          className="cursor-pointer absolute !top-1/2 left-2 sm:left-4 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6"
-        >
-          <Eye className="w-full h-full" />
-        </div>
-      </div>
-    </div>
-  );
-};
-
+// ✅ مكوّن Frame بعد دمج react-hook-form
 export const Frame = ({ phone = "", user = {} }) => {
-  const {login} = useUser()
-  const [verificationCode, setVerificationCode] = useState([
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-  ]);
-  const inputRefs = useRef([]);
+  const { login } = useUser();
   const router = useRouter();
+  const inputRefs = useRef([]);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState();
+  const dispatch = useDispatch();
+  // ✅ إعداد الفورم
+  const { handleSubmit, control, setValue, getValues } = useForm({
+    defaultValues: {
+      code: ["", "", "", "", "", ""],
+    },
+  });
 
   const handleInputChange = (index, value) => {
     if (value.length > 1) return;
+    const sanitized = value.replace(/\D/g, "");
+    setValue(`code.${index}`, sanitized);
 
-    const newCode = [...verificationCode];
-    newCode[index] = value;
-    setVerificationCode(newCode);
-
-    // Move to next input if value is entered
-    if (value && index < 5) {
+    if (sanitized && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
-    // Move to previous input on backspace if current input is empty
-    if (e.key === "Backspace" && !verificationCode[index] && index > 0) {
+    if (e.key === "Backspace" && !getValues(`code.${index}`) && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
@@ -202,40 +88,50 @@ export const Frame = ({ phone = "", user = {} }) => {
   const handlePaste = (e) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").slice(0, 6);
-    const newCode = [...verificationCode];
+    pastedData.split("").forEach((digit, i) => {
+      if (/^\d$/.test(digit)) setValue(`code.${i}`, digit);
+    });
+  };
 
-    for (let i = 0; i < pastedData.length && i < 6; i++) {
-      if (/^\d$/.test(pastedData[i])) {
-        newCode[i] = pastedData[i];
+  // ✅ عند الضغط على تأكيد
+  const onSubmit = async (data) => {
+    setLoading(true);
+    const code = data.code.join("");
+    if (code.length !== 6) {
+      setError("يجب إدخال 6 أرقام");
+      return;
+    }
+    const payload = {
+      phone: phone,
+      code: code,
+    };
+
+    try {
+      const verifiedData = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/authentication/verify-code`,
+        payload
+      );
+      if (verifiedData.data.status === "success") {
+        toast.success(verifiedData.data.message);
+        try {
+          const res = await dispatch(signupUser(user)).unwrap();
+          console.log(res);
+          router.push("/");
+        } catch (error) {
+          console.log(error);
+          toast.error(error);
+        }
       }
+      console.log(verifiedData.data.message);
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
+    } finally {
+      setLoading(false);
     }
-
-    setVerificationCode(newCode);
-
-    // Focus on the next empty input or the last input
-    const nextEmptyIndex = newCode.findIndex((code) => code === "");
-    const focusIndex = nextEmptyIndex === -1 ? 5 : Math.min(nextEmptyIndex, 5);
-    inputRefs.current[focusIndex]?.focus();
-  };
-
-  const handleSubmit = async () => {
-    const code = verificationCode.join("");
-    if (code.length === 6) {
-      console.log("Verification code submitted:", code);
-      // TODO: Call your backend to verify the code here.
-      console.log(user)
-      login({phone:user.phone , password:"123456"})
-      router.push("/");
-    }
-  };
-
-  const handleResendCode = () => {
-    console.log("Resending verification code...");
-    // Handle resend logic here
   };
 
   useEffect(() => {
-    // Focus on first input when component mounts
     inputRefs.current[0]?.focus();
   }, []);
 
@@ -247,7 +143,10 @@ export const Frame = ({ phone = "", user = {} }) => {
 
   return (
     <Container>
-      <div className="inline-flex w-full max-w-[488px] flex-col items-center gap-6 sm:gap-7 lg:gap-8 px-4 sm:px-8 md:px-12 lg:px-20 py-6 sm:py-7 lg:py-8 relative bg-white rounded-3xl sm:rounded-[40px] lg:rounded-[50px] border-2 lg:border-[3px] border-solid border-variable-collection-stroke">
+      <form
+        onSubmit={handleSubmit(onSubmit)} // ✅ هنا الفورم بقى خاضع للهاندل
+        className="inline-flex w-full max-w-[488px] flex-col items-center gap-6 sm:gap-7 lg:gap-8 px-4 sm:px-8 md:px-12 lg:px-20 py-6 sm:py-7 lg:py-8 relative bg-white rounded-3xl sm:rounded-[40px] lg:rounded-[50px] border-2 lg:border-[3px] border-solid border-variable-collection-stroke"
+      >
         <div className="inline-flex flex-col items-center gap-6 sm:gap-7 lg:gap-8 relative flex-[0_0_auto]">
           <div className="inline-flex flex-col items-center gap-4 sm:gap-5 lg:gap-6 relative flex-[0_0_auto]">
             <img
@@ -266,52 +165,70 @@ export const Frame = ({ phone = "", user = {} }) => {
             بـ {maskPhone(phone)}.
           </p>
 
+          {/* ✅ إضافة الـ Controller لكل input بدون ما نغيّر الديزاين */}
           <div
             className="flex items-center justify-center gap-1 sm:gap-2 relative w-full flex-[0_0_auto]"
             role="group"
             aria-label="رمز التحقق"
             dir="ltr"
           >
-            {verificationCode.map((digit, index) => (
-              <input
+            {Array.from({ length: 6 }).map((_, index) => (
+              <Controller
                 key={index}
-                ref={(el) => (inputRefs.current[index] = el)}
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength="1"
-                value={digit}
-                onChange={(e) =>
-                  handleInputChange(index, e.target.value.replace(/\D/g, ""))
-                }
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                onPaste={handlePaste}
-                className="relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white rounded-lg md:rounded-[10px] border-2 border-solid border-variable-collection-stroke aspect-[1] text-center text-sm sm:text-base md:text-lg font-medium text-text focus:border-primary focus:outline-none transition-colors"
-                aria-label={`رقم ${index + 1} من رمز التحقق`}
+                name={`code.${index}`}
+                control={control}
+                render={({ field }) => (
+                  <input
+                    {...field}
+                    ref={(el) => (inputRefs.current[index] = el)}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength="1"
+                    value={field.value}
+                    onChange={(e) =>
+                      handleInputChange(
+                        index,
+                        e.target.value.replace(/\D/g, "")
+                      )
+                    }
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    onPaste={handlePaste}
+                    className="relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white rounded-lg md:rounded-[10px] border-2 border-solid border-variable-collection-stroke aspect-[1] text-center text-sm sm:text-base md:text-lg font-medium text-text focus:border-primary focus:outline-none transition-colors"
+                    aria-label={`رقم ${index + 1} من رمز التحقق`}
+                  />
+                )}
               />
             ))}
           </div>
         </div>
 
+        {error && <p className="text-danger text-sm mt-1">{error}</p>}
+
         <div className="flex flex-col items-center gap-3 sm:gap-4 relative self-stretch w-full flex-[0_0_auto]">
           <button
-            onClick={() => handleSubmit()}
-            className="self-stretch px-6 sm:px-8 md:px-10 lg:px-12 py-3 sm:py-3.5 lg:py-4 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5"
+            type="submit"
+            disabled={loading}
+            className={`"self-stretch w-full  ${
+              loading ? "bg-[#3B82F6]/50 cursor-not-allowed " : ""
+            } px-6 sm:px-8 md:px-10 lg:px-12 py-3 sm:py-3.5 lg:py-4 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5"
+              `}
           >
             <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
-              تأكيد
+              {loading ? "جاري التحقق..." : "تأكيد"}
             </div>
           </button>
 
           <button
-            onClick={handleResendCode}
+            type="button"
+            onClick={() => console.log("Resending verification code...")}
             className="w-fit font-medium text-text-alt text-xs sm:text-sm relative flex items-center justify-center tracking-[0] leading-[normal] hover:text-primary transition-colors focus:outline-none focus:underline"
             aria-label="إعادة إرسال رمز التحقق"
           >
             إعادة ارسال الرمز
           </button>
         </div>
-      </div>
+      </form>
     </Container>
   );
 };
