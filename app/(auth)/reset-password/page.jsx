@@ -3,6 +3,13 @@
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Container from "../../../components/ui/Container";
+import { TelephoneInput } from "../login/page.jsx";
+import { SaudiIcon } from "../../../public/svgs.jsx";
+import { useForm } from "react-hook-form";
+import { handlePhoneCode } from "../../../components/utils/PhoneCode/phoneCode.js";
+import axios from "axios";
+import toast from "react-hot-toast";
+
 // import image from "./image.png";
 
 const ResetPasswordPage = () => {
@@ -11,19 +18,54 @@ const ResetPasswordPage = () => {
   const handlePhoneNumberChange = (e) => {
     setPhoneNumber(e.target.value);
   };
-
+  const [selectedCountry, setSelectedCountry] = useState({
+    code: "+966",
+    name: "Saudi Arabia",
+    icon: SaudiIcon,
+  });
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission logic here
-    router.push("/reset-password-code");
-  };
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm({
+    defaultValues: {
+      phone: "",
+    },
+  });
+  const onSubmit = async (data) => {
+    setLoading(true);
+    const phone = handlePhoneCode({
+      selectedCountryCode: selectedCountry.code,
+      phone: data.phone,
+    });
+    console.log(phone);
 
+    const payload = { phone };
+    console.log("payload", payload);
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/authentication/forgot/send-code`,
+        payload
+      );
+      if (res.data.statusCode === 200) {
+        toast.success(res.data.message);
+        router.push(`/verification-code?phone=${phone}`);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleBackToLogin = () => {
     // Handle navigation back to login
+    router.push("/login");
     console.log("Navigate back to login");
   };
+  console.log(errors);
 
   return (
     <Container>
@@ -53,50 +95,51 @@ const ResetPasswordPage = () => {
 
         <main className="flex flex-col items-start gap-8 sm:gap-10 md:gap-12 lg:gap-16 relative self-stretch w-full flex-[0_0_auto]">
           <form
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col items-end gap-2 relative self-stretch w-full flex-[0_0_auto]"
           >
-            <label
-              htmlFor="phone-number"
-              className="self-stretch mt-[-1.00px] font-bold text-text text-sm sm:text-base relative flex items-center justify-center tracking-[0] leading-[normal] text-center"
+            <div
+              className="
+             justify-center flex items-center text-[16px] font-bold relative self-stretch w-full flex-[0_0_auto]"
             >
               رقم الجوال
-            </label>
+            </div>
+            <TelephoneInput
+              label=""
+              subLabel=""
+              placeholder="ادخل رقم جوالك"
+              selectedCountry={selectedCountry}
+              setSelectedCountry={setSelectedCountry}
+              errors={errors.phone}
+              {...register("phone", {
+                required: "رقم الجوال مطلوب",
+                pattern: {
+                  value: /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/g,
+                  message: "رقم الجوال غير صحيح",
+                },
+              })}
+            />
 
-            <div className="flex items-center justify-end gap-2.5 px-3 sm:px-4 relative self-stretch w-full flex-[0_0_auto] bg-white rounded-2xl lg:rounded-[20px] border-2 border-solid border-[#c8c9d5] focus-within:border-primary">
-              <input
-                id="phone-number"
-                type="tel"
-                value={phoneNumber}
-                onChange={handlePhoneNumberChange}
-                placeholder="ادخل رقم جوالك"
-                className="w-full mt-[-2.00px] py-4 sm:py-5 lg:py-6 font-normal text-text text-sm sm:text-base relative flex items-center justify-center tracking-[0] leading-[normal] placeholder:text-[#c8c9d5] bg-transparent border-none outline-none"
-                dir="rtl"
-                aria-required="true"
-              />
+            <div className="flex flex-col items-center justify-center gap-2 relative self-stretch w-full my-5 flex-[0_0_auto]">
+              <button
+                type="submit"
+                className="flex items-center justify-center gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 py-4 sm:py-4.5 lg:py-5 relative self-stretch w-full flex-[0_0_auto] bg-primary  transition rounded-xl lg:rounded-[15px] hover:bg-foundation-bluedarker duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                aria-label="Submit phone number"
+              >
+                <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
+                  {loading ? "جاري التحقق" : "ارسال"}
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleBackToLogin}
+                className="w-fit font-bold text-foundation-bluedarker text-xs sm:text-sm underline relative flex items-center justify-center tracking-[0] leading-[normal] hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-foundation-bluedarker focus:ring-offset-2 rounded-sm mt-2"
+              >
+                العودة إلى تسجيل الدخول
+              </button>
             </div>
           </form>
-
-          <div className="flex flex-col items-center justify-center gap-2 relative self-stretch w-full flex-[0_0_auto]">
-            <button
-              type="submit"
-              onClick={handleSubmit}
-              className="flex items-center justify-center gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 py-4 sm:py-4.5 lg:py-5 relative self-stretch w-full flex-[0_0_auto] bg-primary hover:scale-105 transition rounded-xl lg:rounded-[15px] hover:bg-foundation-bluedarker duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-              aria-label="Submit phone number"
-            >
-              <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
-                التالي
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleBackToLogin}
-              className="w-fit font-bold text-foundation-bluedarker text-xs sm:text-sm underline relative flex items-center justify-center tracking-[0] leading-[normal] hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-foundation-bluedarker focus:ring-offset-2 rounded-sm mt-2"
-            >
-              العودة إلى تسجيل الدخول
-            </button>
-          </div>
         </main>
       </div>
     </Container>

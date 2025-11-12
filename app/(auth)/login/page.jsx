@@ -12,15 +12,24 @@ import Container from "../../../components/ui/Container";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { LoginSchema } from "../../../components/utils/Schema/LoginSchema.js";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
+import toast from "react-hot-toast";
 
 const LoginPage = () => {
+  const dispatch = useDispatch();
+  const { user, error, loading } = useSelector((state) => state.auth);
   const [value1, setValue1] = useState("Apple");
   const { login, isLoading } = useUser();
   const router = useRouter();
-
+  const [selectedCountry, setSelectedCountry] = useState({
+    code: "+966",
+    name: "Saudi Arabia",
+    icon: SaudiIcon,
+  });
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+
   const [submitting, setSubmitting] = useState(false);
 
   const plainOptions = ["Apple", "Pear", "Orange"];
@@ -39,12 +48,22 @@ const LoginPage = () => {
     },
     resolver: yupResolver(LoginSchema),
   });
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    let countryCode = selectedCountry.code.slice(1);
+    if (selectedCountry.code === "+20") {
+      data.phone = data.phone.slice(1);
+    }
+    const payload = { ...data, phone: `${countryCode}${data.phone}` };
     try {
-    } catch (error) {}
+      const res = await dispatch(loginUser(payload)).unwrap(); // ✅ بترجع data مباشرة
+      toast.success("اهلاً بعودتك مرة أخرى 🎉");
+      console.log("User:", res.user);
+      router.push("/");
+    } catch (err) {
+      toast.error(err || "حدث خطأ أثناء تسجيل الدخول");
+      console.log("Error:", err);
+    }
   };
-
-  const [selected, setSelected] = useState("unconfirmed");
 
   return (
     <Container className="flex flex-col lg:flex-row lg:justify-between overflow-hidden min-h-[calc(100vh-64px)])]">
@@ -70,7 +89,8 @@ const LoginPage = () => {
                 label="رقم الجوال"
                 subLabel=""
                 placeholder="ادخل رقم جوالك"
-                value={phone}
+                selectedCountry={selectedCountry}
+                setSelectedCountry={setSelectedCountry}
                 errors={errors.phone}
                 register={register("phone", {
                   required: "رقم الجوال مطلوب",
@@ -107,11 +127,11 @@ const LoginPage = () => {
           <div className="space-y-4 ">
             <button
               type="submit"
-              disabled={submitting || isLoading}
+              disabled={loading}
               className="w-full px-6 sm:px-8 md:px-12 py-4 sm:py-5 md:py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5 disabled:opacity-60"
             >
               <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
-                {submitting ? "جارٍ الدخول..." : "تسجيل الدخول"}
+                {loading ? "جارٍ الدخول..." : "تسجيل الدخول"}
               </div>
             </button>
             <div className="text-center justify-center">
@@ -176,14 +196,10 @@ export const TelephoneInput = ({
   placeholder = "123456789",
   register,
   errors,
+  selectedCountry,
+  setSelectedCountry,
   ...props
 }) => {
-  const [selectedCountry, setSelectedCountry] = useState({
-    code: "+966",
-    name: "Saudi Arabia",
-    icon: SaudiIcon,
-  });
-
   const countries = [
     {
       code: "+966",
@@ -199,6 +215,8 @@ export const TelephoneInput = ({
 
   const handleCountrySelect = ({ key }) => {
     const country = countries.find((c) => c.code === key);
+    console.log(country);
+
     if (country) {
       setSelectedCountry(country);
     }
@@ -218,7 +236,7 @@ export const TelephoneInput = ({
               </div>
               <div className="text-xs text-gray-500">{country.code}</div>
             </div>
-            {selectedCountry.code === country.code && (
+            {selectedCountry?.code === country?.code && (
               <svg
                 className="w-4 h-4 text-primary"
                 fill="currentColor"
@@ -263,10 +281,10 @@ export const TelephoneInput = ({
         <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
           <div className="inline-flex items-center gap-1 sm:gap-2.5 px-2 sm:px-4 relative flex-[0_0_auto] border-r-2 [border-right-style:solid] border-variable-collection-stroke cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
             <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold text-text text-sm sm:text-base text-right tracking-[0] leading-[normal]">
-              {selectedCountry.code}
+              {selectedCountry?.code}
             </div>
             <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6">
-              <selectedCountry.icon />
+              {selectedCountry?.icon && <selectedCountry.icon />}
             </div>
             <svg
               className="w-3 h-3 transition-transform"

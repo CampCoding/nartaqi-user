@@ -2,6 +2,7 @@ import React from "react";
 
 const RadioButtons = ({
   name = "radio-group",
+  register,
   options = [],
   defaultValue = "",
   onChange,
@@ -13,11 +14,14 @@ const RadioButtons = ({
           <input
             className="hidden peer"
             type="radio"
+            {...register(name, { required: "النوع مطلوب" })} // ✅ هنا التعديل
             id={opt.id}
-            name={name}
             value={opt.value}
             defaultChecked={opt.value === defaultValue}
-            onChange={(e) => onChange && onChange(e.target.value)}
+            onChange={(e) => {
+              console.log(e.target.value);
+              onChange && onChange(e.target.value);
+            }}
           />
           <label
             htmlFor={opt.id}

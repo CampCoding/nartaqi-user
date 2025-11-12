@@ -1,5 +1,4 @@
 "use client";
-
 import { usePathname } from "next/navigation";
 import { headerIcons } from "../../public/svgs";
 import SearchBanner from "./SearchBanner";
@@ -11,16 +10,16 @@ import headerData from "./headerData";
 import { useUser } from "../../lib/useUser";
 import Container from "../ui/Container";
 import { AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
 
 export default function Header() {
   const [openSearch, setOpenSearch] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { isAuthenticated, user } = useUser();
+  /*   const { token, user } = useUser(); */
 
-  useEffect(() => {
-    console.log("logged User", user);
-  }, [user]);
+  const { user, token } = useSelector((state) => state.auth);
+  console.log(user);
 
   if (pathname.includes("mock-test")) {
     return null;
@@ -88,7 +87,7 @@ export default function Header() {
                 8
               </div>
             </Link>
-            {isAuthenticated && (
+            {token && (
               <Link href="/notifications" className="relative">
                 <headerIcons.Notification className="text-text stroke-primary" />
                 <div className="absolute w-6 h-6 bg-red-700 text-white text-base font-bold flex items-center justify-center top-[-5px] right-[5px] translate-x-1/2  rounded-full ">
@@ -97,7 +96,7 @@ export default function Header() {
               </Link>
             )}
 
-            {!isAuthenticated && (
+            {!token && (
               <Link
                 href={"/login"}
                 className="flex mr-[16px] items-center text-xs font-bold pr-[24px] leading-[150%] relative bg-primary text-bg h-[56px] w-[241px] rounded-[100px]"
@@ -110,7 +109,7 @@ export default function Header() {
             )}
           </div>
 
-          {isAuthenticated && (
+          {token && (
             <Link
               href={user?.type == "marketer" ? "/marketer-profile" : "/profile"}
               className="px-16  py-4 bg-white transition-all rounded-[100px] outline outline-1 outline-offset-[-0.50px] outline-primary hover:bg-primary group hover:text-white inline-flex justify-center items-center gap-4"
@@ -132,7 +131,7 @@ export default function Header() {
             <headerIcons.Cart className="text-text stroke-primary !w-10 !h-10" />
           </Link>
 
-          {isAuthenticated && (
+          {token && (
             <Link href="/notifications" className="relative">
               <headerIcons.Notification className="text-text stroke-primary !w-10 !h-10" />
               <div className="absolute w-4 h-4 bg-red-700 text-white text-xs font-bold flex items-center justify-center top-[-5px] right-[5px] translate-x-1/2 rounded-full">
@@ -160,7 +159,7 @@ export default function Header() {
         <MobileMenu
           user={user}
           headerData={headerData}
-          isAuthenticated={isAuthenticated}
+          token={token}
           onClose={() => setMobileMenuOpen(false)}
         />
       )}
@@ -175,7 +174,7 @@ export default function Header() {
 }
 
 // Mobile Menu Component
-const MobileMenu = ({ headerData, isAuthenticated, onClose, user }) => {
+const MobileMenu = ({ headerData, token, onClose, user }) => {
   const [expandedItem, setExpandedItem] = useState(null);
 
   return (
@@ -220,7 +219,7 @@ const MobileMenu = ({ headerData, isAuthenticated, onClose, user }) => {
 
         {/* Mobile Auth Buttons */}
         <div className="mt-6 space-y-3">
-          {!isAuthenticated ? (
+          {!token ? (
             <Link
               href="/login"
               onClick={onClose}
