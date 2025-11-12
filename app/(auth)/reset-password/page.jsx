@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { handlePhoneCode } from "../../../components/utils/PhoneCode/phoneCode.js";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { pageType } from "../verification-code/VerificationCodeContent.jsx";
 
 // import image from "./image.png";
 
@@ -52,9 +53,17 @@ const ResetPasswordPage = () => {
       );
       if (res.data.statusCode === 200) {
         toast.success(res.data.message);
-        router.push(`/verification-code?phone=${phone}`);
+        router.push(
+          `/verification-code?phone=${phone}?type=${pageType.resetPassword}`
+        );
       }
     } catch (error) {
+      if (error.response.status !== 502) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("حدث خطاء");
+      }
+
       console.log(error);
     } finally {
       setLoading(false);
