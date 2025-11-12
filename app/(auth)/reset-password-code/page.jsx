@@ -1,33 +1,99 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import Container from "../../../components/ui/Container";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { resetPasswordData } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
+import { codeSchema } from "../../../components/utils/Schema/Code.js";
 
-export const ResetPasswordCode = () => {
-  const [activationCode, setActivationCode] = useState("");
-  const [errors, setErrors] = useState([]);
-
-  const handleAddError = (error) => {
-    setErrors([...errors, error]);
-  };
-
-  const handleCodeChange = (e) => {
-    setActivationCode(e.target.value);
-  };
-
+const ResetPasswordCode = () => {
+  const [sendingCode, setSendingCode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [timer, setTimer] = useState(600); // ⏱️ 10 دقايق
   const router = useRouter();
+  const { resetPassword } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission logic here
-    console.log("Activation code:", activationCode);
-    router.push("/reset-password-last-step");
+  useEffect(() => {
+    if (!resetPassword?.phone) {
+      router.push("/reset-password");
+    }
+  }, []);
+
+  // ✅ عد تنازلي كل ثانية
+  useEffect(() => {
+    if (timer <= 0) return;
+    const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  // ✅ فورم
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(codeSchema),
+    defaultValues: { activationCode: "" },
+  });
+
+  // ✅ إرسال الكود من جديد
+  const resendCode = async () => {
+    setSendingCode(true);
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/authentication/forgot/send-code`,
+        { phone: resetPassword.phone }
+      );
+
+      toast.success(res.data.message, { duration: 2000 });
+      setTimer(600); // ⏳ يبدأ العد من جديد بعد الإرسال
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "حدث خطأ أثناء الإرسال");
+    } finally {
+      setSendingCode(false);
+    }
   };
 
-  const handleResendCode = () => {
-    // Handle resend code logic here
-    console.log("Resending activation code");
+  const onSubmit = async (data) => {
+    setLoading(true);
+    try {
+      const payload = {
+        phone: resetPassword?.phone,
+        code: data.activationCode,
+        verified_at: resetPassword?.expires_at,
+      };
+      console.log(payload);
+
+      const { data: resData } = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/authentication/forgot/verify-code`,
+        { ...payload }
+      );
+
+      if (resData?.statusCode === 200) {
+        toast.success(resData.message, { duration: 2000 });
+        dispatch(resetPasswordData(payload));
+        router.push(`/reset-password-last-step`);
+      } else {
+        toast.error(resData.message, { duration: 2000 });
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "حدث خطأ أثناء التحقق");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${min}:${sec.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -64,7 +130,7 @@ export const ResetPasswordCode = () => {
 
         <main className="flex flex-col lg:h-[299px] items-start gap-6 sm:gap-7 lg:gap-8 relative self-stretch w-full lg:mb-[-45.00px]">
           <form
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col items-start gap-6 sm:gap-7 lg:gap-8 relative self-stretch w-full"
           >
             <div className="relative self-stretch w-full flex-[0_0_auto]">
@@ -74,38 +140,53 @@ export const ResetPasswordCode = () => {
               <input
                 id="activation-code"
                 type="text"
-                value={activationCode}
-                onChange={handleCodeChange}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                onInput={(e) =>
+                  (e.target.value = e.target.value.replace(/[^0-9]/g, ""))
+                }
                 placeholder="أدخل كود التفعيل"
                 maxLength="6"
-                pattern="[0-9]{6}"
-                className="flex items-center text-center justify-center gap-2.5 px-3 sm:px-4 py-4 sm:py-5 lg:py-6 relative self-stretch w-full flex-[0_0_auto] bg-white rounded-2xl lg:rounded-[20px] border-2 border-solid border-[#c8c9d5] font-normal text-[#c8c9d5] text-sm sm:text-base tracking-[0] leading-[normal] text-text placeholder:text-[#c8c9d5] focus:border-primary focus:outline-none"
-                required
+                dir="ltr"
+                {...register("activationCode")}
+                className={`flex items-center text-center justify-center gap-2.5 px-3 sm:px-4 py-4 sm:py-5 lg:py-6 relative self-stretch w-full bg-white rounded-2xl lg:rounded-[20px] border-2 border-solid ${
+                  errors.activationCode ? "border-danger" : "border-[#c8c9d5]"
+                } font-normal text-[#c8c9d5] text-sm sm:text-base tracking-[0] leading-[normal] text-text placeholder:text-[#c8c9d5] focus:border-primary focus:outline-none`}
                 aria-describedby="code-help"
               />
-              <div id="code-help" className="sr-only">
-                أدخل كود التفعيل المكون من 6 أرقام
-              </div>
+              {errors.activationCode && (
+                <p className="text-danger text-sm mt-2">
+                  {errors.activationCode.message}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col items-center justify-center gap-2 relative self-stretch w-full flex-[0_0_auto]">
               <button
                 type="submit"
-                className="flex items-center justify-center gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 py-4 sm:py-4.5 lg:py-5 relative self-stretch w-full flex-[0_0_auto] bg-primary hover:scale-105 transition rounded-xl lg:rounded-[15px] hover:bg-foundation-bluedarker duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                className="flex items-center justify-center gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 py-4 sm:py-4.5 lg:py-5 relative self-stretch w-full bg-primary hover:scale-105 transition rounded-xl lg:rounded-[15px] hover:bg-foundation-bluedarker duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 aria-label="التالي - المتابعة إلى الخطوة التالية"
               >
                 <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
-                  التالي
+                  {loading ? "جاري التحقق" : "التالي"}
                 </div>
               </button>
 
               <button
                 type="button"
-                onClick={handleResendCode}
-                className="w-fit font-bold text-primary text-sm sm:text-base relative flex items-center justify-center tracking-[0] leading-[normal] hover:text-primary focus:text-primary focus:outline-none focus:underline transition-colors duration-200 cursor-pointer mt-2"
-                aria-label="إعادة إرسال كود التفعيل"
+                onClick={resendCode}
+                disabled={sendingCode || timer > 0}
+                className={`w-fit font-bold text-primary text-sm sm:text-base relative flex items-center justify-center tracking-[0] leading-[normal] hover:text-primary focus:text-primary focus:outline-none focus:underline transition-colors duration-200 cursor-pointer mt-2 ${
+                  sendingCode || timer > 0
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
               >
-                إعادة ارسال الكود
+                {sendingCode
+                  ? "جاري الإرسال..."
+                  : timer > 0
+                  ? `إعادة الإرسال بعد ${formatTime(timer)}`
+                  : "إعادة ارسال كود التفعيل"}
               </button>
             </div>
           </form>

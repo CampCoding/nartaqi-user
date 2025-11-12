@@ -10,6 +10,9 @@ import { handlePhoneCode } from "../../../components/utils/PhoneCode/phoneCode.j
 import axios from "axios";
 import toast from "react-hot-toast";
 import { pageType } from "../verification-code/VerificationCodeContent.jsx";
+import { useDispatch } from "react-redux";
+import { resetPasswordData } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
+import { getExecutionDateTime } from "../reset-password-last-step/page.jsx";
 
 // import image from "./image.png";
 
@@ -27,6 +30,7 @@ const ResetPasswordPage = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const dispatch = useDispatch();
   const {
     register,
     formState: { errors },
@@ -44,7 +48,7 @@ const ResetPasswordPage = () => {
     });
     console.log(phone);
 
-    const payload = { phone };
+    const payload = { phone, expires_at: getExecutionDateTime() };
     console.log("payload", payload);
     try {
       const res = await axios.post(
@@ -52,10 +56,9 @@ const ResetPasswordPage = () => {
         payload
       );
       if (res.data.statusCode === 200) {
+        dispatch(resetPasswordData(payload));
         toast.success(res.data.message);
-        router.push(
-          `/verification-code?phone=${phone}?type=${pageType.resetPassword}`
-        );
+        router.push(`/reset-password-code`);
       }
     } catch (error) {
       if (error.response.status !== 502) {

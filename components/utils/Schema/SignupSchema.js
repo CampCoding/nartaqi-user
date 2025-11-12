@@ -1,4 +1,16 @@
 import * as yup from "yup";
+export const passwordSchema = {
+  password: yup
+    .string()
+    .required("كلمة المرور مطلوبة")
+    .min(8, "كلمة المرور يجب أن تحتوي على ٨ أحرف على الأقل"),
+
+  confirmPassword: yup
+    .string()
+    .required("تأكيد كلمة المرور مطلوب")
+    .oneOf([yup.ref("password"), null], "كلمة المرور غير متطابقة"),
+};
+
 export const signUpSchema = yup.object({
   firstName: yup
     .string()
@@ -24,14 +36,5 @@ export const signUpSchema = yup.object({
     .string()
     .required("رقم الجوال مطلوب")
     .matches(/^[0-9]{9,14}$/, "رقم الجوال غير صحيح"),
-
-  password: yup
-    .string()
-    .required("كلمة المرور مطلوبة")
-    .min(6, "كلمة المرور يجب أن تحتوي على 6 أحرف على الأقل"),
-
-  confirmPassword: yup
-    .string()
-    .required("تأكيد كلمة المرور مطلوب")
-    .oneOf([yup.ref("password"), null], "كلمة المرور غير متطابقة"),
+  ...passwordSchema,
 });

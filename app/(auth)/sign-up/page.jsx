@@ -17,6 +17,7 @@ import axios from "axios";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUpSchema } from "../../../components/utils/Schema/SignupSchema.js";
 import toast from "react-hot-toast";
+import { getExecutionDateTime } from "../reset-password-last-step/page.jsx";
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 const SignUpPage = () => {
   const [value1, setValue1] = useState("Apple");
@@ -29,10 +30,6 @@ const SignUpPage = () => {
     icon: SaudiIcon,
   });
 
-  const onChange1 = ({ target: { value } }) => {
-    console.log("radio1 checked", value);
-    setValue1(value);
-  };
   const [loading, setLoading] = useState(false);
 
   const [firstName, setFirstName] = useState("");
@@ -40,7 +37,6 @@ const SignUpPage = () => {
   const [lastName, setLastName] = useState("");
 
   const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const [selected, setSelected] = useState("male");
   const handleSelected = (value) => {
     setSelected(value);
@@ -74,12 +70,15 @@ const SignUpPage = () => {
       password: data.password,
       phone: `${countryCode}${data.phone}`,
       gender: selected,
+      expires_at: getExecutionDateTime(),
     };
+
     try {
-      dispatch(userSignUpdata(payload));
       const code = await axios.post(`${baseUrl}/authentication/send-code`, {
         phone: payload.phone,
+        expires_at: payload.expires_at,
       });
+      dispatch(userSignUpdata(payload));
       toast.success(code.data.message);
 
       router.push("/verification-code");
@@ -211,15 +210,7 @@ const SignUpPage = () => {
             ) : null}
             <button
               type="submit"
-              disabled={
-                errors.firstName?.message ||
-                errors.middleName?.message ||
-                errors.lastName?.message ||
-                errors.phone?.message ||
-                errors.password?.message ||
-                errors.confirmPassword?.message ||
-                loading
-              }
+              disabled={loading}
               className="w-full px-6 sm:px-8 md:px-12 py-4 sm:py-5 md:py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5 disabled:opacity-60"
             >
               <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
