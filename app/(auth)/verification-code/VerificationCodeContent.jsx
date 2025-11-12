@@ -13,20 +13,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { useForm, Controller } from "react-hook-form"; // ✅ تمت الإضافة هنا
 import axios from "axios";
 import toast from "react-hot-toast";
-import { signupUser } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
+import {
+  signupUser,
+  userSignUpdata,
+} from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
+import { getExecutionDateTime } from "../reset-password-last-step/page.jsx";
 
-export const pageType = {
-  signup: "signup",
-  resetPassword: "resetPassword",
-};
 const VerificationCode = () => {
   const { userSignUpdata } = useSelector((state) => state.auth);
   const router = useRouter();
-  const [type, setType] = useState(pageType.signup);
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const phone = userSignUpdata?.phone;
-
+  useEffect(() => {
+    if (!userSignUpdata) {
+      router.push("/sign-up");
+    }
+  }, [userSignUpdata]);
   const searchParams = useSearchParams();
 
   const [userParams, setUserParams] = useState({
@@ -35,7 +38,6 @@ const VerificationCode = () => {
     lastName: "",
     gender: "",
     phone: "",
-    type: "",
   });
 
   useEffect(() => {
@@ -44,18 +46,10 @@ const VerificationCode = () => {
     const lastName = searchParams?.get("lastName") || "";
     const gender = searchParams?.get("gender") || "";
     const p = searchParams?.get("phone") || "";
-    const type = searchParams?.get("type") || "";
-    console.log(userParams.type);
 
-    setUserParams({ firstName, middleName, lastName, gender, phone: p, type });
-    if (p) {
-      setPhoneNumber(p.split("?")[0]);
-      setType(p.split("?")[1].split("=")[1]);
-    }
+    setUserParams({ firstName, middleName, lastName, gender, phone: p });
+    if (p) setPhoneNumber(p);
   }, [searchParams]);
-
-  console.log(type);
-  console.log(phoneNumber);
 
   return (
     <div className="flex flex-col lg:flex-row lg:justify-between overflow-hidden">
@@ -63,7 +57,6 @@ const VerificationCode = () => {
         <Frame
           phone={phoneNumber ? phoneNumber : phone}
           user={userSignUpdata}
-          submitType={type}
         />
       </div>
     </div>
@@ -73,13 +66,16 @@ const VerificationCode = () => {
 export default VerificationCode;
 
 // ✅ مكوّن Frame بعد دمج react-hook-form
-export const Frame = ({ phone = "", user = null, submitType = "" }) => {
+export const Frame = ({ phone = "", user = {} }) => {
   const { login } = useUser();
   const router = useRouter();
   const inputRefs = useRef([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState();
+  const [sendCodeLoading, setSendCodeLoading] = useState(false);
   const dispatch = useDispatch();
+  console.log(user);
+
   // ✅ إعداد الفورم
   const { handleSubmit, control, setValue, getValues } = useForm({
     defaultValues: {
@@ -96,6 +92,7 @@ export const Frame = ({ phone = "", user = null, submitType = "" }) => {
       inputRefs.current[index + 1]?.focus();
     }
   };
+  console.log(sendCodeLoading);
 
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !getValues(`code.${index}`) && index > 0) {
@@ -110,46 +107,66 @@ export const Frame = ({ phone = "", user = null, submitType = "" }) => {
       if (/^\d$/.test(digit)) setValue(`code.${i}`, digit);
     });
   };
-  let onSubmit = async (data) => {
-    if (submitType === pageType.signup) {
-      setLoading(true);
-      const code = data.code.join("");
-      if (code.length !== 6) {
-        setError("يجب إدخال 6 أرقام");
-        setLoading(false);
-        return;
-      }
 
-      const payload = { phone, code };
-
-      try {
-        const verifiedData = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/authentication/verify-code`,
-          payload
-        );
-        if (verifiedData.data.status === "success") {
-          toast.success(verifiedData.data.message);
-          try {
-            const res = await dispatch(signupUser(user)).unwrap();
-            console.log(res);
-            router.push("/");
-          } catch (error) {
-            console.log(error);
-            toast.error(error);
-          }
+  const resendCode = async () => {
+    setSendCodeLoading(true);
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/authentication/send-code`,
+        {
+          phone: phone,
+          expires_at: getExecutionDateTime(),
         }
-      } catch (error) {
-        console.log(error);
-        toast.error(error?.response?.data?.message);
-      } finally {
-        setLoading(false);
-      }
-    }
+      );
+      const updatedUser = { ...user, expires_at: getExecutionDateTime() };
 
-    if (submitType === pageType.resetPassword) {
-      const code = data.code.join("");
-      console.log(code);
-      
+      dispatch(userSignUpdata(updatedUser));
+      toast.success(res.data.message, { duration: 2000 });
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+      console.log(error);
+    } finally {
+      setSendCodeLoading(false);
+    }
+  };
+  // ✅ عند الضغط على تأكيد
+  const onSubmit = async (data) => {
+    setLoading(true);
+    const code = data.code.join("");
+    if (code.length !== 6) {
+      setError("يجب إدخال 6 أرقام");
+      return;
+    }
+    const payload = {
+      phone: phone,
+      code: code,
+      verified_at: user.expires_at,
+    };
+    console.log(payload);
+
+    try {
+      const verifiedData = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/authentication/verify-code`,
+        payload
+      );
+      if (verifiedData.data.status === "success") {
+        toast.success(verifiedData.data.message);
+        try {
+          const res = await dispatch(signupUser(user)).unwrap();
+          toast.success(res.message);
+          router.push("/login");
+        } catch (error) {
+          console.log(error);
+          toast.error(error);
+          router.push("/sign-up");
+        }
+      }
+      console.log(verifiedData.data.message);
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -243,11 +260,14 @@ export const Frame = ({ phone = "", user = null, submitType = "" }) => {
 
           <button
             type="button"
-            onClick={() => console.log("Resending verification code...")}
+            onClick={() => {
+              resendCode();
+            }}
             className="w-fit font-medium text-text-alt text-xs sm:text-sm relative flex items-center justify-center tracking-[0] leading-[normal] hover:text-primary transition-colors focus:outline-none focus:underline"
-            aria-label="إعادة إرسال رمز التحقق"
           >
-            إعادة ارسال الرمز
+            {sendCodeLoading
+              ? "جاري اعادة الارسال..."
+              : "إعادة إرسال رمز التحقق"}
           </button>
         </div>
       </form>
