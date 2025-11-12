@@ -15,22 +15,28 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { signupUser } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
 
+export const pageType = {
+  signup: "signup",
+  resetPassword: "resetPassword",
+};
 const VerificationCode = () => {
   const { userSignUpdata } = useSelector((state) => state.auth);
   const router = useRouter();
+  const [type, setType] = useState(pageType.signup);
   const [phoneNumber, setPhoneNumber] = useState("");
-  console.log(userSignUpdata);
+
   const phone = userSignUpdata?.phone;
 
   const searchParams = useSearchParams();
 
   const [userParams, setUserParams] = useState({
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      gender: "",
-      phone: "",
-    });
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    gender: "",
+    phone: "",
+    type: "",
+  });
 
   useEffect(() => {
     const firstName = searchParams?.get("firstName") || "";
@@ -38,15 +44,27 @@ const VerificationCode = () => {
     const lastName = searchParams?.get("lastName") || "";
     const gender = searchParams?.get("gender") || "";
     const p = searchParams?.get("phone") || "";
+    const type = searchParams?.get("type") || "";
+    console.log(userParams.type);
 
-    setUserParams({ firstName, middleName, lastName, gender, phone: p });
-    if (p) setPhoneNumber(p);
+    setUserParams({ firstName, middleName, lastName, gender, phone: p, type });
+    if (p) {
+      setPhoneNumber(p.split("?")[0]);
+      setType(p.split("?")[1].split("=")[1]);
+    }
   }, [searchParams]);
+
+  console.log(type);
+  console.log(phoneNumber);
 
   return (
     <div className="flex flex-col lg:flex-row lg:justify-between overflow-hidden">
       <div className="flex-1 flex justify-center items-center mx-auto flex-col py-8 md:py-16 lg:py-[64px] sm:px-6 md:px-8 max-w-[604px] w-full">
-        <Frame phone={phone} user={userSignUpdata} />
+        <Frame
+          phone={phoneNumber ? phoneNumber : phone}
+          user={userSignUpdata}
+          submitType={type}
+        />
       </div>
     </div>
   );
@@ -55,7 +73,7 @@ const VerificationCode = () => {
 export default VerificationCode;
 
 // ✅ مكوّن Frame بعد دمج react-hook-form
-export const Frame = ({ phone = "", user = {} }) => {
+export const Frame = ({ phone = "", user = null, submitType = "" }) => {
   const { login } = useUser();
   const router = useRouter();
   const inputRefs = useRef([]);
@@ -92,42 +110,46 @@ export const Frame = ({ phone = "", user = {} }) => {
       if (/^\d$/.test(digit)) setValue(`code.${i}`, digit);
     });
   };
-
-  // ✅ عند الضغط على تأكيد
-  const onSubmit = async (data) => {
-    setLoading(true);
-    const code = data.code.join("");
-    if (code.length !== 6) {
-      setError("يجب إدخال 6 أرقام");
-      return;
-    }
-    const payload = {
-      phone: phone,
-      code: code,
-    };
-
-    try {
-      const verifiedData = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/authentication/verify-code`,
-        payload
-      );
-      if (verifiedData.data.status === "success") {
-        toast.success(verifiedData.data.message);
-        try {
-          const res = await dispatch(signupUser(user)).unwrap();
-          console.log(res);
-          router.push("/");
-        } catch (error) {
-          console.log(error);
-          toast.error(error);
-        }
+  let onSubmit = async (data) => {
+    if (submitType === pageType.signup) {
+      setLoading(true);
+      const code = data.code.join("");
+      if (code.length !== 6) {
+        setError("يجب إدخال 6 أرقام");
+        setLoading(false);
+        return;
       }
-      console.log(verifiedData.data.message);
-    } catch (error) {
-      console.log(error);
-      toast.error(error?.response?.data?.message);
-    } finally {
-      setLoading(false);
+
+      const payload = { phone, code };
+
+      try {
+        const verifiedData = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/authentication/verify-code`,
+          payload
+        );
+        if (verifiedData.data.status === "success") {
+          toast.success(verifiedData.data.message);
+          try {
+            const res = await dispatch(signupUser(user)).unwrap();
+            console.log(res);
+            router.push("/");
+          } catch (error) {
+            console.log(error);
+            toast.error(error);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (submitType === pageType.resetPassword) {
+      const code = data.code.join("");
+      console.log(code);
+      
     }
   };
 
