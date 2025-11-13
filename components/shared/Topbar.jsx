@@ -48,7 +48,7 @@ export default function Header() {
                   target={group.target == "_blank" ? "_blank" : "_self"}
                   className={` ${
                     index == 0 ? "ml-5" : ""
-                  } cursor-pointer  hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-0 hover:border-b-[3px] hover:border-primary`}
+                  } cursor-pointer  hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center  border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary`}
                 >
                   {group.title}
                 </Link>
@@ -64,7 +64,7 @@ export default function Header() {
               >
                 <div
                   className={
-                    " cursor-pointer  hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base  whitespace-nowrap   hover:border-b-[3px] hover:border-primary"
+                    " cursor-pointer  hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base  whitespace-nowrap   border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary"
                   }
                 >
                   {group.title}

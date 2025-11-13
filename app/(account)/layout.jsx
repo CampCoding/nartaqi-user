@@ -1,10 +1,29 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ProfileSideBar } from "../../components/profile/ProfileSideBar";
 import MobileMenu from "../../components/profile/_components/MobileMenu";
 import Container from "../../components/ui/Container";
+import { useSelector } from "react-redux";
+import LoadingPage from "../../components/shared/Loading.jsx";
+import { useRouter } from "next/navigation.js";
 const layout = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+  const router = useRouter();
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
+
+  // لو مفيش user → اعرض loading بس
+  if (!user) {
+    return (
+      <Container>
+        <LoadingPage />
+      </Container>
+    );
+  }
 
   return (
     <Container className="mx-auto pt-8 mt-4 sm:mt-8 xl:mt-[32px] mb-8 sm:mb-16 xl:mb-[64px] ">

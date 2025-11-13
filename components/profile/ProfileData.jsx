@@ -1,47 +1,164 @@
+/* "use client";
 import React from "react";
+import { useSelector } from "react-redux";
+import useGetProfile from "../shared/Hooks/useGetProfile.jsx";
+
+*/
+"use client";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import useGetProfile from "../shared/Hooks/useGetProfile.jsx";
+import { useForm } from "react-hook-form";
+import { updateProfileSchema } from "../utils/Schema/UpdateProfile.Schema.js";
+import { yupResolver } from "@hookform/resolvers/yup";
+import axios from "axios";
+import { getUserDate } from "../utils/Store/Slices/UserSllice.jsx";
+import toast from "react-hot-toast";
 
 const ProfileData = () => {
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.auth);
+  const { user, loading, error } = useGetProfile(token);
+
+  const phoneCode = user?.message?.phone.slice(0, 2) === "20" ? "2" : "966";
+  const [loadingState, setLoadingState] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(updateProfileSchema),
+  });
+
+  /** 📌 املا الفورم لما اليوزر يتغير */
+  useEffect(() => {
+    if (user?.message) {
+      reset({
+        firstName: user?.message?.name?.split(" ")[0] || "",
+        middleName: user?.message?.name?.split(" ")[1] || "",
+        lastName: user?.message?.name?.split(" ")[2] || "",
+        phone: user?.message?.phone?.slice(1) || "",
+      });
+    }
+  }, [user, reset]);
+
+  /** 📌 حفظ البيانات */
+  const onSubmit = async (data) => {
+    setLoadingState(true);
+
+    const payload = {
+      name: `${data.firstName} ${data.middleName} ${data.lastName}`,
+      /* phone: `${phoneCode}${data.phone}`, */
+    };
+    console.log(payload);
+
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/authentication/update_student_info`,
+        payload,
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      dispatch(getUserDate(token));
+      toast.success("تم تحديث البيانات بنجاح");
+      setIsEditing(false);
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
+    } finally {
+      setLoadingState(false);
+    }
+  };
+
   return (
     <main className="flex flex-col items-center flex-1 w-full">
-      <div className="flex flex-col items-center relative w-full" role="main">
-        <div
-          className="inline-flex flex-col items-center gap-1.5 relative flex-[0_0_auto]"
-          aria-labelledby="profile-name"
-        >
-          <div
-            className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-[100px] aspect-[1] bg-[url(/images/Image-12422.png)] bg-cover bg-[50%_50%]"
-            role="img"
-            aria-label="Profile picture of محمد علي عبد الحميد"
-          />
+      {/* HEADER */}
+      <div className="flex flex-col items-center relative w-full">
+        <div className="inline-flex flex-col items-center gap-1.5 relative">
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-[100px] aspect-[1] bg-[url(/images/Image-12422.png)] bg-cover" />
 
-          <button className="absolute hover:scale-105 bottom-0 left-0 transition-transform duration-200">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="absolute hover:scale-105 bottom-0 left-0 transition-transform duration-200"
+          >
             <EditIcon />
           </button>
         </div>
-        <h1
-          id="profile-name"
-          className="relative flex items-center justify-center self-stretch font-bold text-text text-lg sm:text-xl md:text-2xl text-center tracking-[0] leading-[normal] mt-2 sm:mt-4"
-        >
-          محمد علي عبد الحميد
+
+        <h1 className="font-bold text-text text-lg sm:text-xl md:text-2xl mt-2 sm:mt-4">
+          {user?.message?.name}
         </h1>
       </div>
 
-      <button
-        className="inline-flex mt-4 sm:mt-6 items-center justify-center gap-2.5 px-6 sm:px-8 md:px-12 py-3 sm:py-4 relative rounded-[20px] border-2 border-solid border-variable-collection-sup-title hover:bg-variable-collection-sup-title hover:bg-opacity-5 focus:outline-none focus:ring-2 focus:ring-variable-collection-sup-title focus:ring-opacity-50 transition-all duration-200 cursor-pointer w-full sm:w-auto"
-        type="button"
-        aria-label="تعديل الملف الشخصي"
-      >
-        <span className="relative flex items-center justify-center w-fit font-semibold text-text-alt text-sm sm:text-base text-left tracking-[0] leading-8 whitespace-nowrap">
-          تعديل الملف الشخصي
-        </span>
-      </button>
+      {/* زر تعديل الملف الشخصي */}
+      {!isEditing && (
+        <button
+          onClick={() => setIsEditing(true)}
+          className="inline-flex mt-4 sm:mt-6 items-center justify-center px-6 sm:px-8 md:px-12 py-3 rounded-[20px] border-2 border-variable-collection-sup-title transition-all duration-200 cursor-pointer"
+        >
+          <span className="font-semibold text-text-alt text-sm sm:text-base">
+            تعديل الملف الشخصي
+          </span>
+        </button>
+      )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 w-full gap-4 sm:gap-x-[29px] sm:gap-y-[31px] mt-6 sm:mt-[32px]">
-        <Input label="الأسم الأول" subLabel="" placeholder="" />
-        <Input label="الأسم الوسط" subLabel="" placeholder="" />
-        <Input label="اسم العائله" subLabel="" placeholder="" />
-        <Input label="رقم الجوال" subLabel="" placeholder="" />
-      </div>
+      {/* 📌 FORM بشكل صحيح */}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid grid-cols-1 sm:grid-cols-2 w-full gap-4 mt-6 sm:mt-[32px]"
+      >
+        <Input
+          label="الأسم الأول"
+          disabled={!isEditing}
+          register={register("firstName")}
+          error={errors.firstName?.message}
+        />
+
+        <Input
+          label="الأسم الوسط"
+          disabled={!isEditing}
+          register={register("middleName")}
+          error={errors.middleName?.message}
+        />
+
+        <Input
+          label="اسم العائله"
+          disabled={!isEditing}
+          register={register("lastName")}
+          error={errors.lastName?.message}
+        />
+
+        <Input
+          label="رقم الجوال"
+          disabled={!isEditing}
+          register={register("phone")}
+          error={errors.phone?.message}
+        />
+
+        {/* زر الحفظ يظهر فقط أثناء التعديل */}
+        {isEditing && (
+          <div className="col-span-2">
+            <div className="flex items-center justify-center w-full gap-4 mt-6 sm:mt-8 md:mt-10">
+              <button
+                type="submit"
+                className="inline-flex mt-4 sm:mt-6 bg-primary text-white items-center justify-center group hover:bg-primary-light gap-2.5 px-6 sm:px-8 md:px-12 py-3 sm:py-4 relative rounded-[20px] border-2 border-solid border-variable-collection-sup-title hover:bg-variable-collection-sup-title hover:bg-opacity-5 focus:outline-none focus:ring-2 focus:ring-variable-collection-sup-title focus:ring-opacity-50 transition-all duration-200 cursor-pointer w-full sm:w-auto"
+              >
+                <span className="relative flex items-center justify-center w-fit font-semibold text-white transition-all group-hover:text-text-alt text-sm sm:text-base tracking-[0] leading-8 whitespace-nowrap">
+                  {loadingState ? "جاري الحفظ..." : "حفظ"}
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
+      </form>
     </main>
   );
 };
@@ -77,9 +194,12 @@ const EditIcon = (props) => (
 );
 
 export const Input = ({
-  label = "الاسم رباعي باللغة العربية",
-  subLabel = "(مطابق للهوية الوطنية)",
-  placeholder = "أدخل اسمك بالكامل",
+  label,
+  subLabel,
+  placeholder,
+  register,
+  disabled = false,
+  error, // ⬅️ استقبال الـ error هنا
 }) => {
   return (
     <div className="flex w-full flex-col items-start gap-2 relative">
@@ -93,10 +213,22 @@ export const Input = ({
           </div>
         )}
       </div>
+
       <input
+        {...register}
+        disabled={disabled}
         placeholder={placeholder}
-        className="justify-start h-[60px] sm:h-[70px] md:h-[78px] gap-2.5 px-3 sm:px-4 bg-white rounded-[15px] sm:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+        className={`justify-start h-[60px] sm:h-[70px] md:h-[78px] gap-2.5 px-3 sm:px-4 bg-white rounded-[15px] sm:rounded-[20px] border-2 flex items-center relative self-stretch w-full text-sm sm:text-base focus:outline-none transition-all duration-200 
+          ${
+            error
+              ? "border-danger focus:border-danger"
+              : "border-[#c8c9d5] focus:ring-2 focus:ring-primary focus:border-primary"
+          } 
+          disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+        `}
       />
+
+      {error && <p className="text-danger text-xs mt-1">{error}</p>}
     </div>
   );
 };
