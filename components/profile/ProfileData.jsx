@@ -5,7 +5,7 @@ import useGetProfile from "../shared/Hooks/useGetProfile.jsx";
 
 */
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useGetProfile from "../shared/Hooks/useGetProfile.jsx";
 import { useForm } from "react-hook-form";
@@ -14,16 +14,21 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import { getUserDate } from "../utils/Store/Slices/UserSllice.jsx";
 import toast from "react-hot-toast";
+import parsePhone from "../utils/Phone/parsePhone.js";
 
 const ProfileData = () => {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
   const { user, loading, error } = useGetProfile(token);
+  console.log(user);
+  const [phoneMeta, setPhoneMeta] = useState({ code: "", number: "" });
 
-  const phoneCode = user?.message?.phone.slice(0, 2) === "20" ? "2" : "966";
+  const phoneCode = user?.message?.phone.startsWith("20") ? "2" : "966";
+
   const [loadingState, setLoadingState] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-
+  let number = "";
+  let code = "";
   const {
     register,
     handleSubmit,
@@ -36,61 +41,143 @@ const ProfileData = () => {
   /** 📌 املا الفورم لما اليوزر يتغير */
   useEffect(() => {
     if (user?.message) {
+      if (user?.message?.phone) {
+        const parsed = parsePhone(user?.message?.phone);
+        setPhoneMeta(parsed);
+      }
       reset({
         firstName: user?.message?.name?.split(" ")[0] || "",
         middleName: user?.message?.name?.split(" ")[1] || "",
         lastName: user?.message?.name?.split(" ")[2] || "",
-        phone: user?.message?.phone?.slice(1) || "",
+        phone: phoneMeta.number,
       });
     }
   }, [user, reset]);
+  console.log(phoneMeta);
 
   /** 📌 حفظ البيانات */
+  // const onSubmit = async (data) => {
+  //   setLoadingState(true);
+
+  //   const payload = {
+  //     name: `${data.firstName} ${data.middleName} ${data.lastName}`,
+  //     /* phone: `${phoneCode}${data.phone}`, */
+  //   };
+  //   console.log(data);
+
+  //   /*   try {
+  //     await axios.post(
+  //       `${process.env.NEXT_PUBLIC_API_URL}/authentication/update_student_info`,
+  //       payload,
+  //       {
+  //         headers: {
+  //           Accept: "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     dispatch(getUserDate(token));
+  //     toast.success("تم تحديث البيانات بنجاح");
+  //     setIsEditing(false);
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast.error(error?.response?.data?.message);
+  //   } finally {
+  //     setLoadingState(false);
+  //   } */
+  // };
+
   const onSubmit = async (data) => {
     setLoadingState(true);
-
-    const payload = {
-      name: `${data.firstName} ${data.middleName} ${data.lastName}`,
-      /* phone: `${phoneCode}${data.phone}`, */
-    };
-    console.log(payload);
+    console.log(number, code);
 
     try {
-      await axios.post(
+      const formData = new FormData();
+
+      formData.append(
+        "name",
+        `${data.firstName} ${data.middleName} ${data.lastName}`
+      );
+
+      // لو عايز ترجع تفعيل رقم الجوال
+      formData.append("phone", `${phoneMeta.code}${data.phone}`);
+
+      // 🟦 لو المستخدم اختار صورة → ابعتها
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+
+      const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/authentication/update_student_info`,
-        payload,
+        formData,
         {
           headers: {
             Accept: "application/json",
             Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
 
-      dispatch(getUserDate(token));
       toast.success("تم تحديث البيانات بنجاح");
+      dispatch(getUserDate(token)); // 🟩 اعمل refetch
       setIsEditing(false);
+      setSelectedImage(null);
     } catch (error) {
       console.log(error);
-      toast.error(error?.response?.data?.message);
+      toast.error(error?.response?.data?.message || "حدث خطأ ما");
     } finally {
       setLoadingState(false);
     }
   };
 
+  const fileInputRef = useRef(null);
+  const [preview, setPreview] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setSelectedImage(file); // نخزن الصورة لرفعها
+    setPreview(URL.createObjectURL(file)); // نعرضها مباشرة
+  };
+
   return (
     <main className="flex flex-col items-center flex-1 w-full">
       {/* HEADER */}
+      {/* HEADER */}
       <div className="flex flex-col items-center relative w-full">
         <div className="inline-flex flex-col items-center gap-1.5 relative">
-          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-[100px] aspect-[1] bg-[url(/images/Image-12422.png)] bg-cover" />
+          {/* 🟦 صورة البروفايل */}
+          <div
+            className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${
+                preview || user?.message?.image || "/images/Image-12422.png"
+              })`,
+            }}
+          />
 
+          {/* 🟥 زر تعديل الصورة + رفع ملف */}
           <button
-            onClick={() => setIsEditing(true)}
-            className="absolute hover:scale-105 bottom-0 left-0 transition-transform duration-200"
+            onClick={() => fileInputRef.current.click()}
+            className={`absolute ${
+              isEditing ? "block" : "hidden"
+            } hover:scale-105 bottom-0 left-0 transition-transform duration-200`}
           >
             <EditIcon />
           </button>
+
+          {/* 🟩 فايل إنبوت مخفي */}
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            className="hidden"
+          />
         </div>
 
         <h1 className="font-bold text-text text-lg sm:text-xl md:text-2xl mt-2 sm:mt-4">
