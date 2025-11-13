@@ -98,7 +98,7 @@ const authSlice = createSlice({
 });
 
 export const {
-  logout,
+  logoutUser,
   userSignUpdata,
   resetPasswordData,
   clearResetPasswordData,

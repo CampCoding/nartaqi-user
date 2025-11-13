@@ -1,7 +1,7 @@
 "use client";
 
 import { Radio, Dropdown, Menu } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import RadioButtons from "../../../components/ui/RadioButtons";
 import { SaudiIcon, EgyptianIcon } from "../../../public/svgs";
 import { Eye } from "lucide-react";
@@ -9,12 +9,13 @@ import Link from "next/link";
 import { useUser } from "../../../lib/useUser.jsx";
 import { useRouter } from "next/navigation";
 import Container from "../../../components/ui/Container";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { LoginSchema } from "../../../components/utils/Schema/LoginSchema.js";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
 import toast from "react-hot-toast";
+import LoadingPage from "../../../components/shared/Loading.jsx";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -29,6 +30,7 @@ const LoginPage = () => {
   });
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [redirect, setRedirect] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -48,6 +50,20 @@ const LoginPage = () => {
     },
     resolver: yupResolver(LoginSchema),
   });
+  useEffect(() => {
+    if (user) {
+      router.replace("/");
+    }
+  }, [user, router]);
+
+  // ⭐⭐⭐ شرط واحد فقط قبل الريندر
+  if (user) {
+    return (
+      <Container>
+        <LoadingPage />
+      </Container>
+    );
+  }
   const onSubmit = async (data) => {
     let countryCode = selectedCountry.code.slice(1);
     if (selectedCountry.code === "+20") {
@@ -55,10 +71,13 @@ const LoginPage = () => {
     }
     const payload = { ...data, phone: `${countryCode}${data.phone}` };
     try {
-      const res = await dispatch(loginUser(payload)).unwrap(); // ✅ بترجع data مباشرة
+      const res = await dispatch(loginUser(payload)).unwrap();
+      setRedirect(true); // ✅ بترجع data مباشرة
       toast.success("اهلاً بعودتك مرة أخرى 🎉");
-      console.log("User:", res.user);
       router.push("/");
+      setTimeout(() => {
+        setRedirect(true);
+      }, 0);
     } catch (err) {
       toast.error(err || "حدث خطأ أثناء تسجيل الدخول");
       console.log("Error:", err);
@@ -67,100 +86,110 @@ const LoginPage = () => {
 
   return (
     <Container className="flex flex-col lg:flex-row lg:justify-between overflow-hidden min-h-[calc(100vh-64px)])]">
-      <div className="flex-1 flex justify-center items-center mx-auto flex-col py-8 md:py-16 lg:py-[64px] pl-4 sm:pl-6 md:pl-8 max-w-[719px] w-full">
-        <div className="inline-flex flex-col items-center gap-3 md:gap-4 relative mb-8 md:mb-12 lg:mb-[48px]">
-          <img
-            className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-[100px] md:h-[95.42px] aspect-[1.05]"
-            alt="Mask group"
-            src={"/images/logo.svg"}
-          />
-
-          <p className="relative flex items-center justify-center w-fit font-bold text-text text-lg sm:text-xl md:text-2xl text-center tracking-[0] leading-[normal] px-4">
-            مرحبا بعودتك مرة اخرى
-          </p>
-        </div>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="mx-auto w-full space-y-6 md:space-y-8 lg:space-y-[32px]"
-        >
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="col-span-3">
-              <TelephoneInput
-                label="رقم الجوال"
-                subLabel=""
-                placeholder="ادخل رقم جوالك"
-                selectedCountry={selectedCountry}
-                setSelectedCountry={setSelectedCountry}
-                errors={errors.phone}
-                register={register("phone", {
-                  required: "رقم الجوال مطلوب",
-                  pattern: {
-                    value: /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/g,
-                    message: "رقم الجوال غير صحيح",
-                  },
-                })}
-                onChange={(e) => setPhone(e.target.value)}
+      {redirect ? (
+        <>
+          <LoadingPage />
+        </>
+      ) : (
+        <>
+          <div className="flex-1 flex justify-center items-center mx-auto flex-col py-8 md:py-16 lg:py-[64px] pl-4 sm:pl-6 md:pl-8 max-w-[719px] w-full">
+            <div className="inline-flex flex-col items-center gap-3 md:gap-4 relative mb-8 md:mb-12 lg:mb-[48px]">
+              <img
+                className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-[100px] md:h-[95.42px] aspect-[1.05]"
+                alt="Mask group"
+                src={"/images/logo.svg"}
               />
-            </div>
-            <div className="col-span-3 space-y-2">
-              <PasswordInput
-                label="كلمة المرور"
-                subLabel=""
-                placeholder="أدخل كلمة المرور"
-                errors={errors.password}
-                value={password}
-                {...register("password", { required: "كلمة المرور مطلوبة" })}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <Link
-                href={{
-                  pathname: "/reset-password",
-                  query: { number: "" },
-                }}
-                className="text-right justify-center text-primary text-sm sm:text-base font-bold block"
-              >
-                نسيت كلمة المرور؟
-              </Link>
-            </div>
-          </div>
 
-          <div className="space-y-4 ">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full px-6 sm:px-8 md:px-12 py-4 sm:py-5 md:py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5 disabled:opacity-60"
+              <p className="relative flex items-center justify-center w-fit font-bold text-text text-lg sm:text-xl md:text-2xl text-center tracking-[0] leading-[normal] px-4">
+                مرحبا بعودتك مرة اخرى
+              </p>
+            </div>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="mx-auto w-full space-y-6 md:space-y-8 lg:space-y-[32px]"
             >
-              <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
-                {loading ? "جارٍ الدخول..." : "تسجيل الدخول"}
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="col-span-3">
+                  <TelephoneInput
+                    label="رقم الجوال"
+                    subLabel=""
+                    placeholder="ادخل رقم جوالك"
+                    selectedCountry={selectedCountry}
+                    setSelectedCountry={setSelectedCountry}
+                    errors={errors.phone}
+                    register={register("phone", {
+                      required: "رقم الجوال مطلوب",
+                      pattern: {
+                        value: /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/g,
+                        message: "رقم الجوال غير صحيح",
+                      },
+                    })}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
+                <div className="col-span-3 space-y-2">
+                  <PasswordInput
+                    label="كلمة المرور"
+                    subLabel=""
+                    placeholder="أدخل كلمة المرور"
+                    errors={errors.password}
+                    value={password}
+                    {...register("password", {
+                      required: "كلمة المرور مطلوبة",
+                    })}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <Link
+                    href={{
+                      pathname: "/reset-password",
+                      query: { number: "" },
+                    }}
+                    className="text-right justify-center text-primary text-sm sm:text-base font-bold block"
+                  >
+                    نسيت كلمة المرور؟
+                  </Link>
+                </div>
               </div>
-            </button>
-            <div className="text-center justify-center">
-              <span className="text-text text-xs sm:text-sm font-medium">
-                ليس لديك حساب؟
-              </span>
-              <span className="text-primary text-xs sm:text-sm font-bold">
-                {" "}
-              </span>
-              <Link
-                href={"/sign-up"}
-                className="text-primary text-xs sm:text-sm font-bold underline"
-              >
-                إنشاء حساب جديد{" "}
-              </Link>
-            </div>
-          </div>
-        </form>
-      </div>
 
-      <div
-        className="w-full max-w-[592px] h-32  sm:h-48 md:h-64 hidden lg:block lg:w-[50%] lg:h-auto relative select-none"
-        style={{
-          backgroundImage: `url("/images/logo-banner.png")`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      />
+              <div className="space-y-4 ">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full px-6 sm:px-8 md:px-12 py-4 sm:py-5 md:py-6 bg-primary rounded-2xl inline-flex justify-center items-center gap-2.5 disabled:opacity-60"
+                >
+                  <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
+                    {loading ? "جارٍ الدخول..." : "تسجيل الدخول"}
+                  </div>
+                </button>
+                <div className="text-center justify-center">
+                  <span className="text-text text-xs sm:text-sm font-medium">
+                    ليس لديك حساب؟
+                  </span>
+                  <span className="text-primary text-xs sm:text-sm font-bold">
+                    {" "}
+                  </span>
+                  <Link
+                    href={"/sign-up"}
+                    className="text-primary text-xs sm:text-sm font-bold underline"
+                  >
+                    إنشاء حساب جديد{" "}
+                  </Link>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div
+            className="w-full max-w-[592px] h-32  sm:h-48 md:h-64 hidden lg:block lg:w-[50%] lg:h-auto relative select-none"
+            style={{
+              backgroundImage: `url("/images/logo-banner.png")`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+        </>
+      )}
     </Container>
   );
 };

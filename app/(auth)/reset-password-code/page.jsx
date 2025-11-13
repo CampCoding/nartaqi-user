@@ -11,6 +11,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { resetPasswordData } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
 import { codeSchema } from "../../../components/utils/Schema/Code.js";
+import Loading from "../../../components/shared/Loading.jsx";
 
 const ResetPasswordCode = () => {
   const [sendingCode, setSendingCode] = useState(false);
@@ -20,13 +21,17 @@ const ResetPasswordCode = () => {
   const { resetPassword } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (!resetPassword?.phone) {
+  if (!resetPassword?.phone) {
+    useEffect(() => {
       router.push("/reset-password");
-    }
-  }, []);
+    }, []);
 
-  // ✅ عد تنازلي كل ثانية
+    return (
+      <Container>
+        <Loading />
+      </Container>
+    );
+  } // ✅ عد تنازلي كل ثانية
   useEffect(() => {
     if (timer <= 0) return;
     const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);

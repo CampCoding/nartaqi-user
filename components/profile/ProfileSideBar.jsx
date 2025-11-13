@@ -4,6 +4,11 @@ import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useUser } from "../../lib/useUser";
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import {
+  logout,
+  logoutUser,
+} from "../utils/Store/Slices/authntcationSlice.jsx";
 // import certificate2 from "./certificate-2.svg";
 // import onlineLearning1 from "./online-learning-1.svg";
 // import vector6 from "./vector-6.svg";
@@ -12,7 +17,7 @@ import toast from "react-hot-toast";
 export const ProfileSideBar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout } = useUser();
+  const dispatch = useDispatch();
   const menuItems = [
     {
       id: "account",
@@ -65,7 +70,8 @@ export const ProfileSideBar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    dispatch(logoutUser());
+    router.push("/");
     toast.success("تم تسجيل الخروج بنجاح", { duration: 3000 });
   };
 
@@ -118,10 +124,7 @@ export const ProfileSideBar = () => {
           <div className="relative w-6 h-6 aspect-[1]">
             <LogoutIcon />
           </div>
-          <button
-            onClick={() => logout()}
-            className="mt-[-1.00px] text-[#e84242] relative flex items-center justify-center w-fit  font-bold text-base text-left tracking-[0] leading-6 whitespace-nowrap "
-          >
+          <button className="mt-[-1.00px] text-[#e84242] relative flex items-center justify-center w-fit  font-bold text-base text-left tracking-[0] leading-6 whitespace-nowrap ">
             تسجيل الخروج
           </button>
         </button>

@@ -12,6 +12,7 @@ import { forgetPasswordSchema } from "../../../components/utils/Schema/ForgetPas
 import axios from "axios";
 import toast from "react-hot-toast";
 import { clearResetPasswordData } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
+import LoadingPage from "../../../components/shared/Loading.jsx";
 
 // ✅ Schema التحقق من الباسورد
 export function getExecutionDateTime() {
@@ -33,9 +34,17 @@ const ResetPasswordLastStep = () => {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (!resetPassword) router.push("/reset-password-code");
-  }, [resetPassword, router]);
+  if (!resetPassword?.code || !resetPassword?.phone) {
+    useEffect(() => {
+      router.push("/reset-password-code");
+    }, []);
+
+    return (
+      <Container>
+        <LoadingPage />
+      </Container>
+    );
+  }
 
   const {
     register,
