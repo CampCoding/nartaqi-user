@@ -9,7 +9,7 @@ export default function Providers({ children }) {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         {children}
-      </PersistGate>
+      </PersistGate>  
     </Provider>
   );
 }

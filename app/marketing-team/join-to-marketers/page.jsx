@@ -11,6 +11,7 @@ import { Check } from "lucide-react";
 import { VerificationCodeModal } from "../../../components/ui/Modals/VerCodeModal";
 import Link from "next/link";
 import Container from "../../../components/ui/Container";
+import { TelephoneInput } from "../../(auth)/login/page.jsx";
 
 const JoinToMarketers = () => {
   const [formData, setFormData] = useState({
@@ -20,7 +21,11 @@ const JoinToMarketers = () => {
     cardholderName: "",
     saveCard: false,
   });
-
+  const [selectedCountry, setSelectedCountry] = useState({
+    code: "+966",
+    name: "Saudi Arabia",
+    icon: SaudiIcon,
+  });
   const [openVerCode, setOpenVerCode] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
 
@@ -98,7 +103,7 @@ const JoinToMarketers = () => {
               subLabel=""
               placeholder="أدخل اسمك بالكامل"
             />{" "}
-          </div>{" "}
+          </div>
           <div className="col-span-2 md:col-span-1">
             <Input
               subLabel=""
@@ -126,6 +131,17 @@ const JoinToMarketers = () => {
               placeholder="أدخل بريدك الإلكتروني"
             />{" "}
           </div>{" "}
+          <div className="col-span-2">
+            <TelephoneInput
+              label="رقم الجوال"
+              subLabel=""
+              placeholder="ادخل رقم الجوال"
+             // register={register("phone")}
+              //errors={errors.phone}
+              selectedCountry={selectedCountry}
+              setSelectedCountry={setSelectedCountry}
+            />
+          </div>
           <div className="col-span-2">
             {" "}
             <TextArea

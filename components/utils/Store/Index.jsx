@@ -13,6 +13,7 @@ import {
 } from "redux-persist";
 import authSlice from "./Slices/authntcationSlice.jsx";
 import userSlice from "./Slices/UserSllice.jsx";
+import blogSlice from "./Slices/BlogSlice.jsx";
 
 const persistConfig = {
   key: "root",
@@ -23,6 +24,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authSlice.reducer,
   user: userSlice.reducer,
+  blog: blogSlice.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

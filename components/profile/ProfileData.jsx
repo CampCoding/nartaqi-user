@@ -14,7 +14,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import { getUserDate } from "../utils/Store/Slices/UserSllice.jsx";
 import toast from "react-hot-toast";
-import parsePhone from "../utils/Phone/parsePhone.js";
+import parsePhone from "../utils/helpers/parsePhone.js";
 
 const ProfileData = () => {
   const dispatch = useDispatch();
