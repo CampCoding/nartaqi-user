@@ -43,7 +43,7 @@ export default function Header() {
             if ((!group.items || group.items.length === 0) && group.link) {
               return (
                 <Link
-                  key={group.key}
+                  key={index}
                   href={group.link}
                   target={group.target == "_blank" ? "_blank" : "_self"}
                   className={` ${

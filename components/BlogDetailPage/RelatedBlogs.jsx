@@ -1,9 +1,10 @@
 import React from "react";
 import { BlogCard } from "./../ui/Cards/BlogCard";
 import Link from "next/link";
+import NoContent from "../shared/NoContent";
 
-const RelatedBlogs = () => {
-  const blogs = [
+const RelatedBlogs = ({ blogs }) => {
+  const blogss = [
     { id: 1, image: "/images/FRAME (1).png" },
     { id: 2, image: "/images/FRAME (2).png" },
     { id: 3, image: "/images/FRAME.png" },
@@ -18,17 +19,32 @@ const RelatedBlogs = () => {
         </h2>
 
         {/* Grid of Blog Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
-          {blogs.map((blog) => (
-            <Link
-              href={`/blogs/blog-details/${blog.id}`}
-              key={blog.id}
-              className="group focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-[30px] transition-all"
-            >
-              <BlogCard freeWidth={true} image={blog.image} />
-            </Link>
-          ))}
-        </div>
+        {blogs?.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
+              {blogs?.map((blog) => (
+                <Link
+                  href={`/blogs/blog-details/${blog.id}`}
+                  key={blog.id}
+                  className="group focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-[30px] transition-all"
+                >
+                  <BlogCard
+                    freeWidth
+                    item={item}
+                    handleBlogClick={() => {
+                      setSelectedBlogId(item.id);
+                      router.push(`/blogs/blog-details/${item.id}`);
+                    }}
+                  />
+                </Link>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <NoContent title={"لا يوجد مقالات ذات الصلة"} />
+          </>
+        )}
       </div>
     </section>
   );

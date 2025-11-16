@@ -34,9 +34,7 @@ export default function Home() {
       <WhyChooseUs />
       <WhatOurXSay />
       <HonorRoll />
-      <NewestBlogs /> 
-    
-
+      <NewestBlogs />
       {/* <CourseCard /> */}
     </>
   );

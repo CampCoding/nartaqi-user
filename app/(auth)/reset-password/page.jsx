@@ -6,7 +6,7 @@ import Container from "../../../components/ui/Container";
 import { TelephoneInput } from "../login/page.jsx";
 import { SaudiIcon } from "../../../public/svgs.jsx";
 import { useForm } from "react-hook-form";
-import { handlePhoneCode } from "../../../components/utils/Phone/phoneCode.js";
+import { handlePhoneCode } from "../../../components/utils/helpers/phoneCode.js";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { pageType } from "../verification-code/VerificationCodeContent.jsx";

@@ -1,28 +1,46 @@
 "use client";
 
+import { yupResolver } from "@hookform/resolvers/yup";
 import React, { useState } from "react";
+import { set, useForm } from "react-hook-form";
+import { commentSchema } from "../utils/Schema/Comment.Schema";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { formatDate, formatDateBackEnd } from "../utils/helpers/date";
+import NoContent from "../shared/NoContent";
+import { useRouter } from "next/navigation";
+import { saveComment } from "../utils/Store/Slices/BlogSlice";
 
-const BlogComments = () => {
-  const comments = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }];
+const BlogComments = ({ count, id, comments }) => {
+  const commentss = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }];
+  const { token } = useSelector((state) => state.auth);
+  console.log(comments);
 
   return (
     <section className=" flex flex-col gap-6 sm:gap-8 md:gap-10 mt-8 sm:mt-10 md:mt-12 lg:mt-14 max-w-7xl mx-auto">
       {/* Header */}
       <header className="flex items-center justify-between">
         <h2 className="font-bold text-secondary text-2xl leading-8 sm:text-[28px] sm:leading-9 md:text-[30px] md:leading-10 lg:text-[32px] lg:leading-[44px]">
-          تعليقات (١٢)
+          ({count})تعليقات
         </h2>
       </header>
 
       {/* Comments List */}
-      <main className="flex flex-col gap-4 sm:gap-5 md:gap-6">
-        {comments.map((comment) => (
-          <BlogCommentCard key={comment.id} />
-        ))}
-      </main>
+      {comments?.length > 0 ? (
+        <>
+          {comments?.map((comment) => (
+            <BlogCommentCard key={comment.id} comment={comment} />
+          ))}
+        </>
+      ) : (
+        <>
+          <NoContent title={"لا يوجد تعليقات"} />
+        </>
+      )}
 
       {/* Add Comment Form */}
-      <AddBlogComment />
+      <AddBlogComment id={id} token={token} />
     </section>
   );
 };
@@ -30,7 +48,7 @@ const BlogComments = () => {
 export default BlogComments;
 
 // Comment Card Component
-const BlogCommentCard = () => {
+const BlogCommentCard = ({ comment }) => {
   const reviewData = {
     date: "6 مارس 2024",
     author: "سارة جونسون",
@@ -100,13 +118,13 @@ const BlogCommentCard = () => {
             <h3 className="font-bold text-text text-sm sm:text-base md:text-lg leading-5 sm:leading-6">
               {reviewData.author}
             </h3>
-            {renderStars(reviewData.rating)}
+            {renderStars(comment?.rateing)}
           </div>
         </header>
 
         {/* Comment Text */}
         <p className="text-text text-sm sm:text-[15px] md:text-base leading-6 sm:leading-7 md:leading-7 break-words">
-          {reviewData.comment}
+          {comment?.comment}
         </p>
       </div>
 
@@ -116,7 +134,7 @@ const BlogCommentCard = () => {
         dateTime="2024-03-06"
       >
         <span className="text-text-alt text-xs sm:text-sm md:text-sm leading-5 whitespace-nowrap">
-          {reviewData.date}
+          {formatDateBackEnd(comment?.created_at)}
         </span>
       </time>
     </article>
@@ -124,10 +142,23 @@ const BlogCommentCard = () => {
 };
 
 // Add Comment Component
-export const AddBlogComment = () => {
-  const [comment, setComment] = useState("");
+export const AddBlogComment = ({ id, token }) => {
+  const [comment, setComment] = useState(0);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: yupResolver(commentSchema),
+    mode: "onChange",
+  });
 
   const starIcons = [
     { id: 1, label: "نجمة واحدة" },
@@ -145,11 +176,49 @@ export const AddBlogComment = () => {
     setComment(e.target.value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Comment:", comment, "Rating:", rating);
+  const onSubmit = async (data) => {
+    if (!token) {
+      dispatch(
+        saveComment({ commentContent: data.comment, link: router.asPath })
+      );
+      toast.error("يجب تسجيل الدخول اولا");
+      router.push("/login");
+      return;
+    }
+
+    setLoading(true);
+    console.log("Comment:", data, "Rating:", rating);
+
+    const payload = {
+      blog_id: id,
+      comment: data.comment,
+      rating: rating,
+    };
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/blogs/add_comment`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+      if (res.data.statusCode === 200) {
+        toast.success("تم اضافة التعليق بنجاح ");
+      }
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        error?.response?.data?.message || "حدث خطاء في اضافة التعليق "
+      );
+    } finally {
+      setLoading(false);
+    }
     // Reset form
-    setComment("");
+    reset();
     setRating(0);
   };
 
@@ -190,7 +259,10 @@ export const AddBlogComment = () => {
       </header>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-5">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-4 sm:gap-5"
+      >
         {/* Textarea */}
         <div className="relative w-full bg-white rounded-xl sm:rounded-2xl md:rounded-[25px] lg:rounded-[30px] border border-zinc-200 focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20 transition-all">
           <label htmlFor="comment-input" className="sr-only">
@@ -198,29 +270,39 @@ export const AddBlogComment = () => {
           </label>
           <textarea
             id="comment-input"
-            value={comment}
-            onChange={handleCommentChange}
+            {...register("comment")}
+            onChange={(e) => {
+              setComment(e?.target?.value?.length);
+            }}
             placeholder="اكتب تعليقك هنا..."
             className="w-full resize-none px-4 py-4 sm:px-5 sm:py-5 md:px-6 md:py-6 text-text text-sm sm:text-base md:text-lg leading-6 sm:leading-7 md:leading-8 bg-transparent border-0 outline-none placeholder:text-text-alt/60"
             rows="6"
             maxLength="500"
           />
           <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 text-xs sm:text-sm text-text-alt/60">
-            {comment.length}/500
+            {comment}/500
           </div>
         </div>
 
         {/* Submit Button */}
         <button
-          className="self-start inline-flex items-center justify-center gap-2 px-8 py-3 sm:px-10 sm:py-3.5 md:px-12 md:py-4 lg:px-14 lg:py-4 bg-secondary rounded-full sm:rounded-[25px] md:rounded-[30px] cursor-pointer hover:bg-secondary/90 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          className={
+            "self-start inline-flex items-center justify-center gap-2 px-8 py-3 sm:px-10 sm:py-3.5 md:px-12 md:py-4 lg:px-14 lg:py-4 bg-secondary rounded-full sm:rounded-[25px] md:rounded-[30px] cursor-pointer hover:bg-secondary/90 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          }
           type="submit"
-          disabled={!comment.trim() || rating === 0}
+          disabled={loading || comment < 3 || rating === 0}
           aria-label="تقديم تعليق"
         >
           <span className="text-white text-sm sm:text-base md:text-lg font-semibold leading-normal">
-            تقديم تعليق
+            {loading ? "جاري تقدم التعليق..." : "تقديم تعليق"}
           </span>
         </button>
+        {/* Error Message */}
+        {errors.comment && (
+          <div className=" text-sm sm:text-base md:text-lg text-red-500">
+            {errors.comment.message}
+          </div>
+        )}
       </form>
 
       {/* Footer Note */}

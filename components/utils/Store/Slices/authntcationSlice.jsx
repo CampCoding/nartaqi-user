@@ -9,8 +9,6 @@ export const loginUser = createAsyncThunk(
     try {
       const res = await axios.post(`${baseUrl}/authentication/login`, data);
 
-      console.log("userLogged");
-
       return res.data;
     } catch (error) {
       console.log(error);

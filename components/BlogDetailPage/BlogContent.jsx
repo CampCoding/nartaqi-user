@@ -1,17 +1,24 @@
+import { useCallback } from "react";
+import { formatDate } from "../utils/helpers/date";
 import {
   BlogMessage,
   BlogShare,
   BlogEye,
   BlogCalender,
 } from "./../../public/svgs";
+import toast from "react-hot-toast";
 
-export const BlogContent = () => {
+export const BlogContent = ({ blog }) => {
   const articleData = {
     title: "مستقبل التعلم عبر الإنترنت: الاتجاهات والتقنيات",
     date: "15 مارس 2024",
     views: "1,2.4 ألف مشاهدة",
     comments: "12 تعليق",
   };
+  const handleShare = useCallback(() => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success("تم نسخ الرابط بنجاح");
+  }, []);
 
   const arabicText = `تتطور منظومة التعليم بسرعة متزايدة، مع تزايد دور التكنولوجيا بشكل متزايد في كيفية تعلمنا وتدريسنا. لقد تسارع هذا التحول بواسطة الأحداث العالمية الأخيرة، مما دفع المؤسسات التعليمية إلى التكيف والابتكار.أصبحت منصات التعلم الرقمي أكثر تطورا، حيث تدمج الذكاء الاصطناعي وتعلم الآلة لتوفير تجارب تعلم شخصية. تسمح هذه التطورات بمسارات تعلم متكيفة تتكيف مع وتيرة كل طالب وأسلوب تعلمه.تقنيات الواقع الافتراضي والواقع المعزز تخلق بيئات تعليمية غامرة كانت غير ممكنة في السابق. يمكن للطلاب الآن القيام برحلات افتراضية إلى المواقع التاريخية، واستكشاف الهياكل الجزيئية المعقدة ثلاثية الأبعاد، أو ممارسة الإجراءات الجراحية في بيئة خالية من المخاطر.تتطور منظومة التعليم بسرعة متزايدة، مع تزايد دور التكنولوجيا بشكل متزايد في كيفية تعلمنا وتدريسنا. لقد تسارع هذا التحول بواسطة الأحداث العالمية الأخيرة، مما دفع المؤسسات التعليمية إلى التكيف والابتكار.أصبحت منصات التعلم الرقمي أكثر تطورا، حيث تدمج الذكاء الاصطناعي وتعلم الآلة لتوفير تجارب تعلم شخصية. تسمح هذه التطورات بمسارات تعلم متكيفة تتكيف مع وتيرة كل طالب وأسلوب تعلمه.تقنيات الواقع الافتراضي والواقع المعزز تخلق بيئات تعليمية غامرة كانت غير ممكنة في السابق. يمكن للطلاب الآن القيام برحلات افتراضية إلى المواقع التاريخية، واستكشاف الهياكل الجزيئية المعقدة ثلاثية الأبعاد، أو ممارسة الإجراءات الجراحية في بيئة خالية من المخاطر.تتطور منظومة التعليم بسرعة متزايدة، مع تزايد دور التكنولوجيا بشكل متزايد في كيفية تعلمنا وتدريسنا. لقد تسارع هذا التحول بواسطة الأحداث العالمية الأخيرة، مما دفع المؤسسات التعليمية إلى التكيف والابتكار.أصبحت منصات التعلم الرقمي أكثر تطورا، حيث تدمج الذكاء الاصطناعي وتعلم الآلة لتوفير تجارب تعلم شخصية. تسمح هذه التطورات بمسارات تعلم متكيفة تتكيف مع وتيرة كل طالب وأسلوب تعلمه.`;
 
@@ -23,7 +30,7 @@ export const BlogContent = () => {
       <article className="flex flex-col items-start gap-3 sm:gap-4 relative mb-8 sm:mb-10 md:mb-14">
         <header className="flex items-center justify-start relative self-stretch w-full">
           <h1 className="text-bold text-primary text-xl leading-7 sm:text-2xl sm:leading-8 md:text-[28px] md:leading-9 lg:text-[32px] lg:leading-10 xl:text-4xl xl:leading-[44px]">
-            {articleData.title}
+            {blog?.title}
           </h1>
         </header>
 
@@ -45,7 +52,7 @@ export const BlogContent = () => {
               <BlogCalender className="stroke-primary w-full h-full" />
             </div>
             <span className="text-text-alt text-sm sm:text-[15px] md:text-base leading-5 whitespace-nowrap">
-              {articleData.date}
+              {formatDate(blog?.published_at)}
             </span>
           </time>
 
@@ -58,7 +65,7 @@ export const BlogContent = () => {
               <BlogEye className="stroke-primary w-full h-full" />
             </div>
             <span className="text-text-alt text-sm sm:text-[15px] md:text-base leading-5 whitespace-nowrap">
-              {articleData.views}
+              {blog?.views}
             </span>
           </div>
 
@@ -71,7 +78,7 @@ export const BlogContent = () => {
               <BlogMessage className="stroke-primary w-full h-full" />
             </div>
             <span className="text-text-alt text-sm sm:text-[15px] md:text-base leading-5 whitespace-nowrap">
-              {articleData.comments}
+              {blog?.comments_count}
             </span>
           </div>
 
@@ -79,6 +86,9 @@ export const BlogContent = () => {
           <button
             className="flex items-center gap-1.5 sm:gap-2 hover:opacity-80 transition-opacity"
             aria-label="مشاركة المقال"
+            onClick={() => {
+              handleShare();
+            }}
           >
             <div
               className="relative w-5 h-5 sm:w-5.5 sm:h-5.5 md:w-6 md:h-6"
@@ -97,7 +107,9 @@ export const BlogContent = () => {
       <figure
         className="relative w-full h-[220px] xs:h-[280px] sm:h-[350px] md:h-[420px] lg:h-[480px] xl:h-[523px] rounded-2xl sm:rounded-[25px] md:rounded-[30px] overflow-hidden shadow-lg"
         style={{
-          backgroundImage: `url('/images/FRAME (10).png')`,
+          backgroundImage: `url('${
+            blog?.image || "/images/Frame 1000004929.png"
+          }')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -113,10 +125,9 @@ export const BlogContent = () => {
           lang="ar"
           dir="rtl"
         >
-          {arabicText}
+          {blog?.content}
           <br />
           <br />
-          {breakText}
         </article>
       </section>
     </main>
