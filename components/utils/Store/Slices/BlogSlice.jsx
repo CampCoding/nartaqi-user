@@ -2,17 +2,17 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-export const getBlogs = createAsyncThunk(
-  "blog/getBlogs",
-  async (_, { rejectWithValue }) => {
+export const getBlogComments = createAsyncThunk(
+  "blog/getBlogComments",
+  async (data, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${baseUrl}/user/blogs`, {
+      const res = await axios.post(`${baseUrl}/user/blogs/comments`, data, {
         headers: {
           Accept: "application/json",
         },
       });
 
-      console.log("blogs fetched");
+      console.log("comments fetched");
 
       return res.data;
     } catch (error) {
@@ -24,25 +24,27 @@ export const getBlogs = createAsyncThunk(
 
 const blogSlice = createSlice({
   name: "blog",
-  initialState: { blogs: {}, blog: {}, loading: false, error: null },
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(getBlogs.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(getBlogs.fulfilled, (state, action) => {
-        state.blogs = action.payload;
-        state.loading = false;
-        state.error = null;
-      })
-      .addCase(getBlogs.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
+  initialState: {
+    blogs: {},
+    blog: {},
+    comments: {},
+    link: {},
+    commentContent: {},
+    loading: false,
+    error: null,
+  },
+  reducers: {
+    saveComment: (state, action) => {
+      state.commentContent = action.payload.commentContent;
+      state.link = action.payload.link;
+    },
+    clearComment: (state) => {
+      state.commentContent = null;
+      state.link = null;
+    },
   },
 });
 
 // مهم في الستورتستخدم blogSlice.reducer
 export default blogSlice;
+export const { saveComment, clearComment } = blogSlice.actions;

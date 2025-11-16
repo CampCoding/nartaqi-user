@@ -1,23 +1,29 @@
-// shared/Hooks/useGetBlogs.jsx (مثلاً)
-"use client";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getBlogs } from "../../utils/Store/Slices/BlogSlice.jsx";
-// عدّل الباث حسب مشروعك
+export const useGetBlogs = () => {
+  const fetchBlogs = async () => {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/blogs`,
+      {
+        headers: { Accept: "application/json" },
+      }
+    );
+  
 
-export default function     useGetBlogs() {
-  const dispatch = useDispatch();
+    return res.data;
+  };
 
-  const { blogs, loading, error } = useSelector((state) => state.blog);
-
-  useEffect(() => {
-    dispatch(getBlogs());
-  }, [dispatch]);
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["blogs"],
+    queryFn: fetchBlogs,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
 
   return {
-    blogs,
-    loading,
-    error,
+    blogs: data ?? [],
+    loading: isLoading,
+    error: isError ? error?.message : null,
   };
-}
+};

@@ -4,8 +4,21 @@ export function formatDate(dateString) {
   if (isNaN(date)) return ""; // invalid input
 
   const day = date.getDate();
-  const month = date.toLocaleString("en-US", { month: "short" });
+  const month = date.toLocaleString("ar-EG", { month: "short" });
   const year = date.getFullYear();
 
-  return `${day}  ${year} ${month}   `;
+  return `${day} ${month} ${year}`;
+}
+
+export function formatDateBackEnd(dateString) {
+  const date = new Date(dateString);
+  console.log(date);
+
+  if (isNaN(date)) return "";
+
+  const day = date.getDate();
+  const month = date.toLocaleString("ar-EG", { month: "long" });
+  const year = date.getFullYear();
+
+  return `${day} ${month} ${year}`;
 }
