@@ -18,6 +18,8 @@ const Reg_courseDetails = ({ isDone }) => {
   const searchParams = useSearchParams();
   const watch = searchParams.get("watch");
   const isIlgUp = useIsLgUp();
+  console.log();
+  
   return (
     <>
      {

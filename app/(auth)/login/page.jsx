@@ -20,8 +20,8 @@ import LoadingPage from "../../../components/shared/Loading.jsx";
 const LoginPage = () => {
   const dispatch = useDispatch();
   const { user, error, loading } = useSelector((state) => state.auth);
-  const [value1, setValue1] = useState("Apple");
-  const { login, isLoading } = useUser();
+  const { commentContent, link } = useSelector((state) => state.blog);
+
   const router = useRouter();
   const [selectedCountry, setSelectedCountry] = useState({
     code: "+966",
@@ -35,10 +35,7 @@ const LoginPage = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const plainOptions = ["Apple", "Pear", "Orange"];
-  const onChange1 = ({ target: { value } }) => {
-    console.log("radio1 checked", value);
-    setValue1(value);
-  };
+
   const {
     register,
     handleSubmit,
@@ -74,6 +71,10 @@ const LoginPage = () => {
       const res = await dispatch(loginUser(payload)).unwrap();
       setRedirect(true); // ✅ بترجع data مباشرة
       toast.success("اهلاً بعودتك مرة أخرى 🎉");
+      if (link) {
+        router.push(link);
+        return;
+      }
       router.push("/");
       setTimeout(() => {
         setRedirect(true);

@@ -8,7 +8,6 @@ import Reg_courseDetails from "./contents/Reg_courseDetails";
 import { useSearchParams } from "next/navigation";
 import ShareBottomDrawer from "../../../components/shared/ShareBottomDrawer";
 
-
 const CourseDetailsPage = () => {
   const searchParams = useSearchParams();
   const reg = searchParams.get("reg");
@@ -16,16 +15,15 @@ const CourseDetailsPage = () => {
   console.log("isDone", isDone);
   return (
     <Suspense fallback="Loading...">
-
-    <div className="">
-      <CourseTitle />
-      {reg == "true" ? (
-        <Reg_courseDetails isDone={isDone} />
-      ) : (
-        <NotReg_courseDetails />
-      )}
-    </div>
-      </Suspense>
+      <div className="">
+        <CourseTitle />
+        {reg == "true" ? (
+          <Reg_courseDetails isDone={isDone} />
+        ) : (
+          <NotReg_courseDetails />
+        )}
+      </div>
+    </Suspense>
   );
 };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { set, useForm } from "react-hook-form";
 import { commentSchema } from "../utils/Schema/Comment.Schema";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,10 +10,18 @@ import toast from "react-hot-toast";
 import { formatDate, formatDateBackEnd } from "../utils/helpers/date";
 import NoContent from "../shared/NoContent";
 import { useRouter } from "next/navigation";
-import { saveComment } from "../utils/Store/Slices/BlogSlice";
+import { clearComment, saveComment } from "../utils/Store/Slices/BlogSlice";
+import useRedirect from "../shared/Hooks/useRedirect";
+import useGetBlogComments from "../shared/Hooks/useGetCourseRounds";
+import { useGetComments } from "../shared/Hooks/useGetComments";
+import { useAddComment } from "../shared/Hooks/useAddComment";
 
-const BlogComments = ({ count, id, comments }) => {
+const BlogComments = ({ count, id }) => {
   const commentss = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }];
+  const { comments, loading, error } = useGetComments({
+    id,
+    payload: { blog_id: id },
+  });
   const { token } = useSelector((state) => state.auth);
   console.log(comments);
 
@@ -57,6 +65,7 @@ const BlogCommentCard = ({ comment }) => {
       "يقدم هذا المقال رؤى قيمة حول مستقبل التعليم. الأمثلة عملية وذات صلة.",
     avatar: "/FRAME.png",
   };
+  console.log(comment);
 
   const renderStars = (rating) => {
     return (
@@ -110,13 +119,16 @@ const BlogCommentCard = ({ comment }) => {
         {/* Header with Avatar and User Info */}
         <header className="flex items-start gap-3 sm:gap-4">
           <div
-            className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex-shrink-0 rounded-full bg-[url('/images/Image-124.png')] bg-cover bg-center ring-2 ring-neutral-100"
+            style={{
+              backgroundImage: `url(${comment?.student?.image || ""})`,
+            }}
+            className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex-shrink-0 rounded-full bg-cover bg-center ring-2 ring-neutral-100"
             role="img"
-            aria-label={`صورة المستخدم ${reviewData.author}`}
-          />
+            aria-label={`صورة المستخدم`}
+          ></div>
           <div className="flex flex-col gap-1.5 sm:gap-2 flex-1">
             <h3 className="font-bold text-text text-sm sm:text-base md:text-lg leading-5 sm:leading-6">
-              {reviewData.author}
+              {comment?.student?.name}
             </h3>
             {renderStars(comment?.rateing)}
           </div>
@@ -148,7 +160,12 @@ export const AddBlogComment = ({ id, token }) => {
   const [hoverRating, setHoverRating] = useState(0);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { commentContent } = useSelector((state) => state.blog);
+  const addCommentMutation = useAddComment();
+  console.log(commentContent);
+
   const dispatch = useDispatch();
+  const redirect = useRedirect();
 
   const {
     register,
@@ -159,6 +176,21 @@ export const AddBlogComment = ({ id, token }) => {
     resolver: yupResolver(commentSchema),
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (commentContent) {
+      setComment(commentContent?.comment?.length);
+      setRating(commentContent?.rateing);
+      reset(
+        {
+          comment: commentContent.comment,
+        },
+        { keepDirty: true }
+      );
+    } else {
+      reset();
+    }
+  }, [commentContent]);
 
   const starIcons = [
     { id: 1, label: "نجمة واحدة" },
@@ -177,49 +209,52 @@ export const AddBlogComment = ({ id, token }) => {
   };
 
   const onSubmit = async (data) => {
-    if (!token) {
-      dispatch(
-        saveComment({ commentContent: data.comment, link: router.asPath })
-      );
-      toast.error("يجب تسجيل الدخول اولا");
-      router.push("/login");
-      return;
-    }
+    console.log(window.location.pathname);
 
-    setLoading(true);
-    console.log("Comment:", data, "Rating:", rating);
+    // 1️⃣ التأكد من وجود التوكن + تخزين التعليق قبل اللوجين
+    const mustLogin = redirect({
+      token,
+      action: saveComment,
+      payload: {
+        commentContent: data.comment,
+        rateing: rating,
+        link: window.location.pathname,
+      },
+    });
 
+    if (!mustLogin) return;
+
+    // 2️⃣ تجهيز بيانات الإرسال
     const payload = {
       blog_id: id,
       comment: data.comment,
       rating: rating,
     };
-    try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/blogs/add_comment`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        }
-      );
-      if (res.data.statusCode === 200) {
-        toast.success("تم اضافة التعليق بنجاح ");
+
+    // 3️⃣ تنفيذ الميوتاشن
+    addCommentMutation.mutate(
+      { token, payload },
+      {
+        onSuccess: (res) => {
+          if (res.statusCode === 200) {
+            toast.success("تم اضافة التعليق بنجاح");
+
+            // حذف التعليق اللي اتحفظ قبل اللوجين
+            dispatch(clearComment());
+
+            // Reset form
+            reset();
+            setRating(0);
+          }
+        },
+
+        onError: (error) => {
+          toast.error(
+            error?.response?.data?.message || "حدث خطاء في اضافة التعليق"
+          );
+        },
       }
-      console.log(res);
-    } catch (error) {
-      console.log(error);
-      toast.error(
-        error?.response?.data?.message || "حدث خطاء في اضافة التعليق "
-      );
-    } finally {
-      setLoading(false);
-    }
-    // Reset form
-    reset();
-    setRating(0);
+    );
   };
 
   return (
@@ -290,11 +325,13 @@ export const AddBlogComment = ({ id, token }) => {
             "self-start inline-flex items-center justify-center gap-2 px-8 py-3 sm:px-10 sm:py-3.5 md:px-12 md:py-4 lg:px-14 lg:py-4 bg-secondary rounded-full sm:rounded-[25px] md:rounded-[30px] cursor-pointer hover:bg-secondary/90 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           }
           type="submit"
-          disabled={loading || comment < 3 || rating === 0}
+          disabled={addCommentMutation.isLoading || comment < 3 || rating === 0}
           aria-label="تقديم تعليق"
         >
           <span className="text-white text-sm sm:text-base md:text-lg font-semibold leading-normal">
-            {loading ? "جاري تقدم التعليق..." : "تقديم تعليق"}
+            {addCommentMutation.isLoading
+              ? "جاري تقدم التعليق..."
+              : "تقديم تعليق"}
           </span>
         </button>
         {/* Error Message */}
