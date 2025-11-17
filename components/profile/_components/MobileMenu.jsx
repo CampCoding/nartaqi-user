@@ -2,11 +2,13 @@ import React from "react";
 import { Drawer, Button, Space } from "antd";
 import { usePathname, useRouter } from "next/navigation";
 import { useUser } from "../../../lib/useUser";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../../utils/Store/Slices/authntcationSlice";
 
 const MobileMenu = ({ isOpen, onClose }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout } = useUser();
+  const dispatch = useDispatch();
 
   const menuItems = [
     {
@@ -59,10 +61,10 @@ const MobileMenu = ({ isOpen, onClose }) => {
   };
 
   const handleLogout = () => {
-    logout();
-    onClose();
+    dispatch(logoutUser());
+    router.push("/");
+    toast.success("تم تسجيل الخروج بنجاح", { duration: 3000 });
   };
-
   return (
     <Drawer
       title="القائمة"

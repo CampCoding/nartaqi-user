@@ -5,6 +5,7 @@ import Container from "../../../../components/ui/Container";
 import MobileCourseDetails from "../../../../components/CourseDetailsPage/MobileCourseDetails";
 
 const NotReg_courseDetails = () => {
+  
   return (
     <>
       <div className="lg:hidden space-y-4">

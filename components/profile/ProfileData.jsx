@@ -19,6 +19,7 @@ import parsePhone from "../utils/helpers/parsePhone.js";
 const ProfileData = () => {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
+  
   const { user, loading, error } = useGetProfile(token);
   console.log(user);
   const [phoneMeta, setPhoneMeta] = useState({ code: "", number: "" });
@@ -54,39 +55,6 @@ const ProfileData = () => {
     }
   }, [user, reset]);
   console.log(phoneMeta);
-
-  /** 📌 حفظ البيانات */
-  // const onSubmit = async (data) => {
-  //   setLoadingState(true);
-
-  //   const payload = {
-  //     name: `${data.firstName} ${data.middleName} ${data.lastName}`,
-  //     /* phone: `${phoneCode}${data.phone}`, */
-  //   };
-  //   console.log(data);
-
-  //   /*   try {
-  //     await axios.post(
-  //       `${process.env.NEXT_PUBLIC_API_URL}/authentication/update_student_info`,
-  //       payload,
-  //       {
-  //         headers: {
-  //           Accept: "application/json",
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-
-  //     dispatch(getUserDate(token));
-  //     toast.success("تم تحديث البيانات بنجاح");
-  //     setIsEditing(false);
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error(error?.response?.data?.message);
-  //   } finally {
-  //     setLoadingState(false);
-  //   } */
-  // };
 
   const onSubmit = async (data) => {
     setLoadingState(true);
