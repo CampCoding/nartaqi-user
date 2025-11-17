@@ -1,7 +1,41 @@
 import React from "react";
 
-export const TestimonialCard = ({ type = "students", freeWidth = false }) => {
+export const TestimonialCard = ({
+  payload = {},
+  type = "students",
+  freeWidth = false,
+}) => {
   const width = freeWidth ? "w-full" : "w-full max-w-[485px]";
+
+  // Extract data from payload with fallbacks
+  const testimonialData = {
+    studentName: payload?.student?.name || "مايكل براون",
+    studentImage: payload?.student?.image || "/images/Image-48.png",
+    studentType: type === "0" ? "طالب" : "معلم",
+    rating: payload?.rate || 4,
+    comment:
+      payload?.comment ||
+      "لوريم ابسوم دولور سيت اميت، كونسيكتيتور اديبيسسينغ ايليت. كورابيتور ايجيت ايروس فيتاي اورنا فرمنتوم فاسيليسيس. سيد تريستيكوي، نيسل ان كورسوس تينكيدونت، جوستو لوريم فولوتبات سيم، فيل فيفيرا سابين اركو ات اورنا.",
+    createdAt: payload?.created_at || new Date().toISOString(),
+  };
+
+  // Generate stars based on rating (max 5)
+  const renderStars = () => {
+    const stars = [];
+    const maxStars = 5;
+    const rating = Math.min(Math.max(testimonialData.rating, 0), maxStars); // Clamp between 0-5
+
+    for (let i = 1; i <= maxStars; i++) {
+      stars.push(
+        <div key={i} className="w-5 h-5 sm:w-6 sm:h-6">
+          {i <= rating ? <FilledStarIcon /> : <OutlinedStarIcon />}
+        </div>
+      );
+    }
+
+    return stars;
+  };
+
   return (
     <div
       className={`flex flex-col shadow-2xl ${width} items-center md:items-start gap-4 sm:gap-6 px-4 sm:px-6 md:!px-12 py-6 md:py-8 relative rounded-[20px] sm:rounded-[25px] bg-white shadow-[var(--shadow-card)] mx-auto`}
@@ -33,44 +67,36 @@ export const TestimonialCard = ({ type = "students", freeWidth = false }) => {
       {/* رأس البطاقة (الصورة + الاسم + التخصص) */}
       <div className="flex flex-col md:flex-row w-full items-center md:items-start gap-3 sm:gap-4 relative flex-[0_0_auto] z-10">
         <img
-          src={`/images/Image-48.png`}
-          alt="صورة المتدرب"
+          src={testimonialData.studentImage}
+          alt={testimonialData.studentName}
           className="w-20 h-20 sm:w-24 sm:h-24 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full object-cover flex-shrink-0"
+          onError={(e) => {
+            e.target.src = "/images/Image-48.png"; // Fallback image on error
+          }}
         />
         <div className="flex flex-col items-center md:items-start gap-2 sm:gap-3 md:gap-1 relative flex-1 grow">
           <h3 className="relative text-text text-center md:text-start font-bold self-stretch mt-[-1px] text-lg sm:text-xl md:text-base lg:text-lg leading-6 sm:leading-7">
-            مايكل براون
+            {testimonialData.studentName}
           </h3>
           <p className="text-text-alt text-center md:text-start text-xs sm:text-sm leading-4 sm:leading-5 relative self-stretch">
-            طالب
+            {testimonialData.studentType}
           </p>
         </div>
       </div>
 
       {/* تقييم النجوم */}
-      <div dir="ltr" className="flex items-center gap-0.5 sm:gap-1 z-10">
-        <div className="w-5 h-5 sm:w-6 sm:h-6">
-          <FilledStarIcon />
-        </div>
-        <div className="w-5 h-5 sm:w-6 sm:h-6">
-          <FilledStarIcon />
-        </div>
-        <div className="w-5 h-5 sm:w-6 sm:h-6">
-          <FilledStarIcon />
-        </div>
-        <div className="w-5 h-5 sm:w-6 sm:h-6">
-          <FilledStarIcon />
-        </div>
-        <div className="w-5 h-5 sm:w-6 sm:h-6">
-          <OutlinedStarIcon />
-        </div>
+      <div
+        dir="ltr"
+        className="flex items-center gap-0.5 sm:gap-1 z-10"
+        role="img"
+        aria-label={`تقييم ${testimonialData.rating} من 5 نجوم`}
+      >
+        {renderStars()}
       </div>
 
       {/* نص الشهادة */}
       <p className="text-xs sm:text-sm md:text-base text-text-alt text-center md:text-start leading-5 sm:leading-6 relative self-stretch z-10">
-        لوريم ابسوم دولور سيت اميت، كونسيكتيتور اديبيسسينغ ايليت. كورابيتور
-        ايجيت ايروس فيتاي اورنا فرمنتوم فاسيليسيس. سيد تريستيكوي، نيسل ان كورسوس
-        تينكيدونت، جوستو لوريم فولوتبات سيم، فيل فيفيرا سابين اركو ات اورنا.
+        {testimonialData.comment}
       </p>
     </div>
   );

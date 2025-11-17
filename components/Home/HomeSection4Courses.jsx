@@ -1,78 +1,95 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/free-mode";
 import { FreeMode, Mousewheel, Navigation, Autoplay } from "swiper/modules";
 
-import CoursesCategoryCard from "./../ui/Cards/CoursesCategoryCard";
 import CourseCard from "../ui/Cards/CourseCard";
 import Link from "next/link";
 import Container from "../ui/Container";
 
-const HomeSection4Courses = () => {
-  const CoursesCategoryCardData = [
+const HomeSection4Courses = ({ latestRounds = [] }) => {
+  useEffect(() => {
+    console.log(latestRounds, "latestRounds");
+  }, [latestRounds]);
+
+  // Fallback data if API doesn't return data
+  const fallbackData = [
     {
-      image: "/images/Frame 1000004851.png",
-      title: "التكنولوجيا التعليمية",
-      courses: 15,
-    },
-    {
-      image: "/images/Frame 1000004852.png",
-      title: " إدارة الفصل الدراسي",
-      courses: 15,
-    },
-    {
-      image: "/images/Frame 1000004849.png",
-      title: " منهجيات التدريس",
-      courses: 15,
-    },
-    {
-      image: "/images/Frame 1000004851.png",
-      title: "التكنولوجيا التعليمية",
-      courses: 15,
-    },
-    {
-      image: "/images/Frame 1000004852.png",
-      title: " إدارة الفصل الدراسي",
-      courses: 15,
-    },
-    {
-      image: "/images/Frame 1000004849.png",
-      title: " منهجيات التدريس",
-      courses: 15,
-    },
-    {
-      image: "/images/Frame 1000004851.png",
-      title: "التكنولوجيا التعليمية",
-      courses: 15,
-    },
-    {
-      image: "/images/Frame 1000004852.png",
-      title: " إدارة الفصل الدراسي",
-      courses: 15,
-    },
-    {
-      image: "/images/Frame 1000004849.png",
-      title: " منهجيات التدريس",
-      courses: 15,
+      id: 1,
+      image_url: "/images/Frame 1000004851.png",
+      name: "التكنولوجيا التعليمية",
+      goal: "تعلم أساسيات التكنولوجيا في التعليم",
+      start_date: "2024-02-15",
+      free: "0",
+      for: "Beginner",
+      gender: "male",
+      price: 99.99,
+      course: {
+        name: "مهارات التعليم والتدريس",
+      },
+      teacher: {
+        name: "جون سميث",
+        image_url: "/images/Image-24.png",
+      },
     },
   ];
 
+  // Transform API data to match CourseCard expected structure
+  const transformedData = latestRounds?.map((item) => ({
+    id: item.id,
+    name: item.name,
+    goal: item.goal,
+    description: item.description,
+    image_url: item.image_url,
+    start_date: item.start_date,
+    end_date: item.end_date,
+    free: item.free,
+    price: item.price,
+    for: item.for,
+    gender: item.gender,
+    active: item.active,
+    course_category_id: item.course_category_id,
+    // Transform course_categories to course
+    course: {
+      name: item.course_categories?.name || "غير محدد",
+      id: item.course_categories?.id,
+      description: item.course_categories?.description,
+      image_url: item.course_categories?.image_url,
+    },
+    // Teacher data (already in correct format)
+    teacher: {
+      id: item.teacher?.id,
+      name: item.teacher?.name || "غير محدد",
+      image_url: item.teacher?.image_url || "/images/Image-24.png",
+      email: item.teacher?.email,
+      description: item.teacher?.description,
+      gender: item.teacher?.gender,
+    },
+    // Additional properties that might be useful
+    is_favorite: item.is_favorite || false,
+    enrolled: item.enrolled || false,
+  }));
+
+  // Use transformed data if available, otherwise use fallback
+  const displayData =
+    transformedData?.length > 0 ? transformedData : fallbackData;
+
   return (
-    <Container className=" mt-[74px]">
+    <Container className="mt-6 md:mt-[74px]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 ">
+      <div className="flex items-center justify-between mb-8">
         {/* العنوان */}
-        <div className="flex md:w-[261px] items-center justify-center gap-2.5  px-4 py-3  md:px-14 md:py-8  relative rounded-[15px] md:rounded-[25px] bg-gradient-to-r from-primary to-secondary">
-          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-bg text-[12px] md:text-2xl text-left leading-5 whitespace-nowrap ">
+        <div className="flex md:w-[261px] items-center justify-center gap-2.5 px-4 py-3 md:px-14 md:py-8 relative rounded-[15px] md:rounded-[25px] bg-gradient-to-r from-primary to-secondary">
+          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-bg text-[12px] md:text-2xl text-left leading-5 whitespace-nowrap">
             أحدث الدورات
           </div>
         </div>
 
         {/* زر عرض المزيد */}
         <div
-          className="inline-flex items-center justify-center gap-2.5 relative bg-bg rounded-[15px]  md:rounded-[25px] border-[none] 
+          className="inline-flex items-center justify-center gap-2.5 relative bg-bg rounded-[15px] md:rounded-[25px] border-[none] 
                         before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[15px] before:md:rounded-[25px] 
                         before:[background:linear-gradient(90deg,var(--color-primary)_0%,var(--color-secondary)_100%)] 
                         before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] 
@@ -85,8 +102,8 @@ const HomeSection4Courses = () => {
             text-[12px] md:text-xl 
                           bg-gradient-to-r from-primary to-secondary 
                           [-webkit-background-clip:text] bg-clip-text 
-                          text-transparent font-semibold px-4 py-3 md:px-8 md:py-5 text-left  whitespace-nowrap 
-                          transition-all duration-200 group-hover:text-white group-hover:bg-none "
+                          text-transparent font-semibold px-4 py-3 md:px-8 md:py-5 text-left whitespace-nowrap 
+                          transition-all duration-200 group-hover:text-white group-hover:bg-none"
           >
             عرض المزيد
           </Link>
@@ -94,68 +111,69 @@ const HomeSection4Courses = () => {
       </div>
 
       {/* السلايدر */}
-      <div className="">
-        {/* <div className="  gap-[30px]  grid grid-cols-3 ">
-          {CoursesCategoryCardData?.map((item, index) => (
-              <CourseCard freeWidth data={item} color="var(--color-primary)" />
-          ))}
-        </div> */}
-
-        <Swiper
-          autoplay={{
-            delay: 3000,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
-          }}
-          freeMode={{
-            enabled: true,
-            momentum: true,
-            momentumBounce: true,
-          }}
-          mousewheel={{ forceToAxis: true }}
-          navigation={{
-            prevEl: ".swiper-button-prev",
-            nextEl: ".swiper-button-next",
-          }}
-          modules={[FreeMode, Mousewheel, Navigation, Autoplay]}
-          className="w-full relative pb-8"
-          breakpoints={{
-            // ✅ الموبايل الصغير جدًا
-            0: {
-              slidesPerView: 1,
-              spaceBetween: 12,
-              freeMode: false,
-            },
-            // ✅ الموبايل المتوسط (أفقي أو أكبر قليلًا)
-            480: {
-              slidesPerView: 2,
-              spaceBetween: 16,
-              freeMode: false,
-              
-            },
-            // ✅ التابلت
-            768: {
-              slidesPerView: 2.2,
-              spaceBetween: 20,
-            },
-            // ✅ اللابتوب
-            1024: {
-              slidesPerView: 3,
-              spaceBetween: 24,
-            },
-            // ✅ الشاشات الكبيرة (ديسكتوب)
-            1280: {
-              slidesPerView:3.6,
-              spaceBetween: 28,
-            },
-          }}
-        >
-          {CoursesCategoryCardData?.map((item, index) => (
-            <SwiperSlide key={index} className="">
-              <CourseCard data={item} freeWidth color="var(--color-primary)" />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+      <div>
+        {displayData?.length > 0 ? (
+          <Swiper
+            autoplay={{
+              delay: 3000,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true,
+            }}
+            freeMode={{
+              enabled: true,
+              momentum: true,
+              momentumBounce: true,
+            }}
+            mousewheel={{ forceToAxis: true }}
+            navigation={{
+              prevEl: ".swiper-button-prev",
+              nextEl: ".swiper-button-next",
+            }}
+            modules={[FreeMode, Mousewheel, Navigation, Autoplay]}
+            className="w-full relative pb-8"
+            breakpoints={{
+              0: {
+                slidesPerView: 1,
+                spaceBetween: 12,
+                freeMode: false,
+              },
+              480: {
+                slidesPerView: 2,
+                spaceBetween: 16,
+                freeMode: false,
+              },
+              768: {
+                slidesPerView: 2.2,
+                spaceBetween: 20,
+              },
+              1024: {
+                slidesPerView: 3,
+                spaceBetween: 24,
+              },
+              1280: {
+                slidesPerView: 3.6,
+                spaceBetween: 28,
+              },
+            }}
+          >
+            {displayData.map((item) => (
+              <SwiperSlide key={item.id}>
+                <CourseCard
+                  payload={item}
+                  type={item.for || item.gender || "0"}
+                  freeWidth
+                  buttonStyle="normal"
+                  isInFav={item.is_favorite || false}
+                  isRegistered={item.enrolled || false}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        ) : (
+          <div className="text-center py-12 text-gray-500">
+            لا توجد دورات متاحة حالياً
+          </div>
+        )}
       </div>
     </Container>
   );
