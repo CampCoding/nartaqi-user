@@ -82,7 +82,9 @@ const CourseCard = ({
           <div
             className="self-stretch h-40 sm:h-48 pt-[20px] sm:pt-[24px] px-[14px] sm:px-[16px] relative bg-black/25 rounded-tl-[20px] sm:rounded-tl-[20px] rounded-tr-[20px] sm:rounded-tr-[20px] overflow-hidden"
             style={{
-              backgroundImage: `url('${payload?.image_url || "/images/Image-48.png"}')`,
+              backgroundImage: `url('${
+                payload?.image_url || "/images/Image-48.png"
+              }')`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
@@ -99,8 +101,7 @@ const CourseCard = ({
             <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
               <div className="flex justify-between gap-5  items-center">
                 <FavIcon onClick={() => setIsFav(!isFav)} isFav={isFav} />
-                {payload
-                ?.free !== "0" && (
+                {payload?.free !== "0" && (
                   <div className="flex justify-center px-3 py-1  group hover:bg-white hover:text-secondary   rounded-lg items-center bg-secondary">
                     <span className="text-white group-hover:text-secondary transition-all">
                       مجاني
