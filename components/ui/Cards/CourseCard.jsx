@@ -9,19 +9,26 @@ import {
 } from "../../../public/svgs";
 import Link from "next/link";
 import { useUser } from "../../../lib/useUser";
+import { Icon } from "@iconify/react";
+import { formatDate, formatDateBackEnd } from "../../utils/helpers/date";
+import { useSelector } from "react-redux";
 
 const CourseCard = ({
   freeWidth = false,
-  type = "students",
+  course = {},
+  payload = {},
+  type = "0",
   buttonStyle = "normal",
   isRegistered = false,
   isInFav = false,
 }) => {
-  const width = freeWidth
-    ? "w-full "
-    : "w-full lg:max-w-[351px]";
+  const width = freeWidth ? "w-full " : "w-full lg:max-w-[351px]";
+  console.log(course);
+  const { token } = useSelector((state) => state.auth);
 
-  const { isAuthenticated } = useUser();
+  const enrolled = true;
+  console.log({ token, enrolled });
+
   const [isFav, setIsFav] = useState(false);
 
   useEffect(() => {
@@ -40,7 +47,11 @@ const CourseCard = ({
           className="flex-1 px-3 sm:px-4 py-3 bg-secondary rounded-[8px] sm:rounded-[10px] flex justify-center items-center gap-2.5 transition-shadow duration-200 hover:shadow-[0_4px_12px_var(--color-secondary,rgba(59,130,246,0.25))]"
         >
           <div className="justify-center text-bg text-xs sm:text-sm font-semibold">
-            {!isRegistered ? "التحق بالدورة" : "ادخل الدورة"}
+            {token && payload.enrolled
+              ? "ادخل الدورة"
+              : token
+              ? "التحق بالدورة"
+              : "التحق بالدورة"}
           </div>
         </Link>
       );
@@ -51,7 +62,11 @@ const CourseCard = ({
           className="w-full self-stretch px-3 sm:px-4 py-3 bg-gradient-to-r from-primary to-secondary rounded-[8px] sm:rounded-[10px] shadow-[0_4px_20px_rgba(0,0,0,0.25)] inline-flex justify-center items-center gap-2.5 transition-all duration-200 cursor-pointer hover:from-secondary hover:to-primary hover:scale-105 hover:shadow-[0_8px_24px_rgba(59,130,246,0.25)]"
         >
           <div className="justify-center text-bg text-xs sm:text-sm font-semibold">
-            {!isRegistered ? "التحق بالدورة" : "ادخل الدورة"}
+            {token && payload.enrolled
+              ? "ادخل الدورة"
+              : token
+              ? "التحق بالدورة"
+              : "التحق بالدورة"}
           </div>
         </Link>
       );
@@ -67,7 +82,7 @@ const CourseCard = ({
           <div
             className="self-stretch h-40 sm:h-48 pt-[20px] sm:pt-[24px] px-[14px] sm:px-[16px] relative bg-black/25 rounded-tl-[20px] sm:rounded-tl-[20px] rounded-tr-[20px] sm:rounded-tr-[20px] overflow-hidden"
             style={{
-              backgroundImage: `url('${"/images/teacher-course-banner.png"}')`,
+              backgroundImage: `url('${payload?.image_url || "/images/Image-48.png"}')`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
@@ -75,24 +90,33 @@ const CourseCard = ({
           >
             <div className="px-3 sm:px-4 py-2 absolute top-3 sm:top-4 right-3 sm:right-4 bg-primary rounded-[8px] sm:rounded-[10px] inline-flex items-center gap-[5px] sm:gap-[7px]">
               <div className="w-4 h-4 sm:w-5 sm:h-5">
-                <CourseCalenderIcon />
+                <CourseCalenderIcon date={payload?.start_date} />
               </div>
               <div className="justify-center text-white text-[9px] sm:text-[10px] font-medium">
-                يبدأ: 15 فبراير 2024
+                يبدأ: {formatDateBackEnd(payload?.start_date)}
               </div>
             </div>
             <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
-              <FavIcon onClick={() => setIsFav(!isFav)} isFav={isFav} />
+              <div className="flex justify-between gap-5  items-center">
+                <FavIcon onClick={() => setIsFav(!isFav)} isFav={isFav} />
+                {payload
+                ?.free !== "0" && (
+                  <div className="flex justify-center px-3 py-1  group hover:bg-white hover:text-secondary   rounded-lg items-center bg-secondary">
+                    <span className="text-white group-hover:text-secondary transition-all">
+                      مجاني
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           <div className="self-stretch px-2 sm:px-3 flex flex-col justify-start items-start gap-1">
             <div className="self-stretch text-black text-right justify-center text-text text-sm sm:text-base font-bold">
-              إتقان التدريس الفعال
+              {payload?.name}
             </div>
             <div className="self-stretch text-right justify-center text-text-alt text-xs sm:text-sm font-normal leading-relaxed">
-              تعرف على المبادئ الأساسية والاستراتيجيات العملية لتصبح معلمًا
-              واثقًا ومؤثرًا.
+              {payload?.goal}
             </div>
           </div>
 
@@ -100,12 +124,12 @@ const CourseCard = ({
             <div className="self-stretch inline-flex justify-between items-center gap-2">
               <div className="px-2 sm:px-2.5 py-2 sm:py-3 bg-primary-bg rounded-[8px] sm:rounded-[10px] flex justify-center items-center gap-2.5 flex-1 min-w-0">
                 <div className="justify-center text-text text-[10px] sm:text-xs font-medium truncate">
-                  مهارات التعليم والتدريس
+                  {payload?.course?.name}
                 </div>
               </div>
               <div className="px-4 sm:px-9 py-2 bg-[#3b82f640] rounded-[8px] sm:rounded-[10px] outline outline-1 outline-offset-[-1px] outline-[#CEDFFC] flex justify-center items-center gap-2.5 flex-shrink-0">
                 <div className="justify-center text-alt text-[10px] sm:text-xs font-medium">
-                  {type === "students" ? "طلاب" : "معلمين"}
+                  {type === "0" ? "طلاب" : "معلمين"}
                 </div>
               </div>
             </div>
@@ -160,7 +184,7 @@ const CourseCard = ({
             <div className="text-black self-stretch inline-flex justify-between items-center gap-2">
               <div className="h-8 sm:h-9 flex justify-start items-center gap-1 flex-1 min-w-0">
                 <div className="justify-center text-text text-[9px] sm:text-[10px] font-medium">
-                  التعليقات :
+                  التقيمات :
                 </div>
                 <div className="flex justify-start items-center gap-0.5">
                   <div className="justify-center text-text text-[9px] sm:text-[10px] font-medium">
@@ -177,10 +201,11 @@ const CourseCard = ({
               <div className="flex justify-start items-center gap-[5px] flex-shrink-0">
                 <img
                   className="w-5 h-5 sm:w-6 sm:h-6 relative rounded-xl"
-                  src="/images/Image-24.png"
+                  src={payload?.teacher?.image_url || "/images/image-24.png"}
+                  alt={payload?.teacher?.name}
                 />
                 <div className="justify-center text-text text-[9px] sm:text-[10px] font-medium truncate">
-                  المدرس: جون سميث
+                  المدرس: {payload?.teacher?.name}
                 </div>
               </div>
             </div>
