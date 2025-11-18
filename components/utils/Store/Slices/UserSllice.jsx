@@ -7,8 +7,6 @@ console.log(baseUrl);
 export const getUserDate = createAsyncThunk(
   "user/getUserDate",
   async (data, { rejectWithValue, dispatch }) => {
-    console.log(data);
-
     try {
       const res = await axios.post(
         `${baseUrl}/authentication/student_info`,
@@ -27,6 +25,8 @@ export const getUserDate = createAsyncThunk(
     } catch (error) {
       if (error.response.status === 401) {
         toast.error("يرجي تسجيل الدخول ");
+        
+        window.location.href = "/login";
       }
       return rejectWithValue(error.response.data.message);
     }

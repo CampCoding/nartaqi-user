@@ -21,6 +21,10 @@ const LoginPage = () => {
   const dispatch = useDispatch();
   const { user, error, loading } = useSelector((state) => state.auth);
   const { commentContent, link } = useSelector((state) => state.blog);
+  const { content, link: redirectLink } = useSelector(
+    (state) => state.redirect
+  );
+
 
   const router = useRouter();
   const [selectedCountry, setSelectedCountry] = useState({
@@ -71,8 +75,10 @@ const LoginPage = () => {
       const res = await dispatch(loginUser(payload)).unwrap();
       setRedirect(true); // ✅ بترجع data مباشرة
       toast.success("اهلاً بعودتك مرة أخرى 🎉");
-      if (link) {
-        router.push(link);
+      if (redirectLink) {
+        console.log(redirectLink);
+
+        router.push(redirectLink);
         return;
       }
       router.push("/");

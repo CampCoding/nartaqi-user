@@ -10,11 +10,15 @@ import LoadingPage from "../../../components/shared/Loading";
 import { Link } from "lucide-react";
 import LoadingContent from "../../../components/shared/LoadingContent";
 import { TestimonialCard } from "../../../components/Testimonials";
+import TeachersTestimonials from "../../../components/Teachers/TeachersTestimonials";
+import { useParams } from "next/navigation";
 
 const TeachersCourses = () => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, loading } =
     useGetCourseRounds();
-
+  const { id } = useParams();
+  console.log(id);
+  
   console.log(data?.pages);
   const loadMoreRef = useRef(null);
   /* 
@@ -59,19 +63,17 @@ const TeachersCourses = () => {
                       image_url: course?.image_url || "",
                       start_date: course?.start_date,
                       free: course.free,
-
+                      price: course?.price,
                       enrolled: false, // هنا بتحدد هو Enrolled ولا لا
-
-                      // دي جاية من API → payload.course.name
                       course: {
-                        name: course?.course_categories.name,
+                        name: course?.course_categories?.name,
                       },
 
                       // دي جاية من API → payload.teacher.*
                       teacher: {
                         id: course?.teacher?.id,
                         name: course?.teacher?.name,
-                        image_url: course?.teacher.image_url,
+                        image_url: course?.teacher?.image_url,
                       },
                     };
                     return (
@@ -116,7 +118,7 @@ const TeachersCourses = () => {
               </div>
             </div>
           </Container>
-          <TestimonialCard title="أراء الطلاب" />
+          <TeachersTestimonials title="أراء الطلاب" />
         </>
       )}
     </div>

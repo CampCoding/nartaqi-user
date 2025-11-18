@@ -9,7 +9,7 @@ import NoContent from "../../../components/shared/NoContent";
 const MyCertificates = () => {
   const { token } = useSelector((state) => state.auth);
   const { certificates, loading, error } = useGetCertificates(token);
-  console.log({ certificates, loading, error });
+  console.log({ certificates, loading, error });  
 
   if (loading) return <LoadingPage />;
   if (error) return <NoContent title={"حدث خطأ اثناء تحميل الشهادات"} />;

@@ -1,13 +1,6 @@
-/* "use client";
-import React from "react";
-import { useSelector } from "react-redux";
-import useGetProfile from "../shared/Hooks/useGetProfile.jsx";
-
-*/
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import useGetProfile from "../shared/Hooks/useGetProfile.jsx";
 import { useForm } from "react-hook-form";
 import { updateProfileSchema } from "../utils/Schema/UpdateProfile.Schema.js";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -15,21 +8,23 @@ import axios from "axios";
 import { getUserDate } from "../utils/Store/Slices/UserSllice.jsx";
 import toast from "react-hot-toast";
 import parsePhone from "../utils/helpers/parsePhone.js";
+import { useGetProfile } from "../shared/Hooks/useGetProfile.jsx";
+import LoadingPage from "../shared/Loading.jsx";
+import { logoutUser } from "../utils/Store/Slices/authntcationSlice.jsx";
+import { saveContent } from "../utils/Store/Slices/redirectSlice.jsx";
+import { useRouter } from "next/navigation.js";
 
 const ProfileData = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
+  const fileInputRef = useRef(null);
+  const [preview, setPreview] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const { token } = useSelector((state) => state.auth);
-  
-  const { user, loading, error } = useGetProfile(token);
-  console.log(user);
   const [phoneMeta, setPhoneMeta] = useState({ code: "", number: "" });
-
-  const phoneCode = user?.message?.phone.startsWith("20") ? "2" : "966";
-
+  const { data: user, isLoading, error } = useGetProfile(token);
   const [loadingState, setLoadingState] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  let number = "";
-  let code = "";
   const {
     register,
     handleSubmit,
@@ -38,28 +33,47 @@ const ProfileData = () => {
   } = useForm({
     resolver: yupResolver(updateProfileSchema),
   });
+  useEffect(() => {
+    if (error) {
+      toast.error("يرجي تسجيل الدخول");
+      dispatch(logoutUser());
+      dispatch(saveContent({ content: null, link: window.location.pathname }));
+      router.push("/login");
+    }
+  }, [error]);
 
   /** 📌 املا الفورم لما اليوزر يتغير */
   useEffect(() => {
     if (user?.message) {
+      let parsed = { code: "", number: "" };
+
       if (user?.message?.phone) {
-        const parsed = parsePhone(user?.message?.phone);
+        parsed = parsePhone(user.message.phone);
         setPhoneMeta(parsed);
       }
+
       reset({
         firstName: user?.message?.name?.split(" ")[0] || "",
         middleName: user?.message?.name?.split(" ")[1] || "",
         lastName: user?.message?.name?.split(" ")[2] || "",
-        phone: phoneMeta.number,
+        phone: parsed.number, // <-- صح هنا
       });
     }
   }, [user, reset]);
-  console.log(phoneMeta);
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+  const status = error?.response?.status || error?.status;
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setSelectedImage(file); // نخزن الصورة لرفعها
+    setPreview(URL.createObjectURL(file)); // نعرضها مباشرة
+  };
   const onSubmit = async (data) => {
     setLoadingState(true);
-    console.log(number, code);
-
     try {
       const formData = new FormData();
 
@@ -98,18 +112,6 @@ const ProfileData = () => {
     } finally {
       setLoadingState(false);
     }
-  };
-
-  const fileInputRef = useRef(null);
-  const [preview, setPreview] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setSelectedImage(file); // نخزن الصورة لرفعها
-    setPreview(URL.createObjectURL(file)); // نعرضها مباشرة
   };
 
   return (

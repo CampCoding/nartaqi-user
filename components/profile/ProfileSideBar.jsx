@@ -64,8 +64,6 @@ export const ProfileSideBar = () => {
   ];
 
   const handleItemClick = (path) => {
-    console.log("target_path", path);
-    console.log("currentPathname", pathname);
     router.push(path);
   };
 

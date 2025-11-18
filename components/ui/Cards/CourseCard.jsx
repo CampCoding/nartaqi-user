@@ -15,7 +15,7 @@ import { useSelector } from "react-redux";
 
 const CourseCard = ({
   freeWidth = false,
-  course = {},
+
   payload = {},
   type = "0",
   buttonStyle = "normal",
@@ -23,11 +23,10 @@ const CourseCard = ({
   isInFav = false,
 }) => {
   const width = freeWidth ? "w-full " : "w-full lg:max-w-[351px]";
-  console.log(course);
+
   const { token } = useSelector((state) => state.auth);
 
   const enrolled = true;
-  console.log({ token, enrolled });
 
   const [isFav, setIsFav] = useState(false);
 
@@ -92,7 +91,7 @@ const CourseCard = ({
           >
             <div className="px-3 sm:px-4 py-2 absolute top-3 sm:top-4 right-3 sm:right-4 bg-primary rounded-[8px] sm:rounded-[10px] inline-flex items-center gap-[5px] sm:gap-[7px]">
               <div className="w-4 h-4 sm:w-5 sm:h-5">
-                <CourseCalenderIcon date={payload?.start_date} />
+                <CourseCalenderIcon />
               </div>
               <div className="justify-center text-white text-[9px] sm:text-[10px] font-medium">
                 يبدأ: {formatDateBackEnd(payload?.start_date)}
@@ -114,7 +113,18 @@ const CourseCard = ({
 
           <div className="self-stretch px-2 sm:px-3 flex flex-col justify-start items-start gap-1">
             <div className="self-stretch text-black text-right justify-center text-text text-sm sm:text-base font-bold">
-              {payload?.name}
+              <div className="flex justify-between items-center">
+                {payload?.name}
+                {payload?.free == "0" ? (
+                  <>
+                    <div className="flex justify-center hover:bg-secondary hover:text-white transition-all cursor-default items-center bg-secondary-light px-3 py-1 rounded-lg ">
+                      {payload?.price || 0} ريال
+                    </div>
+                  </>
+                ) : (
+                  ""
+                )}
+              </div>
             </div>
             <div className="self-stretch text-right justify-center text-text-alt text-xs sm:text-sm font-normal leading-relaxed">
               {payload?.goal}
@@ -203,6 +213,9 @@ const CourseCard = ({
                 <img
                   className="w-5 h-5 sm:w-6 sm:h-6 relative rounded-xl"
                   src={payload?.teacher?.image_url || "/images/image-24.png"}
+                  onError={(e) => {
+                    e.target.src = "/images/image-24.png";
+                  }}
                   alt={payload?.teacher?.name}
                 />
                 <div className="justify-center text-text text-[9px] sm:text-[10px] font-medium truncate">

@@ -19,7 +19,6 @@ export default function Header() {
   /*   const { token, user } = useUser(); */
 
   const { user, token } = useSelector((state) => state.auth);
-  console.log(user);
 
   if (pathname.includes("mock-test")) {
     return null;
