@@ -127,7 +127,7 @@ const CourseCard = ({
               </div>
             </div>
             <div className="self-stretch text-right justify-center text-text-alt text-xs sm:text-sm font-normal leading-relaxed">
-              {payload?.goal}
+              {payload?.description}
             </div>
           </div>
 

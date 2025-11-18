@@ -12,7 +12,7 @@ import NoContent from "../shared/NoContent";
 import { useRouter } from "next/navigation";
 import { clearComment, saveComment } from "../utils/Store/Slices/BlogSlice";
 import useRedirect from "../shared/Hooks/useRedirect";
-import useGetBlogComments from "../shared/Hooks/useGetCourseRounds";
+
 import { useGetComments } from "../shared/Hooks/useGetComments";
 import { useAddComment } from "../shared/Hooks/useAddComment";
 
