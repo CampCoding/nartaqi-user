@@ -2,233 +2,193 @@
 
 import React, { useMemo, useState } from "react";
 import { Dropdown } from "antd";
-import { BottomDrawer } from "./BottomDrawer";
-import { CloseIcon, FiltersIcon } from "../../public/svgs";
-import { ChevronDown, ChevronLeft } from "lucide-react";
+import { FiltersIcon, CloseIcon } from "../../public/svgs";
+import { ChevronLeft, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { BottomDrawer } from "./BottomDrawer";
 
-const CoursesFilters = () => {
+const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
+  // UI states
   const [selectedCategory, setSelectedCategory] = useState("اختر القسم");
   const [selectedSort, setSelectedSort] = useState("عرض الأحدث");
   const [selectedRating, setSelectedRating] = useState("تقييم");
   const [selectedType, setSelectedType] = useState("اختر النوع");
   const [openFiltersDrawer, setOpenFiltersDrawer] = useState(false);
   const router = useRouter();
-  const categoryItems = useMemo(
-    () => [
-      { key: "all", label: "كل الأقسام" },
-      { key: "science", label: "علوم" },
-      { key: "math", label: "رياضيات" },
-      { key: "language", label: "لغات" },
-    ],
-    []
-  );
 
-  const sortItems = useMemo(
-    () => [
-      { key: "latest", label: "الأحدث" },
-      { key: "popular", label: "الأكثر شيوعًا" },
-      { key: "price_asc", label: "السعر: الأقل للأعلى" },
-      { key: "price_desc", label: "السعر: الأعلى للأقل" },
-    ],
-    []
-  );
+  // ============================================
+  // 🔥 Local Filters – مش هنبعت للصفحة غير لما يضغط بحث
+  const [localFilters, setLocalFilters] = useState({
+    search: "",
+    category: "",
+    sort: "",
+    rating: "",
+    type: "",
+    gender: "",
+  });
 
-  const ratingItems = useMemo(
-    () => [
-      { key: "4", label: "4+ نجوم" },
-      { key: "3", label: "3+ نجوم" },
-      { key: "2", label: "2+ نجوم" },
-      { key: "1", label: "1+ نجمة" },
-    ],
-    []
-  );
+  // ============================================
+  // Filter Lists
 
-  const typeItems = useMemo(
-    () => [
-      { key: "all", label: "الكل" },
-      { key: "free", label: "مجاني" },
-      { key: "paid", label: "مدفوع" },
-    ],
-    []
-  );
+  const categoryItems = categoryParts?.map((part) => {
+    return {
+      key: part.id,
+      label: part.name,
+    };
+  });
+
+  const sortItems = [
+    { key: "latest", label: "الأحدث" },
+    { key: "popular", label: "الأكثر شيوعًا" },
+    { key: "price_asc", label: "السعر: الأقل للأعلى" },
+    { key: "price_desc", label: "السعر: الأعلى للأقل" },
+  ];
+
+  const ratingItems = [
+    { key: "4s", label: "4+ نجوم" },
+    { key: "3s", label: "3+ نجوم" },
+    { key: "2s", label: "2+ نجوم" },
+    { key: "1s", label: "1+ نجمة" },
+  ];
+
+  const typeItems = [
+    { key: "all", label: "الكل" },
+    { key: "free", label: "مجاني" },
+    { key: "paid", label: "مدفوع" },
+  ];
+
+  const allItems = [
+    ...categoryItems,
+    ...sortItems,
+    ...ratingItems,
+    ...typeItems,
+  ];
+
+  // ============================================
+  // 🔥 Handle Menu Changes (local only)
 
   const handleMenuClick =
-    (setter) =>
-    ({ key, domEvent }) => {
-      domEvent?.preventDefault?.();
-      const item = [
-        ...categoryItems,
-        ...sortItems,
-        ...ratingItems,
-        ...typeItems,
-      ].find((i) => i.key === key);
-      if (item) setter(item.label);
+    (setter, filterKey) =>
+    ({ key }) => {
+      const item = allItems.find((i) => i.key === key);
+      if (item) {
+        setter(item.label);
+        setLocalFilters((prev) => ({
+          ...prev,
+          [filterKey]: key,
+        }));
+      }
     };
+
+  // ============================================
+  // 🔥 Desktop UI
 
   return (
     <>
+      {/* Desktop */}
       <div className="hidden md:flex gap-4">
-        <div className="flex flex-wrap flex-1 justify-start items-center gap-4">
-          <div className=" flex-1  w-full p-6 bg-zinc-800 rounded-[20px] flex justify-start items-center gap-2.5">
+        <div className="flex flex-wrap flex-1 gap-4">
+          {/* Search */}
+          <div className="flex-1 p-6 bg-zinc-800 rounded-[20px] flex items-center">
             <input
               placeholder="ابحث باسم الدورة"
-              className=" placeholder:text-white justify-center text-white text-base whitespace-nowrap font-semibold "
+              className="text-white w-full bg-transparent focus:outline-none"
+              onChange={(e) =>
+                setLocalFilters((prev) => ({
+                  ...prev,
+                  search: e.target.value,
+                }))
+              }
             />
           </div>
 
+          {/* Category */}
           <Dropdown
-            rootClassName="flex-1"
             className="flex-1"
             trigger={["click"]}
             menu={{
               items: categoryItems,
-              onClick: handleMenuClick(setSelectedCategory),
+              onClick: handleMenuClick(setSelectedCategory, "category"),
             }}
-            placement="bottom"
           >
-            <div className=" p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer select-none">
-              <div className="justify-center text-white text-base whitespace-nowrap font-semibold ">
-                {selectedCategory}
-              </div>
-              <div className="w-6 h-6 relative overflow-hidden">
-                <div className="w-2 h-1.5 left-[7.76px]  absolute ">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 15L7.757 10.758L9.172 9.34399L12 12.172L14.828 9.34399L16.243 10.758L12 15Z"
-                      fill="white"
-                    />
-                  </svg>
-                </div>
-              </div>
+            <div className="p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer">
+              <span className="text-white">{selectedCategory}</span>
+              <ChevronDown className="text-white" />
             </div>
           </Dropdown>
 
+          {/* Sort */}
           <Dropdown
-            rootClassName="flex-1"
             className="flex-1"
             trigger={["click"]}
             menu={{
               items: sortItems,
-              onClick: handleMenuClick(setSelectedSort),
+              onClick: handleMenuClick(setSelectedSort, "sort"),
             }}
-            placement="bottom"
           >
-            <div className=" p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer select-none">
-              <div className="justify-center text-white text-base whitespace-nowrap font-semibold ">
-                {selectedSort}
-              </div>
-              <div className="w-6 h-6 relative overflow-hidden">
-                <div className="w-2 h-1.5 left-[7.76px]  absolute ">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 15L7.757 10.758L9.172 9.34399L12 12.172L14.828 9.34399L16.243 10.758L12 15Z"
-                      fill="white"
-                    />
-                  </svg>
-                </div>
-              </div>
+            <div className="p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer">
+              <span className="text-white">{selectedSort}</span>
+              <ChevronDown className="text-white" />
             </div>
           </Dropdown>
 
+          {/* Rating */}
           <Dropdown
-            rootClassName="flex-1"
             className="flex-1"
             trigger={["click"]}
             menu={{
               items: ratingItems,
-              onClick: handleMenuClick(setSelectedRating),
+              onClick: handleMenuClick(setSelectedRating, "rating"),
             }}
-            placement="bottom"
           >
-            <div className=" p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer select-none">
-              <div className="justify-center text-white text-base whitespace-nowrap font-semibold ">
-                {selectedRating}
-              </div>
-              <div className="w-6 h-6 relative overflow-hidden">
-                <div className="w-2 h-1.5 left-[7.76px]  absolute ">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 15L7.757 10.758L9.172 9.34399L12 12.172L14.828 9.34399L16.243 10.758L12 15Z"
-                      fill="white"
-                    />
-                  </svg>
-                </div>
-              </div>
+            <div className="p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer">
+              <span className="text-white">{selectedRating}</span>
+              <ChevronDown className="text-white" />
             </div>
           </Dropdown>
 
+          {/* Type */}
           <Dropdown
-            rootClassName="flex-1"
             className="flex-1"
             trigger={["click"]}
             menu={{
               items: typeItems,
-              onClick: handleMenuClick(setSelectedType),
+              onClick: handleMenuClick(setSelectedType, "type"),
             }}
-            placement="bottom"
           >
-            <div className=" p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer select-none">
-              <div className="justify-center text-white text-base whitespace-nowrap font-semibold ">
-                {selectedType}
-              </div>
-              <div className="w-6 h-6 relative overflow-hidden">
-                <div className="w-2 h-1.5 left-[7.76px]  absolute ">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 15L7.757 10.758L9.172 9.34399L12 12.172L14.828 9.34399L16.243 10.758L12 15Z"
-                      fill="white"
-                    />
-                  </svg>
-                </div>
-              </div>
+            <div className="p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer">
+              <span className="text-white">{selectedType}</span>
+              <ChevronDown className="text-white" />
             </div>
           </Dropdown>
-          <div className=" flex-1 px-12 py-6 bg-secondary hover:bg-secondary-dark cursor-pointer rounded-[20px] inline-flex flex-col justify-center items-center gap-2.5">
-            <div className="justify-center text-white text-base whitespace-nowrap font-semibold ">
-              بحث
-            </div>
+
+          {/* 🔥 SEARCH BUTTON */}
+          <div
+            onClick={() => onFiltersChange?.(localFilters)}
+            className="flex-1 px-12 py-6 bg-secondary rounded-[20px] cursor-pointer flex justify-center items-center"
+          >
+            <span className="text-white font-semibold">بحث</span>
           </div>
         </div>
       </div>
 
-      <div className="block md:hidden">
+      {/* Mobile */}
+      <div className="md:hidden">
         <div className="flex items-center justify-between">
           <FiltersIcon
             onClick={() => setOpenFiltersDrawer(true)}
-            className="w-10 h-10 p-1 cursor-pointer hover:bg-neutral-200 transition-all active:border active:border-neutral-400   active:bg-neutral-300 rounded-full"
+            className="w-10 h-10 p-1 cursor-pointer"
           />
-          
-          <ChevronLeft onClick={()=> router.back()} className="w-10 p-1 h-10 cursor-pointer hover:bg-neutral-200 transition-all active:border active:border-neutral-400   active:bg-neutral-300 rounded-full" />
+          <ChevronLeft
+            onClick={() => router.back()}
+            className="w-10 h-10 p-1 cursor-pointer"
+          />
         </div>
 
         <MobileCoursesFilters
           open={openFiltersDrawer}
           setOpen={setOpenFiltersDrawer}
+          onFiltersChange={onFiltersChange}
         />
       </div>
     </>
@@ -237,178 +197,172 @@ const CoursesFilters = () => {
 
 export default CoursesFilters;
 
-export const MobileCoursesFilters = ({ open, setOpen }) => {
+////////////////////////////////////////////////////////
+// MOBILE VERSION
+////////////////////////////////////////////////////////
+
+export const MobileCoursesFilters = ({ open, setOpen, onFiltersChange }) => {
   const router = useRouter();
+
   const [selectedCategory, setSelectedCategory] = useState("اختر القسم");
   const [selectedSort, setSelectedSort] = useState("عرض الأحدث");
   const [selectedRating, setSelectedRating] = useState("تقييم");
   const [selectedGender, setSelectedGender] = useState("اختر الجنس");
 
-  const categoryItems = useMemo(
-    () => [
-      { key: "all", label: "كل الأقسام" },
-      { key: "science", label: "علوم" },
-      { key: "math", label: "رياضيات" },
-      { key: "language", label: "لغات" },
-    ],
-    []
-  );
+  // Local Filters
+  const [localFilters, setLocalFilters] = useState({
+    category: "",
+    sort: "",
+    rating: "",
+    gender: "",
+    search: "",
+  });
 
-  const sortItems = useMemo(
-    () => [
-      { key: "latest", label: "الأحدث" },
-      { key: "popular", label: "الأكثر شيوعًا" },
-      { key: "price_asc", label: "السعر: الأقل للأعلى" },
-      { key: "price_desc", label: "السعر: الأعلى للأقل" },
-    ],
-    []
-  );
+  const categoryItems = [
+    { key: "all", label: "كل الأقسام" },
+    { key: "science", label: "علوم" },
+    { key: "math", label: "رياضيات" },
+    { key: "language", label: "لغات" },
+  ];
 
-  const ratingItems = useMemo(
-    () => [
-      { key: "4", label: "4+ نجوم" },
-      { key: "3", label: "3+ نجوم" },
-      { key: "2", label: "2+ نجوم" },
-      { key: "1", label: "1+ نجمة" },
-    ],
-    []
-  );
+  const sortItems = [
+    { key: "latest", label: "الأحدث" },
+    { key: "popular", label: "الأكثر شيوعًا" },
+    { key: "price_asc", label: "السعر: الأقل للأعلى" },
+    { key: "price_desc", label: "السعر: الأعلى للأقل" },
+  ];
 
-  const genderItems = useMemo(
-    () => [
-      { key: "all", label: "الكل" },
-      { key: "male", label: "ذكر" },
-      { key: "female", label: "أنثى" },
-    ],
-    []
-  );
+  const ratingItems = [
+    { key: "4", label: "4+ نجوم" },
+    { key: "3", label: "3+ نجوم" },
+    { key: "2", label: "2+ نجوم" },
+    { key: "1", label: "1+ نجمة" },
+  ];
+
+  const genderItems = [
+    { key: "all", label: "الكل" },
+    { key: "male", label: "ذكر" },
+    { key: "female", label: "أنثى" },
+  ];
+
+  const allItems = [
+    ...categoryItems,
+    ...sortItems,
+    ...ratingItems,
+    ...genderItems,
+  ];
 
   const handleMenuClick =
-    (setter) =>
-    ({ key, domEvent }) => {
-      domEvent?.preventDefault?.();
-      const item = [
-        ...categoryItems,
-        ...sortItems,
-        ...ratingItems,
-        ...genderItems,
-      ].find((i) => i.key === key);
-      if (item) setter(item.label);
+    (setter, filterKey) =>
+    ({ key }) => {
+      const item = allItems.find((i) => i.key === key);
+      if (item) {
+        setter(item.label);
+        setLocalFilters((prev) => ({
+          ...prev,
+          [filterKey]: key,
+        }));
+      }
     };
 
-  const handleReset = () => {
-    setSelectedCategory("اختر القسم");
-    setSelectedSort("عرض الأحدث");
-    setSelectedRating("تقييم");
-    setSelectedGender("اختر الجنس");
-  };
-
   const handleApply = () => {
-    // Here you can implement the filter logic
-    console.log("Applied filters:", {
-      category: selectedCategory,
-      sort: selectedSort,
-      rating: selectedRating,
-      gender: selectedGender,
-    });
+    onFiltersChange?.(localFilters);
+    setOpen(false);
   };
 
   return (
     <BottomDrawer open={open} setOpen={setOpen}>
-      <div className="flex flex-col gap-[34px]">
-        <div className="relative  h-8 flex items-center justify-center">
+      <div className="flex flex-col gap-6">
+        <div className="relative h-8 flex items-center justify-center">
           <CloseIcon
-            className="absolute left-2 cursor-pointer active:bg-red-200 rounded-full"
+            className="absolute left-2 cursor-pointer"
             onClick={() => setOpen(false)}
           />
-
-          <h1 className=" flex items-center justify-center font-bold  text-text-duplicate text-lg text-center   whitespace-nowrap ">
-            فلترة
-          </h1>
+          <h1 className="font-bold text-lg">فلترة</h1>
         </div>
 
-        <div className=" w-full inline-flex flex-col justify-start items-start gap-4">
-          <Dropdown
-            trigger={["click"]}
-            menu={{
-              items: categoryItems,
-              onClick: handleMenuClick(setSelectedCategory),
-            }}
-            placement="top"
-          >
-            <div className="self-stretch px-2 py-4 rounded-2xl outline outline-2 outline-offset-[-2px] outline-neutral-300 inline-flex justify-between items-center cursor-pointer">
-              <div className="justify-center text-text text-xs font-bold  leading-none">
-                {selectedCategory}
-              </div>
-              <ChevronDown />
-            </div>
-          </Dropdown>
-
-          <Dropdown
-            trigger={["click"]}
-            menu={{
-              items: sortItems,
-              onClick: handleMenuClick(setSelectedSort),
-            }}
-            placement="top"
-          >
-            <div className="self-stretch px-2 py-4 rounded-2xl outline outline-2 outline-offset-[-2px] outline-neutral-300 inline-flex justify-between items-center cursor-pointer">
-              <div className="justify-center text-text text-xs font-bold  leading-none">
-                {selectedSort}
-              </div>
-              <ChevronDown />
-            </div>
-          </Dropdown>
-
-          <Dropdown
-            trigger={["click"]}
-            menu={{
-              items: ratingItems,
-              onClick: handleMenuClick(setSelectedRating),
-            }}
-            placement="top"
-          >
-            <div className="self-stretch px-2 py-4 rounded-2xl outline outline-2 outline-offset-[-2px] outline-neutral-300 inline-flex justify-between items-center cursor-pointer">
-              <div className="justify-center text-text text-xs font-bold  leading-none">
-                {selectedRating}
-              </div>
-              <ChevronDown />
-            </div>
-          </Dropdown>
-
-          <Dropdown
-            trigger={["click"]}
-            menu={{
-              items: genderItems,
-              onClick: handleMenuClick(setSelectedGender),
-            }}
-            placement="top"
-          >
-            <div className="self-stretch px-2 py-4 rounded-2xl outline outline-2 outline-offset-[-2px] outline-neutral-300 inline-flex justify-between items-center cursor-pointer">
-              <div className="justify-center text-text text-xs font-bold  leading-none">
-                {selectedGender}
-              </div>
-              <ChevronDown />
-            </div>
-          </Dropdown>
-        </div>
-
-        <div className="self-stretch inline-flex justify-between items-center gap-2">
-          <div
-            className=" flex-1 p-4 bg-orange-500 rounded-2xl flex justify-center items-center gap-2.5 cursor-pointer"
-            onClick={handleApply}
-          >
-            <div className="justify-center text-white text-base font-bold font-['Cairo'] leading-normal">
-              فلترة
-            </div>
+        {/* Category */}
+        <Dropdown
+          trigger={["click"]}
+          menu={{
+            items: categoryItems,
+            onClick: handleMenuClick(setSelectedCategory, "category"),
+          }}
+        >
+          <div className="w-full px-4 py-4 rounded-2xl outline outline-neutral-300 flex justify-between items-center cursor-pointer">
+            <span className="text-xs font-bold">{selectedCategory}</span>
+            <ChevronDown />
           </div>
+        </Dropdown>
+
+        {/* Sort */}
+        <Dropdown
+          trigger={["click"]}
+          menu={{
+            items: sortItems,
+            onClick: handleMenuClick(setSelectedSort, "sort"),
+          }}
+        >
+          <div className="w-full px-4 py-4 rounded-2xl outline outline-neutral-300 flex justify-between items-center cursor-pointer">
+            <span className="text-xs font-bold">{selectedSort}</span>
+            <ChevronDown />
+          </div>
+        </Dropdown>
+
+        {/* Rating */}
+        <Dropdown
+          trigger={["click"]}
+          menu={{
+            items: ratingItems,
+            onClick: handleMenuClick(setSelectedRating, "rating"),
+          }}
+        >
+          <div className="w-full px-4 py-4 rounded-2xl outline outline-neutral-300 flex justify-between items-center cursor-pointer">
+            <span className="text-xs font-bold">{selectedRating}</span>
+            <ChevronDown />
+          </div>
+        </Dropdown>
+
+        {/* Gender */}
+        <Dropdown
+          trigger={["click"]}
+          menu={{
+            items: genderItems,
+            onClick: handleMenuClick(setSelectedGender, "gender"),
+          }}
+        >
+          <div className="w-full px-4 py-4 rounded-2xl outline outline-neutral-300 flex justify-between items-center cursor-pointer">
+            <span className="text-xs font-bold">{selectedGender}</span>
+            <ChevronDown />
+          </div>
+        </Dropdown>
+
+        {/* ACTION BUTTONS */}
+        <div className="flex justify-between gap-3 px-1">
           <div
-            className="pl-4 pr-3 py-4 rounded-2xl outline outline-1 outline-offset-[-1px] outline-orange-500 flex justify-center items-center gap-2.5 cursor-pointer"
-            onClick={handleReset}
+            onClick={handleApply}
+            className="flex-1 py-4 bg-orange-500 text-white rounded-2xl font-bold text-center cursor-pointer"
           >
-            <div className="justify-center text-orange-500 text-base font-normal font-['Cairo'] leading-normal">
-              حذف الأختيارات
-            </div>
+            فلترة
+          </div>
+
+          <div
+            onClick={() => {
+              setSelectedCategory("اختر القسم");
+              setSelectedSort("عرض الأحدث");
+              setSelectedRating("تقييم");
+              setSelectedGender("اختر الجنس");
+              setLocalFilters({
+                category: "",
+                sort: "",
+                rating: "",
+                gender: "",
+                search: "",
+              });
+            }}
+            className="px-4 py-4 rounded-2xl outline outline-orange-500 text-orange-500 font-semibold cursor-pointer"
+          >
+            حذف
           </div>
         </div>
       </div>
