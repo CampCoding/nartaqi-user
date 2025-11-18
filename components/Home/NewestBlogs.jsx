@@ -13,7 +13,6 @@ const NewestBlogs = ({ blogs = [] }) => {
     setSelectedBlogId(id);
   }, []);
 
-  // Fallback blogs if no data
   const fallbackBlogs = [
     {
       id: 1,
@@ -26,7 +25,6 @@ const NewestBlogs = ({ blogs = [] }) => {
     },
   ];
 
-  // Use API data if available, otherwise use fallback
   const displayBlogs = blogs?.length > 0 ? blogs : fallbackBlogs;
 
   return (
