@@ -36,7 +36,6 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
     },
   ];
 
-  // Transform API data to match CourseCard expected structure
   const transformedData = latestRounds?.map((item) => ({
     id: item.id,
     name: item.name,

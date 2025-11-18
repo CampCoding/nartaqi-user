@@ -4,9 +4,7 @@ import { TopServices } from "../components/Home/TopServices";
 import { HeaderHero } from "../components/Home/Hero";
 import { AboutUs } from "../components/Home/AboutUs";
 import CoursesCategoriesLable from "../components/ui/CoursesCategoriesLable";
-import HomeSection1 from "../components/Home/HomeSection1";
-import HomeSection2 from "../components/Home/HomeSection2";
-import HomeSection3 from "./../components/Home/HomeSection3";
+import CategorySection from "../components/Home/CategorySection";
 import HomeSection4Courses from "../components/Home/HomeSection4Courses";
 import WhyChooseUs from "../components/Home/WhyChooseUs";
 import WhatOurXSay from "../components/Home/WhatOurStudentsSay";
@@ -15,7 +13,6 @@ import NewestBlogs from "../components/Home/NewestBlogs";
 import { MobileHero } from "../components/Home/Hero.mobile";
 import { useHomeData } from "../hooks/useHomeData";
 import { Icon } from "@iconify/react";
-import { useEffect } from "react";
 
 export default function Home() {
   const { data, isLoading, isError, error, refetch } = useHomeData();
@@ -54,10 +51,13 @@ export default function Home() {
   }
 
   // Extract data
-  const latestRounds = data?.latestRounds;
+  const latestRounds = data?.latestRounds || [];
   const categories = data?.categories_with_rounds || [];
   const studentRates = data?.student_rates || [];
   const latestBlogs = data?.latestBlogs || [];
+
+  // Define colors for each category
+  const categoryColors = ["secondary", "primary", "warning"];
 
   return (
     <>
@@ -75,11 +75,15 @@ export default function Home() {
 
       <CoursesCategoriesLable />
 
-      <HomeSection1 categories={categories} />
-
-      <HomeSection2 categories={categories} />
-
-      <HomeSection3 categories={categories} />
+      {/* Dynamic Category Sections */}
+      {categories?.map((category, index) => (
+        <CategorySection
+          key={category.id}
+          category={category}
+          color={categoryColors[index % categoryColors.length]}
+          index={index}
+        />
+      ))}
 
       <HomeSection4Courses latestRounds={latestRounds} />
 
@@ -88,6 +92,7 @@ export default function Home() {
       <WhatOurXSay studentRates={studentRates} />
 
       <HonorRoll />
+
       <NewestBlogs blogs={latestBlogs} />
     </>
   );
