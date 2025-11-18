@@ -4,8 +4,7 @@ import ProfileData from "../../../components/profile/ProfileData";
 import { useSelector } from "react-redux";
 
 const Profile = () => {
-  
-  return <ProfileData  />;
+  return <ProfileData />;
 };
 
 export default Profile;

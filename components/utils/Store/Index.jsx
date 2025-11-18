@@ -14,6 +14,7 @@ import {
 import authSlice from "./Slices/authntcationSlice.jsx";
 import userSlice from "./Slices/UserSllice.jsx";
 import blogSlice from "./Slices/BlogSlice.jsx";
+import redirectSlice from "./Slices/redirectSlice.jsx";
 
 const persistConfig = {
   key: "root",
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
   auth: authSlice.reducer,
   user: userSlice.reducer,
   blog: blogSlice.reducer,
+  redirect: redirectSlice.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

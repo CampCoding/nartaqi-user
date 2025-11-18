@@ -12,10 +12,7 @@ const ForgetPassword = () => {
   const [value1, setValue1] = useState("Apple");
   const [phone, setPhone] = useState("");
   const plainOptions = ["Apple", "Pear", "Orange"];
-  const onChange1 = ({ target: { value } }) => {
-    console.log("radio1 checked", value);
-    setValue1(value);
-  };
+ 
 
   const router = useRouter();
 

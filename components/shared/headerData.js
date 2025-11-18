@@ -13,7 +13,7 @@ const headerData = [
         id: 1,
         count: 25,
         title: "دورات القدرات العامة",
-        link: "/courses/achievement",
+        link: "/courses/1",
       },
       {
         id: 2,

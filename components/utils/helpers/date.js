@@ -12,7 +12,6 @@ export function formatDate(dateString) {
 
 export function formatDateBackEnd(dateString) {
   const date = new Date(dateString);
-  console.log(date);
 
   if (isNaN(date)) return "";
 

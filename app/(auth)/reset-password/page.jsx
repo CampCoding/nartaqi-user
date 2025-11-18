@@ -77,7 +77,7 @@ const ResetPasswordPage = () => {
     router.push("/login");
     console.log("Navigate back to login");
   };
-  console.log(errors);
+ 
 
   return (
     <Container>

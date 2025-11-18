@@ -1,21 +1,35 @@
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
-import { getUserDate } from "../../utils/Store/Slices/UserSllice.jsx";
-// ← عدّل المسار حسب مكانك
+"use client";
 
-export default function useGetProfile(payload) {
-  const dispatch = useDispatch();
-  const { user, loading, error } = useSelector((state) => state.user);
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../../utils/Store/Slices/authntcationSlice";
 
-  useEffect(() => {
-    if (payload) {
-      dispatch(getUserDate(payload));
+const getUserDataApi = async (token) => {
+  const res = await axios.post(
+    `${process.env.NEXT_PUBLIC_API_URL}/authentication/student_info`,
+    {},
+    {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     }
-  }, [payload, dispatch]);
+  );
 
-  return {
-    user,
-    loading,
-    error,
-  };
-}
+  return res.data;
+};
+
+export const useGetProfile = (token) => {
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  return useQuery({
+    queryKey: ["userData", token],
+    queryFn: () => getUserDataApi(token),
+    enabled: !!token,
+    retry: false,
+  });
+};
