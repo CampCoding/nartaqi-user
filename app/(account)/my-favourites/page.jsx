@@ -10,6 +10,8 @@ import { set } from "react-hook-form";
 const MyFavourites = () => {
   const { token } = useSelector((state) => state.auth);
 
+  const [isRegistered, useIsRegistered] = useState(!!token);
+
   // 👈 هنا مكان الـ Hook الصح
   const { data, isLoading } = useGetUserFavorite(token);
 
@@ -30,7 +32,7 @@ const MyFavourites = () => {
             const payload = {
               id: course?.round.id,
               name: course?.round.name,
-              goal: course?.round.goal,
+              goal: course?.round.description,
               image_url: course?.round.image_url || "",
               start_date: course?.round.start_date,
               free: course?.free,
@@ -51,7 +53,7 @@ const MyFavourites = () => {
             return (
               <CourseCard
                 key={course.id}
-                isRegistered
+                isRegistered={isRegistered}
                 course={course}
                 payload={payload}
                 freeWidth={true}

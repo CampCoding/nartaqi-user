@@ -39,7 +39,7 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
   const transformedData = latestRounds?.map((item) => ({
     id: item.id,
     name: item.name,
-    goal: item.goal,
+    goal: item.description,
     description: item.description,
     image_url: item.image_url,
     start_date: item.start_date,

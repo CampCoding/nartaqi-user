@@ -100,7 +100,9 @@ const SearchBanner = ({ openSearch, setOpenSearch }) => {
           onClick={() => setOpenSearch(false)}
           className={cx(
             "cursor-pointer z-50 fixed top-6 right-6 lg:top-[107px] lg:right-[74px] p-2 ",
-            scrolled400 ? "bg-white rounded-full w-10 shadow-2xl h-10 flex items-center justify-center border border-red-500 " : ""
+            scrolled400
+              ? "bg-white rounded-full w-10 shadow-2xl h-10 flex items-center justify-center border border-red-500 "
+              : ""
           )}
         >
           <XIcon stroke={scrolled400 ? "red" : "white"} />

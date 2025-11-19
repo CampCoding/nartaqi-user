@@ -42,7 +42,7 @@ export const CheckoutTabs = ({ onChange }) => {
       onKeyDown={onKeyDown}
       className="
         flex items-center gap-1 sm:gap-2 p-1.5 bg-[#fff1e7] rounded-[15px]
-        overflow-x-auto no-scrollbar hidden-scroll
+        overflow-x-auto hidden-scroll
       "
     >
       {paymentOptions.map((option) => {

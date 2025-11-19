@@ -86,7 +86,7 @@ export const Navs = ({ selectedTab, setSelectedTab }) => {
       className="
         flex w-full lg:w-[720px] mb-6 items-center justify-between
         p-2 lg:p-3 bg-[#ebf3fe] rounded-[20px] lg:rounded-[26px]
-        overflow-x-auto no-scrollbar gap-1 lg:gap-1.5
+        overflow-x-auto hidden-scroll gap-1 lg:gap-1.5
       "
     >
       {tabsData.map((tab) => {
@@ -116,7 +116,6 @@ export const Navs = ({ selectedTab, setSelectedTab }) => {
     </nav>
   );
 };
-
 
 export const TestRow = () => {
   // SVG components (ChevronLeft, TestIcon) are not changed.
