@@ -1,23 +1,31 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Dropdown } from "antd";
 import { FiltersIcon, CloseIcon } from "../../public/svgs";
 import { ChevronLeft, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { BottomDrawer } from "./BottomDrawer";
 
+///////////////////////////////////////////////////////////////////
+// MAIN DESKTOP + MOBILE FILTERS
+///////////////////////////////////////////////////////////////////
+
 const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
-  // UI states
+  // UI text states
   const [selectedCategory, setSelectedCategory] = useState("اختر القسم");
   const [selectedSort, setSelectedSort] = useState("عرض الأحدث");
   const [selectedRating, setSelectedRating] = useState("تقييم");
   const [selectedType, setSelectedType] = useState("اختر النوع");
+
   const [openFiltersDrawer, setOpenFiltersDrawer] = useState(false);
+
   const router = useRouter();
 
-  // ============================================
-  // 🔥 Local Filters – مش هنبعت للصفحة غير لما يضغط بحث
+  ///////////////////////////////////////////////////////////////////
+  // INTERNAL FILTER STATE
+  ///////////////////////////////////////////////////////////////////
+
   const [localFilters, setLocalFilters] = useState({
     search: "",
     category: "",
@@ -26,35 +34,27 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
     type: "",
     gender: "",
   });
-
-  // ============================================
-  // Filter Lists
-
-  const categoryItems = categoryParts?.map((part) => {
-    return {
-      key: part.id,
+  const categoryItems =
+    categoryParts?.map((part) => ({
+      key: `cat_${part.id}`,
       label: part.name,
-    };
-  });
+    })) || [];
 
   const sortItems = [
-    { key: "latest", label: "الأحدث" },
-    { key: "popular", label: "الأكثر شيوعًا" },
-    { key: "price_asc", label: "السعر: الأقل للأعلى" },
-    { key: "price_desc", label: "السعر: الأعلى للأقل" },
+    { key: "sort_latest", label: "الأحدث" },
+    { key: "sort_popular", label: "الأكثر شيوعًا" },
+    { key: "sort_price_asc", label: "السعر: الأقل للأعلى" },
+    { key: "sort_price_desc", label: "السعر: الأعلى للأقل" },
   ];
 
   const ratingItems = [
-    { key: "4s", label: "4+ نجوم" },
-    { key: "3s", label: "3+ نجوم" },
-    { key: "2s", label: "2+ نجوم" },
-    { key: "1s", label: "1+ نجمة" },
+    { key: "rating_highest", label: "أعلى تقييم" },
+    { key: "rating_lowest", label: "أقل تقييم" },
   ];
 
   const typeItems = [
-    { key: "all", label: "الكل" },
-    { key: "free", label: "مجاني" },
-    { key: "paid", label: "مدفوع" },
+    { key: "type_free", label: "مجاني" },
+    { key: "type_paid", label: "مدفوع" },
   ];
 
   const allItems = [
@@ -64,8 +64,9 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
     ...typeItems,
   ];
 
-  // ============================================
-  // 🔥 Handle Menu Changes (local only)
+  ///////////////////////////////////////////////////////////////////
+  // HANDLE SELECT
+  ///////////////////////////////////////////////////////////////////
 
   const handleMenuClick =
     (setter, filterKey) =>
@@ -80,12 +81,13 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
       }
     };
 
-  // ============================================
-  // 🔥 Desktop UI
+  ///////////////////////////////////////////////////////////////////
+  // RENDER
+  ///////////////////////////////////////////////////////////////////
 
   return (
     <>
-      {/* Desktop */}
+      {/* ================= Desktop Filters ================= */}
       <div className="hidden md:flex gap-4">
         <div className="flex flex-wrap flex-1 gap-4">
           {/* Search */}
@@ -162,7 +164,7 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
             </div>
           </Dropdown>
 
-          {/* 🔥 SEARCH BUTTON */}
+          {/* APPLY BUTTON */}
           <div
             onClick={() => onFiltersChange?.(localFilters)}
             className="flex-1 px-12 py-6 bg-secondary rounded-[20px] cursor-pointer flex justify-center items-center"
@@ -172,7 +174,7 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
         </div>
       </div>
 
-      {/* Mobile */}
+      {/* ================= Mobile Filters ================= */}
       <div className="md:hidden">
         <div className="flex items-center justify-between">
           <FiltersIcon
@@ -189,6 +191,7 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
           open={openFiltersDrawer}
           setOpen={setOpenFiltersDrawer}
           onFiltersChange={onFiltersChange}
+          categoryParts={categoryParts}
         />
       </div>
     </>
@@ -197,11 +200,16 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
 
 export default CoursesFilters;
 
-////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
 // MOBILE VERSION
-////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
 
-export const MobileCoursesFilters = ({ open, setOpen, onFiltersChange }) => {
+export const MobileCoursesFilters = ({
+  open,
+  setOpen,
+  onFiltersChange,
+  categoryParts,
+}) => {
   const router = useRouter();
 
   const [selectedCategory, setSelectedCategory] = useState("اختر القسم");
@@ -209,7 +217,6 @@ export const MobileCoursesFilters = ({ open, setOpen, onFiltersChange }) => {
   const [selectedRating, setSelectedRating] = useState("تقييم");
   const [selectedGender, setSelectedGender] = useState("اختر الجنس");
 
-  // Local Filters
   const [localFilters, setLocalFilters] = useState({
     category: "",
     sort: "",
@@ -218,31 +225,29 @@ export const MobileCoursesFilters = ({ open, setOpen, onFiltersChange }) => {
     search: "",
   });
 
-  const categoryItems = [
-    { key: "all", label: "كل الأقسام" },
-    { key: "science", label: "علوم" },
-    { key: "math", label: "رياضيات" },
-    { key: "language", label: "لغات" },
-  ];
+  const categoryItems =
+    categoryParts?.map((part) => ({
+      key: `cat_${part.id}`,
+      label: part.name,
+    })) || [];
 
   const sortItems = [
-    { key: "latest", label: "الأحدث" },
-    { key: "popular", label: "الأكثر شيوعًا" },
-    { key: "price_asc", label: "السعر: الأقل للأعلى" },
-    { key: "price_desc", label: "السعر: الأعلى للأقل" },
+    { key: "sort_latest", label: "الأحدث" },
+    { key: "sort_popular", label: "الأكثر شيوعًا" },
+    { key: "sort_price_asc", label: "السعر: الأقل للأعلى" },
+    { key: "sort_price_desc", label: "السعر: الأعلى للأقل" },
   ];
 
   const ratingItems = [
-    { key: "4", label: "4+ نجوم" },
-    { key: "3", label: "3+ نجوم" },
-    { key: "2", label: "2+ نجوم" },
-    { key: "1", label: "1+ نجمة" },
+    { key: "rating_4", label: "4+ نجوم" },
+    { key: "rating_3", label: "3+ نجوم" },
+    { key: "rating_2", label: "2+ نجوم" },
+    { key: "rating_1", label: "1+ نجمة" },
   ];
 
   const genderItems = [
-    { key: "all", label: "الكل" },
-    { key: "male", label: "ذكر" },
-    { key: "female", label: "أنثى" },
+    { key: "gender_male", label: "ذكر" },
+    { key: "gender_female", label: "أنثى" },
   ];
 
   const allItems = [
@@ -352,6 +357,7 @@ export const MobileCoursesFilters = ({ open, setOpen, onFiltersChange }) => {
               setSelectedSort("عرض الأحدث");
               setSelectedRating("تقييم");
               setSelectedGender("اختر الجنس");
+
               setLocalFilters({
                 category: "",
                 sort: "",

@@ -15,7 +15,6 @@ import { useSelector } from "react-redux";
 
 const CourseCard = ({
   freeWidth = false,
-
   payload = {},
   type = "0",
   buttonStyle = "normal",
@@ -25,17 +24,6 @@ const CourseCard = ({
   const width = freeWidth ? "w-full " : "w-full lg:max-w-[351px]";
 
   const { token } = useSelector((state) => state.auth);
-
-  const enrolled = true;
-
-  const [isFav, setIsFav] = useState(false);
-
-  useEffect(() => {
-    if (isInFav) {
-      setIsFav(isInFav);
-    }
-  }, [isInFav]);
-
   const Button = () => {
     if (buttonStyle === "normal") {
       return (
@@ -99,7 +87,7 @@ const CourseCard = ({
             </div>
             <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
               <div className="flex justify-between gap-5  items-center">
-                <FavIcon onClick={() => setIsFav(!isFav)} isFav={isFav} />
+                <FavIcon isFav={payload?.favorite} />
                 {payload?.free !== "0" && (
                   <div className="flex justify-center px-3 py-1  group hover:bg-white hover:text-secondary   rounded-lg items-center bg-secondary">
                     <span className="text-white group-hover:text-secondary transition-all">
@@ -279,7 +267,7 @@ export const MobileCourseCard = ({ freeWidth }) => {
   };
 
   const width = freeWidth ? "w-full" : "w-[351px]";
-
+  console.log(payload?.fav);
   return (
     <article
       className={`flex flex-col ${width} items-start gap-2 pt-0 pb-2 px-0 relative bg-white rounded-[20px] overflow-hidden border-2 border-solid border-variable-collection-stroke`}

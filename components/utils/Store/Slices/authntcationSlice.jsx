@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-console.log(baseUrl);
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
@@ -68,15 +67,12 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        console.log(state, action);
-
         state.loading = false;
         state.user = action.payload.message;
         state.token = action.payload.message.token;
         localStorage.setItem("token", action.payload.message.token);
       })
       .addCase(loginUser.rejected, (state, action) => {
-        console.log(state, action);
         state.loading = false;
         state.error = action.payload;
       })

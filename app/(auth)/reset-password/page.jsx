@@ -12,7 +12,8 @@ import toast from "react-hot-toast";
 import { pageType } from "../verification-code/VerificationCodeContent.jsx";
 import { useDispatch } from "react-redux";
 import { resetPasswordData } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
-import { getExecutionDateTime } from "../reset-password-last-step/page.jsx";
+import { getExecutionDateTime } from "../../../components/utils/helpers/GetDeviceTime";
+
 
 // import image from "./image.png";
 

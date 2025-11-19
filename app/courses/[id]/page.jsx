@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import PagesBanner from "../../../components/ui/PagesBanner";
 import CoursesFilters from "../../../components/ui/CoursesFilters";
 import CourseCard from "../../../components/ui/Cards/CourseCard";
@@ -10,7 +10,7 @@ import LoadingPage from "../../../components/shared/Loading";
 import LoadingContent from "../../../components/shared/LoadingContent";
 import TeachersTestimonials from "../../../components/Teachers/TeachersTestimonials";
 import { useParams } from "next/navigation";
-import { buildFiltersQuery } from "../../../components/utils/helpers/filter";
+import { buildFiltersQuery, normalizeFilters } from "../../../components/utils/helpers/filter";
 import { useGetCategoryPart } from "../../../components/shared/Hooks/useGetCategoryPart";
 
 const TeachersCourses = () => {
@@ -32,9 +32,12 @@ const TeachersCourses = () => {
   } = useGetCategoryPart(id);
   console.log(parts);
 
-  let apiParams = buildFiltersQuery(filters);
-
-  apiParams.course_category_id = id;
+  const apiParams = useMemo(() => {
+    const normalized = normalizeFilters(filters);
+    const q = buildFiltersQuery(normalized);
+    q.course_category_id = id;
+    return q;
+  }, [filters, id]);
 
   const {
     data,
@@ -46,12 +49,13 @@ const TeachersCourses = () => {
     refetch,
   } = useGetCourseRounds(apiParams);
   console.log(data);
+  console.log(error);
 
   const loadMoreRef = useRef(null);
 
   useEffect(() => {
     refetch();
-  }, [filters]);
+  }, [apiParams]);
 
   return (
     <div>
@@ -85,21 +89,24 @@ const TeachersCourses = () => {
                       start_date: course?.start_date,
                       free: course.free,
                       price: course?.price,
-                      enrolled: false,
+                      enrolled: course?.own,
+                      favorite: course?.fav,
+                      roundBook: course?.round_road_map_book,
                       course: {
                         name: course?.course_categories?.name,
                       },
-                      teacher: {
-                        id: course?.teacher?.id,
-                        name: course?.teacher?.name,
-                        image_url: course?.teacher?.image_url,
-                      },
+                      teacher: course?.teachers.map((teacher) => {
+                        return {
+                          name: teacher?.name,
+                          image_url: teacher?.image_url,
+                        };
+                      }),
                     };
                     return (
                       <CourseCard
                         key={course?.id}
                         isRegistered
-                        course={course}
+                        buttonStyle=""
                         payload={payload}
                         freeWidth
                         type="0"

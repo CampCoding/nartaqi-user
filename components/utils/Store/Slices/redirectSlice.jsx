@@ -10,7 +10,7 @@ const redirectSlice = createSlice({
   },
   reducers: {
     saveContent: (state, action) => {
-      console.log(action);
+     
 
       state.content = action.payload.content;
       state.link = action.payload.link;

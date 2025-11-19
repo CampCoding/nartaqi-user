@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useUser } from "../../../lib/useUser";
+import toast from "react-hot-toast";
+import verifyCodeRequest from "../../shared/Hooks/useVerifyCode";
 
-export const VerificationCodeModal = ({ show, setShow, setIsVerified }) => {
+export const VerificationCodeModal = ({
+  show,
+  setShow,
+  phoneNumber,
+  setIsVerified,
+}) => {
   const [verificationCode, setVerificationCode] = useState("");
 
-  const { login, user } = useUser();
   const handleInputChange = (e) => {
     const value = e.target.value.replace(/\D/g, "").slice(0, 4);
     setVerificationCode(value);
@@ -13,10 +18,20 @@ export const VerificationCodeModal = ({ show, setShow, setIsVerified }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (verificationCode.length === 4) {
-      await login({ phone: user?.phone, password: "1234", type: "marketer" });
+      try {
+        const res = await verifyCodeRequest({
+          endpoint: "user/marketers/verify_code",
+          payload: { phone: phoneNumber, code: verificationCode },
+        });
 
-      setIsVerified(true);
-      setShow(false);
+        if (res?.statusCode === 200) {
+          setIsVerified(true);
+          setShow(false);
+        }
+      } catch (error) {
+        console.log(error);
+        setShow(false);
+      }
     }
   };
 
