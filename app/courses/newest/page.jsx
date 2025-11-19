@@ -57,9 +57,9 @@ const FreeCourses = () => {
               ]}
             />
             <Container className=" my-[32px]">
-              <div className="  mb-[32px] md:mb-[48px]">
+              {/*    <div className="  mb-[32px] md:mb-[48px]">
                 <CoursesFilters />
-              </div>
+              </div> */}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-colss-2 lg:grid-cols-3 gap-4 sm-gap-6 md:gap-[32px] lg:gap-[42px] ">
                 {data?.pages?.map((page, index) => (

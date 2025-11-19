@@ -13,6 +13,7 @@ import NewestBlogs from "../components/Home/NewestBlogs";
 import { MobileHero } from "../components/Home/Hero.mobile";
 import { useHomeData } from "../hooks/useHomeData";
 import { Icon } from "@iconify/react";
+import LoadingPage from "../components/shared/Loading";
 
 export default function Home() {
   const { data, isLoading, isError, error, refetch } = useHomeData();
@@ -20,10 +21,7 @@ export default function Home() {
   // Loading State
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen gap-3">
-        <Icon icon="eos-icons:loading" className="w-8 h-8 text-primary" />
-        <span className="text-lg">جاري التحميل...</span>
-      </div>
+     <LoadingPage />
     );
   }
 

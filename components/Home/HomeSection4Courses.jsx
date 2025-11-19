@@ -67,9 +67,10 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
       gender: item.teacher?.gender,
     },
     // Additional properties that might be useful
-    is_favorite: item.is_favorite || false,
+    is_favorite: item?.is_favorite || false,
     enrolled: item.enrolled || false,
   }));
+  console.log(transformedData, "transformedData");
 
   // Use transformed data if available, otherwise use fallback
   const displayData =
