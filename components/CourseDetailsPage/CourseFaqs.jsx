@@ -64,7 +64,7 @@ export const NavigationItems = () => {
   return (
     <nav
       dir="rtl"
-      className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-4 md:py-6 bg-primary-light rounded-[16px] md:rounded-[20px] overflow-x-auto no-scrollbar"
+      className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-4 md:py-6 bg-primary-light rounded-[16px] md:rounded-[20px] overflow-x-auto hidden-scroll"
       role="navigation"
       aria-label="قائمة التنقل"
     >

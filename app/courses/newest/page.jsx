@@ -70,7 +70,7 @@ const FreeCourses = () => {
                       const payload = {
                         id: course?.id,
                         name: course?.name,
-                        goal: course?.goal,
+                        goal: course?.description,
                         image_url: course?.image_url || "",
                         start_date: course?.start_date,
                         free: course.free,
