@@ -1,10 +1,16 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-export const useGetCourseRounds = () => {
+export const useGetCourseRounds = (payload) => {
+  const filters = { filters: { ...payload } };
+  console.log(filters);
+
   const fetchCourse = async ({ pageParam = 1 }) => {
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/getRounds`,
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/getRoundByFilters`,
+      {
+        ...filters,
+      },
       {
         params: {
           per_page: 12,
@@ -18,7 +24,7 @@ export const useGetCourseRounds = () => {
   };
 
   const query = useInfiniteQuery({
-    queryKey: ["CourseRounds"],
+    queryKey: ["CourseRounds", payload],
     queryFn: fetchCourse,
 
     getNextPageParam: (lastPage) => {
@@ -34,9 +40,10 @@ export const useGetCourseRounds = () => {
   return {
     data: query.data,
     loading: query.isLoading,
-    error: query.isError ? query.error?.message : null,
+    error: query.isError ? query.error : null,
     fetchNextPage: query.fetchNextPage,
     hasNextPage: query.hasNextPage,
     isFetchingNextPage: query.isFetchingNextPage,
+    refetch: query.refetch,
   };
 };
