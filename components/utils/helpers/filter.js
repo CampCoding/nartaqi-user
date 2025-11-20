@@ -9,8 +9,9 @@ export function buildFiltersQuery(filters) {
   }
 
   // 📂 Category = course_category_id
+
   if (filters.category) {
-    params.course_category_id = filters.category.split("_")[1];
+    params.category_part_id = filters.category;
   }
 
   // 🆓 Type → free
@@ -19,22 +20,12 @@ export function buildFiltersQuery(filters) {
     else if (filters.type === "paid") params.free = "0";
   }
 
-  // 🚻 Gender
-  if (filters.gender) {
-    params.gender = filters.gender;
-  }
-
-  // 🎚️ Level
-  if (filters.level) {
-    params.for = filters.level;
-  }
-
   // ⭐ Rating (highest / lowest)
   if (filters.rating) {
     if (filters.rating === "highest") {
-      params.rating_sort = "highest";
+      params.sort_rating = "highest";
     } else if (filters.rating === "lowest") {
-      params.rating_sort = "lowest";
+      params.sort_rating = "lowest";
     }
   }
 

@@ -12,6 +12,7 @@ import { useUser } from "../../../lib/useUser";
 import { Icon } from "@iconify/react";
 import { formatDate, formatDateBackEnd } from "../../utils/helpers/date";
 import { useSelector } from "react-redux";
+import { Avatar, Tooltip } from "antd";
 
 const CourseCard = ({
   freeWidth = false,
@@ -22,6 +23,7 @@ const CourseCard = ({
   isInFav = false,
 }) => {
   const width = freeWidth ? "w-full " : "w-full lg:max-w-[351px]";
+  console.log(payload);
 
   const { token } = useSelector((state) => state.auth);
   const Button = () => {
@@ -175,7 +177,7 @@ const CourseCard = ({
                   </defs>
                 </svg>
                 <div className="justify-center text-text text-[10px] sm:text-xs font-medium">
-                  المقاعد المتبقية: 5
+                  المقاعد المتبقية: {payload?.capacity || 0}
                 </div>
               </div>
             </div>
@@ -187,27 +189,32 @@ const CourseCard = ({
                 </div>
                 <div className="flex justify-start items-center gap-0.5">
                   <div className="justify-center text-text text-[9px] sm:text-[10px] font-medium">
-                    4.5
+                    {payload?.rating?.toFixed(1) || "-"}
                   </div>
                   <div className="w-3 h-3 relative overflow-hidden">
                     <RatingStarIcon />
                   </div>
                 </div>
                 <div className="justify-center text-text text-[9px] sm:text-[10px] font-medium">
-                  (32 تقييمًا)
+                  ({payload?.totalRates || 0})
                 </div>
               </div>
-              <div className="flex justify-start items-center gap-[5px] flex-shrink-0">
-                <img
-                  className="w-5 h-5 sm:w-6 sm:h-6 relative rounded-xl"
-                  src={payload?.teacher?.image_url || "/images/image-24.png"}
-                  onError={(e) => {
-                    e.target.src = "/images/image-24.png";
-                  }}
-                  alt={payload?.teacher?.name}
-                />
-                <div className="justify-center text-text text-[9px] sm:text-[10px] font-medium truncate">
-                  المدرس: {payload?.teacher?.name}
+              <div className="flex flex-col gap-2 justify-center items-center">
+                <div className="flex place-self-start ">
+                  <span className="text-[13px]">المدرسين</span>
+                </div>
+                <div className="flex justify-start items-center gap-[5px] flex-shrink-0">
+                  <Avatar.Group>
+                    {payload?.teacher?.map((instructor) => (
+                      <Tooltip title={instructor?.name}>
+                        <Avatar
+                          src={instructor?.image_url}
+                          onError={() => false}
+                          icon={<img src="/images/Image-48.png" />}
+                        />
+                      </Tooltip>
+                    ))}
+                  </Avatar.Group>
                 </div>
               </div>
             </div>

@@ -35,6 +35,7 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
       },
     },
   ];
+  console.log(latestRounds);
 
   const transformedData = latestRounds?.map((item) => ({
     id: item.id,
@@ -58,14 +59,19 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
       image_url: item.course_categories?.image_url,
     },
     // Teacher data (already in correct format)
-    teacher: {
-      id: item.teacher?.id,
-      name: item.teacher?.name || "غير محدد",
-      image_url: item.teacher?.image_url || "/images/Image-24.png",
-      email: item.teacher?.email,
-      description: item.teacher?.description,
-      gender: item.teacher?.gender,
-    },
+    teacher: Array.isArray(item.teacher)
+      ? item.teacher.map((teacher) => ({
+          name: teacher.name,
+          image_url: teacher.image_url,
+        }))
+      : item.teacher && typeof item.teacher === "object"
+      ? [
+          {
+            name: item.teacher.name,
+            image_url: item.teacher.image_url,
+          },
+        ]
+      : [],
     // Additional properties that might be useful
     is_favorite: item?.is_favorite || false,
     enrolled: item.enrolled || false,
