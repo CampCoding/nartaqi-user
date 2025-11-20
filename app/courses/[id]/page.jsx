@@ -10,7 +10,10 @@ import LoadingPage from "../../../components/shared/Loading";
 import LoadingContent from "../../../components/shared/LoadingContent";
 import TeachersTestimonials from "../../../components/Teachers/TeachersTestimonials";
 import { useParams } from "next/navigation";
-import { buildFiltersQuery, normalizeFilters } from "../../../components/utils/helpers/filter";
+import {
+  buildFiltersQuery,
+  normalizeFilters,
+} from "../../../components/utils/helpers/filter";
 import { useGetCategoryPart } from "../../../components/shared/Hooks/useGetCategoryPart";
 
 const TeachersCourses = () => {
@@ -30,7 +33,6 @@ const TeachersCourses = () => {
     loading: partsLoading,
     error: partsError,
   } = useGetCategoryPart(id);
-  console.log(parts);
 
   const apiParams = useMemo(() => {
     const normalized = normalizeFilters(filters);
@@ -48,8 +50,6 @@ const TeachersCourses = () => {
     error,
     refetch,
   } = useGetCourseRounds(apiParams);
-  console.log(data);
-  console.log(error);
 
   const loadMoreRef = useRef(null);
 
@@ -81,6 +81,8 @@ const TeachersCourses = () => {
               {data?.pages?.map((page, index) => (
                 <React.Fragment key={index}>
                   {page?.data.message.map((course) => {
+                    console.log(course);
+
                     const payload = {
                       id: course?.id,
                       name: course?.name,
@@ -92,8 +94,11 @@ const TeachersCourses = () => {
                       enrolled: course?.own,
                       favorite: course?.fav,
                       roundBook: course?.round_road_map_book,
+                      rating: course?.average_rating,
+                      totalRates: course?.ratings_count,
+                      capacity: course?.capacity,
                       course: {
-                        name: course?.course_categories?.name,
+                        name: course?.category_parts_name,
                       },
                       teacher: course?.teachers.map((teacher) => {
                         return {

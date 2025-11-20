@@ -15,7 +15,7 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
   // UI text states
   const [selectedCategory, setSelectedCategory] = useState("اختر القسم");
   const [selectedSort, setSelectedSort] = useState("عرض الأحدث");
-  const [selectedRating, setSelectedRating] = useState("تقييم");
+  const [selectedRating, setSelectedRating] = useState("أعلى تقييم");
   const [selectedType, setSelectedType] = useState("اختر النوع");
 
   const [openFiltersDrawer, setOpenFiltersDrawer] = useState(false);
@@ -30,7 +30,7 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
     search: "",
     category: "",
     sort: "",
-    rating: "",
+    rating: "highest",
     type: "",
     gender: "",
   });
@@ -214,13 +214,13 @@ export const MobileCoursesFilters = ({
 
   const [selectedCategory, setSelectedCategory] = useState("اختر القسم");
   const [selectedSort, setSelectedSort] = useState("عرض الأحدث");
-  const [selectedRating, setSelectedRating] = useState("تقييم");
+  const [selectedRating, setSelectedRating] = useState("أعلى تقييم");
   const [selectedGender, setSelectedGender] = useState("اختر الجنس");
 
   const [localFilters, setLocalFilters] = useState({
     category: "",
     sort: "",
-    rating: "",
+    rating: "highest",
     gender: "",
     search: "",
   });
@@ -239,10 +239,8 @@ export const MobileCoursesFilters = ({
   ];
 
   const ratingItems = [
-    { key: "rating_4", label: "4+ نجوم" },
-    { key: "rating_3", label: "3+ نجوم" },
-    { key: "rating_2", label: "2+ نجوم" },
-    { key: "rating_1", label: "1+ نجمة" },
+    { key: "rating_highest", label: "أعلى تقييم" },
+    { key: "rating_lowest", label: "أقل تقييم" },
   ];
 
   const genderItems = [
