@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { BadgeCard } from "../../../components/ui/Cards/BadgeCard";
 import { useSelector } from "react-redux";
+import LoadingPage from "../../../components/shared/Loading";
 
 const MyBadgesPage = () => {
   const [allBadges, setAllBadges] = useState([]);
@@ -63,13 +64,7 @@ const MyBadgesPage = () => {
       : allBadges.filter((b) => b.category === activeCategory);
 
   if (loading) {
-    return (
-      <main className="w-full">
-        <div className="flex items-center justify-center h-64">
-          <p className="text-text-alt">جاري التحميل...</p>
-        </div>
-      </main>
-    );
+    return <LoadingPage />;
   }
 
   if (error) {
@@ -156,7 +151,7 @@ export const BadgesNavs = ({ items, value, onChange, className = "" }) => {
       <div className="xl:hidden">
         <div className="flex items-center gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
           <div className="flex items-center gap-2 min-w-max">
-            {labels.map((label, index) => (
+            {/*  {labels.map((label, index) => (
               <button
                 key={index}
                 className={`
@@ -180,7 +175,7 @@ export const BadgesNavs = ({ items, value, onChange, className = "" }) => {
                   {label}
                 </span>
               </button>
-            ))}
+            ))} */}
           </div>
         </div>
       </div>
@@ -191,7 +186,7 @@ export const BadgesNavs = ({ items, value, onChange, className = "" }) => {
           // Scrollable version when more than 5 items
           <div className="overflow-x-auto snap-x snap-mandatory scrollbar-hide">
             <div className="flex items-center gap-2 min-w-max pb-2">
-              {labels.map((label, index) => (
+              {/*  {labels.map((label, index) => (
                 <button
                   key={index}
                   className={`
@@ -219,7 +214,7 @@ export const BadgesNavs = ({ items, value, onChange, className = "" }) => {
                     {label}
                   </span>
                 </button>
-              ))}
+              ))} */}
             </div>
           </div>
         ) : (

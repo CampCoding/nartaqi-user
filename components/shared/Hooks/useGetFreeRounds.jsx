@@ -3,8 +3,21 @@ import axios from "axios";
 
 export const useGetFreeRounds = () => {
   const fetchCourse = async ({ pageParam = 1 }) => {
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/getFreeRounds`,
+    const { user } = useSelector((state) => state.auth);
+    const payload = {
+      filters: {
+        free: "1",
+      },
+      sort_most_common: false, // false
+      sort_date_latest: false, // false
+      sort_price: "low_to_high", // or high_to_low
+      sort_rating: "lowest", //highest,lowest
+    };
+    if (user.id) {
+      payload.student_id = user.id;
+    }
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/getRoundByFilters`,
       {
         params: {
           per_page: 6,
