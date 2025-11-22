@@ -5,6 +5,7 @@ import React from "react";
 const PagesBanner = ({
   image,
   title,
+  partName = "",
   variant = "large",
   objectPosition,
   breadcrumb = [
@@ -15,6 +16,9 @@ const PagesBanner = ({
     {
       title: "دورات المعلمين",
       link: "/about-us",
+    },
+    {
+      title: partName,
     },
   ],
 }) => {

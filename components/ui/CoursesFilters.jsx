@@ -1,31 +1,54 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dropdown } from "antd";
 import { FiltersIcon, CloseIcon } from "../../public/svgs";
 import { ChevronLeft, ChevronDown } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { BottomDrawer } from "./BottomDrawer";
+import { useGetCategoryPart } from "../shared/Hooks/useGetCategoryPart";
 
 ///////////////////////////////////////////////////////////////////
-// MAIN DESKTOP + MOBILE FILTERS
+// MAIN FILTERS COMPONENT
 ///////////////////////////////////////////////////////////////////
 
-const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
-  // UI text states
+const CoursesFilters = ({ onFiltersChange, isFree = false }) => {
+  const searchParams = useSearchParams();
+  const { id } = useParams();
+  const router = useRouter();
+
+  /////////////////////////////////////////////////////////////////
+  // FETCH PARTS (CORRECT)
+  /////////////////////////////////////////////////////////////////
+  const { parts } = useGetCategoryPart(id);
+
+  /////////////////////////////////////////////////////////////////
+  // READ SELECTED CATEGORY FROM URL
+  /////////////////////////////////////////////////////////////////
+  const partId = searchParams.get("category");
+  const partName = parts?.find((p) => p.id == partId)?.name;
+
+  /////////////////////////////////////////////////////////////////
+  // CATEGORY LABEL IN UI (NO MORE OVERRIDE)
+  /////////////////////////////////////////////////////////////////
   const [selectedCategory, setSelectedCategory] = useState("اختر القسم");
+
+  useEffect(() => {
+    if (partId && partName) {
+      setSelectedCategory(partName);
+    }
+  }, [partId, partName]);
+
+  /////////////////////////////////////////////////////////////////
+  // OTHER FILTER STATES
+  /////////////////////////////////////////////////////////////////
   const [selectedSort, setSelectedSort] = useState("عرض الأحدث");
   const [selectedRating, setSelectedRating] = useState("أعلى تقييم");
   const [selectedType, setSelectedType] = useState("اختر النوع");
 
-  const [openFiltersDrawer, setOpenFiltersDrawer] = useState(false);
-
-  const router = useRouter();
-
-  ///////////////////////////////////////////////////////////////////
-  // INTERNAL FILTER STATE
-  ///////////////////////////////////////////////////////////////////
-
+  /////////////////////////////////////////////////////////////////
+  // FILTER LOGIC STATE
+  /////////////////////////////////////////////////////////////////
   const [localFilters, setLocalFilters] = useState({
     search: "",
     category: "",
@@ -34,8 +57,12 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
     type: "",
     gender: "",
   });
+
+  /////////////////////////////////////////////////////////////////
+  // DROPDOWN MENU ITEMS
+  /////////////////////////////////////////////////////////////////
   const categoryItems =
-    categoryParts?.map((part) => ({
+    parts?.map((part) => ({
       key: `cat_${part.id}`,
       label: part.name,
     })) || [];
@@ -64,16 +91,28 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
     ...typeItems,
   ];
 
-  ///////////////////////////////////////////////////////////////////
-  // HANDLE SELECT
-  ///////////////////////////////////////////////////////////////////
-
+  console.log(localFilters);
+  
+  /////////////////////////////////////////////////////////////////
+  // ON MENU CLICK
+  /////////////////////////////////////////////////////////////////
   const handleMenuClick =
     (setter, filterKey) =>
     ({ key }) => {
       const item = allItems.find((i) => i.key === key);
-      if (item) {
-        setter(item.label);
+      if (!item) return;
+
+      // UI label
+      setter(item.label);
+
+      // Prepare filter value
+      if (filterKey === "category") {
+        const partId = key.replace("cat_", ""); // extract id
+        setLocalFilters((prev) => ({
+          ...prev,
+          category: partId,
+        }));
+      } else {
         setLocalFilters((prev) => ({
           ...prev,
           [filterKey]: key,
@@ -81,16 +120,20 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
       }
     };
 
-  ///////////////////////////////////////////////////////////////////
-  // RENDER
-  ///////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////
+  // MOBILE DRAWER STATE
+  /////////////////////////////////////////////////////////////////
+  const [open, setOpen] = useState(false);
 
+  /////////////////////////////////////////////////////////////////
+  // DESKTOP UI
+  /////////////////////////////////////////////////////////////////
   return (
     <>
-      {/* ================= Desktop Filters ================= */}
+      {/* ============= DESKTOP ============= */}
       <div className="hidden md:flex gap-4">
         <div className="flex flex-wrap flex-1 gap-4">
-          {/* Search */}
+          {/* SEARCH */}
           <div className="flex-1 p-6 bg-zinc-800 rounded-[20px] flex items-center">
             <input
               placeholder="ابحث باسم الدورة"
@@ -104,22 +147,24 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
             />
           </div>
 
-          {/* Category */}
-          <Dropdown
-            className="flex-1"
-            trigger={["click"]}
-            menu={{
-              items: categoryItems,
-              onClick: handleMenuClick(setSelectedCategory, "category"),
-            }}
-          >
-            <div className="p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer">
-              <span className="text-white">{selectedCategory}</span>
-              <ChevronDown className="text-white" />
-            </div>
-          </Dropdown>
+          {/* CATEGORY */}
+          {!isFree && (
+            <Dropdown
+              className="flex-1"
+              trigger={["click"]}
+              menu={{
+                items: categoryItems,
+                onClick: handleMenuClick(setSelectedCategory, "category"),
+              }}
+            >
+              <div className="p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer">
+                <span className="text-white">{selectedCategory}</span>
+                <ChevronDown className="text-white" />
+              </div>
+            </Dropdown>
+          )}
 
-          {/* Sort */}
+          {/* SORT */}
           <Dropdown
             className="flex-1"
             trigger={["click"]}
@@ -134,7 +179,7 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
             </div>
           </Dropdown>
 
-          {/* Rating */}
+          {/* RATING */}
           <Dropdown
             className="flex-1"
             trigger={["click"]}
@@ -149,24 +194,26 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
             </div>
           </Dropdown>
 
-          {/* Type */}
-          <Dropdown
-            className="flex-1"
-            trigger={["click"]}
-            menu={{
-              items: typeItems,
-              onClick: handleMenuClick(setSelectedType, "type"),
-            }}
-          >
-            <div className="p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer">
-              <span className="text-white">{selectedType}</span>
-              <ChevronDown className="text-white" />
-            </div>
-          </Dropdown>
+          {/* TYPE */}
+          {!isFree && (
+            <Dropdown
+              className="flex-1"
+              trigger={["click"]}
+              menu={{
+                items: typeItems,
+                onClick: handleMenuClick(setSelectedType, "type"),
+              }}
+            >
+              <div className="p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer">
+                <span className="text-white">{selectedType}</span>
+                <ChevronDown className="text-white" />
+              </div>
+            </Dropdown>
+          )}
 
-          {/* APPLY BUTTON */}
+          {/* APPLY */}
           <div
-            onClick={() => onFiltersChange?.(localFilters)}
+            onClick={() => onFiltersChange(localFilters)}
             className="flex-1 px-12 py-6 bg-secondary rounded-[20px] cursor-pointer flex justify-center items-center"
           >
             <span className="text-white font-semibold">بحث</span>
@@ -174,24 +221,22 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
         </div>
       </div>
 
-      {/* ================= Mobile Filters ================= */}
-      <div className="md:hidden">
-        <div className="flex items-center justify-between">
-          <FiltersIcon
-            onClick={() => setOpenFiltersDrawer(true)}
-            className="w-10 h-10 p-1 cursor-pointer"
-          />
-          <ChevronLeft
-            onClick={() => router.back()}
-            className="w-10 h-10 p-1 cursor-pointer"
-          />
-        </div>
+      {/* ============= MOBILE ============= */}
+      <MobileFiltersDrawer
+        open={open}
+        setOpen={setOpen}
+        parts={parts}
+        onFiltersChange={onFiltersChange}
+      />
 
-        <MobileCoursesFilters
-          open={openFiltersDrawer}
-          setOpen={setOpenFiltersDrawer}
-          onFiltersChange={onFiltersChange}
-          categoryParts={categoryParts}
+      <div className="md:hidden flex items-center justify-between">
+        <FiltersIcon
+          onClick={() => setOpen(true)}
+          className="w-10 h-10 p-1 cursor-pointer"
+        />
+        <ChevronLeft
+          onClick={() => router.back()}
+          className="w-10 h-10 p-1 cursor-pointer"
         />
       </div>
     </>
@@ -201,174 +246,46 @@ const CoursesFilters = ({ onFiltersChange, categoryParts }) => {
 export default CoursesFilters;
 
 ///////////////////////////////////////////////////////////////////
-// MOBILE VERSION
+// MOBILE DRAWER VERSION
 ///////////////////////////////////////////////////////////////////
 
-export const MobileCoursesFilters = ({
-  open,
-  setOpen,
-  onFiltersChange,
-  categoryParts,
-}) => {
-  const router = useRouter();
-
+const MobileFiltersDrawer = ({ open, setOpen, onFiltersChange, parts }) => {
   const [selectedCategory, setSelectedCategory] = useState("اختر القسم");
-  const [selectedSort, setSelectedSort] = useState("عرض الأحدث");
-  const [selectedRating, setSelectedRating] = useState("أعلى تقييم");
-  const [selectedGender, setSelectedGender] = useState("اختر الجنس");
-
-  const [localFilters, setLocalFilters] = useState({
-    category: "",
-    sort: "",
-    rating: "highest",
-    gender: "",
-    search: "",
-  });
 
   const categoryItems =
-    categoryParts?.map((part) => ({
-      key: `cat_${part.id}`,
-      label: part.name,
+    parts?.map((p) => ({
+      key: `cat_${p.id}`,
+      label: p.name,
     })) || [];
-
-  const sortItems = [
-    { key: "sort_latest", label: "الأحدث" },
-    { key: "sort_popular", label: "الأكثر شيوعًا" },
-    { key: "sort_price_asc", label: "السعر: الأقل للأعلى" },
-    { key: "sort_price_desc", label: "السعر: الأعلى للأقل" },
-  ];
-
-  const ratingItems = [
-    { key: "rating_highest", label: "أعلى تقييم" },
-    { key: "rating_lowest", label: "أقل تقييم" },
-  ];
-
-  const genderItems = [
-    { key: "gender_male", label: "ذكر" },
-    { key: "gender_female", label: "أنثى" },
-  ];
-
-  const allItems = [
-    ...categoryItems,
-    ...sortItems,
-    ...ratingItems,
-    ...genderItems,
-  ];
-
-  const handleMenuClick =
-    (setter, filterKey) =>
-    ({ key }) => {
-      const item = allItems.find((i) => i.key === key);
-      if (item) {
-        setter(item.label);
-        setLocalFilters((prev) => ({
-          ...prev,
-          [filterKey]: key,
-        }));
-      }
-    };
-
-  const handleApply = () => {
-    onFiltersChange?.(localFilters);
-    setOpen(false);
-  };
 
   return (
     <BottomDrawer open={open} setOpen={setOpen}>
-      <div className="flex flex-col gap-6">
-        <div className="relative h-8 flex items-center justify-center">
-          <CloseIcon
-            className="absolute left-2 cursor-pointer"
-            onClick={() => setOpen(false)}
-          />
-          <h1 className="font-bold text-lg">فلترة</h1>
-        </div>
+      {/* موبايل هنا حسب اللي انت عايزه */}
+      <div className="p-6">
+        <h1 className="text-center font-bold text-lg mb-6">فلترة</h1>
 
-        {/* Category */}
         <Dropdown
           trigger={["click"]}
           menu={{
             items: categoryItems,
-            onClick: handleMenuClick(setSelectedCategory, "category"),
+            onClick: ({ key }) => {
+              const item = categoryItems.find((i) => i.key === key);
+              if (item) setSelectedCategory(item.label);
+            },
           }}
         >
-          <div className="w-full px-4 py-4 rounded-2xl outline outline-neutral-300 flex justify-between items-center cursor-pointer">
+          <div className="px-4 py-4 rounded-2xl outline outline-neutral-300 flex justify-between items-center cursor-pointer mb-4">
             <span className="text-xs font-bold">{selectedCategory}</span>
             <ChevronDown />
           </div>
         </Dropdown>
 
-        {/* Sort */}
-        <Dropdown
-          trigger={["click"]}
-          menu={{
-            items: sortItems,
-            onClick: handleMenuClick(setSelectedSort, "sort"),
-          }}
+        <button
+          onClick={() => setOpen(false)}
+          className="w-full py-4 bg-orange-500 text-white rounded-2xl font-bold"
         >
-          <div className="w-full px-4 py-4 rounded-2xl outline outline-neutral-300 flex justify-between items-center cursor-pointer">
-            <span className="text-xs font-bold">{selectedSort}</span>
-            <ChevronDown />
-          </div>
-        </Dropdown>
-
-        {/* Rating */}
-        <Dropdown
-          trigger={["click"]}
-          menu={{
-            items: ratingItems,
-            onClick: handleMenuClick(setSelectedRating, "rating"),
-          }}
-        >
-          <div className="w-full px-4 py-4 rounded-2xl outline outline-neutral-300 flex justify-between items-center cursor-pointer">
-            <span className="text-xs font-bold">{selectedRating}</span>
-            <ChevronDown />
-          </div>
-        </Dropdown>
-
-        {/* Gender */}
-        <Dropdown
-          trigger={["click"]}
-          menu={{
-            items: genderItems,
-            onClick: handleMenuClick(setSelectedGender, "gender"),
-          }}
-        >
-          <div className="w-full px-4 py-4 rounded-2xl outline outline-neutral-300 flex justify-between items-center cursor-pointer">
-            <span className="text-xs font-bold">{selectedGender}</span>
-            <ChevronDown />
-          </div>
-        </Dropdown>
-
-        {/* ACTION BUTTONS */}
-        <div className="flex justify-between gap-3 px-1">
-          <div
-            onClick={handleApply}
-            className="flex-1 py-4 bg-orange-500 text-white rounded-2xl font-bold text-center cursor-pointer"
-          >
-            فلترة
-          </div>
-
-          <div
-            onClick={() => {
-              setSelectedCategory("اختر القسم");
-              setSelectedSort("عرض الأحدث");
-              setSelectedRating("تقييم");
-              setSelectedGender("اختر الجنس");
-
-              setLocalFilters({
-                category: "",
-                sort: "",
-                rating: "",
-                gender: "",
-                search: "",
-              });
-            }}
-            className="px-4 py-4 rounded-2xl outline outline-orange-500 text-orange-500 font-semibold cursor-pointer"
-          >
-            حذف
-          </div>
-        </div>
+          تطبيق
+        </button>
       </div>
     </BottomDrawer>
   );

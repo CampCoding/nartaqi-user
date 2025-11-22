@@ -23,7 +23,6 @@ const CourseCard = ({
   isInFav = false,
 }) => {
   const width = freeWidth ? "w-full " : "w-full lg:max-w-[351px]";
-  console.log(payload);
 
   const { token } = useSelector((state) => state.auth);
   const Button = () => {
@@ -274,7 +273,7 @@ export const MobileCourseCard = ({ freeWidth }) => {
   };
 
   const width = freeWidth ? "w-full" : "w-[351px]";
-  console.log(payload?.fav);
+
   return (
     <article
       className={`flex flex-col ${width} items-start gap-2 pt-0 pb-2 px-0 relative bg-white rounded-[20px] overflow-hidden border-2 border-solid border-variable-collection-stroke`}

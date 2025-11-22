@@ -54,7 +54,7 @@ const CategorySection = ({ category, color, index }) => {
           </div>
         </div>
 
-        <Link href={`/courses?category=${category.id}`}>
+        <Link href={`/courses/${category.id}`}>
           <div
             className={`inline-flex items-center justify-center gap-2.5 px-4 py-3 md:px-8 md:py-5 relative bg-bg rounded-[15px] md:rounded-[25px] border border-solid ${colors.border} ${colors.hover} group cursor-pointer transition-all duration-300 ease-in-out`}
           >
@@ -70,7 +70,10 @@ const CategorySection = ({ category, color, index }) => {
       {/* Cards Grid */}
       <div className="gap-4 md:gap-6 grid grid-cols-2 md:grid-cols-4">
         {categoryParts?.map((item) => (
-          <Link href={`/courses/${item.id}`} key={item.id}>
+          <Link
+            href={`/courses/${category.id}?category=${item.id}&&categoryName=${item.name}`}
+            key={item.id}
+          >
             <div className="md:block hidden">
               <CoursesCategoryCard
                 color={color}
