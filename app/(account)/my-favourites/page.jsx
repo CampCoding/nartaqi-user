@@ -17,6 +17,7 @@ const MyFavourites = () => {
 
   // فلترة أو تجهيز الداتا لو محتاج
   const displayedCourses = data?.message || [];
+  console.log(data?.message);
 
   if (isLoading) return <LoadingPage />;
 
@@ -31,23 +32,21 @@ const MyFavourites = () => {
           {displayedCourses.map((course) => {
             const payload = {
               id: course?.round.id,
-              name: course?.round.name,
-              goal: course?.round.description,
-              image_url: course?.round.image_url || "",
-              start_date: course?.round.start_date,
-              free: course?.free,
-              price: course?.round.price,
-              enrolled: false,
-
+              name: course.round.name,
+              description: course?.round?.description,
+              image_url: course?.round?.image_url,
+              start_date: course.round.start_date,
+              free: course?.round?.free,
+              price: course?.round?.price,
+              capacity: course?.round?.capacity,
+              favorite: true,
+              enrolled: true,
               course: {
-                name: course?.round?.course_categories?.name || "",
+                name: course?.round.category_part || "تكنولوجيا التعليم ",
               },
-
-              teacher: {
-                id: course?.teacher?.id || "",
-                name: course?.teacher?.name || "",
-                image_url: course?.teacher?.image_url || "",
-              },
+              teacher: [{ name }] || [],
+              rating: course.round.rate || 0,
+              totalRates: course.round.totalRate || 0,
             };
 
             return (

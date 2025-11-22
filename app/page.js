@@ -20,9 +20,7 @@ export default function Home() {
 
   // Loading State
   if (isLoading) {
-    return (
-     <LoadingPage />
-    );
+    return <LoadingPage />;
   }
 
   // Error State

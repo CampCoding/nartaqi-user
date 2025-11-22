@@ -13,7 +13,7 @@ export default function useAddToFavorite() {
       {
         headers: {
           Accept: "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, 
         },
       }
     );
