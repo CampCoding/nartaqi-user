@@ -57,9 +57,9 @@ const FreeCourses = () => {
               ]}
             />
             <Container className=" my-[32px]">
-              <div className="  mb-[32px] md:mb-[48px]">
+              {/*    <div className="  mb-[32px] md:mb-[48px]">
                 <CoursesFilters />
-              </div>
+              </div> */}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-colss-2 lg:grid-cols-3 gap-4 sm-gap-6 md:gap-[32px] lg:gap-[42px] ">
                 {data?.pages?.map((page, index) => (
@@ -70,24 +70,24 @@ const FreeCourses = () => {
                       const payload = {
                         id: course?.id,
                         name: course?.name,
-                        goal: course?.goal,
+                        description: course?.description,
                         image_url: course?.image_url || "",
                         start_date: course?.start_date,
                         free: course.free,
-
-                        enrolled: false, // هنا بتحدد هو Enrolled ولا لا
-
-                        // دي جاية من API → payload.course.name
+                        price: course?.price,
+                        enrolled: course?.own,
+                        favorite: course?.fav,
+                        roundBook: course?.round_road_map_book,
+                        rating: course?.average_rating,
+                        totalRates: course?.ratings_count,
+                        capacity: course?.capacity,
                         course: {
-                          name: course?.course_categories?.name,
+                          name: course?.category_parts_name,
                         },
-
-                        // دي جاية من API → payload.teacher.*
-                        teacher: {
-                          id: course?.teacher?.id,
-                          name: course?.teacher?.name,
-                          image_url: course?.teacher.image_url,
-                        },
+                        teacher: course?.teachers?.map((teacher) => ({
+                          name: teacher?.name,
+                          image_url: teacher?.image_url,
+                        })),
                       };
                       return (
                         <CourseCard

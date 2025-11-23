@@ -13,18 +13,15 @@ import NewestBlogs from "../components/Home/NewestBlogs";
 import { MobileHero } from "../components/Home/Hero.mobile";
 import { useHomeData } from "../hooks/useHomeData";
 import { Icon } from "@iconify/react";
+import LoadingPage from "../components/shared/Loading";
 
 export default function Home() {
   const { data, isLoading, isError, error, refetch } = useHomeData();
+  console.log(error);
 
   // Loading State
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen gap-3">
-        <Icon icon="eos-icons:loading" className="w-8 h-8 text-primary" />
-        <span className="text-lg">جاري التحميل...</span>
-      </div>
-    );
+    return <LoadingPage />;
   }
 
   // Error State
@@ -37,7 +34,9 @@ export default function Home() {
             className="w-16 h-16 text-red-600 mx-auto"
           />
           <h2 className="text-2xl font-bold text-red-600">حدث خطأ</h2>
-          <p className="text-gray-600">{error || "فشل تحميل البيانات"}</p>
+          <p className="text-gray-600">
+            {error.response.data.message || "فشل تحميل البيانات"}
+          </p>
           <button
             onClick={refetch}
             className="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 mx-auto"

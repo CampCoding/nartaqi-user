@@ -1,123 +1,151 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import PagesBanner from "../../../components/ui/PagesBanner";
 import CoursesFilters from "../../../components/ui/CoursesFilters";
 import CourseCard from "../../../components/ui/Cards/CourseCard";
-
 import Container from "../../../components/ui/Container";
 import { useGetCourseRounds } from "../../../components/shared/Hooks/useGetCourseRounds";
 import LoadingPage from "../../../components/shared/Loading";
-import { Link } from "lucide-react";
 import LoadingContent from "../../../components/shared/LoadingContent";
-import { TestimonialCard } from "../../../components/Testimonials";
 import TeachersTestimonials from "../../../components/Teachers/TeachersTestimonials";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
+import {
+  buildFiltersQuery,
+  normalizeFilters,
+} from "../../../components/utils/helpers/filter";
 
 const TeachersCourses = () => {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, loading } =
-    useGetCourseRounds();
   const { id } = useParams();
-  console.log(id);
-  
-  console.log(data?.pages);
-  const loadMoreRef = useRef(null);
-  /* 
+  const searchParams = useSearchParams();
+  const category = searchParams.get("category");
+
+  //////////////////////////////////////////////////////////////////////
+  // FILTERS STATE — TRUE SOURCE OF DATA
+  //////////////////////////////////////////////////////////////////////
+  const [filters, setFilters] = useState({
+    search: "",
+    category: category ? category : "",
+    sort: "",
+    rating: "",
+    type: "",
+    gender: "",
+    level: "",
+  });
+
+  //////////////////////////////////////////////////////////////////////
+  // API PARAMS
+  //////////////////////////////////////////////////////////////////////
+  const apiParams = useMemo(() => {
+    const normalized = normalizeFilters(filters);
+    const q = buildFiltersQuery(normalized);
+    q.course_category_id = id;
+    return q;
+  }, [filters, id]);
+
+  //////////////////////////////////////////////////////////////////////
+  // QUERY
+  //////////////////////////////////////////////////////////////////////
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    loading,
+    refetch,
+  } = useGetCourseRounds(apiParams);
+
   useEffect(() => {
-    if (!hasNextPage) return;
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !isFetchingNextPage) {
-        fetchNextPage();
-      }
-    });
-    observer.observe(loadMoreRef.current);
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage]); */
+    refetch();
+  }, [apiParams]);
 
   return (
     <div>
-      {/* variant = "large" or "normal" */}
-
       {loading ? (
-        <>
-          <LoadingPage />
-        </>
+        <LoadingPage />
       ) : (
         <>
           <PagesBanner
-            variant={"normal"}
+            variant="normal"
             title="الرخصة المهنية"
-            image={"/images/Frame 1000005155.png"}
+            image="/images/Frame 1000005155.png"
           />
-          <Container className=" mt-[32px]">
-            <div className="  mb-[32px] md:mb-[48px]">
-              <CoursesFilters />
+
+          <Container className="mt-[32px]">
+            {/* FILTERS */}
+            <div className="mb-[32px] md:mb-[48px]">
+              <CoursesFilters
+                filters={filters} // IMPORTANT
+                onFiltersChange={setFilters}
+              />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-colss-2 lg:grid-cols-3 gap-4 sm-gap-6 md:gap-[32px] lg:gap-[42px] ">
+
+            {/* COURSES LIST */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {data?.pages?.map((page, index) => (
                 <React.Fragment key={index}>
                   {page?.data.message.map((course) => {
                     const payload = {
                       id: course?.id,
                       name: course?.name,
-                      goal: course?.goal,
+                      description: course?.description,
                       image_url: course?.image_url || "",
                       start_date: course?.start_date,
                       free: course.free,
                       price: course?.price,
-                      enrolled: false, // هنا بتحدد هو Enrolled ولا لا
+                      enrolled: course?.own,
+                      favorite: course?.fav,
+                      roundBook: course?.round_road_map_book,
+                      rating: course?.average_rating,
+                      totalRates: course?.ratings_count,
+                      capacity: course?.capacity,
                       course: {
-                        name: course?.course_categories?.name,
+                        name: course?.category_parts_name,
                       },
-
-                      // دي جاية من API → payload.teacher.*
-                      teacher: {
-                        id: course?.teacher?.id,
-                        name: course?.teacher?.name,
-                        image_url: course?.teacher?.image_url,
-                      },
+                      teacher: course?.teachers.map((teacher) => ({
+                        name: teacher?.name,
+                        image_url: teacher?.image_url,
+                      })),
                     };
+
                     return (
                       <CourseCard
+                        key={course?.id}
                         isRegistered
-                        course={course}
-                        payload={payload}
-                        freeWidth={true}
-                        type="0"
                         buttonStyle=""
+                        payload={payload}
+                        freeWidth
+                        type="0"
                       />
                     );
                   })}
                 </React.Fragment>
               ))}
             </div>
-            <div className="flex justify-center items-center">
-              <div
-                ref={loadMoreRef}
-                className="py-6 text-center text-neutral-600 text-sm"
-              >
-                {isFetchingNextPage && (
-                  <div className="w-full flex justify-center items-center h-[200px] ">
-                    <LoadingContent />
-                  </div>
-                )}
 
-                {hasNextPage && !isFetchingNextPage && (
-                  <button
-                    onClick={fetchNextPage}
-                    className="flex-1 px-3 sm:px-4 py-3 bg-secondary rounded-[8px] sm:rounded-[10px] flex justify-center items-center gap-2.5 transition-shadow duration-200 hover:shadow-[0_4px_12px_rgba(59,130,246,0.25)] text-bg text-xs sm:text-sm font-semibold"
-                  >
-                    تحميل المزيد
-                  </button>
-                )}
+            {/* LOAD MORE */}
+            <div className="flex justify-center items-center mt-6">
+              {isFetchingNextPage && (
+                <div className="flex justify-center h-[200px]">
+                  <LoadingContent />
+                </div>
+              )}
 
-                {!hasNextPage && (
-                  <p className="text-gray-400 mt-2">
-                    لا يوجد المزيد من النتائج
-                  </p>
-                )}
-              </div>
+              {hasNextPage && !isFetchingNextPage && (
+                <button
+                  onClick={fetchNextPage}
+                  className="px-4 py-3 bg-secondary rounded-[10px] text-white font-semibold"
+                >
+                  تحميل المزيد
+                </button>
+              )}
+
+              {!hasNextPage && (
+                <p className="text-gray-400 mt-2">لا يوجد المزيد من النتائج</p>
+              )}
             </div>
           </Container>
+
           <TeachersTestimonials title="أراء الطلاب" />
         </>
       )}

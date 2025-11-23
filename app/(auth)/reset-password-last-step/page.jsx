@@ -13,21 +13,10 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { clearResetPasswordData } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
 import LoadingPage from "../../../components/shared/Loading.jsx";
+import { getExecutionDateTime } from "../../../components/utils/helpers/GetDeviceTime";
 
 // ✅ Schema التحقق من الباسورد
-export function getExecutionDateTime() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
 
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  const seconds = String(now.getSeconds()).padStart(2, "0");
-
-  const formatted = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  return formatted;
-}
 const ResetPasswordLastStep = () => {
   const { resetPassword } = useSelector((state) => state.auth);
   const router = useRouter();

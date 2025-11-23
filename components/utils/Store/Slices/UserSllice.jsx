@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import toast from "react-hot-toast";
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-console.log(baseUrl);
+
 
 export const getUserDate = createAsyncThunk(
   "user/getUserDate",

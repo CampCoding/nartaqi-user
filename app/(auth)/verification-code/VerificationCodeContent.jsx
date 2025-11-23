@@ -17,7 +17,7 @@ import {
   signupUser,
   userSignUpdata,
 } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
-import { getExecutionDateTime } from "../reset-password-last-step/page.jsx";
+import { getExecutionDateTime } from "../../../components/utils/helpers/GetDeviceTime";
 
 const VerificationCode = () => {
   const { userSignUpdata } = useSelector((state) => state.auth);

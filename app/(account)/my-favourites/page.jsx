@@ -10,11 +10,14 @@ import { set } from "react-hook-form";
 const MyFavourites = () => {
   const { token } = useSelector((state) => state.auth);
 
+  const [isRegistered, useIsRegistered] = useState(!!token);
+
   // 👈 هنا مكان الـ Hook الصح
   const { data, isLoading } = useGetUserFavorite(token);
 
   // فلترة أو تجهيز الداتا لو محتاج
   const displayedCourses = data?.message || [];
+  console.log(data?.message);
 
   if (isLoading) return <LoadingPage />;
 
@@ -25,33 +28,31 @@ const MyFavourites = () => {
       </h1>
 
       {displayedCourses.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-[32px] lg:gap-[42px] place-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-[32px] lg:gap-[42px] place-items-center">
           {displayedCourses.map((course) => {
             const payload = {
               id: course?.round.id,
-              name: course?.round.name,
-              goal: course?.round.goal,
-              image_url: course?.round.image_url || "",
-              start_date: course?.round.start_date,
-              free: course?.free,
-              price: course?.round.price,
-              enrolled: false,
-
+              name: course.round.name,
+              description: course?.round?.description,
+              image_url: course?.round?.image_url,
+              start_date: course.round.start_date,
+              free: course?.round?.free,
+              price: course?.round?.price,
+              capacity: course?.round?.capacity,
+              favorite: true,
+              enrolled: true,
               course: {
-                name: course?.round?.course_categories?.name || "",
+                name: course?.round.category_part || "تكنولوجيا التعليم ",
               },
-
-              teacher: {
-                id: course?.teacher?.id || "",
-                name: course?.teacher?.name || "",
-                image_url: course?.teacher?.image_url || "",
-              },
+              teacher: [{ name }] || [],
+              rating: course.round.rate || 0,
+              totalRates: course.round.totalRate || 0,
             };
 
             return (
               <CourseCard
                 key={course.id}
-                isRegistered
+                isRegistered={isRegistered}
                 course={course}
                 payload={payload}
                 freeWidth={true}

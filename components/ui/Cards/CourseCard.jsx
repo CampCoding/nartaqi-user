@@ -12,29 +12,48 @@ import { useUser } from "../../../lib/useUser";
 import { Icon } from "@iconify/react";
 import { formatDate, formatDateBackEnd } from "../../utils/helpers/date";
 import { useSelector } from "react-redux";
+import { Avatar, Tooltip } from "antd";
+import useRedirect from "../../shared/Hooks/useRedirect";
+import { saveContent } from "../../utils/Store/Slices/redirectSlice";
+import useHandleFavoriteActions from "../../shared/Hooks/useHandleFavoriteActions";
 
 const CourseCard = ({
   freeWidth = false,
-
   payload = {},
   type = "0",
   buttonStyle = "normal",
   isRegistered = false,
   isInFav = false,
 }) => {
+  const redirect = useRedirect();
   const width = freeWidth ? "w-full " : "w-full lg:max-w-[351px]";
-
+  const { mutate, error, isLoading, data, isError } =
+    useHandleFavoriteActions();
   const { token } = useSelector((state) => state.auth);
+  const handleAddToFavorite = async (id) => {
+    try {
+      console.log("enter");
+      const mustLogin = redirect({
+        token,
+        action: saveContent,
+        payload: {
+          id,
+          type: "favorite",
+          link: window.location.pathname,
+        },
+      });
+      console.log("must login");
 
-  const enrolled = true;
+      if (!mustLogin) return;
 
-  const [isFav, setIsFav] = useState(false);
-
-  useEffect(() => {
-    if (isInFav) {
-      setIsFav(isInFav);
+      const payload = {
+        round_id: id,
+      };
+      mutate({ id, payload });
+    } catch (error) {
+      console.log(error);
     }
-  }, [isInFav]);
+  };
 
   const Button = () => {
     if (buttonStyle === "normal") {
@@ -99,7 +118,13 @@ const CourseCard = ({
             </div>
             <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
               <div className="flex justify-between gap-5  items-center">
-                <FavIcon onClick={() => setIsFav(!isFav)} isFav={isFav} />
+                <button
+                  onClick={() => {
+                    handleAddToFavorite(payload?.id);
+                  }}
+                >
+                  <FavIcon isFav={payload?.favorite} />
+                </button>
                 {payload?.free !== "0" && (
                   <div className="flex justify-center px-3 py-1  group hover:bg-white hover:text-secondary   rounded-lg items-center bg-secondary">
                     <span className="text-white group-hover:text-secondary transition-all">
@@ -127,7 +152,7 @@ const CourseCard = ({
               </div>
             </div>
             <div className="self-stretch text-right justify-center text-text-alt text-xs sm:text-sm font-normal leading-relaxed">
-              {payload?.goal}
+              {payload?.description}
             </div>
           </div>
 
@@ -187,7 +212,7 @@ const CourseCard = ({
                   </defs>
                 </svg>
                 <div className="justify-center text-text text-[10px] sm:text-xs font-medium">
-                  المقاعد المتبقية: 5
+                  المقاعد المتبقية: {payload?.capacity || 0}
                 </div>
               </div>
             </div>
@@ -199,27 +224,34 @@ const CourseCard = ({
                 </div>
                 <div className="flex justify-start items-center gap-0.5">
                   <div className="justify-center text-text text-[9px] sm:text-[10px] font-medium">
-                    4.5
+                    {payload?.rating?.toFixed(1) || "-"}
                   </div>
                   <div className="w-3 h-3 relative overflow-hidden">
                     <RatingStarIcon />
                   </div>
                 </div>
                 <div className="justify-center text-text text-[9px] sm:text-[10px] font-medium">
-                  (32 تقييمًا)
+                  ({payload?.totalRates || 0})
                 </div>
               </div>
-              <div className="flex justify-start items-center gap-[5px] flex-shrink-0">
-                <img
-                  className="w-5 h-5 sm:w-6 sm:h-6 relative rounded-xl"
-                  src={payload?.teacher?.image_url || "/images/image-24.png"}
-                  onError={(e) => {
-                    e.target.src = "/images/image-24.png";
-                  }}
-                  alt={payload?.teacher?.name}
-                />
-                <div className="justify-center text-text text-[9px] sm:text-[10px] font-medium truncate">
-                  المدرس: {payload?.teacher?.name}
+              <div className="flex flex-col gap-2 justify-center items-center">
+                <div className="flex place-self-start ">
+                  <span className="text-[13px]">المدرسين</span>
+                </div>
+                <div className="flex justify-start items-center gap-[5px] flex-shrink-0">
+                  <Avatar.Group>
+                    {payload?.teacher?.map((instructor) => (
+                      <Tooltip title={instructor?.name}>
+                        <Avatar
+                          src={instructor?.image_url}
+                          onError={() => false}
+                          icon={<img src="/images/Image-48.png" />}
+                          draggable={true}
+                          crossOrigin="anonymous"
+                        />
+                      </Tooltip>
+                    ))}
+                  </Avatar.Group>
                 </div>
               </div>
             </div>

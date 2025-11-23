@@ -1,37 +1,41 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
 import Container from "../../components/ui/Container";
 import { BadgesNavs } from "../(account)/my-badges/page";
+import useGetfaqs from "../../components/shared/Hooks/useGetfaqs";
+
+const categoryMap = {
+  all: "الكل",
+  general_aptitude: "القدرات العامة",
+  technical_support: "الدعم الفني",
+  payment: "التسجيل والدفع",
+  courses: "دورات",
+  general: "عام",
+};
 
 const FAQs = () => {
-  const faqData = [
-    {
-      id: 1,
-      question: "هل التسجيل مجاني أم يحتاج إلى رسوم؟",
-      answer:
-        "التسجيل في المنصة مجاني تماماً، بحيث يمكنك إنشاء حساب والاطلاع على معظم المحتويات الأساسية بدون أي رسوم. ولكن بعض الدورات أو البرامج التدريبية المتقدمة قد تكون مدفوعة، وذلك لضمان جودة المحتوى واستمرارية المنصة. ومع ذلك، نوفر دائماً عدداً من الدورات المجانية ليتمكن الجميع من الاستفادة وتجربة المنصة قبل الاشتراك في البرامج المدفوعة.",
-    },
-    {
-      id: 2,
-      question: "هل يمكن استرجاع رسوم الدورة في حال لم تعجبني؟",
-      answer:
-        "نعم، يمكنك طلب استرجاع الرسوم خلال 7 أيام من تاريخ الدفع إذا لم تبدأ الدورة، وفقاً لسياسة الاسترجاع الخاصة بنا.",
-    },
-    {
-      id: 3,
-      question: "هل يمكنني استخدام المنصة على الهاتف المحمول؟",
-      answer:
-        "بالتأكيد! المنصة متوافقة مع جميع الأجهزة سواء كانت حواسيب أو هواتف ذكية أو أجهزة لوحية.",
-    },
-    {
-      id: 4,
-      question: "هل هناك دعم فني متوفر؟",
-      answer:
-        "نعم، نحن نقدم دعم فني متوفر على مدار الساعة طوال أيام الأسبوع من خلال خدمة الدعم عبر البريد الإلكتروني أو من خلال صفحة الدعم على الموقع.",
-    },
-  ];
+  const { data, error, isLoading } = useGetfaqs();
+  const faqData = data?.message ?? [];
+
+  // Categories extracted from API
+  const categoriesFromAPI = [...new Set(faqData.map((item) => item.category))];
+
+  // Build Navigation Items the same shape as your design
+  const navigationItems = categoriesFromAPI.map((cat, index) => ({
+    id: index + 1,
+    key: cat,
+    text: categoryMap[cat] || cat,
+    active: cat === "all",
+  }));
+
+  const [activeCategory, setActiveCategory] = useState("all");
+
+  const filteredFaqs = useMemo(() => {
+    if (activeCategory === "all") return faqData;
+    return faqData.filter((item) => item.category === activeCategory);
+  }, [activeCategory, faqData]);
 
   return (
     <div>
@@ -51,10 +55,14 @@ const FAQs = () => {
           الأسئلة الشائعة
         </div>
 
-        <BadgesNavs />
+        <NavigationItems
+          items={navigationItems}
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+        />
 
         <div className="mt-8 flex flex-col gap-4 md:gap-6">
-          {faqData.map((item) => (
+          {filteredFaqs?.map((item) => (
             <QuestionAccordion key={item.id} item={item} />
           ))}
         </div>
@@ -67,41 +75,39 @@ const FAQs = () => {
 
 export default FAQs;
 
-export const NavigationItems = () => {
-  const navigationItems = [
-    { id: 1, text: "الدعم الفني", active: false },
-    { id: 2, text: "التسجيل والدفع", active: false },
-    { id: 3, text: "دورات", active: false },
-    { id: 4, text: "عام", active: false },
-    { id: 5, text: "الكل", active: true },
-  ];
-
+export const NavigationItems = ({
+  items,
+  activeCategory,
+  setActiveCategory,
+}) => {
   return (
     <nav
-      className="flex h-[116px] items-center px-4 py-6 relative bg-primary-light rounded-[20px]"
+      className="flex h-[116px] items-center justify-center px-4 py-6 relative bg-primary-light rounded-[20px]"
       role="navigation"
       aria-label="Navigation menu"
     >
-      {navigationItems.reverse().map((item) => (
-        <button
-          key={item.id}
-          className={`${
-            item.padding
-          } rounded-[20px] py-[24px]  px-[64px] items-center justify-center relative flex-[0_0_auto] ${
-            item.active ? "bg-primary" : ""
-          }`}
-          type="button"
-          aria-current={item.active ? "page" : undefined}
-        >
-          <span
-            className={`${
-              item.active ? "text-white text-bold " : "text-text"
-            } relative w-fit text-xl text-center leading-5  whitespace-nowrap overflow-hidden text-ellipsis`}
+      {items
+        .slice()
+
+        .map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveCategory(item.key)}
+            className={`rounded-[20px] py-[24px] px-[64px] flex-[0_0_auto] ${
+              activeCategory === item.key ? "bg-primary" : ""
+            }`}
           >
-            {item.text}
-          </span>
-        </button>
-      ))}
+            <span
+              className={`text-xl ${
+                activeCategory === item.key
+                  ? "text-white font-bold"
+                  : "text-text"
+              }`}
+            >
+              {item.text}
+            </span>
+          </button>
+        ))}
     </nav>
   );
 };
@@ -163,9 +169,9 @@ export const QuestionAccordion = ({ item }) => {
   );
 };
 
-  const AnswerNotFound = () => {
-    return (
-      <div
+const AnswerNotFound = () => {
+  return (
+    <div
       className="
         flex flex-col items-center justify-center
         px-4
@@ -181,25 +187,29 @@ export const QuestionAccordion = ({ item }) => {
       }}
     >
       <div className="w-full max-w-[202px]">
-        <div className="
+        <div
+          className="
           font-bold text-[#2d2d2d] leading-normal text-2xl md:text-[32px] text-center
           overflow-hidden text-ellipsis whitespace-nowrap
           [display:-webkit-box] sm:[-webkit-line-clamp:2] md:[-webkit-line-clamp:1] [-webkit-box-orient:vertical]
-        ">
+        "
+        >
           لم تجد إجابتك؟
         </div>
       </div>
-    
+
       <div className="w-full max-w-[307px] mt-3 md:mt-[24px] mb-6 md:mb-[32px]">
-        <p className="
+        <p
+          className="
           text-text-alt text-xl md:text-2xl text-center leading-normal
           overflow-hidden text-ellipsis
           [display:-webkit-box] sm:[-webkit-line-clamp:2] md:[-webkit-line-clamp:1] [-webkit-box-orient:vertical]
-        ">
+        "
+        >
           فريق الدعم لدينا هنا للمساعدة
         </p>
       </div>
-    
+
       <button
         type="button"
         aria-label="الاتصال الدعم"
@@ -212,15 +222,16 @@ export const QuestionAccordion = ({ item }) => {
           focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2
         "
       >
-        <span className="
+        <span
+          className="
           text-neutral-50 text-sm md:text-base font-bold leading-5 text-center
           overflow-hidden text-ellipsis whitespace-nowrap
           [display:-webkit-box] sm:[-webkit-line-clamp:2] md:[-webkit-line-clamp:1] [-webkit-box-orient:vertical]
-        ">
+        "
+        >
           الاتصال بالدعم
         </span>
       </button>
     </div>
-    
-    );
-  };
+  );
+};

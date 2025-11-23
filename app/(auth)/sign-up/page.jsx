@@ -17,7 +17,8 @@ import axios from "axios";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUpSchema } from "../../../components/utils/Schema/SignupSchema.js";
 import toast from "react-hot-toast";
-import { getExecutionDateTime } from "../reset-password-last-step/page.jsx";
+import { getExecutionDateTime } from "../../../components/utils/helpers/GetDeviceTime";
+
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 const SignUpPage = () => {
   const [value1, setValue1] = useState("Apple");
