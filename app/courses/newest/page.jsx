@@ -70,24 +70,24 @@ const FreeCourses = () => {
                       const payload = {
                         id: course?.id,
                         name: course?.name,
-                        goal: course?.description,
+                        description: course?.description,
                         image_url: course?.image_url || "",
                         start_date: course?.start_date,
                         free: course.free,
-
-                        enrolled: false, // هنا بتحدد هو Enrolled ولا لا
-
-                        // دي جاية من API → payload.course.name
+                        price: course?.price,
+                        enrolled: course?.own,
+                        favorite: course?.fav,
+                        roundBook: course?.round_road_map_book,
+                        rating: course?.average_rating,
+                        totalRates: course?.ratings_count,
+                        capacity: course?.capacity,
                         course: {
-                          name: course?.course_categories?.name,
+                          name: course?.category_parts_name,
                         },
-
-                        // دي جاية من API → payload.teacher.*
-                        teacher: {
-                          id: course?.teacher?.id,
-                          name: course?.teacher?.name,
-                          image_url: course?.teacher.image_url,
-                        },
+                        teacher: course?.teachers?.map((teacher) => ({
+                          name: teacher?.name,
+                          image_url: teacher?.image_url,
+                        })),
                       };
                       return (
                         <CourseCard

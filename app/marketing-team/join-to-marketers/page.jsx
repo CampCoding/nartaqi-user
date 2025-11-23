@@ -95,7 +95,7 @@ const JoinToMarketers = () => {
     }
 
     try {
-      const res = await useApplyMarketer(body); // service function
+      const res = await useApplyMarketer({ payload: body }); // service function
       console.log(res);
     } catch (error) {
       console.log(error);

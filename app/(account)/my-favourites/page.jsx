@@ -28,7 +28,7 @@ const MyFavourites = () => {
       </h1>
 
       {displayedCourses.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-[32px] lg:gap-[42px] place-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-[32px] lg:gap-[42px] place-items-center">
           {displayedCourses.map((course) => {
             const payload = {
               id: course?.round.id,

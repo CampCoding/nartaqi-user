@@ -1,3 +1,4 @@
+// useGetFreeRounds.js
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useSelector } from "react-redux";
@@ -10,11 +11,13 @@ export const useGetFreeRounds = ({ apiParams }) => {
       filters: {
         free: "1",
       },
-      ...apiParams, //highest,lowest
+      ...apiParams,
     };
+
     if (apiParams?.name) {
       payload.filters.name = apiParams.name;
     }
+
     if (user.id) {
       payload.student_id = user.id;
     }
@@ -35,17 +38,17 @@ export const useGetFreeRounds = ({ apiParams }) => {
   };
 
   const query = useInfiniteQuery({
-    queryKey: ["freeRounds"],
+    queryKey: ["freeRounds", apiParams],
     queryFn: fetchCourse,
 
     getNextPageParam: (lastPage) => {
       const current = lastPage?.meta?.current_page;
       const last = lastPage?.meta?.last_page;
-
       return current < last ? current + 1 : undefined;
     },
 
     refetchOnWindowFocus: false,
+    keepPreviousData: true,
   });
 
   return {
@@ -53,7 +56,7 @@ export const useGetFreeRounds = ({ apiParams }) => {
     refetching: query.isFetching,
     data: query.data,
     loading: query.isLoading,
-    error: query.error /* ? query.error?.message : null */,
+    error: query.error,
     fetchNextPage: query.fetchNextPage,
     hasNextPage: query.hasNextPage,
     isFetchingNextPage: query.isFetchingNextPage,

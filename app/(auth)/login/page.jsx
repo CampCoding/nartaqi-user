@@ -2,18 +2,19 @@
 
 import { Radio, Dropdown, Menu } from "antd";
 import React, { useEffect, useState } from "react";
-import RadioButtons from "../../../components/ui/RadioButtons";
 import { SaudiIcon, EgyptianIcon } from "../../../public/svgs";
 import { Eye } from "lucide-react";
 import Link from "next/link";
-import { useUser } from "../../../lib/useUser.jsx";
 import { useRouter } from "next/navigation";
 import Container from "../../../components/ui/Container";
 import { set, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { LoginSchema } from "../../../components/utils/Schema/LoginSchema.js";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
+import {
+  loginMarketer,
+  loginUser,
+} from "../../../components/utils/Store/Slices/authntcationSlice.jsx";
 import toast from "react-hot-toast";
 import LoadingPage from "../../../components/shared/Loading.jsx";
 import SelectType from "./SelectType";
@@ -22,18 +23,20 @@ import SelectType from "./SelectType";
 import { motion, AnimatePresence } from "framer-motion";
 import { Icon } from "@iconify/react";
 
-const typeEnum = {
+export const typeEnum = {
   student: "student",
   marketer: "marketer",
 };
 
 const LoginPage = () => {
   const dispatch = useDispatch();
-  const { user, error, loading } = useSelector((state) => state.auth);
+  const { user, token, error, loading } = useSelector((state) => state.auth);
   const { commentContent, link } = useSelector((state) => state.blog);
   const { content, link: redirectLink } = useSelector(
     (state) => state.redirect
   );
+  /* const token = localStorage.getItem("token"); */
+  console.log(token);
 
   const router = useRouter();
   const [selectedCountry, setSelectedCountry] = useState({
@@ -46,8 +49,6 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [redirect, setRedirect] = useState(false);
   const [type, setType] = useState({});
-  const [submitting, setSubmitting] = useState(false);
-  console.log(type);
 
   const {
     register,
@@ -62,12 +63,12 @@ const LoginPage = () => {
   });
 
   useEffect(() => {
-    if (user) {
+    if (token) {
       router.replace("/");
     }
-  }, [user, router]);
+  }, [token, router]);
 
-  if (user) {
+  if (token) {
     return (
       <Container>
         <LoadingPage />
@@ -76,27 +77,40 @@ const LoginPage = () => {
   }
 
   const onSubmit = async (data) => {
-    let countryCode = selectedCountry.code.slice(1);
-    if (selectedCountry.code === "+20") {
-      data.phone = data.phone.slice(1);
-    }
-
-    const payload = { ...data, phone: `${countryCode}${data.phone}` };
-
     try {
-      const res = await dispatch(loginUser(payload)).unwrap();
-      setRedirect(true);
-      toast.success("اهلاً بعودتك مرة أخرى 🎉");
+      let cleanedPhone = data.phone.replace(/\D/g, "");
 
-      if (redirectLink) {
-        router.push(redirectLink);
+      if (selectedCountry.code === "+20" && cleanedPhone.startsWith("0")) {
+        cleanedPhone = cleanedPhone.substring(1);
+      }
+
+      const finalPhone = `${selectedCountry.code.slice(1)}${cleanedPhone}`;
+
+      const studentPayload = {
+        phone: finalPhone,
+        password: data.password,
+      };
+
+      const marketerPayload = {
+        whatsapp_number: finalPhone,
+        password: data.password,
+      };
+
+      if (!type.id) {
+        toast.error("اختر نوع الحساب أولاً");
         return;
       }
 
-      router.push("/");
-      setTimeout(() => {
-        setRedirect(true);
-      }, 0);
+      if (type.id === typeEnum.student) {
+        await dispatch(loginUser(studentPayload)).unwrap();
+      }
+
+      if (type.id === typeEnum.marketer) {
+        await dispatch(loginMarketer(marketerPayload)).unwrap();
+      }
+
+      toast.success("مرحباً بعودتك 🎉");
+      router.push(redirectLink || "/");
     } catch (err) {
       toast.error(err || "حدث خطأ أثناء تسجيل الدخول");
     }
@@ -104,7 +118,7 @@ const LoginPage = () => {
 
   return (
     <Container className="flex flex-col lg:flex-row lg:justify-between overflow-hidden min-h-[calc(100vh-64px)])">
-      {redirect ? (
+      {false ? (
         <>
           <LoadingPage />
         </>
