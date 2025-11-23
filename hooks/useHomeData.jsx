@@ -6,7 +6,7 @@ import axios from "axios";
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const fetchHomeData = async () => {
-  const { data } = await axios.get(`${BASE_URL}/user/categories/getAllInHome`);
+  const { data } = await axios.post(`${BASE_URL}/user/categories/getAllInHome`);
 
   if (data.status !== "success") {
     throw new Error(data?.message || "Failed to fetch home data");

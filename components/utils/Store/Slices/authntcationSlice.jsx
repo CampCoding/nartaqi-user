@@ -15,6 +15,20 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+export const loginMarketer = createAsyncThunk(
+  "auth/loginMarketer",
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await axios.post(`${baseUrl}/user/marketers/login`, data);
+      console.log(res.data);
+
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response.data.message);
+    }
+  }
+);
 export const signupUser = createAsyncThunk(
   "auth/signupUser",
   async (data, { rejectWithValue }) => {
@@ -87,6 +101,20 @@ const authSlice = createSlice({
       .addCase(signupUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(loginMarketer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.message;
+        state.token = action.payload.message.marketer.token;
+        localStorage.setItem("token", action.payload.message.marketer.token);
+      })
+      .addCase(loginMarketer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(loginMarketer.pending, (state, action) => {
+        state.loading = true;
+        state.error = null;
       });
   },
 });

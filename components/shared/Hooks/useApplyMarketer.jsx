@@ -7,12 +7,10 @@ export default async function useApplyMarketer({ payload }) {
       `${process.env.NEXT_PUBLIC_API_URL}/user/marketers/apply`,
       payload,
       {
-        headers: {
-          Accept: "application/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       }
     );
-    if (res.data.statusCode === 200) {
+    if (res.data.statusCode === 201) {
       toast.success("تم التقديم بنجاح");
     }
     return res.data;
