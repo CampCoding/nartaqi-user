@@ -75,27 +75,31 @@ const JoinToMarketers = () => {
     }
   };
   const handleFinalSubmit = async () => {
-    const data = getValues(); // من react-hook-form
+    const data = getValues(); // from react-hook-form
 
-    const body = {
-      name: data.fullName,
-      email: data.email,
-      national_id: data.idNumber,
-      city: data.city,
-      description: data.bio,
-      cv: data.cvFile,
-      account_owner: data.bankOwner,
-      account_number: data.accountNumber,
-      iban_number: data.iban,
-      whatsapp_number: data.whatsapp,
-    };
+    const body = new FormData();
+
+    body.append("name", data.fullName);
+    body.append("email", data.email);
+    body.append("national_id", data.idNumber);
+    body.append("city", data.city);
+    body.append("description", data.bio);
+    body.append("account_owner", data.bankOwner);
+    body.append("account_number", data.accountNumber);
+    body.append("iban_number", data.iban);
+    body.append("whatsapp_number", data.whatsapp);
+
+    // ملف ال CV
+    if (data.cvFile instanceof File) {
+      body.append("cv", data.cvFile);
+    }
+
     try {
-      const res = useApplyMarketer({
-        payload: body,
-      });
-    } catch (error) {}
-
-    console.log(body);
+      const res = await useApplyMarketer({ payload: body }); // service function
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <div className="pb-[46px]">

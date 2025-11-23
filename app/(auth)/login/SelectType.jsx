@@ -1,20 +1,19 @@
 import { Icon } from "@iconify/react";
 import React from "react";
+export const options = [
+  {
+    id: "marketer",
+    label: "مسوق",
+    icon: "fluent-mdl2:telemarketer",
+  },
+  {
+    id: "student",
+    label: "متدرب",
+    icon: "ph:student",
+  },
+];
 
 export default function SelectType({ type, setType, setShowLogin }) {
-  const options = [
-    {
-      id: "marketer",
-      label: "مسوق",
-      icon: "fluent-mdl2:telemarketer",
-    },
-    {
-      id: "student",
-      label: "متدرب",
-      icon: "ph:student",
-    },
-  ];
-
   return (
     <div className="flex justify-center h-[81vh] items-center mx-auto flex-col py-10 md:py-16 lg:py-20 px-4 max-w-[640px] w-full">
       {/* Logo & Title */}

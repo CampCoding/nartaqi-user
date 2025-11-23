@@ -219,6 +219,7 @@ export const AddBlogComment = ({ id, token }) => {
         commentContent: data.comment,
         rateing: rating,
         link: window.location.pathname,
+        
       },
     });
 

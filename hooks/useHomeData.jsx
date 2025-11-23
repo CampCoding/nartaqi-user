@@ -1,58 +1,26 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+const fetchHomeData = async () => {
+  const { data } = await axios.post(`${BASE_URL}/user/categories/getAllInHome`);
+
+  if (data.status !== "success") {
+    throw new Error(data?.message || "Failed to fetch home data");
+  }
+
+  return data.message;
+};
+
 export const useHomeData = () => {
-  const [data, setData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const [error, setError] = useState(null);
-  const { user } = useSelector((state) => state.auth);
-
-  // console.log(user, "user");
-
-  const fetchHomeData = async () => {
-    try {
-      setIsLoading(true);
-      setIsError(false);
-      setError(null);
-
-      const response = await axios.post(
-        `${BASE_URL}/user/categories/getAllInHome`,
-        { student_id: user?.id }
-      );
-
-      if (response.data.status !== "success") {
-        throw new Error(`HTTP error! status: ${response.data.statusCode}`);
-      }
-
-      setData(response.data?.message);
-    } catch (err) {
-      setIsError(true);
-      setError(err.message || "فشل تحميل البيانات");
-      console.error("Error fetching home data:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchHomeData();
-  }, []);
-
-  const refetch = () => {
-    fetchHomeData();
-  };
-
-  return {
-    data,
-    isLoading,
-    isError,
-    error,
-    refetch,
-  };
+  return useQuery({
+    queryKey: ["homeData"],
+    queryFn: fetchHomeData,
+    staleTime: 1000 * 60 * 5, // 5 mins cache
+    retry: 2,
+    refetchOnWindowFocus: false,
+  });
 };

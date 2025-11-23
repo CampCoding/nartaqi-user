@@ -13,6 +13,9 @@ import { Icon } from "@iconify/react";
 import { formatDate, formatDateBackEnd } from "../../utils/helpers/date";
 import { useSelector } from "react-redux";
 import { Avatar, Tooltip } from "antd";
+import useRedirect from "../../shared/Hooks/useRedirect";
+import { saveContent } from "../../utils/Store/Slices/redirectSlice";
+import useHandleFavoriteActions from "../../shared/Hooks/useHandleFavoriteActions";
 
 const CourseCard = ({
   freeWidth = false,
@@ -22,10 +25,36 @@ const CourseCard = ({
   isRegistered = false,
   isInFav = false,
 }) => {
+  const redirect = useRedirect();
   const width = freeWidth ? "w-full " : "w-full lg:max-w-[351px]";
-  console.log(payload);
-
+  const { mutate, error, isLoading, data, isError } =
+    useHandleFavoriteActions();
   const { token } = useSelector((state) => state.auth);
+  const handleAddToFavorite = async (id) => {
+    try {
+      console.log("enter");
+      const mustLogin = redirect({
+        token,
+        action: saveContent,
+        payload: {
+          id,
+          type: "favorite",
+          link: window.location.pathname,
+        },
+      });
+      console.log("must login");
+
+      if (!mustLogin) return;
+
+      const payload = {
+        round_id: id,
+      };
+      mutate({ id, payload });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const Button = () => {
     if (buttonStyle === "normal") {
       return (
@@ -89,7 +118,13 @@ const CourseCard = ({
             </div>
             <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
               <div className="flex justify-between gap-5  items-center">
-                <FavIcon isFav={payload?.favorite} />
+                <button
+                  onClick={() => {
+                    handleAddToFavorite(payload?.id);
+                  }}
+                >
+                  <FavIcon isFav={payload?.favorite} />
+                </button>
                 {payload?.free !== "0" && (
                   <div className="flex justify-center px-3 py-1  group hover:bg-white hover:text-secondary   rounded-lg items-center bg-secondary">
                     <span className="text-white group-hover:text-secondary transition-all">
@@ -211,6 +246,8 @@ const CourseCard = ({
                           src={instructor?.image_url}
                           onError={() => false}
                           icon={<img src="/images/Image-48.png" />}
+                          draggable={true}
+                          crossOrigin="anonymous"
                         />
                       </Tooltip>
                     ))}
@@ -274,7 +311,7 @@ export const MobileCourseCard = ({ freeWidth }) => {
   };
 
   const width = freeWidth ? "w-full" : "w-[351px]";
-  console.log(payload?.fav);
+
   return (
     <article
       className={`flex flex-col ${width} items-start gap-2 pt-0 pb-2 px-0 relative bg-white rounded-[20px] overflow-hidden border-2 border-solid border-variable-collection-stroke`}
