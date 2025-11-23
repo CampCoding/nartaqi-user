@@ -11,13 +11,40 @@ import {
 } from "../../public/svgs";
 import Link from "next/link";
 
-const CourseDetailsCard = () => {
+const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
+  const { round } = courseData;
+
+  // حساب متوسط التقييم
+  const calculateRating = () => {
+    const rates = courseData.roundRate || [];
+    if (rates.length === 0) return 0;
+    const sum = rates.reduce((acc, curr) => acc + curr.rate, 0);
+    return (sum / rates.length).toFixed(1);
+  };
+
+  // تنسيق التاريخ
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ar-EG", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // Gender mapping
+  const genderMap = {
+    male: "معلمين",
+    female: "معلمات",
+    both: "الجميع",
+  };
+
   return (
     <div className="w-full max-w-[460px] px-5 pt-6 relative bg-white rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] overflow-hidden">
       <div
         className="w-full h-60 relative bg-black/20 rounded-[28px] overflow-hidden"
         style={{
-          backgroundImage: `url('${"/images/Frame 1000004932.png"}')`,
+          backgroundImage: `url('${round.image_url}')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -25,9 +52,8 @@ const CourseDetailsCard = () => {
       >
         <div className="absolute inset-0 bg-gradient-to-b to-black/40 via-black/20 from-transparent"></div>
 
-        {/* Centered play button for responsive correctness */}
         <Link
-          href={"/course-preview/123"}
+          href={`/course-preview/${round.id}`}
           className="absolute inset-0 flex items-center justify-center"
         >
           <div className="p-4 bg-secondary rounded-full shadow-[0px_0px_40px_0px_rgba(249,115,22,1)] inline-flex justify-center items-center overflow-hidden">
@@ -56,14 +82,14 @@ const CourseDetailsCard = () => {
           <div className="flex justify-start w-[200px] items-center gap-2">
             <CalenderStartIcon />
             <div className="justify-center text-text text-sm font-medium">
-              تاريخ البداية : 15 فبراير 2026
+              تاريخ البداية : {formatDate(round.start_date)}
             </div>
           </div>
 
           <div className="flex justify-start w-[200px] items-center gap-2">
             <CalenderEndIcon />
             <div className="justify-center text-text text-sm font-medium">
-              تاريخ الإنتهاء : 15 مايو 2026
+              تاريخ الإنتهاء : {formatDate(round.end_date)}
             </div>
           </div>
         </div>
@@ -72,14 +98,14 @@ const CourseDetailsCard = () => {
           <div className="flex justify-start w-[200px] items-center gap-2">
             <GenderIcon />
             <div className="justify-center text-text text-sm font-medium">
-              النوع : معلمين
+              النوع : غير محدد
             </div>
           </div>
 
           <div className="flex justify-start w-[200px] items-center gap-2">
             <SeatsIcon />
             <div className="justify-center text-text text-sm font-medium">
-              المقاعد المتبقية: 5
+              المقاعد المتبقية: {"غير محدد"}
             </div>
           </div>
         </div>
@@ -89,10 +115,10 @@ const CourseDetailsCard = () => {
             <CycleClock />
             <div className="inline-flex justify-start items-center gap-4">
               <div className="text-right justify-center text-text text-sm font-medium">
-                الساعات : 15
+                الساعات : {"غير محدد"}
               </div>
               <div className="text-right justify-center text-text text-sm font-medium">
-                الأيام : 5
+                الأيام : غير محدد
               </div>
             </div>
           </div>
@@ -102,7 +128,7 @@ const CourseDetailsCard = () => {
             <div className="flex items-center gap-1">
               التقييم :
               <div className="flex items-center gap-1">
-                <div>4.5</div>
+                <div>{calculateRating()}</div>
                 <div>
                   <RatingStarIcon />
                 </div>
@@ -113,20 +139,19 @@ const CourseDetailsCard = () => {
       </div>
 
       <div className="pt-4 pb-12">
+        <div className="justify-center text-text-alt line-through decoration-red-600 text-lg font-bold">
+          120 ر.س
+        </div>{" "}
         <div className="self-stretch inline-flex justify-end items-end gap-4">
           <div>
-            <div className="justify-center text-text-alt line-through decoration-red-600 text-lg font-bold">
-              120 ر.س
-            </div>
             <div className="justify-center text-primary text-2xl font-bold">
-              95 ر.س
+              {round.price} ر.س
             </div>
           </div>
           <div className="justify-center text-text text-sm font-medium">
             (شاملة كتاب الدورة بصيغة PDF)
           </div>
         </div>
-
         <div className="mt-4 mb-5 w-full inline-flex justify-end items-center gap-4">
           <button
             type="button"
@@ -139,12 +164,12 @@ const CourseDetailsCard = () => {
 
           <button
             type="button"
+            onClick={onToggleFavorite}
             className="w-12 h-12 p-2 flex justify-center items-center bg-white rounded-xl outline outline-1 outline-offset-[-1px] outline-secondary"
           >
-            <CourseHeartIcon />
+            <CourseHeartIcon fill={round.fav ? "#F97316" : "none"} />
           </button>
         </div>
-
         <button
           type="button"
           className="w-full px-3.5 py-3.5 bg-secondary rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 hover:bg-secondary-warm focus:bg-primary group"

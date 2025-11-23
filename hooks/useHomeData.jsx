@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -10,6 +11,9 @@ export const useHomeData = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState(null);
+  const { user } = useSelector((state) => state.auth);
+
+  // console.log(user, "user");
 
   const fetchHomeData = async () => {
     try {
@@ -17,8 +21,9 @@ export const useHomeData = () => {
       setIsError(false);
       setError(null);
 
-      const response = await axios.get(
-        `${BASE_URL}/user/categories/getAllInHome`
+      const response = await axios.post(
+        `${BASE_URL}/user/categories/getAllInHome`,
+        { student_id: user?.id }
       );
 
       if (response.data.status !== "success") {

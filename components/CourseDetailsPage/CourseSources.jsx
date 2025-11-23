@@ -2,16 +2,25 @@ import React from "react";
 import { DownloadIcon, PeopleGroup, TelegramIcon } from "../../public/svgs";
 import { FileText } from "lucide-react";
 
-const CourseSources = () => {
-  const sources = [
-    { title: "دليل المتدربين", button: "تحميل" },
-    { title: "حاسب معدل الإنجاز", button: "تحميل" },
-    { title: "دليل الأقسام الأساسية", button: "تحميل" },
-    { title: "أوراق العمل", button: "تحميل" },
-    { title: "المجموعات", button: "تحميل" },
-    { title: "ملف الملاحظات", button: "تحميل" },
-    { title: "مراجع إضافية", button: "تحميل" },
-  ];
+const CourseSources = ({ courseData }) => {
+  const { roundResources, round } = courseData;
+
+  // استخراج أول telegram و whatsapp link من الـ resources
+  const getTelegramLink = () => {
+    const resource = roundResources?.find((r) => r.telegram_link);
+    return resource?.telegram_link || "https://t.me/";
+  };
+
+  const getWhatsappLink = () => {
+    const resource = roundResources?.find((r) => r.whatsapp_link);
+    return resource?.whatsapp_link || "https://wa.me/";
+  };
+
+  const handleDownload = (resource) => {
+    if (resource.url) {
+      window.open(resource.url, "_blank");
+    }
+  };
 
   return (
     <section dir="rtl" aria-label="مصادر الدورة" className="w-full !mb-5">
@@ -25,7 +34,7 @@ const CourseSources = () => {
       {/* Quick links */}
       <div className="flex flex-col gap-3.5 sm:gap-5">
         <a
-          href="https://t.me/"
+          href={getTelegramLink()}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-4 sm:gap-6 px-4 py-3.5 sm:px-5 sm:py-5 bg-secondary rounded-[14px] sm:rounded-[18px] hover:opacity-90 transition-opacity no-underline"
@@ -38,7 +47,7 @@ const CourseSources = () => {
         </a>
 
         <a
-          href="https://t.me/"
+          href={getWhatsappLink()}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-4 sm:gap-6 px-4 py-3.5 sm:px-5 sm:py-5 bg-primary rounded-[14px] sm:rounded-[18px] hover:opacity-90 transition-opacity no-underline"
@@ -53,30 +62,49 @@ const CourseSources = () => {
 
       {/* Sources list */}
       <div className="mt-4 sm:mt-5 flex flex-col gap-3.5 sm:gap-5">
-        {sources.map((source, index) => (
-          <div
-            key={index}
-            className="flex items-center justify-between px-3.5 sm:px-4 py-3.5 sm:py-5 bg-white rounded-[14px] sm:rounded-[18px] border border-zinc-200"
-          >
-            <div className="flex items-center gap-2.5 sm:gap-3.5">
-              <FileText className="text-primary w-5 h-5 sm:w-6 sm:h-6" />
-              <h2 className="font-medium text-sm sm:text-base text-zinc-800 leading-normal">
-                {source.title}
-              </h2>
-            </div>
-
-            <button
-              type="button"
-              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-secondary rounded-[10px] sm:rounded-[12px] hover:opacity-90 transition-opacity"
-              aria-label={`تحميل ${source.title}`}
+        {roundResources && roundResources.length > 0 ? (
+          roundResources.map((resource) => (
+            <div
+              key={resource.id}
+              className="flex items-center justify-between px-3.5 sm:px-4 py-3.5 sm:py-5 bg-white rounded-[14px] sm:rounded-[18px] border border-zinc-200"
             >
-              <DownloadIcon />
-              <span className="text-white font-medium text-sm sm:text-base leading-normal">
-                {source.button}
-              </span>
-            </button>
+              <div className="flex items-center gap-2.5 sm:gap-3.5">
+                <FileText className="text-primary w-5 h-5 sm:w-6 sm:h-6" />
+                <div className="flex flex-col">
+                  <h2 className="font-medium text-sm sm:text-base text-zinc-800 leading-normal">
+                    {resource.title || "غير محدد"}
+                  </h2>
+                  {resource.description && (
+                    <p className="text-xs text-text-alt">
+                      {resource.description}
+                    </p>
+                  )}
+                  {/* عرض حجم الملف - غير محدد */}
+                  {/* <span className="text-xs text-text-alt">
+                    {resource.file_size || "غير محدد"}
+                  </span> */}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleDownload(resource)}
+                disabled={!resource.url}
+                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-secondary rounded-[10px] sm:rounded-[12px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label={`تحميل ${resource.title}`}
+              >
+                <DownloadIcon />
+                <span className="text-white font-medium text-sm sm:text-base leading-normal">
+                  تحميل
+                </span>
+              </button>
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-8 text-text-alt">
+            لا توجد مصادر متاحة
           </div>
-        ))}
+        )}
       </div>
     </section>
   );

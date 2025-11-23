@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   CalenderEndIcon,
@@ -6,59 +8,80 @@ import {
   SeatsIcon,
   HeartIcon,
   HeartFillIcon,
+  ShareIcon,
 } from "../../public/svgs";
-import { ShareIcon } from "./../../public/svgs";
 import { ChevronLeft } from "lucide-react";
 import ShareBottomDrawer from "../shared/ShareBottomDrawer";
-const MobileCoursePreview = ({
-  isRegestered,
-  isDone,
-  onClick = () => null,
-}) => {
+import { useRouter } from "next/navigation";
+
+const MobileCoursePreview = ({ courseData, onClick = () => null }) => {
+  const router = useRouter();
   const [openShareDrawer, setOpenShareDrawer] = React.useState(false);
-  const [isFavorited, setIsFavorited] = React.useState(false);
-  const [isStarted, setIsStarted] = React.useState(false);
-  const courseTitle = "دورة مهارات التعامل مع اختبار القدرات العامة";
-  const courseDescription =
-    "في هذه الدورة الشاملة ستتعلم استراتيجيات وأساليب التدريس الفعّال التي تساعدك على توصيل المعلومة بطرق مبتكرة وجاذبة للطلاب. سنبدأ من المبادئ الأساسية للتواصل التعليمي، ثم نتدرج إلى تصميم أنشطة تفاعلية، إدارة الصف، واستخدام أدوات رقمية تدعم عملية التعلم. في نهاية الدورة ستتمكن من تطبيق ما تعلمته في مواقف تدريسية حقيقية لبناء تجربة تعليمية ناجحة.";
+  const [isFavorited, setIsFavorited] = React.useState(
+    courseData?.fav || false
+  );
 
   const handleToggleFavorite = () => {
-    const newFavoritedState = !isFavorited;
-    setIsFavorited(newFavoritedState);
+    setIsFavorited(!isFavorited);
+  };
 
-    // Show toast message
-    setToastMessage(
-      newFavoritedState
-        ? "تم إضافة الدورة إلى المفضلة"
-        : "تم إزالة الدورة من المفضلة"
-    );
-    setShowToast(true);
+  // تنسيق التاريخ
+  const formatDate = (dateString) => {
+    if (!dateString) return "غير محدد";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ar-EG", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
-    // Auto hide toast after 3 seconds
-    setTimeout(() => {
-      setShowToast(false);
-    }, 3000);
+  // حساب المقاعد المتبقية
+  const getRemainingSeats = () => {
+    const capacity = parseInt(courseData?.round?.capacity);
+    const enrolled = parseInt(courseData?.round?.enrolled_students_count); // ← ناقص من API
+
+    if (!capacity || isNaN(capacity)) return "غير محدد";
+    if (!enrolled || isNaN(enrolled)) return "غير محدد"; // ← سيظهر "غير محدد"
+
+    const remaining = capacity - enrolled;
+    return remaining > 0 ? remaining : 0;
+  };
+
+  // ترجمة الجنس
+  const getGenderText = (gender) => {
+    if (!gender) return "غير محدد";
+    switch (gender.toLowerCase()) {
+      case "male":
+        return "طلاب";
+      case "female":
+        return "طالبات";
+      case "both":
+        return "طلاب وطالبات";
+      default:
+        return "غير محدد";
+    }
   };
 
   const courseDetails = [
     {
       id: 1,
-      label: "تاريخ البداية : 15 فبراير 2026",
+      label: `تاريخ البداية : ${formatDate(courseData?.round?.start_date)}`,
       icon: <CalenderStartIcon />,
     },
     {
       id: 2,
-      label: "تاريخ الإنتهاء : 15 مايو 2026",
+      label: `تاريخ الإنتهاء : ${formatDate(courseData?.round?.end_date)}`,
       icon: <CalenderEndIcon />,
     },
     {
       id: 3,
-      label: "المقاعد المتبقية: 5",
+      label: `المقاعد المتبقية: ${getRemainingSeats()}`, // ← سيظهر "غير محدد"
       icon: <SeatsIcon />,
     },
     {
       id: 4,
-      label: "الجنس : طلاب",
+      label: `الجنس : ${getGenderText(courseData?.round?.gender)}`,
       icon: <GenderIcon />,
     },
   ];
@@ -66,9 +89,12 @@ const MobileCoursePreview = ({
   return (
     <main>
       <div
-        className="w-full h-[280px] relative bg-black/20  overflow-hidden mb-[16px]"
+        className="w-full h-[280px] relative bg-black/20 overflow-hidden mb-[16px]"
         style={{
-          backgroundImage: `url('${"/images/daily-competition-image.png"}')`,
+          backgroundImage: `url('${
+            courseData?.round?.image_url ||
+            "/images/daily-competition-image.png"
+          }')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -76,7 +102,6 @@ const MobileCoursePreview = ({
       >
         <div className="absolute inset-0 bg-gradient-to-b to-black/60 via-black/20 from-black/50"></div>
 
-        {/* Centered play button for responsive correctness */}
         <div
           onClick={() => onClick()}
           className="absolute inset-0 flex items-center justify-center"
@@ -105,7 +130,7 @@ const MobileCoursePreview = ({
           <div className="flex items-center gap-[22px]">
             <ShareIcon
               onClick={() => setOpenShareDrawer(true)}
-              className="  stroke-white w-7 h-7 cursor-pointer active:scale-90 transition-all duration-300"
+              className="stroke-white w-7 h-7 cursor-pointer active:scale-90 transition-all duration-300"
             />
             <div
               onClick={handleToggleFavorite}
@@ -121,15 +146,38 @@ const MobileCoursePreview = ({
 
           <ChevronLeft
             onClick={() => router.back()}
-            className="stroke-white w-10 h-10"
+            className="stroke-white w-10 h-10 cursor-pointer"
           />
         </div>
       </div>
+
+      {/* عرض تفاصيل الدورة */}
+      <div className="px-4 space-y-4">
+        <h2 className="text-2xl font-bold text-text">
+          {courseData?.round?.name || "غير محدد"}
+        </h2>
+        <p className="text-text-alt text-sm leading-relaxed">
+          {courseData?.round?.description || "غير محدد"}
+        </p>
+
+        <div className="grid grid-cols-1 gap-3">
+          {courseDetails.map((detail) => (
+            <div
+              key={detail.id}
+              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+            >
+              <div className="w-6 h-6">{detail.icon}</div>
+              <span className="text-sm text-text">{detail.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <ShareBottomDrawer
         open={openShareDrawer}
         onClose={() => setOpenShareDrawer(false)}
-        title="share"
-        url={"https://www.google.com"}
+        title="مشاركة الدورة"
+        url={typeof window !== "undefined" ? window.location.href : ""}
       />
     </main>
   );

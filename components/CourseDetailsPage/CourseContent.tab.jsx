@@ -1,50 +1,78 @@
 "use client";
 
-import React, { useState, useCallback, KeyboardEvent } from "react";
-import {
-  CourseChevronTopIcon,
-  CourseLockIcon,
-  CoursePlayIcon,
-} from "../../public/svgs";
+import React, { useState, useCallback } from "react";
 import CourseContentDrawer from "../ui/CourseContentDrawer";
 import Link from "next/link";
 
-const CourseContent = ({ isRegistered }) => {
+const CourseContent = ({ isRegistered, courseData }) => {
   const [selectedTab, setSelectedTab] = useState("foundation");
+  const { contents, round } = courseData;
+
+  // فلترة المحتوى حسب النوع
+  const foundationContents = contents.filter(
+    (c) => c.content_type === "basic" || c.content_type === "foundation"
+  );
+
+  const lectureContents = contents.filter((c) => c.content_type === "lecture");
+
+  // جمع كل الامتحانات من كل المحتوى
+  const allExams = contents.flatMap((content) => content.exams_round || []);
 
   return (
     <div className="w-full flex-1">
       <div className="text-right justify-center text-primary text-lg md:text-2xl font-bold mb-6 lg:mb-8">
-        محتوي الدورة : إتقان التدريس الفعال
+        محتوي الدورة : {round.name}
       </div>
 
       {isRegistered && (
         <Navs selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       )}
 
-      {/* The content sections below are already structured to be responsive */}
-      {selectedTab == "foundation" && (
+      {selectedTab === "foundation" && (
         <div className="flex flex-col gap-3 md:gap-4">
-          <CourseContentDrawer isRegistered={isRegistered} />
-          <CourseContentDrawer isRegistered={isRegistered} />
-          <CourseContentDrawer isRegistered={isRegistered} />
+          {foundationContents.length > 0 ? (
+            foundationContents.map((content) => (
+              <CourseContentDrawer
+                key={content.id}
+                content={content}
+                isRegistered={isRegistered}
+              />
+            ))
+          ) : (
+            <div className="text-center py-8 text-text-alt">
+              لا يوجد محتوى تأسيسي متاح
+            </div>
+          )}
         </div>
       )}
 
-      {selectedTab == "lectures" && (
+      {selectedTab === "lectures" && (
         <div className="flex flex-col gap-3 md:gap-4">
-          <CourseContentDrawer isRegistered={isRegistered} />
-          <CourseContentDrawer isRegistered={isRegistered} />
-          <CourseContentDrawer isRegistered={isRegistered} />
+          {lectureContents.length > 0 ? (
+            lectureContents.map((content) => (
+              <CourseContentDrawer
+                key={content.id}
+                content={content}
+                isRegistered={isRegistered}
+              />
+            ))
+          ) : (
+            <div className="text-center py-8 text-text-alt">
+              لا توجد محاضرات متاحة
+            </div>
+          )}
         </div>
       )}
 
-      {selectedTab == "tests" && (
+      {selectedTab === "tests" && (
         <div className="flex flex-col gap-3 md:gap-4">
-          <TestRow />
-          <TestRow />
-          <TestRow />
-          <TestRow />
+          {allExams.length > 0 ? (
+            allExams.map((exam) => <TestRow key={exam.id} exam={exam} />)
+          ) : (
+            <div className="text-center py-8 text-text-alt">
+              لا توجد اختبارات متاحة
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -83,11 +111,7 @@ export const Navs = ({ selectedTab, setSelectedTab }) => {
       role="tablist"
       aria-label="أقسام الدورة"
       onKeyDown={onKeyDown}
-      className="
-        flex w-full lg:w-[720px] mb-6 items-center justify-between
-        p-2 lg:p-3 bg-[#ebf3fe] rounded-[20px] lg:rounded-[26px]
-        overflow-x-auto hidden-scroll gap-1 lg:gap-1.5
-      "
+      className="flex w-full lg:w-[720px] mb-6 items-center justify-between p-2 lg:p-3 bg-[#ebf3fe] rounded-[20px] lg:rounded-[26px] overflow-x-auto hidden-scroll gap-1 lg:gap-1.5"
     >
       {tabsData.map((tab) => {
         const selected = selectedTab === tab.id;
@@ -117,30 +141,29 @@ export const Navs = ({ selectedTab, setSelectedTab }) => {
   );
 };
 
-export const TestRow = () => {
-  // SVG components (ChevronLeft, TestIcon) are not changed.
+export const TestRow = ({ exam }) => {
+  const formatTime = (timeString) => {
+    if (!timeString) return "غير محدد";
+    const [hours, minutes] = timeString.split(":");
+    return `${hours} ساعة ${minutes} دقيقة`;
+  };
 
   return (
     <Link
-      href={"/mock-test/123"}
-      // Stacks vertically on mobile, row on desktop. Responsive padding.
+      href={`/mock-test/${exam.id}`}
       className="flex flex-col lg:flex-row items-start lg:items-center group hover:shadow-2xl cursor-pointer duration-75 transition-all justify-between p-4 lg:px-6 lg:py-8 relative bg-white rounded-[20px] border-2 border-solid border-zinc-500 gap-4"
     >
-      {/* Test Title section */}
       <div className="flex items-center gap-3">
-        {/* <TestIcon /> */}
         <p className="group-hover:text-primary transition-all duration-75 font-medium text-text text-sm md:text-base">
-          الأختبار الأول : مدخل إلى التدريس الفعال
+          {exam.title || "غير محدد"}
         </p>
       </div>
 
-      {/* Test Type and Chevron section */}
-      {/* justify-between pushes chevron to the end on mobile */}
       <div className="w-full lg:w-auto flex items-center justify-between lg:justify-start lg:gap-4">
         <div className="font-bold text-primary text-base lg:text-lg">
-          ( اختبار محاكي )
+          ({exam.exam_type === "full_round" ? "اختبار شامل" : "اختبار محاكي"})
         </div>
-        <div className="relative w-6 h-6">{/* <ChevronLeft /> */}</div>
+        <div className="text-text-alt text-sm">{formatTime(exam.time)}</div>
       </div>
     </Link>
   );

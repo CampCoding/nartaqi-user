@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   CalenderEndIcon,
@@ -7,76 +8,78 @@ import {
   CycleClock,
   RatingLike,
   RatingStarIcon,
-  CourseHeartIcon,
   HeartIcon,
-  FileTextIcon,
-  FeaturePlannerFileIcon,
-  CertificationIcon,
   HeartFillIcon,
+  ShareIcon,
 } from "../../public/svgs";
 import Link from "next/link";
-import { ShareIcon } from "./../../public/svgs";
-import { ChevronLeft, FileIcon, FileText, Heart } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Container from "../ui/Container";
-import ShareBottomDrawer from "../shared/ShareBottomDrawer";
 import { useRouter } from "next/navigation";
+
 const MobileCourseDetails = ({
+  courseData,
   isRegestered,
   isDone,
-  isInFavorites,
   onToggleFavorite,
-  onShare
+  onShare,
 }) => {
   const router = useRouter();
   const [isExpanded, setIsExpanded] = React.useState(false);
-  const [openShareDrawer, setOpenShareDrawer] = React.useState(false);
   const [showToast, setShowToast] = React.useState(false);
-  const [toastMessage, setToastMessage] = React.useState("");
 
-  const courseTitle = "دورة مهارات التعامل مع اختبار القدرات العامة";
-  const courseDescription =
-    "في هذه الدورة الشاملة ستتعلم استراتيجيات وأساليب التدريس الفعّال التي تساعدك على توصيل المعلومة بطرق مبتكرة وجاذبة للطلاب. سنبدأ من المبادئ الأساسية للتواصل التعليمي، ثم نتدرج إلى تصميم أنشطة تفاعلية، إدارة الصف، واستخدام أدوات رقمية تدعم عملية التعلم. في نهاية الدورة ستتمكن من تطبيق ما تعلمته في مواقف تدريسية حقيقية لبناء تجربة تعليمية ناجحة.";
+  const { round } = courseData;
 
-  const handleToggleExpand = () => {
-    setIsExpanded(!isExpanded);
+  // حساب متوسط التقييم
+  const calculateRating = () => {
+    const rates = courseData.roundRate || [];
+    if (rates.length === 0) return 0;
+    const sum = rates.reduce((acc, curr) => acc + curr.rate, 0);
+    return (sum / rates.length).toFixed(1);
+  };
+
+  // تنسيق التاريخ
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ar-EG", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // Gender mapping
+  const genderMap = {
+    male: "طلاب",
+    female: "طالبات",
+    both: "الجميع",
   };
 
   const handleToggleFavorite = () => {
     onToggleFavorite();
-
-    // Show toast message
-    setToastMessage(
-      !isInFavorites
-        ? "تم إضافة الدورة إلى المفضلة"
-        : "تم إزالة الدورة من المفضلة"
-    );
     setShowToast(true);
-
-    // Auto hide toast after 3 seconds
-    setTimeout(() => {
-      setShowToast(false);
-    }, 3000);
+    setTimeout(() => setShowToast(false), 3000);
   };
 
   const courseDetails = [
     {
       id: 1,
-      label: "تاريخ البداية : 15 فبراير 2026",
+      label: `تاريخ البداية : ${formatDate(round.start_date)}`,
       icon: <CalenderStartIcon />,
     },
     {
       id: 2,
-      label: "تاريخ الإنتهاء : 15 مايو 2026",
+      label: `تاريخ الإنتهاء : ${formatDate(round.end_date)}`,
       icon: <CalenderEndIcon />,
     },
     {
       id: 3,
-      label: "المقاعد المتبقية: 5",
+      label: `المقاعد المتبقية: ${"غير محدد"}`,
       icon: <SeatsIcon />,
     },
     {
       id: 4,
-      label: "الجنس : طلاب",
+      label: `الجنس : ${"غير محدد"}`,
       icon: <GenderIcon />,
     },
   ];
@@ -84,9 +87,9 @@ const MobileCourseDetails = ({
   return (
     <main>
       <div
-        className="w-full h-[280px] relative bg-black/20  overflow-hidden mb-[16px]"
+        className="w-full h-[280px] relative bg-black/20 overflow-hidden mb-[16px]"
         style={{
-          backgroundImage: `url('${"/images/daily-competition-image.png"}')`,
+          backgroundImage: `url('${round.image_url}')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -94,9 +97,8 @@ const MobileCourseDetails = ({
       >
         <div className="absolute inset-0 bg-gradient-to-b to-black/60 via-black/20 from-black/50"></div>
 
-        {/* Centered play button for responsive correctness */}
         <Link
-          href={"/course-preview/123"}
+          href={`/course-preview/${round.id}`}
           className="absolute inset-0 flex items-center justify-center"
         >
           <div className="p-4 bg-secondary rounded-full shadow-[0px_0px_40px_0px_rgba(249,115,22,1)] inline-flex justify-center items-center overflow-hidden">
@@ -119,17 +121,17 @@ const MobileCourseDetails = ({
           </div>
         </Link>
 
-        <div class="w-full p-5 !pt-10 h-8 relative flex items-center justify-between">
+        <div className="w-full p-5 !pt-10 h-8 relative flex items-center justify-between">
           <div className="flex items-center gap-[22px]">
             <ShareIcon
               onClick={() => onShare(true)}
-              className="  stroke-white w-7 h-7 cursor-pointer active:scale-90 transition-all duration-300"
+              className="stroke-white w-7 h-7 cursor-pointer active:scale-90 transition-all duration-300"
             />
             <div
               onClick={handleToggleFavorite}
               className="cursor-pointer active:scale-90 transition-all duration-300"
             >
-              {isInFavorites ? (
+              {round.fav ? (
                 <HeartFillIcon className="w-8 h-8 !fill-white" />
               ) : (
                 <HeartIcon className="w-7 h-7 fill-white" />
@@ -144,29 +146,27 @@ const MobileCourseDetails = ({
         </div>
       </div>
 
-      <Container className="flex  flex-col items-start gap-4 relative">
-        <h1 className="relative self-stretch text-lg font-bold mt-[-1.00px] font-cairo-bold-lg text-text text-[length:var(--cairo-bold-lg-font-size)] leading-[var(--cairo-bold-lg-line-height)]  flex items-center justify-center tracking-[var(--cairo-bold-lg-letter-spacing)] [direction:rtl] [font-style:var(--cairo-bold-lg-font-style)]">
-          {courseTitle}
+      <Container className="flex flex-col items-start gap-4 relative">
+        <h1 className="relative self-stretch text-lg font-bold mt-[-1.00px] text-text flex items-center justify-center [direction:rtl]">
+          {round.name}
         </h1>
 
-        <div className="flex flex-col  items-center gap-2 relative flex-[0_0_auto]">
+        <div className="flex flex-col items-center gap-2 relative flex-[0_0_auto]">
           <div
             className={`relative self-stretch w-full ${
               isExpanded ? "h-auto" : "h-[50px]"
             } overflow-hidden`}
           >
-            <p className="   font-normal text-[#5e5856] text-[12px] leading-6 flex items-center justify-center tracking-[0] [direction:rtl]">
-              {courseDescription}
+            <p className="font-normal text-[#5e5856] text-[12px] leading-6 flex items-center justify-center tracking-[0] [direction:rtl]">
+              {round.description}
             </p>
           </div>
 
           <button
-            onClick={handleToggleExpand}
+            onClick={() => setIsExpanded(!isExpanded)}
             className="inline-flex items-center justify-center gap-2.5 px-2.5 py-1 relative flex-[0_0_auto] rounded-[10px] border-2 border-solid border-variable-collection-stroke cursor-pointer hover:bg-gray-50 transition-colors"
-            aria-expanded={isExpanded}
-            aria-label={isExpanded ? "عرض أقل" : "عرض المزيد"}
           >
-            <span className="relative w-fit mt-[-2.00px]  font-normal text-black text-xs leading-6 whitespace-nowrap flex items-center justify-center tracking-[0] [direction:rtl]">
+            <span className="relative w-fit mt-[-2.00px] font-normal text-black text-xs leading-6 whitespace-nowrap flex items-center justify-center tracking-[0] [direction:rtl]">
               {isExpanded ? "عرض أقل" : "عرض المزيد"}
             </span>
           </button>
@@ -179,16 +179,9 @@ const MobileCourseDetails = ({
               className="flex items-center justify-start gap-2 relative self-stretch w-full flex-[0_0_auto]"
             >
               {detail.icon}
-
-              {typeof detail.label === "string" ? (
-                <p className="relative flex items-center justify-center w-fit font-cairo-regular-xs font-[number:var(--cairo-regular-xs-font-weight)] text-text text-[12px] text-text text-left   whitespace-nowrap [direction:rtl] ">
-                  {detail.label}
-                </p>
-              ) : (
-                <div className="relative flex items-center justify-center w-fit font-cairo-regular-xs font-[number:var(--cairo-regular-xs-font-weight)] text-text text-[12px] text-text text-left   whitespace-nowrap [direction:rtl] ">
-                  {detail.label}
-                </div>
-              )}
+              <p className="relative flex items-center justify-center w-fit text-text text-[12px] text-left whitespace-nowrap [direction:rtl]">
+                {detail.label}
+              </p>
             </div>
           ))}
 
@@ -197,137 +190,90 @@ const MobileCourseDetails = ({
               <RatingLike />
             </div>
             <div className="inline-flex gap-2 items-center relative flex-[0_0_auto]">
-              <div className="relative flex items-center justify-center w-fit font-cairo-regular-xs font-[number:var(--cairo-regular-xs-font-weight)] text-text text-[12px] text-text text-left   whitespace-nowrap [direction:rtl] ">
+              <div className="relative flex items-center justify-center w-fit text-text text-[12px] whitespace-nowrap [direction:rtl]">
                 التقييم :
               </div>
-              <div className="mt-[-0.50px] relative flex items-center justify-center w-fit font-cairo-regular-xs font-[number:var(--cairo-regular-xs-font-weight)] text-text text-[12px] text-text   whitespace-nowrap ">
-                4.5
+              <div className="mt-[-0.50px] relative flex items-center justify-center w-fit text-text text-[12px] whitespace-nowrap">
+                {calculateRating()}
               </div>
               <RatingStarIcon />
-              {/* <img className="relative w-6 h-6 aspect-[1]" alt="Rate" src={rate1} /> */}
             </div>
           </div>
 
           <div className="flex items-center justify-start gap-2 relative self-stretch w-full flex-[0_0_auto]">
             <CycleClock />
             <div className="inline-flex gap-4 items-center relative flex-[0_0_auto]">
-              <div className="mt-[-1.00px] [direction:rtl] relative flex items-center justify-center w-fit font-cairo-regular-xs font-[number:var(--cairo-regular-xs-font-weight)] text-text-duplicate text-[12px] text-text   whitespace-nowrap ">
-                الساعات : 15
+              <div className="mt-[-1.00px] [direction:rtl] relative flex items-center justify-center w-fit text-text-duplicate text-[12px] whitespace-nowrap">
+                الساعات : {round.time_show || "غير محدد"}
               </div>
-              <div className="mt-[-1.00px] [direction:rtl] relative flex items-center justify-center w-fit font-cairo-regular-xs font-[number:var(--cairo-regular-xs-font-weight)] text-text-duplicate text-[12px] text-text   whitespace-nowrap ">
-                الأيام : 5
+              <div className="mt-[-1.00px] [direction:rtl] relative flex items-center justify-center w-fit text-text-duplicate text-[12px] whitespace-nowrap">
+                الأيام : غير محدد
               </div>
             </div>
           </div>
         </div>
 
-        <>
-          {isRegestered ? (
-            <div className="relative bg-white   w-full   [border-top-style:solid] space-y-4 ">
-              <Link
-                onClick={(e) => isDone != "true" && e.preventDefault()}
-                href={isDone == "true" ? "/register-certificate" : "#"}
-                className={`flex w-full justify-center px-6 py-4  ${
-                  isDone == "true"
-                    ? "bg-primary"
-                    : "bg-[#71717A] cursor-not-allowed"
-                }  rounded-[20px] items-center gap-6`}
-              >
-                <div className="inline-flex relative flex-[0_0_auto] items-center gap-6">
-                  <CertificationIcon width={23} height={29} />
-                  <div className="relative w-fit mt-[-1.00px]  font-bold text-white text-base flex items-center justify-center text-center tracking-[0] leading-[normal] ">
-                    تسجيل بيانات الشهادة
-                  </div>
-                </div>
-              </Link>
-              {!(isDone == "true") && (
-                <p className="  font-medium text-danger text-sm flex items-center justify-center text-center tracking-[0] leading-[normal] ">
-                  أكمل الدورة حتى تتمكن من تسجيل بيانات الشهادة
-                </p>
-              )}
-            </div>
-          ) : (
-            <>
-              <div class="self-stretch px-4 py-2 bg-white rounded-[10px] outline outline-1 outline-offset-[-1px] outline-neutral-400 inline-flex justify-center items-center gap-2">
-                <FileText className="w-5 h-5 " />
-                <div class="text-center justify-center text-zinc-800 text-base font-normal font-['Cairo']">
+        {!isRegestered && (
+          <>
+            {round.round_book && (
+              <div className="self-stretch px-4 py-2 bg-white rounded-[10px] outline outline-1 outline-offset-[-1px] outline-neutral-400 inline-flex justify-center items-center gap-2">
+                <div className="text-center justify-center text-zinc-800 text-base font-normal font-['Cairo']">
                   جدول الدورة
                 </div>
               </div>
+            )}
 
-              <div className=" w-full inline-flex flex-col items-start gap-6 relative">
-                <div className="items-center justify-start gap-2 self-stretch w-full flex-[0_0_auto] flex relative">
-                  <div className="text-primary  text-2xl md:text-[30px] font-bold text-left leading-[var(--cairo-bold-3xl-line-height)] whitespace-nowrap relative flex items-center justify-center w-fit mt-[-1.00px] font-cairo-bold-3xl   [direction:rtl] [font-style:var(--cairo-bold-3xl-font-style)]">
-                    95 ر.س
-                  </div>
-                  <p className="relative flex items-center justify-center w-fit font-cairo-regular-base  text-text-duplicate  text-left tracking-[var(--cairo-regular-base-letter-spacing)] leading-[var(--cairo-regular-base-line-height)] whitespace-nowrap [direction:rtl] [font-style:var(--cairo-regular-base-font-style)]">
-                    (شاملة كتاب الدوره بصيغة PDF)
-                  </p>
+            <div className="w-full inline-flex flex-col items-start gap-6 relative">
+              <div className="items-center justify-start gap-2 self-stretch w-full flex-[0_0_auto] flex relative">
+                <div className="text-primary text-2xl md:text-[30px] font-bold text-left leading-normal whitespace-nowrap relative flex items-center justify-center w-fit mt-[-1.00px] [direction:rtl]">
+                  {round.price} ر.س
                 </div>
+                <p className="relative flex items-center justify-center w-fit text-text-duplicate text-left whitespace-nowrap [direction:rtl]">
+                  (شاملة كتاب الدوره بصيغة PDF)
+                </p>
+              </div>
 
-                <div className="flex-col w-full items-start justify-center gap-5 flex-[0_0_auto] flex relative">
-                  <div className="items-center justify-end gap-6 self-stretch w-full flex-[0_0_auto] flex relative">
-                    <button
-                      className="items-center justify-center gap-2.5 px-2.5 py-4 flex-1 grow bg-white rounded-[20px] border border-solid border-orange-500 flex relative cursor-pointer hover:bg-orange-50 transition-colors"
-                      type="button"
-                      aria-label="أضف الي السلة"
-                    >
-                      <span className="text-orange-500 text-base text-center leading-[normal] relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold tracking-[0] [direction:rtl]">
-                        أضف الي السلة
-                      </span>
-                    </button>
-                  </div>
-
+              <div className="flex-col w-full items-start justify-center gap-5 flex-[0_0_auto] flex relative">
+                <div className="items-center justify-end gap-6 self-stretch w-full flex-[0_0_auto] flex relative">
                   <button
-                    className="items-center justify-center gap-2.5 px-2.5 py-[18px] self-stretch w-full flex-[0_0_auto] bg-orange-500 rounded-[20px] flex relative cursor-pointer hover:bg-orange-600 transition-colors"
+                    className="items-center justify-center gap-2.5 px-2.5 py-4 flex-1 grow bg-white rounded-[20px] border border-solid border-orange-500 flex relative cursor-pointer hover:bg-orange-50 transition-colors"
                     type="button"
-                    aria-label="اشترك الأن"
                   >
-                    <span className="text-[#e8ecf3] text-base text-center leading-[normal] relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold tracking-[0] [direction:rtl]">
-                      اشترك الأن
+                    <span className="text-orange-500 text-base text-center leading-[normal] relative flex items-center justify-center w-fit mt-[-1.00px] font-bold tracking-[0] [direction:rtl]">
+                      أضف الي السلة
                     </span>
                   </button>
                 </div>
+
+                <button
+                  className="items-center justify-center gap-2.5 px-2.5 py-[18px] self-stretch w-full flex-[0_0_auto] bg-orange-500 rounded-[20px] flex relative cursor-pointer hover:bg-orange-600 transition-colors"
+                  type="button"
+                >
+                  <span className="text-[#e8ecf3] text-base text-center leading-[normal] relative flex items-center justify-center w-fit mt-[-1.00px] font-bold tracking-[0] [direction:rtl]">
+                    اشترك الأن
+                  </span>
+                </button>
               </div>
-            </>
-          )}
-        </>
+            </div>
+          </>
+        )}
       </Container>
 
-     
-      {/* Toast Notification */}
       {showToast && (
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-bottom-2 duration-300">
           <div className="bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 max-w-sm mx-4">
             <div className="flex-shrink-0">
-              {isInFavorites ? (
+              {round.fav ? (
                 <HeartFillIcon className="w-5 h-5 text-red-500" />
               ) : (
                 <HeartIcon className="w-5 h-5 text-gray-400" />
               )}
             </div>
             <span className="text-sm font-medium whitespace-nowrap text-center flex-1 [direction:rtl]">
-              {toastMessage}
+              {round.fav
+                ? "تم إضافة الدورة إلى المفضلة"
+                : "تم إزالة الدورة من المفضلة"}
             </span>
-            <button
-              onClick={() => setShowToast(false)}
-              className="flex-shrink-0 text-gray-400 hover:text-white transition-colors"
-              aria-label="إغلاق"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
           </div>
         </div>
       )}

@@ -7,7 +7,7 @@ import CourseAdvantages from "./CourseAdvantages.tab";
 import CourseTermsAndConditions from "./CourseTermsAndConditions";
 import CourseRatings from "./CourseRatings.tab";
 
-const CourseDetailsContent = () => {
+const CourseDetailsContent = ({ courseData }) => {
   const [activeTab, setActiveTab] = useState("overview");
 
   const tabs = [
@@ -20,7 +20,7 @@ const CourseDetailsContent = () => {
 
   return (
     <div className="flex flex-col gap-4 md:gap-[56px]">
-      <div className=" sticky md:static py-4   z-30  bg-white md:bg-transparent top-[83px]  flex flex-wrap gap-8 md:gap-[40px] items-center overflow-auto hidden-scroll">
+      <div className="sticky md:static py-4 z-30 bg-white md:bg-transparent top-[83px] flex flex-wrap gap-8 md:gap-[40px] items-center overflow-auto hidden-scroll">
         {tabs.map((tab) => (
           <div
             key={tab.value}
@@ -32,7 +32,7 @@ const CourseDetailsContent = () => {
             }`}
           >
             <div
-              className={`text-right whitespace-nowrap  justify-center text-lg  ${
+              className={`text-right whitespace-nowrap justify-center text-lg ${
                 activeTab === tab.value
                   ? "text-primary font-bold"
                   : "text-text font-medium"
@@ -44,11 +44,17 @@ const CourseDetailsContent = () => {
         ))}
       </div>
       <div className="mb-10">
-        {activeTab === "overview" && <CourseBriefOverview />}
-        {activeTab === "content" && <CourseContent />}
-        {activeTab === "features" && <CourseAdvantages />}
-        {activeTab === "terms" && <CourseTermsAndConditions />}
-        {activeTab === "reviews" && <CourseRatings />}
+        {activeTab === "overview" && (
+          <CourseBriefOverview courseData={courseData} />
+        )}
+        {activeTab === "content" && <CourseContent courseData={courseData} />}
+        {activeTab === "features" && (
+          <CourseAdvantages courseData={courseData} />
+        )}
+        {activeTab === "terms" && (
+          <CourseTermsAndConditions courseData={courseData} />
+        )}
+        {activeTab === "reviews" && <CourseRatings courseData={courseData} />}
       </div>
     </div>
   );

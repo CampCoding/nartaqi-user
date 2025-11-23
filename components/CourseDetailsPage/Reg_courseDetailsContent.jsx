@@ -3,28 +3,24 @@
 import React, { useEffect, useState } from "react";
 import CourseBriefOverview from "./CourseBriefOverview.tab";
 import CourseContent from "./CourseContent.tab";
-import CourseAdvantages from "./CourseAdvantages.tab";
-import CourseTermsAndConditions from "./CourseTermsAndConditions";
-import CourseRatings from "./CourseRatings.tab";
 import CourseSources from "./CourseSources";
 
-const RegCourseDetailsContent = ({ onTabsChange = () => {} }) => {
+const RegCourseDetailsContent = ({ courseData, onTabsChange = () => {} }) => {
   const [activeTab, setActiveTab] = useState("overview");
 
   const tabs = [
     { label: "معلومات الدورة", value: "overview" },
-    { label: " محتوى الدورة", value: "content" },
+    { label: "محتوى الدورة", value: "content" },
     { label: "مصادر الدورة", value: "sourses" },
   ];
 
-  useEffect(()=>{
-    onTabsChange(activeTab)
-  },[activeTab])
-  
+  useEffect(() => {
+    onTabsChange(activeTab);
+  }, [activeTab, onTabsChange]);
 
   return (
-    <div className="flex flex-col gap-4 md:gap-[56px] ">
-      <div className=" sticky md:static py-4   z-30  bg-white md:bg-transparent top-[83px]  inline-flex gap-8 md:gap-[45px] items-center overflow-auto hidden-scroll">
+    <div className="flex flex-col gap-4 md:gap-[56px]">
+      <div className="sticky md:static py-4 z-30 bg-white md:bg-transparent top-[83px] inline-flex gap-8 md:gap-[45px] items-center overflow-auto hidden-scroll">
         {tabs.map((tab) => (
           <div
             key={tab.value}
@@ -36,7 +32,7 @@ const RegCourseDetailsContent = ({ onTabsChange = () => {} }) => {
             }`}
           >
             <div
-              className={`text-right whitespace-nowrap  justify-center text-lg  ${
+              className={`text-right whitespace-nowrap justify-center text-lg ${
                 activeTab === tab.value
                   ? "text-primary font-bold"
                   : "text-text font-medium"
@@ -48,9 +44,13 @@ const RegCourseDetailsContent = ({ onTabsChange = () => {} }) => {
         ))}
       </div>
       <div className="mb-10">
-        {activeTab === "overview" && <CourseBriefOverview isRegistered />}
-        {activeTab === "content" && <CourseContent isRegistered />}
-        {activeTab === "sourses" && <CourseSources />}
+        {activeTab === "overview" && (
+          <CourseBriefOverview courseData={courseData} isRegistered />
+        )}
+        {activeTab === "content" && (
+          <CourseContent courseData={courseData} isRegistered />
+        )}
+        {activeTab === "sourses" && <CourseSources courseData={courseData} />}
       </div>
     </div>
   );
