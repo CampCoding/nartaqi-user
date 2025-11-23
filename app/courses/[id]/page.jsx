@@ -9,7 +9,7 @@ import { useGetCourseRounds } from "../../../components/shared/Hooks/useGetCours
 import LoadingPage from "../../../components/shared/Loading";
 import LoadingContent from "../../../components/shared/LoadingContent";
 import TeachersTestimonials from "../../../components/Teachers/TeachersTestimonials";
-import { useParams } from "next/navigation";
+import { useParams, usePathname, useSearchParams } from "next/navigation";
 import {
   buildFiltersQuery,
   normalizeFilters,
@@ -18,26 +18,32 @@ import { useGetCategoryPart } from "../../../components/shared/Hooks/useGetCateg
 
 const TeachersCourses = () => {
   const { id } = useParams();
+  const searchParams = useSearchParams();
+  const category = searchParams.get("category");
   const [filters, setFilters] = useState({
     search: "",
-    category: "",
+    category: category ? category : "",
     sort: "",
     rating: "",
     type: "",
     gender: "",
     level: "",
   });
-
-  const {
-    parts,
-    loading: partsLoading,
-    error: partsError,
-  } = useGetCategoryPart(id);
+  console.log(filters);
+  /*  useEffect(() => {
+    if (category) {
+      setFilters((prev) => ({
+        ...prev,
+        category: category,
+      }));
+    }
+  }, [filters]); */
 
   const apiParams = useMemo(() => {
     const normalized = normalizeFilters(filters);
     const q = buildFiltersQuery(normalized);
     q.course_category_id = id;
+
     return q;
   }, [filters, id]);
 
@@ -71,18 +77,13 @@ const TeachersCourses = () => {
 
           <Container className="mt-[32px]">
             <div className="mb-[32px] md:mb-[48px]">
-              <CoursesFilters
-                onFiltersChange={setFilters}
-                categoryParts={parts.message}
-              />
+              <CoursesFilters onFiltersChange={setFilters} />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {data?.pages?.map((page, index) => (
                 <React.Fragment key={index}>
                   {page?.data.message.map((course) => {
-                    console.log(course);
-
                     const payload = {
                       id: course?.id,
                       name: course?.name,

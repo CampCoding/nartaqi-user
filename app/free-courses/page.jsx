@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import PagesBanner from "../../components/ui/PagesBanner";
 import CoursesFilters from "../../components/ui/CoursesFilters";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -15,8 +15,28 @@ import Container from "../../components/ui/Container";
 import { useGetFreeRounds } from "../../components/shared/Hooks/useGetFreeRounds";
 import LoadingContent from "../../components/shared/LoadingContent";
 import LoadingPage from "../../components/shared/Loading";
+import { usePathname } from "next/navigation";
+import {
+  buildFiltersQuery,
+  normalizeFilters,
+} from "../../components/utils/helpers/filter";
 
 const FreeCourses = () => {
+  const [filters, setFilters] = useState({
+    search: "",
+    category: "",
+    sort: "",
+    rating: "",
+    type: "",
+    gender: "",
+    level: "",
+  });
+  const apiParams = useMemo(() => {
+    const normalized = normalizeFilters(filters);
+    const q = buildFiltersQuery(normalized);
+
+    return q;
+  }, [filters]);
   const {
     data,
     loading,
@@ -24,8 +44,14 @@ const FreeCourses = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useGetFreeRounds();
+    refetch,
+    refetching,
+  } = useGetFreeRounds({ apiParams });
+
   const loadMoreRef = useRef(null);
+  const pathName = usePathname();
+
+  const isFree = pathName === "/free-courses" ? true : false;
 
   useEffect(() => {
     if (!hasNextPage) return;
@@ -37,7 +63,10 @@ const FreeCourses = () => {
     observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage]);
-  console.log(isFetchingNextPage);
+
+  useEffect(() => {
+    refetch();
+  }, [apiParams]);
 
   return (
     <>
@@ -65,49 +94,59 @@ const FreeCourses = () => {
             />
             <Container className=" my-[32px]">
               <div className="  mb-[32px] md:mb-[48px]">
-                <CoursesFilters />
+                <CoursesFilters onFiltersChange={setFilters} isFree={isFree} />
               </div>
+              {refetching ? (
+                <>
+                  <LoadingPage />
+                </>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm-gap-6 md:gap-[32px] lg:gap-[42px]">
+                    {data?.pages?.map((page, index) => (
+                      <React.Fragment key={index}>
+                        {page?.data.message.map((course) => {
+                          const payload = {
+                            id: course?.id,
+                            name: course?.name,
+                            description: course?.description,
+                            image_url: course?.image_url || "",
+                            start_date: course?.start_date,
+                            free: course.free,
+                            price: course?.price,
+                            enrolled: course?.own,
+                            favorite: course?.fav,
+                            roundBook: course?.round_road_map_book,
+                            rating: course?.average_rating,
+                            totalRates: course?.ratings_count,
+                            capacity: course?.capacity,
+                            course: {
+                              name: course?.category_parts_name,
+                            },
+                            teacher: course?.teachers?.map((teacher) => ({
+                              name: teacher?.name,
+                              image_url: teacher?.image_url,
+                            })),
+                          };
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-colss-2 lg:grid-cols-3 gap-4 sm-gap-6 md:gap-[32px] lg:gap-[42px] ">
-                {data?.pages?.map((page, index) => (
-                  <React.Fragment key={index}>
-                    {page?.data.message.map((course) => {
-                      const payload = {
-                        id: course?.id,
-                        name: course?.name,
-                        goal: course?.description,
-                        image_url: course?.image_url || "",
-                        start_date: course?.start_date,
-                        free: course.free,
-
-                        enrolled: false, // هنا بتحدد هو Enrolled ولا لا
-
-                        // دي جاية من API → payload.course.name
-                        course: {
-                          name: course?.course_categories.name,
-                        },
-
-                        // دي جاية من API → payload.teacher.*
-                        teacher: {
-                          id: course?.teacher?.id,
-                          name: course?.teacher?.name,
-                          image_url: course?.teacher?.image_url,
-                        },
-                      };
-                      return (
-                        <CourseCard
-                          isRegistered
-                          course={course}
-                          payload={payload}
-                          freeWidth={true}
-                          type="0"
-                          buttonStyle=""
-                        />
-                      );
-                    })}
-                  </React.Fragment>
-                ))}
-              </div>
+                          return (
+                            <CourseCard
+                              key={course?.id}
+                              isRegistered
+                              free={isFree}
+                              course={course}
+                              payload={payload}
+                              freeWidth={true}
+                              type="0"
+                              buttonStyle=""
+                            />
+                          );
+                        })}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </>
+              )}
 
               <div className="flex justify-center items-center">
                 <div

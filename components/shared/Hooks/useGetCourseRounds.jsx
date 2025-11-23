@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 
 export const useGetCourseRounds = (payload) => {
   const { user } = useSelector((state) => state.auth);
-  
 
   // ================================
   //  Build final filters object cleanly
@@ -47,7 +46,7 @@ export const useGetCourseRounds = (payload) => {
 
     return f;
   }, [payload, user]);
-console.log(filters);
+  console.log(filters);
 
   // ================================
   //  API Request

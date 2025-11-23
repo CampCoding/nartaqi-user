@@ -12,19 +12,20 @@ export const useGetCategoryPart = (id) => {
         headers: { Accept: "application/json" },
       }
     );
+    console.log(res);
 
     return res.data;
   };
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["getCategoryPart"],
+    queryKey: ["getCategoryPart", id],
     queryFn: fetchGetCategoryPart,
     retry: 1,
     refetchOnWindowFocus: false,
   });
 
   return {
-    parts: data ?? [],
+    parts: data?.message ?? [],
     loading: isLoading,
     error: isError ? error?.message : null,
   };
