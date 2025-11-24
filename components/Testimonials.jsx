@@ -1,6 +1,6 @@
 import React from "react";
 
-export default TestimonialCard = ({
+const TestimonialCard = ({
   payload = {},
   type = "students",
   freeWidth = false,
@@ -101,7 +101,7 @@ export default TestimonialCard = ({
     </div>
   );
 };
-
+export default TestimonialCard;
 const FilledStarIcon = (props) => (
   <svg
     width="100%"

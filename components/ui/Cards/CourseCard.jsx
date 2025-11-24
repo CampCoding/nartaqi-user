@@ -60,7 +60,9 @@ const CourseCard = ({
       return (
         <Link
           href={
-            isRegistered ? "/course/123?reg=true&done=false" : "/course/123"
+            isRegistered
+              ? `/course/${payload?.id}?reg=true&done=false`
+              : `/course/${payload?.id}`
           }
           className="flex-1 px-3 sm:px-4 py-3 bg-secondary rounded-[8px] sm:rounded-[10px] flex justify-center items-center gap-2.5 transition-shadow duration-200 hover:shadow-[0_4px_12px_var(--color-secondary,rgba(59,130,246,0.25))]"
         >
@@ -76,7 +78,11 @@ const CourseCard = ({
     } else {
       return (
         <Link
-          href={isRegistered ? "/course/123?reg=true&done=true" : "/course/123"}
+          href={
+            isRegistered
+              ? `/course/${payload?.id}?reg=true&done=true`
+              : `/course/${payload?.id}`
+          }
           className="w-full self-stretch px-3 sm:px-4 py-3 bg-gradient-to-r from-primary to-secondary rounded-[8px] sm:rounded-[10px] shadow-[0_4px_20px_rgba(0,0,0,0.25)] inline-flex justify-center items-center gap-2.5 transition-all duration-200 cursor-pointer hover:from-secondary hover:to-primary hover:scale-105 hover:shadow-[0_8px_24px_rgba(59,130,246,0.25)]"
         >
           <div className="justify-center text-bg text-xs sm:text-sm font-semibold">
