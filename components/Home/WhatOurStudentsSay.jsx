@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { TestimonialCard } from "../ui/Cards/TestimonialCard";
+import TestimonialCard from "../ui/Cards/TestimonialCard";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode, Mousewheel, Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
