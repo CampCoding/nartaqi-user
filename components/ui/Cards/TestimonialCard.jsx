@@ -1,6 +1,6 @@
 import React from "react";
 
-export const TestimonialCard = ({
+export default TestimonialCard = ({
   payload = {},
   type = "students",
   freeWidth = false,
