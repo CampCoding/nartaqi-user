@@ -24,12 +24,15 @@ const CourseDetailsPage = () => {
     const fetchCourseData = async () => {
       try {
         setLoading(true);
+        
+        const payload={round_id: roundId,}
+        if(studentId){
+          payload.student_id=studentId
+        }
+        
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/roundBundle`,
-          {
-            round_id: roundId,
-            student_id: studentId ? studentId.toString() : 0,
-          },
+         payload,
           {
             headers: {
               Authorization: `Bearer ${token}`,
