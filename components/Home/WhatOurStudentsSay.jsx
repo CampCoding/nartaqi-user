@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import TestimonialCard from "../ui/Cards/TestimonialCard";
+// import TestimonialCard from "../ui/Cards/TestimonialCard";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode, Mousewheel, Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -9,6 +9,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/free-mode";
 import Container from "../ui/Container";
+import TestimonialCard from "@/components/ui/Cards/TestimonialCard";
 
 const WhatOurXSay = ({
   studentRates = [],
