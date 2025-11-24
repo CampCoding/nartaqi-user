@@ -1,9 +1,11 @@
+"use client";
 import React from "react";
 import PagesBanner from "../../components/ui/PagesBanner";
 import CoursesFilters from "../../components/ui/CoursesFilters";
 import CourseCard from "../../components/ui/Cards/CourseCard";
-import Testimonials from "../../components/Testimonials";
+
 import Container from "../../components/ui/Container";
+import TeachersTestimonials from "../../components/Teachers/TeachersTestimonials";
 
 const TeachersCourses = () => {
   return (
@@ -106,7 +108,7 @@ const TeachersCourses = () => {
             <CourseCard freeWidth={true} type="teachers" />
           </div>
         </Container>
-        <Testimonials title="أراء الطلاب" />
+        <TeachersTestimonials title="أراء الطلاب" />
       </div>
     </div>
   );
