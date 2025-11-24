@@ -1,3 +1,4 @@
+
 import React from "react";
 import { EyeIcon, MessageIcon } from "../../../public/svgs";
 import { formatDate } from "../../utils/helpers/date.js";
@@ -25,12 +26,12 @@ export const BlogCard = ({
 
   return (
     <article
-      className={flex flex-col ${width} items-start relative bg-white rounded-2xl sm:rounded-[25px] md:rounded-[30px] shadow-lg sm:shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl}
+      className={`flex flex-col ${width} items-start relative bg-white rounded-2xl sm:rounded-[25px] md:rounded-[30px] shadow-lg sm:shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl`}
     >
       {/* Header */}
       <header
         className="relative w-full h-[160px] sm:h-[180px] md:h-[200px] lg:h-[220px] bg-cover bg-center"
-        style={{ backgroundImage: url('${image_url || ""}') }}
+        style={{ backgroundImage: `url('${image_url || ""}')` }}
       >
         <time className="inline-flex font-semibold items-center justify-center px-3 py-1.5 absolute top-3 right-3 bg-white rounded-2xl text-secondary text-xs shadow-md">
           {formatDate(published_at)}
@@ -76,3 +77,4 @@ export const BlogCard = ({
     </article>
   );
 };
+
