@@ -28,7 +28,7 @@ const CourseDetailsPage = () => {
           `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/roundBundle`,
           {
             round_id: roundId,
-            student_id: studentId.toString(),
+            student_id: studentId ? studentId.toString() : 0,
           },
           {
             headers: {
