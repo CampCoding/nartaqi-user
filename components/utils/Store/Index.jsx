@@ -1,5 +1,4 @@
 import { configureStore } from "@reduxjs/toolkit";
-
 import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
 import { combineReducers } from "redux";
@@ -11,15 +10,17 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
+
 import authSlice from "./Slices/authntcationSlice.jsx";
 import userSlice from "./Slices/UserSllice.jsx";
 import blogSlice from "./Slices/BlogSlice.jsx";
 import redirectSlice from "./Slices/redirectSlice.jsx";
+import cartSlice from "./Slices/cartSlice.jsx";
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth"],
+  whitelist: ["auth", "cart"],
 };
 
 const rootReducer = combineReducers({
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
   user: userSlice.reducer,
   blog: blogSlice.reducer,
   redirect: redirectSlice.reducer,
+  cart: cartSlice.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -36,7 +38,6 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        // ✅ استبعد الـ actions الخاصة بـ redux-persist
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }),

@@ -7,25 +7,36 @@ import Link from "next/link";
 import { Dropdown } from "antd";
 import { ChevronLeft, Menu, X, ChevronDown } from "lucide-react";
 import headerData from "./headerData";
-import { useUser } from "../../lib/useUser";
 import Container from "../ui/Container";
 import { AnimatePresence } from "framer-motion";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { getUserCart } from "../utils/Store/Slices/cartSlice";
 
 export default function Header() {
   const [openSearch, setOpenSearch] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  /*   const { token, user } = useUser(); */
+  const dispatch = useDispatch();
 
+  // Auth State
   const { user, token } = useSelector((state) => state.auth);
+
+  // Cart State
+  const { items, totalItems, isLoading } = useSelector((state) => state.cart);
+
+  // Fetch cart when user is logged in
+  useEffect(() => {
+    if (token) {
+      dispatch(getUserCart());
+    }
+  }, [token, dispatch]);
 
   if (pathname.includes("mock-test")) {
     return null;
   }
 
   return (
-    <header className="w-full sticky top-0 z-50 bg-white shadow-sm  py-[20px] md:py-[35.5px] lg:py-[35.5px]">
+    <header className="w-full sticky top-0 z-50 bg-white shadow-sm py-[20px] md:py-[35.5px] lg:py-[35.5px]">
       <Container className="flex items-center justify-between">
         {/* Logo */}
         <Link href={"/"} className="flex items-center space-x-2">
@@ -37,7 +48,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center space-x-4 md:!space-x-5  xl:space-x-6 space-x-reverse">
+        <nav className="hidden lg:flex items-center space-x-4 md:!space-x-5 xl:space-x-6 space-x-reverse">
           {headerData.map((group, index) => {
             if ((!group.items || group.items.length === 0) && group.link) {
               return (
@@ -45,9 +56,9 @@ export default function Header() {
                   key={index}
                   href={group.link}
                   target={group.target == "_blank" ? "_blank" : "_self"}
-                  className={` ${
+                  className={`${
                     index == 0 ? "ml-5" : ""
-                  } cursor-pointer  hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center  border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary`}
+                  } cursor-pointer hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary`}
                 >
                   {group.title}
                 </Link>
@@ -63,7 +74,7 @@ export default function Header() {
               >
                 <div
                   className={
-                    " cursor-pointer  hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base  whitespace-nowrap   border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary"
+                    "cursor-pointer hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base whitespace-nowrap border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary"
                   }
                 >
                   {group.title}
@@ -77,19 +88,19 @@ export default function Header() {
         <div className="hidden lg:flex items-center gap-x-4">
           <div className="flex items-center gap-x-[8px]">
             <button onClick={() => setOpenSearch(true)}>
-              <headerIcons.Search className="text-text stroke-primary " />
+              <headerIcons.Search className="text-text stroke-primary" />
             </button>
 
+            {/* ✅ Cart Icon with Dynamic Count */}
             <Link href="/cart" className="relative">
               <headerIcons.Cart className="text-text stroke-primary" />
-              <div className="absolute w-6 h-6 bg-red-700 text-white text-base font-bold flex items-center justify-center top-[-5px] right-[5px] translate-x-1/2  rounded-full ">
-                8
-              </div>
+              <CartBadge count={totalItems} isLoading={isLoading} />
             </Link>
+
             {token && (
               <Link href="/notifications" className="relative">
                 <headerIcons.Notification className="text-text stroke-primary" />
-                <div className="absolute w-6 h-6 bg-red-700 text-white text-base font-bold flex items-center justify-center top-[-5px] right-[5px] translate-x-1/2  rounded-full ">
+                <div className="absolute w-6 h-6 bg-red-700 text-white text-base font-bold flex items-center justify-center top-[-5px] right-[5px] translate-x-1/2 rounded-full">
                   5
                 </div>
               </Link>
@@ -111,23 +122,23 @@ export default function Header() {
           {token && (
             <Link
               href={user?.type == "marketer" ? "/marketer-profile" : "/profile"}
-              className="px-16  py-4 bg-white transition-all rounded-[100px] outline outline-1 outline-offset-[-0.50px] outline-primary hover:bg-primary group hover:text-white inline-flex justify-center items-center gap-4"
+              className="px-16 py-4 bg-white transition-all rounded-[100px] outline outline-1 outline-offset-[-0.50px] outline-primary hover:bg-primary group hover:text-white inline-flex justify-center items-center gap-4"
             >
-              <div className="justify-center  group-hover:text-white   text-primary  text-base font-bold font-['Cairo'] leading-normal">
+              <div className="justify-center group-hover:text-white text-primary text-base font-bold font-['Cairo'] leading-normal">
                 حسابي
               </div>
             </Link>
           )}
         </div>
 
-        {/* Mobile Actions */}
-        <div className="flex lg:hidden items-center gap-x-2 ">
+        <div className="flex lg:hidden items-center gap-x-2">
           <button onClick={() => setOpenSearch(true)}>
             <headerIcons.Search className="text-text stroke-primary !w-10 !h-10" />
           </button>
 
-          <Link href="/cart">
+          <Link href="/cart" className="relative">
             <headerIcons.Cart className="text-text stroke-primary !w-10 !h-10" />
+            <CartBadge count={totalItems} isLoading={isLoading} size="small" />
           </Link>
 
           {token && (
@@ -159,6 +170,7 @@ export default function Header() {
           user={user}
           headerData={headerData}
           token={token}
+          totalItems={totalItems}
           onClose={() => setMobileMenuOpen(false)}
         />
       )}
@@ -172,13 +184,50 @@ export default function Header() {
   );
 }
 
-// Mobile Menu Component
-const MobileMenu = ({ headerData, token, onClose, user }) => {
+const CartBadge = ({ count, isLoading, size = "normal" }) => {
+  if (count === 0 && !isLoading) return null;
+
+  const sizeClasses = {
+    normal: "w-6 h-6 text-base top-[-5px] right-[5px]",
+    small: "w-4 h-4 text-xs top-[-5px] right-[5px]",
+  };
+
+  return (
+    <div
+      className={`absolute bg-red-700 text-white font-bold flex items-center justify-center translate-x-1/2 rounded-full ${sizeClasses[size]}`}
+    >
+      {isLoading ? (
+        <span className="animate-pulse">•</span>
+      ) : count > 99 ? (
+        "99+"
+      ) : (
+        count
+      )}
+    </div>
+  );
+};
+
+// Mobile Menu Component - Updated with cart count
+const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
   const [expandedItem, setExpandedItem] = useState(null);
 
   return (
     <div className="lg:hidden fixed inset-0 top-[70px] bg-white z-40 overflow-y-auto">
       <nav className="flex flex-col p-4">
+        {/* ✅ Cart Link in Mobile Menu */}
+        <Link
+          href="/cart"
+          onClick={onClose}
+          className="py-4 px-2 border-b border-gray-200 text-text font-medium flex items-center justify-between"
+        >
+          <span>السلة</span>
+          {totalItems > 0 && (
+            <span className="bg-red-700 text-white text-xs font-bold px-2 py-1 rounded-full">
+              {totalItems}
+            </span>
+          )}
+        </Link>
+
         {headerData.map((group, index) => {
           if ((!group.items || group.items.length === 0) && group.link) {
             return (
@@ -241,7 +290,7 @@ const MobileMenu = ({ headerData, token, onClose, user }) => {
   );
 };
 
-// Mobile SubMenu Component
+// Mobile SubMenu Component (unchanged)
 const MobileSubMenu = ({ items, onClose }) => {
   const [expandedSubItem, setExpandedSubItem] = useState(null);
 

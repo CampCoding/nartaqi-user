@@ -1,4 +1,7 @@
-import React from "react";
+"use client";
+
+import React, { useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   CalenderEndIcon,
   CalenderStartIcon,
@@ -10,11 +13,61 @@ import {
   CourseHeartIcon,
 } from "../../public/svgs";
 import Link from "next/link";
+import {
+  addToCart,
+  removeFromCart,
+  getUserCart,
+} from "@/components/utils/Store/Slices/cartSlice";
 
 const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
+  const dispatch = useDispatch();
   const { round } = courseData;
 
-  // حساب متوسط التقييم
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { items: cartItems } = useSelector((state) => state.cart);
+  const { token } = useSelector((state) => state.auth);
+
+  const isInCart = useMemo(() => {
+    return cartItems.some((item) => item.round_id === round.id);
+  }, [cartItems, round.id]);
+
+  const cartItem = useMemo(() => {
+    return cartItems.find((item) => item.round_id === round.id);
+  }, [cartItems, round.id]);
+
+  const handleToggleCart = async () => {
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      if (isInCart) {
+        await dispatch(
+          removeFromCart({
+            round_id: round.id,
+          })
+        ).unwrap();
+      } else {
+        await dispatch(
+          addToCart({
+            round_id: round.id,
+            quantity: 1,
+          })
+        ).unwrap();
+      }
+
+      await dispatch(getUserCart()).unwrap();
+    } catch (error) {
+      console.error("Failed to toggle cart:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const calculateRating = () => {
     const rates = courseData.roundRate || [];
     if (rates.length === 0) return 0;
@@ -22,7 +75,6 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
     return (sum / rates.length).toFixed(1);
   };
 
-  // تنسيق التاريخ
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("ar-EG", {
@@ -32,7 +84,6 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
     });
   };
 
-  // Gender mapping
   const genderMap = {
     male: "معلمين",
     female: "معلمات",
@@ -98,7 +149,7 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
           <div className="flex justify-start w-[200px] items-center gap-2">
             <GenderIcon />
             <div className="justify-center text-text text-sm font-medium">
-              النوع : غير محدد
+              النوع : {genderMap[round.gender] || "غير محدد"}
             </div>
           </div>
 
@@ -141,7 +192,7 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
       <div className="pt-4 pb-12">
         <div className="justify-center text-text-alt line-through decoration-red-600 text-lg font-bold">
           120 ر.س
-        </div>{" "}
+        </div>
         <div className="self-stretch inline-flex justify-end items-end gap-4">
           <div>
             <div className="justify-center text-primary text-2xl font-bold">
@@ -152,24 +203,82 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
             (شاملة كتاب الدورة بصيغة PDF)
           </div>
         </div>
+
         <div className="mt-4 mb-5 w-full inline-flex justify-end items-center gap-4">
           <button
             type="button"
-            className="flex-1 px-3.5 py-3 bg-white rounded-[16px] outline outline-1 outline-offset-[-1px] outline-secondary flex justify-center items-center"
+            onClick={handleToggleCart}
+            disabled={isLoading}
+            className={`flex-1 px-3.5 py-3 rounded-[16px] outline outline-1 outline-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200
+              ${
+                isInCart && !isLoading
+                  ? "bg-red-50 outline-red-500 hover:bg-red-100 group"
+                  : isLoading
+                  ? "bg-gray-50 outline-gray-300 cursor-wait opacity-70"
+                  : "bg-white outline-secondary hover:bg-secondary group"
+              }
+            `}
           >
-            <span className="text-center justify-center text-secondary text-sm font-bold">
-              أضف الي السلة
-            </span>
+            {isLoading ? (
+              <>
+                <div className="spinner"></div>
+                <span className="text-center justify-center text-gray-500 text-sm font-bold">
+                  {isInCart ? "جاري الحذف..." : "جاري الإضافة..."}
+                </span>
+              </>
+            ) : isInCart ? (
+              <>
+                <svg
+                  className="w-5 h-5 text-red-500 transition-transform group-hover:scale-110"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className="text-center justify-center text-red-600 text-sm font-bold">
+                  حذف من السلة
+                  {cartItem?.quantity > 1 && ` (${cartItem.quantity})`}
+                </span>
+              </>
+            ) : (
+              <>
+                <svg
+                  className="w-5 h-5 text-secondary group-hover:text-white transition-colors"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 3H5L5.4 5M5.4 5H21L17 13H7M5.4 5L7 13M7 13L4.707 15.293C4.077 15.923 4.523 17 5.414 17H17M17 17C16.4696 17 15.9609 17.2107 15.5858 17.5858C15.2107 17.9609 15 18.4696 15 19C15 19.5304 15.2107 20.0391 15.5858 20.4142C15.9609 20.7893 16.4696 21 17 21C17.5304 21 18.0391 20.7893 18.4142 20.4142C18.7893 20.0391 19 19.5304 19 19C19 18.4696 18.7893 17.9609 18.4142 17.5858C18.0391 17.2107 17.5304 17 17 17ZM9 19C9 19.5304 8.78929 20.0391 8.41421 20.4142C8.03914 20.7893 7.53043 21 7 21C6.46957 21 5.96086 20.7893 5.58579 20.4142C5.21071 20.0391 5 19.5304 5 19C5 18.4696 5.21071 17.9609 5.58579 17.5858C5.96086 17.2107 6.46957 17 7 17C7.53043 17 8.03914 17.2107 8.41421 17.5858C8.78929 17.9609 9 18.4696 9 19Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className="text-center justify-center text-secondary text-sm font-bold group-hover:text-white transition-colors">
+                  أضف الي السلة
+                </span>
+              </>
+            )}
           </button>
 
           <button
             type="button"
             onClick={onToggleFavorite}
-            className="w-12 h-12 p-2 flex justify-center items-center bg-white rounded-xl outline outline-1 outline-offset-[-1px] outline-secondary"
+            className="w-12 h-12 p-2 flex justify-center items-center bg-white rounded-xl outline outline-1 outline-offset-[-1px] outline-secondary hover:bg-secondary/10 transition-colors"
           >
             <CourseHeartIcon fill={round.fav ? "#F97316" : "none"} />
           </button>
         </div>
+
         <button
           type="button"
           className="w-full px-3.5 py-3.5 bg-secondary rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 hover:bg-secondary-warm focus:bg-primary group"
@@ -179,6 +288,26 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
           </span>
         </button>
       </div>
+
+      <style jsx>{`
+        .spinner {
+          width: 18px;
+          height: 18px;
+          border: 2.5px solid #e5e7eb;
+          border-top-color: #f97316;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   );
 };

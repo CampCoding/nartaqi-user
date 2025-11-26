@@ -1,161 +1,99 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
 import CourseTitle from "./../../components/CourseDetailsPage/CourseTitle";
 import CartItem from "../../components/CartPage/CartItem";
 import CardSummery from "../../components/CartPage/CardSummery";
 import { MobileCartItem } from "../../components/CartPage/MobileCartItem";
 import Container from "../../components/ui/Container";
+import {
+  getUserCart,
+  removeFromCart,
+  deleteCart,
+  removeItemLocally,
+  clearCartLocally,
+  rollbackCart,
+  clearCartMessages,
+} from "@/components/utils/Store/Slices/cartSlice";
+import LoadingPage from "@/components/shared/Loading";
 
 const CartPage = () => {
   const router = useRouter();
-  const [cartItems, setCartItems] = useState([
-    {
-      image: "/images/Frame 1000004932.png",
-      tag: "مهارات التعليم والتدريس",
-      title: "إتقان التدريس الفعال",
-      description:
-        "تعرف على المبادئ الأساسية والاستراتيجيات العملية لتصبح معلمًا واثقًا ومؤثرًا.",
-      badge: "طالبات",
-      rating: 4.5,
-      reviews: 32,
-      lessons: 12,
-      seats: 5,
-      startDate: "15 فبراير 2024",
-      teacher: "جون سميث",
-      teacherImage: "/images/Image-24.png",
-      quantity: 1,
-      price: 95,
-      onRemove: () => alert("Removed from cart!"),
-    },
-    {
-      image: "/images/dollars.png",
-      tag: "مهارات التعليم والتدريس",
-      title: "مصنف الكتابة العربية",
-      description: "دليل خطوة بخطوة لإتقان خط اليد العربية",
-      badge: "طالبات",
-      rating: 4.5,
-      reviews: 32,
-      lessons: 12,
-      seats: 5,
-      startDate: "15 فبراير 2024",
-      teacher: "جون سميث",
-      teacherImage: "/images/Image-24.png",
-      quantity: 1,
-      store: true,
-      price: 24.99,
-      onRemove: () => alert("Removed from cart!"),
-    },
-    {
-      image: "/images/Frame 1000004932.png",
-      tag: "مهارات التعليم والتدريس",
-      title: "إتقان التدريس الفعال",
-      description:
-        "تعرف على المبادئ الأساسية والاستراتيجيات العملية لتصبح معلمًا واثقًا ومؤثرًا.",
-      badge: "طالبات",
-      rating: 4.5,
-      reviews: 32,
-      lessons: 12,
-      seats: 5,
-      startDate: "15 فبراير 2024",
-      teacher: "جون سميث",
-      teacherImage: "/images/Image-24.png",
-      quantity: 1,
-      price: 95,
-      onRemove: () => alert("Removed from cart!"),
-    },
-    {
-      image: "/images/dollars.png",
-      tag: "مهارات التعليم والتدريس",
-      title: "مصنف الكتابة العربية",
-      description: "دليل خطوة بخطوة لإتقان خط اليد العربية",
-      badge: "طالبات",
-      rating: 4.5,
-      reviews: 32,
-      lessons: 12,
-      seats: 5,
-      startDate: "15 فبراير 2024",
-      teacher: "جون سميث",
-      teacherImage: "/images/Image-24.png",
-      quantity: 1,
-      store: true,
-      price: 24.99,
-      onRemove: () => alert("Removed from cart!"),
-    },
-    {
-      image: "/images/Frame 1000004932.png",
-      tag: "مهارات التعليم والتدريس",
-      title: "إتقان التدريس الفعال",
-      description:
-        "تعرف على المبادئ الأساسية والاستراتيجيات العملية لتصبح معلمًا واثقًا ومؤثرًا.",
-      badge: "طالبات",
-      rating: 4.5,
-      reviews: 32,
-      lessons: 12,
-      seats: 5,
-      startDate: "15 فبراير 2024",
-      teacher: "جون سميث",
-      teacherImage: "/images/Image-24.png",
-      quantity: 1,
-      price: 95,
-      onRemove: () => alert("Removed from cart!"),
-    },
-    {
-      image: "/images/dollars.png",
-      tag: "مهارات التعليم والتدريس",
-      title: "مصنف الكتابة العربية",
-      description: "دليل خطوة بخطوة لإتقان خط اليد العربية",
-      badge: "طالبات",
-      rating: 4.5,
-      reviews: 32,
-      lessons: 12,
-      seats: 5,
-      startDate: "15 فبراير 2024",
-      teacher: "جون سميث",
-      teacherImage: "/images/Image-24.png",
-      quantity: 1,
-      store: true,
-      price: 24.99,
-      onRemove: () => alert("Removed from cart!"),
-    },
-    {
-      image: "/images/Frame 1000004932.png",
-      tag: "مهارات التعليم والتدريس",
-      title: "إتقان التدريس الفعال",
-      description:
-        "تعرف على المبادئ الأساسية والاستراتيجيات العملية لتصبح معلمًا واثقًا ومؤثرًا.",
-      badge: "طالبات",
-      rating: 4.5,
-      reviews: 32,
-      lessons: 12,
-      seats: 5,
-      startDate: "15 فبراير 2024",
-      teacher: "جون سميث",
-      teacherImage: "/images/Image-24.png",
-      quantity: 1,
-      price: 95,
-      onRemove: () => alert("Removed from cart!"),
-    },
-    {
-      image: "/images/dollars.png",
-      tag: "مهارات التعليم والتدريس",
-      title: "مصنف الكتابة العربية",
-      description: "دليل خطوة بخطوة لإتقان خط اليد العربية",
-      badge: "طالبات",
-      rating: 4.5,
-      reviews: 32,
-      lessons: 12,
-      seats: 5,
-      startDate: "15 فبراير 2024",
-      teacher: "جون سميث",
-      teacherImage: "/images/Image-24.png",
-      quantity: 1,
-      store: true,
-      price: 24.99,
-      onRemove: () => alert("Removed from cart!"),
-    },
-  ]);
+  const dispatch = useDispatch();
+
+  const { token } = useSelector((state) => state.auth);
+  const { items, totalItems, isLoading, error, successMessage } = useSelector(
+    (state) => state.cart
+  );
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getUserCart());
+    }
+  }, [token, dispatch]);
+
+  useEffect(() => {
+    if (successMessage || error) {
+      const timer = setTimeout(() => {
+        dispatch(clearCartMessages());
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, error, dispatch]);
+
+  const handleRemoveItem = async (round_id) => {
+    dispatch(removeItemLocally(round_id));
+
+    try {
+      // ✅ FIX: Send object with round_id
+      await dispatch(removeFromCart({ round_id })).unwrap();
+    } catch (error) {
+      dispatch(rollbackCart());
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    dispatch(clearCartLocally());
+
+    try {
+      await dispatch(deleteCart()).unwrap();
+    } catch (error) {
+      dispatch(rollbackCart());
+    }
+  };
+
+  const mapCartItemToProps = (item) => ({
+    id: item.id,
+    round_id: item.round_id,
+    image: item.round?.image_url || "/images/Frame 1000004932.png",
+    tag: item.round?.course_category?.name || "دورة تدريبية",
+    title: item.round?.name || "اسم الدورة",
+    description: item.round?.description || "",
+    badge: item.round?.gender === "male" ? "طلاب" : "طالبات",
+    rating: item.round?.average_rating || 0,
+    reviews: 32,
+    lessons: item.round?.total_days || 0,
+    seats: item.round?.capacity || 0,
+    startDate: item.round?.start_date
+      ? new Date(item.round.start_date).toLocaleDateString("ar-EG", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+      : "غير محدد",
+    teacher: item.round?.teachers?.[0]?.name || "غير محدد",
+    teacherImage:
+      item.round?.teachers?.[0]?.image_url || "/images/Image-24.png",
+    quantity: item.quantity || 1,
+    price: item.round?.price || 0,
+    store: false,
+  });
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
   return (
     <Container className="">
@@ -166,7 +104,20 @@ const CartPage = () => {
           { title: "السلة", link: "#" },
         ]}
       />
-      {Array.isArray(cartItems) && cartItems.length > 0 ? (
+
+      {error && (
+        <div className="fixed bottom-4 right-4 z-50 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg shadow-lg animate-slide-up">
+          {error}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="fixed bottom-4 right-4 z-50 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg shadow-lg animate-slide-up">
+          {successMessage}
+        </div>
+      )}
+
+      {Array.isArray(items) && items.length > 0 ? (
         <div className="flex items-start justify-between gap-6 mb-[43px]">
           <div className="flex-1">
             <div className="w-full flex flex-col gap-2">
@@ -176,13 +127,13 @@ const CartPage = () => {
                     عدد العناصر:{" "}
                   </span>
                   <span className="text-secondary text-lg sm:text-xl md:text-2xl font-bold">
-                    {cartItems.length}
+                    {totalItems}
                   </span>
                 </div>
 
                 <button
-                  onClick={() => setCartItems([])}
-                  className="cursor-pointer text-right text-secondary text-lg sm:text-xl md:text-2xl font-bold hover:underline focus:outline-none focus:ring-2 focus:ring-secondary rounded-md transition-all duration-200"
+                  onClick={handleDeleteAll}
+                  className="cursor-pointer text-right text-secondary text-lg sm:text-xl md:text-2xl font-bold hover:underline focus:outline-none focus:ring-2 focus:ring-secondary rounded-md transition-all duration-200 active:scale-95"
                   aria-label="حذف كل العناصر من السلة"
                   type="button"
                 >
@@ -191,37 +142,30 @@ const CartPage = () => {
               </div>
 
               <div className="flex flex-col gap-7 md:gap-2">
-                {cartItems.map((item, index) => (
-                  <div>
-                    <div className="lg:hidden">
-                      <MobileCartItem
-                        key={index}
-                        data={item}
-                        onRemove={() =>
-                          setCartItems((prev) =>
-                            prev.filter((_, i) => i !== index)
-                          )
-                        }
-                      />
-                    </div>
+                {items.map((item, index) => {
+                  const mappedData = mapCartItemToProps(item);
 
-                    <div className="hidden lg:block">
-                      <CartItem
-                        key={index}
-                        data={item}
-                        onRemove={() =>
-                          setCartItems((prev) =>
-                            prev.filter((_, i) => i !== index)
-                          )
-                        }
-                      />
+                  return (
+                    <div key={item.id || index}>
+                      <div className="lg:hidden">
+                        <MobileCartItem
+                          data={mappedData}
+                          onRemove={() => handleRemoveItem(item.round_id)}
+                        />
+                      </div>
+
+                      <div className="hidden lg:block">
+                        <CartItem
+                          data={mappedData}
+                          onRemove={() => handleRemoveItem(item.round_id)}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 <div className="block lg:hidden">
-                <CardSummery />
+                  <CardSummery />
                 </div>
-
               </div>
             </div>
           </div>
@@ -231,14 +175,14 @@ const CartPage = () => {
         </div>
       ) : (
         <section className="flex items-center justify-center flex-col w-full mb-[97px]">
-          <div className=" flex items-center justify-center ">
+          <div className="flex items-center justify-center">
             <img
-              className="  w-[250px] h-[250px] md:w-[400px] md:h-[400px]"
+              className="w-[250px] h-[250px] md:w-[400px] md:h-[400px]"
               src="/images/CART 1.png"
               alt="empty cart"
             />
           </div>
-          <div className="flex mb-[48px] items-center justify-center text-text-alt  text-xl text-center md:text-[32px] text-bold">
+          <div className="flex mb-[48px] items-center justify-center text-text-alt text-xl text-center md:text-[32px] text-bold">
             عربة التسوق فارغة. استمر في التسوق للعثور على دورة!
           </div>
           <button

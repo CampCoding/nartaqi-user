@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import React, { useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   CalenderEndIcon,
   CalenderStartIcon,
@@ -16,6 +17,11 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import Container from "../ui/Container";
 import { useRouter } from "next/navigation";
+import {
+  addToCart,
+  removeFromCart,
+  getUserCart,
+} from "@/components/utils/Store/Slices/cartSlice";
 
 const MobileCourseDetails = ({
   courseData,
@@ -25,12 +31,57 @@ const MobileCourseDetails = ({
   onShare,
 }) => {
   const router = useRouter();
-  const [isExpanded, setIsExpanded] = React.useState(false);
-  const [showToast, setShowToast] = React.useState(false);
+  const dispatch = useDispatch();
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { round } = courseData;
 
-  // حساب متوسط التقييم
+  const { items: cartItems } = useSelector((state) => state.cart);
+  const { token } = useSelector((state) => state.auth);
+
+  const isInCart = useMemo(() => {
+    return cartItems.some((item) => item.round_id === round.id);
+  }, [cartItems, round.id]);
+
+  const cartItem = useMemo(() => {
+    return cartItems.find((item) => item.round_id === round.id);
+  }, [cartItems, round.id]);
+
+  const handleToggleCart = async () => {
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      if (isInCart) {
+        await dispatch(
+          removeFromCart({
+            round_id: round.id,
+          })
+        ).unwrap();
+      } else {
+        await dispatch(
+          addToCart({
+            round_id: round.id,
+            quantity: 1,
+          })
+        ).unwrap();
+      }
+
+      await dispatch(getUserCart()).unwrap();
+    } catch (error) {
+      console.error("Failed to toggle cart:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const calculateRating = () => {
     const rates = courseData.roundRate || [];
     if (rates.length === 0) return 0;
@@ -38,7 +89,6 @@ const MobileCourseDetails = ({
     return (sum / rates.length).toFixed(1);
   };
 
-  // تنسيق التاريخ
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("ar-EG", {
@@ -48,7 +98,6 @@ const MobileCourseDetails = ({
     });
   };
 
-  // Gender mapping
   const genderMap = {
     male: "طلاب",
     female: "طالبات",
@@ -74,12 +123,12 @@ const MobileCourseDetails = ({
     },
     {
       id: 3,
-      label: `المقاعد المتبقية: ${"غير محدد"}`,
+      label: `المقاعد المتبقية: ${round.capacity || "غير محدد"}`,
       icon: <SeatsIcon />,
     },
     {
       id: 4,
-      label: `الجنس : ${"غير محدد"}`,
+      label: `الجنس : ${genderMap[round.gender] || "غير محدد"}`,
       icon: <GenderIcon />,
     },
   ];
@@ -207,7 +256,7 @@ const MobileCourseDetails = ({
                 الساعات : {round.time_show || "غير محدد"}
               </div>
               <div className="mt-[-1.00px] [direction:rtl] relative flex items-center justify-center w-fit text-text-duplicate text-[12px] whitespace-nowrap">
-                الأيام : غير محدد
+                الأيام : {round.total_days || "غير محدد"}
               </div>
             </div>
           </div>
@@ -236,12 +285,68 @@ const MobileCourseDetails = ({
               <div className="flex-col w-full items-start justify-center gap-5 flex-[0_0_auto] flex relative">
                 <div className="items-center justify-end gap-6 self-stretch w-full flex-[0_0_auto] flex relative">
                   <button
-                    className="items-center justify-center gap-2.5 px-2.5 py-4 flex-1 grow bg-white rounded-[20px] border border-solid border-orange-500 flex relative cursor-pointer hover:bg-orange-50 transition-colors"
+                    onClick={handleToggleCart}
+                    disabled={isLoading}
+                    className={`items-center justify-center gap-2.5 px-2.5 py-4 flex-1 grow rounded-[20px] border border-solid flex relative transition-all duration-200
+                      ${
+                        isInCart && !isLoading
+                          ? "bg-red-50 border-red-500 hover:bg-red-100"
+                          : isLoading
+                          ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
+                          : "bg-white border-orange-500 hover:bg-orange-50"
+                      }
+                    `}
                     type="button"
                   >
-                    <span className="text-orange-500 text-base text-center leading-[normal] relative flex items-center justify-center w-fit mt-[-1.00px] font-bold tracking-[0] [direction:rtl]">
-                      أضف الي السلة
-                    </span>
+                    {isLoading ? (
+                      <>
+                        <div className="spinner"></div>
+                        <span className="text-gray-500 text-base text-center leading-[normal] relative flex items-center justify-center w-fit mt-[-1.00px] font-bold tracking-[0] [direction:rtl]">
+                          {isInCart ? "جاري الحذف..." : "جاري الإضافة..."}
+                        </span>
+                      </>
+                    ) : isInCart ? (
+                      <>
+                        <svg
+                          className="w-5 h-5 text-red-500"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <span className="text-red-600 text-base text-center leading-[normal] relative flex items-center justify-center w-fit mt-[-1.00px] font-bold tracking-[0] [direction:rtl]">
+                          حذف من السلة
+                          {cartItem?.quantity > 1 && ` (${cartItem.quantity})`}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          className="w-5 h-5 text-orange-500"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M3 3H5L5.4 5M5.4 5H21L17 13H7M5.4 5L7 13M7 13L4.707 15.293C4.077 15.923 4.523 17 5.414 17H17M17 17C16.4696 17 15.9609 17.2107 15.5858 17.5858C15.2107 17.9609 15 18.4696 15 19C15 19.5304 15.2107 20.0391 15.5858 20.4142C15.9609 20.7893 16.4696 21 17 21C17.5304 21 18.0391 20.7893 18.4142 20.4142C18.7893 20.0391 19 19.5304 19 19C19 18.4696 18.7893 17.9609 18.4142 17.5858C18.0391 17.2107 17.5304 17 17 17ZM9 19C9 19.5304 8.78929 20.0391 8.41421 20.4142C8.03914 20.7893 7.53043 21 7 21C6.46957 21 5.96086 20.7893 5.58579 20.4142C5.21071 20.0391 5 19.5304 5 19C5 18.4696 5.21071 17.9609 5.58579 17.5858C5.96086 17.2107 6.46957 17 7 17C7.53043 17 8.03914 17.2107 8.41421 17.5858C8.78929 17.9609 9 18.4696 9 19Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <span className="text-orange-500 text-base text-center leading-[normal] relative flex items-center justify-center w-fit mt-[-1.00px] font-bold tracking-[0] [direction:rtl]">
+                          أضف الي السلة
+                        </span>
+                      </>
+                    )}
                   </button>
                 </div>
 
@@ -277,6 +382,26 @@ const MobileCourseDetails = ({
           </div>
         </div>
       )}
+
+      <style jsx>{`
+        .spinner {
+          width: 18px;
+          height: 18px;
+          border: 2.5px solid #e5e7eb;
+          border-top-color: #f97316;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </main>
   );
 };
