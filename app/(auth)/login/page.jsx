@@ -22,6 +22,8 @@ import SelectType from "./SelectType";
 // ⭐⭐⭐ Animation imports
 import { motion, AnimatePresence } from "framer-motion";
 import { Icon } from "@iconify/react";
+import parsePhone from "../../../components/utils/helpers/parsePhone";
+import { handlePhoneCode } from "../../../components/utils/helpers/phoneCode";
 
 export const typeEnum = {
   student: "student",
@@ -35,8 +37,7 @@ const LoginPage = () => {
   const { content, link: redirectLink } = useSelector(
     (state) => state.redirect
   );
-  /* const token = localStorage.getItem("token"); */
-  console.log(token);
+  console.log(loading);
 
   const router = useRouter();
   const [selectedCountry, setSelectedCountry] = useState({
@@ -78,23 +79,11 @@ const LoginPage = () => {
 
   const onSubmit = async (data) => {
     try {
-      let cleanedPhone = data.phone.replace(/\D/g, "");
-
-      if (selectedCountry.code === "+20" && cleanedPhone.startsWith("0")) {
-        cleanedPhone = cleanedPhone.substring(1);
-      }
-
-      const finalPhone = `${selectedCountry.code.slice(1)}${cleanedPhone}`;
-
-      const studentPayload = {
-        phone: finalPhone,
-        password: data.password,
-      };
-
-      const marketerPayload = {
-        whatsapp_number: finalPhone,
-        password: data.password,
-      };
+      const phone = handlePhoneCode({
+        phone: data.phone,
+        selectedCountryCode: selectedCountry.code,
+      });
+      console.log(phone);
 
       if (!type.id) {
         toast.error("اختر نوع الحساب أولاً");
@@ -102,17 +91,27 @@ const LoginPage = () => {
       }
 
       if (type.id === typeEnum.student) {
+        const studentPayload = {
+          phone: phone,
+          password: data.password,
+        };
         await dispatch(loginUser(studentPayload)).unwrap();
       }
 
       if (type.id === typeEnum.marketer) {
+        const marketerPayload = {
+          whatsapp_number: phone,
+          password: data.password,
+        };
         await dispatch(loginMarketer(marketerPayload)).unwrap();
       }
 
       toast.success("مرحباً بعودتك 🎉");
       router.push(redirectLink || "/");
     } catch (err) {
-      toast.error(err || "حدث خطأ أثناء تسجيل الدخول");
+      console.log(err);
+
+      toast.error(err?.response?.data?.message || "حدث خطأ أثناء تسجيل الدخول");
     }
   };
 
