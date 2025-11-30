@@ -43,12 +43,12 @@ const CartPage = () => {
     }
   }, [successMessage, error, dispatch]);
 
-  const handleRemoveItem = async (round_id) => {
-    dispatch(removeItemLocally(round_id));
+  // ✅ Updated to handle type and item_id
+  const handleRemoveItem = async (type, item_id) => {
+    dispatch(removeItemLocally({ type, item_id }));
 
     try {
-      // ✅ FIX: Send object with round_id
-      await dispatch(removeFromCart({ round_id })).unwrap();
+      await dispatch(removeFromCart({ type, item_id })).unwrap();
     } catch (error) {
       dispatch(rollbackCart());
     }
@@ -64,32 +64,85 @@ const CartPage = () => {
     }
   };
 
-  const mapCartItemToProps = (item) => ({
-    id: item.id,
-    round_id: item.round_id,
-    image: item.round?.image_url || "/images/Frame 1000004932.png",
-    tag: item.round?.course_category?.name || "دورة تدريبية",
-    title: item.round?.name || "اسم الدورة",
-    description: item.round?.description || "",
-    badge: item.round?.gender === "male" ? "طلاب" : "طالبات",
-    rating: item.round?.average_rating || 0,
-    reviews: 32,
-    lessons: item.round?.total_days || 0,
-    seats: item.round?.capacity || 0,
-    startDate: item.round?.start_date
-      ? new Date(item.round.start_date).toLocaleDateString("ar-EG", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        })
-      : "غير محدد",
-    teacher: item.round?.teachers?.[0]?.name || "غير محدد",
-    teacherImage:
-      item.round?.teachers?.[0]?.image_url || "/images/Image-24.png",
-    quantity: item.quantity || 1,
-    price: item.round?.price || 0,
-    store: false,
-  });
+  // ✅ Helper to get item data based on type
+  const getItemData = (item) => {
+    switch (item.type) {
+      case "rounds":
+        return item.round;
+      case "books":
+        return item.store || item.book;
+      case "bags":
+        return item.store || item.bag;
+      case "accessories":
+        return item.store || item.accessory;
+      default:
+        return item;
+    }
+  };
+
+  // ✅ Updated mapper to handle all types
+  const mapCartItemToProps = (item) => {
+    const itemData = getItemData(item);
+    const isRound = item.type === "rounds";
+
+    // Common fields
+    const baseProps = {
+      id: item.id,
+      type: item.type,
+      item_id: item.item_id,
+      quantity: item.quantity || 1,
+      image: itemData?.image_url || itemData?.image || "/images/Frame 1000004932.png",
+      description: itemData?.description || "",
+      price: itemData?.price || 0,
+      rating: itemData?.students_rates_avg_rate?.toFixed(1) || 0,
+      reviews: itemData?.reviews_count || 32,
+      showQuantity: !isRound,
+    };
+
+    if (isRound) {
+      return {
+        ...baseProps,
+        tag: itemData?.course_category?.name || "دورة تدريبية",
+        badge: itemData?.gender === "male" ? "طلاب" : "طالبات",
+        lessons: itemData?.total_days || 0,
+        seats: itemData?.capacity || 0,
+        startDate: itemData?.start_date
+          ? new Date(itemData.start_date).toLocaleDateString("ar-EG", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })
+          : "غير محدد",
+        teacher: itemData?.teachers?.[0]?.name || "غير محدد",
+        teacherImage:
+          itemData?.teachers?.[0]?.image_url || "/images/Image-24.png",
+        store: false,
+        title: itemData?.name,
+      };
+    } else {
+      return {
+        ...baseProps,
+        tag: getTypeLabel(item.type),
+        badge: getTypeLabel(item.type),
+        store: true,
+
+        category: itemData?.category?.name || "",
+        stock: itemData?.stock || 0,
+        title: itemData?.title,
+      };
+    }
+  };
+
+  // ✅ Get Arabic label for type
+  const getTypeLabel = (type) => {
+    const labels = {
+      books: "كتاب",
+      bags: "حقيبة",
+      accessories: "أدوات",
+      rounds: "دورة",
+    };
+    return labels[type] || type;
+  };
 
   if (isLoading) {
     return <LoadingPage />;
@@ -146,18 +199,22 @@ const CartPage = () => {
                   const mappedData = mapCartItemToProps(item);
 
                   return (
-                    <div key={item.id || index}>
+                    <div key={`${item.type}-${item.item_id}-${index}`}>
                       <div className="lg:hidden">
                         <MobileCartItem
                           data={mappedData}
-                          onRemove={() => handleRemoveItem(item.round_id)}
+                          onRemove={() =>
+                            handleRemoveItem(item.type, item.item_id)
+                          }
                         />
                       </div>
 
                       <div className="hidden lg:block">
                         <CartItem
                           data={mappedData}
-                          onRemove={() => handleRemoveItem(item.round_id)}
+                          onRemove={() =>
+                            handleRemoveItem(item.type, item.item_id)
+                          }
                         />
                       </div>
                     </div>

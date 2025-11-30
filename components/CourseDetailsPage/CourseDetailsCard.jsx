@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   CalenderEndIcon,
@@ -21,20 +21,45 @@ import {
 
 const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
   const dispatch = useDispatch();
-  const { round } = courseData;
+
+  const round = courseData?.round || courseData;
+
 
   const [isLoading, setIsLoading] = useState(false);
 
   const { items: cartItems } = useSelector((state) => state.cart);
   const { token } = useSelector((state) => state.auth);
 
+  const roundId = round?.id;
+
   const isInCart = useMemo(() => {
-    return cartItems.some((item) => item.round_id === round.id);
-  }, [cartItems, round.id]);
+    if (!roundId) return false;
+
+    return cartItems.some((item) => {
+      const matchById =
+        (item.item_id === roundId) ||
+        (item.round_id === roundId) ||
+        (item.round?.id === roundId);
+
+      const matchByType = item.type === "rounds";
+
+
+      return matchById && matchByType;
+    });
+  }, [cartItems, roundId]);
 
   const cartItem = useMemo(() => {
-    return cartItems.find((item) => item.round_id === round.id);
-  }, [cartItems, round.id]);
+    if (!roundId) return null;
+
+    return cartItems.find((item) => {
+      const matchById =
+        (item.item_id === roundId) ||
+        (item.round_id === roundId) ||
+        (item.round?.id === roundId);
+
+      return matchById && item.type === "rounds";
+    });
+  }, [cartItems, roundId]);
 
   const handleToggleCart = async () => {
     if (!token) {
@@ -42,22 +67,31 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
       return;
     }
 
+    if (!roundId) {
+      console.error("Round ID is undefined!");
+      return;
+    }
+
     setIsLoading(true);
+
+
 
     try {
       if (isInCart) {
-        await dispatch(
-          removeFromCart({
-            round_id: round.id,
-          })
-        ).unwrap();
+        const payload = {
+          type: "rounds",
+          item_id: roundId,
+        };
+
+        await dispatch(removeFromCart(payload)).unwrap();
       } else {
-        await dispatch(
-          addToCart({
-            round_id: round.id,
-            quantity: 1,
-          })
-        ).unwrap();
+        const payload = {
+          type: "rounds",
+          item_id: roundId,
+          quantity: 1,
+        };
+
+        await dispatch(addToCart(payload)).unwrap();
       }
 
       await dispatch(getUserCart()).unwrap();
@@ -69,13 +103,14 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
   };
 
   const calculateRating = () => {
-    const rates = courseData.roundRate || [];
+    const rates = courseData?.roundRate || round?.students_rates || [];
     if (rates.length === 0) return 0;
-    const sum = rates.reduce((acc, curr) => acc + curr.rate, 0);
+    const sum = rates.reduce((acc, curr) => acc + (curr.rate || 0), 0);
     return (sum / rates.length).toFixed(1);
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return "غير محدد";
     const date = new Date(dateString);
     return date.toLocaleDateString("ar-EG", {
       year: "numeric",
@@ -89,6 +124,18 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
     female: "معلمات",
     both: "الجميع",
   };
+
+  // ✅ Safety check - if no round data, show error
+  if (!round || !round.id) {
+    return (
+      <div className="w-full max-w-[460px] px-5 pt-6 bg-white rounded-[36px] shadow-lg">
+        <p className="text-red-500">Error: No round data available</p>
+        <pre className="text-xs mt-2 bg-gray-100 p-2 rounded overflow-auto">
+          {JSON.stringify(courseData, null, 2)}
+        </pre>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-[460px] px-5 pt-6 relative bg-white rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] overflow-hidden">
@@ -210,10 +257,9 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
             onClick={handleToggleCart}
             disabled={isLoading}
             className={`flex-1 px-3.5 py-3 rounded-[16px] outline outline-1 outline-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200
-              ${
-                isInCart && !isLoading
-                  ? "bg-red-50 outline-red-500 hover:bg-red-100 group"
-                  : isLoading
+              ${isInCart && !isLoading
+                ? "bg-red-50 outline-red-500 hover:bg-red-100 group"
+                : isLoading
                   ? "bg-gray-50 outline-gray-300 cursor-wait opacity-70"
                   : "bg-white outline-secondary hover:bg-secondary group"
               }

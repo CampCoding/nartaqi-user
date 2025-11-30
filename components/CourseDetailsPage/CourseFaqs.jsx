@@ -1,50 +1,106 @@
+// components/CrouseFaqs.jsx
 "use client";
 
-import React, { useState } from "react";
-// Removed unused imports to keep things clean
+import React, { useState, useMemo } from "react";
+import useGetfaqs from "../shared/Hooks/useGetfaqs";
 
-import { BadgesNavs } from "../../app/(account)/my-badges/page";
 
 const CrouseFaqs = () => {
-  const faqData = [
-    {
-      id: 1,
-      question: "هل التسجيل مجاني أم يحتاج إلى رسوم؟",
-      answer:
-        "التسجيل في المنصة مجاني تماماً، بحيث يمكنك إنشاء حساب والاطلاع على معظم المحتويات الأساسية بدون أي رسوم. ولكن بعض الدورات أو البرامج التدريبية المتقدمة قد تكون مدفوعة، وذلك لضمان جودة المحتوى واستمرارية المنصة. ومع ذلك، نوفر دائماً عدداً من الدورات المجانية ليتمكن الجميع من الاستفادة وتجربة المنصة قبل الاشتراك في البرامج المدفوعة.",
-    },
-    {
-      id: 2,
-      question: "هل يمكن استرجاع رسوم الدورة في حال لم تعجبني؟",
-      answer:
-        "نعم، يمكنك طلب استرجاع الرسوم خلال 7 أيام من تاريخ الدفع إذا لم تبدأ الدورة، وفقاً لسياسة الاسترجاع الخاصة بنا.",
-    },
-    {
-      id: 3,
-      question: "هل يمكنني استخدام المنصة على الهاتف المحمول؟",
-      answer:
-        "بالتأكيد! المنصة متوافقة مع جميع الأجهزة سواء كانت حواسيب أو هواتف ذكية أو أجهزة لوحية.",
-    },
-    {
-      id: 4,
-      question: "هل هناك دعم فني متوفر؟",
-      answer:
-        "نعم، نحن نقدم دعم فني متوفر على مدار الساعة طوال أيام الأسبوع من خلال خدمة الدعم عبر البريد الإلكتروني أو من خلال صفحة الدعم على الموقع.",
-    },
-  ];
+  const { data, isLoading, isError, error } = useGetfaqs();
+  const [activeCategory, setActiveCategory] = useState("all");
+
+  // ✅ Extract FAQs from API response
+  const faqs = data?.message || [];
+
+  // ✅ Get unique categories from FAQs
+  const categories = useMemo(() => {
+    const categorySet = new Set(faqs.map((faq) => faq.category));
+    return Array.from(categorySet);
+  }, [faqs]);
+
+  // ✅ Category labels mapping
+  const categoryLabels = {
+    all: "الكل",
+    general_aptitude: "القدرات العامة",
+    registration_payment: "التسجيل والدفع",
+    courses: "دورات",
+    general: "عام",
+    technical_support: "الدعم الفني",
+  };
+
+  // ✅ Filter FAQs by category
+  const filteredFaqs = useMemo(() => {
+    if (activeCategory === "all") {
+      return faqs.filter((faq) => !faq.hidden);
+    }
+    return faqs.filter(
+      (faq) => faq.category === activeCategory && !faq.hidden
+    );
+  }, [faqs, activeCategory]);
+
+  // ✅ Loading state
+  if (isLoading) {
+    return (
+      <div dir="rtl" className="w-full mb-10">
+        <h1 className="text-right text-primary text-2xl font-bold mb-6 md:mb-8">
+          الأسئلة الشائعة
+        </h1>
+        <div className="flex items-center justify-center min-h-[200px]">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Error state
+  if (isError) {
+    return (
+      <div dir="rtl" className="w-full mb-10">
+        <h1 className="text-right text-primary text-2xl font-bold mb-6 md:mb-8">
+          الأسئلة الشائعة
+        </h1>
+        <div className="flex items-center justify-center min-h-[200px]">
+          <div className="text-center">
+            <p className="text-red-500 mb-4">
+              حدث خطأ في تحميل الأسئلة الشائعة
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-primary text-white rounded-lg"
+            >
+              إعادة المحاولة
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div dir="rtl" className="w-full mb-10">
-      <h1 className="text-right text-primary text-2xl  font-bold mb-6 md:mb-8">
+      <h1 className="text-right text-primary text-2xl font-bold mb-6 md:mb-8">
         الأسئلة الشائعة
       </h1>
 
-      <BadgesNavs />
+      {/* Navigation Items */}
+      <NavigationItems
+        categories={categories}
+        categoryLabels={categoryLabels}
+        activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory}
+      />
 
+      {/* FAQs List */}
       <div className="mt-6 md:mt-8 flex flex-col gap-3.5 md:gap-5">
-        {faqData.map((item) => (
-          <QuestionAccordion key={item.id} item={item} />
-        ))}
+        {filteredFaqs.length > 0 ? (
+          filteredFaqs.map((item) => (
+            <QuestionAccordion key={item.id} item={item} />
+          ))
+        ) : (
+          <div className="text-center py-10 text-text-alt">
+            لا توجد أسئلة في هذه الفئة
+          </div>
+        )}
       </div>
     </div>
   );
@@ -52,14 +108,18 @@ const CrouseFaqs = () => {
 
 export default CrouseFaqs;
 
-export const NavigationItems = () => {
-  const navigationItems = [
-    { id: 1, text: "الدعم الفني", active: false },
-    { id: 2, text: "التسجيل والدفع", active: false },
-    { id: 3, text: "دورات", active: false },
-    { id: 4, text: "عام", active: false },
-    { id: 5, text: "الكل", active: true },
-  ];
+// ==================== NAVIGATION ITEMS ====================
+export const NavigationItems = ({
+  categories,
+  categoryLabels,
+  activeCategory,
+  setActiveCategory,
+}) => {
+  // ✅ Always show "all" first, then other categories
+  const orderedCategories = useMemo(() => {
+    const otherCategories = categories.filter((cat) => cat !== "all");
+    return ["all", ...otherCategories];
+  }, [categories]);
 
   return (
     <nav
@@ -68,28 +128,33 @@ export const NavigationItems = () => {
       role="navigation"
       aria-label="قائمة التنقل"
     >
-      {[...navigationItems].reverse().map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          className={`px-6 md:px-10 py-3 md:py-4 rounded-[14px] md:rounded-[20px] inline-flex items-center justify-center transition-colors ${
-            item.active ? "bg-primary" : "bg-white/0 hover:bg-white/60"
-          }`}
-          aria-current={item.active ? "page" : undefined}
-        >
-          <span
-            className={`text-center text-sm md:text-lg leading-5 font-medium ${
-              item.active ? "text-white" : "text-text"
-            }`}
+      {orderedCategories.map((category) => {
+        const isActive = activeCategory === category;
+        const label = categoryLabels[category] || category;
+
+        return (
+          <button
+            key={category}
+            type="button"
+            onClick={() => setActiveCategory(category)}
+            className={`px-6 md:px-10 py-3 md:py-4 rounded-[14px] md:rounded-[20px] inline-flex items-center justify-center transition-colors whitespace-nowrap ${isActive ? "bg-primary" : "bg-white/0 hover:bg-white/60"
+              }`}
+            aria-current={isActive ? "page" : undefined}
           >
-            {item.text}
-          </span>
-        </button>
-      ))}
+            <span
+              className={`text-center text-sm md:text-lg leading-5 font-medium ${isActive ? "text-white" : "text-text"
+                }`}
+            >
+              {label}
+            </span>
+          </button>
+        );
+      })}
     </nav>
   );
 };
 
+// ==================== QUESTION ACCORDION ====================
 export const QuestionAccordion = ({ item }) => {
   const [open, setOpen] = useState(false);
 
@@ -100,22 +165,19 @@ export const QuestionAccordion = ({ item }) => {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className={`w-full text-right p-4 md:p-5 flex items-center justify-between transition ${
-          open ? "bg-primary" : "bg-primary-light hover:bg-primary/10"
-        }`}
+        className={`w-full text-right p-4 md:p-5 flex items-center justify-between transition ${open ? "bg-primary" : "bg-primary-light hover:bg-primary/10"
+          }`}
       >
         <span
-          className={`text-sm md:text-lg leading-relaxed ${
-            open ? "text-white" : "text-[#2d2d2d]"
-          }`}
+          className={`text-sm md:text-lg leading-relaxed ${open ? "text-white" : "text-[#2d2d2d]"
+            }`}
         >
           {item.question}
         </span>
 
         <span
-          className={`size-9 md:size-10 flex items-center justify-center transition-transform ${
-            open ? "rotate-180" : ""
-          }`}
+          className={`size-9 md:size-10 flex items-center justify-center transition-transform ${open ? "rotate-180" : ""
+            }`}
           aria-hidden="true"
         >
           <svg

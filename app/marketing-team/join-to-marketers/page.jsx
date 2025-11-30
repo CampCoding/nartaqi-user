@@ -274,6 +274,7 @@ const JoinToMarketers = () => {
                     label="ملف السيرة الذاتية"
                     subLabel=""
                     onChange={(e) => field.onChange(e.target.files[0])}
+                    accept={'pdf/*'}
                   />
                 )}
               />
@@ -400,7 +401,7 @@ const JoinToMarketers = () => {
                   أوافق على{" "}
                 </span>{" "}
                 <span
-                  onClick={() => {}}
+                  onClick={() => { }}
                   className="text-secondary text-base font-bold underline"
                 >
                   {" "}
@@ -510,7 +511,7 @@ export const Upload = ({
       <input
         id={id}
         type="file"
-        accept={accept}
+        // accept={accept}
         onChange={onChange}
         className="sr-only"
       />

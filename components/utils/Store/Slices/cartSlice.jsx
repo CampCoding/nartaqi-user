@@ -1,11 +1,8 @@
-// Slices/cartSlice.jsx
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// ✅ Get User Cart
 export const getUserCart = createAsyncThunk(
   "cart/getUserCart",
   async (_, { getState, rejectWithValue }) => {
@@ -13,16 +10,12 @@ export const getUserCart = createAsyncThunk(
       const { auth } = getState();
       const token = auth.token;
 
-      const response = await axios.post(
-        `${BASE_URL}/user/cart/user_cart`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.get(`${BASE_URL}/user/cart/user_cart`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       return response.data;
     } catch (error) {
@@ -33,11 +26,11 @@ export const getUserCart = createAsyncThunk(
   }
 );
 
-// ✅ Add To Cart (with optional loading)
+
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async (
-    { round_id, quantity = 1, loading = false },
+    { type, item_id, quantity = 1, loading = false },
     { getState, rejectWithValue }
   ) => {
     try {
@@ -46,7 +39,7 @@ export const addToCart = createAsyncThunk(
 
       const response = await axios.post(
         `${BASE_URL}/user/cart/cart_toggle`,
-        { round_id, quantity },
+        { type, item_id, quantity },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -55,7 +48,7 @@ export const addToCart = createAsyncThunk(
         }
       );
 
-      return { ...response.data, round_id, quantity };
+      return { ...response.data, type, item_id, quantity };
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to add to cart"
@@ -64,11 +57,10 @@ export const addToCart = createAsyncThunk(
   }
 );
 
-// ✅ Update Cart Quantity (with optional loading)
 export const updateCartQuantity = createAsyncThunk(
   "cart/updateCartQuantity",
   async (
-    { round_id, quantity, loading = false },
+    { type, item_id, quantity, loading = false },
     { getState, rejectWithValue }
   ) => {
     try {
@@ -77,7 +69,7 @@ export const updateCartQuantity = createAsyncThunk(
 
       const response = await axios.post(
         `${BASE_URL}/user/cart/cart_toggle`,
-        { round_id, quantity },
+        { type, item_id, quantity },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -86,11 +78,12 @@ export const updateCartQuantity = createAsyncThunk(
         }
       );
 
-      return { ...response.data, round_id, quantity };
+      return { ...response.data, type, item_id, quantity };
     } catch (error) {
       return rejectWithValue({
         message: error.response?.data?.message || "Failed to update quantity",
-        round_id,
+        type,
+        item_id,
         quantity,
       });
     }
@@ -99,16 +92,16 @@ export const updateCartQuantity = createAsyncThunk(
 
 export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
-  async ({ round_id, loading = false }, { getState, rejectWithValue }) => {
+  async ({ type, item_id, loading = false }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState();
       const token = auth.token;
 
-      console.log("🗑️ Removing from cart, round_id:", round_id); // Debug
+      console.log("🗑️ Removing from cart:", { type, item_id });
 
       const response = await axios.post(
-        `${BASE_URL}/user/cart/delete_cart_item`,
-        { round_id }, // ✅ This is what gets sent
+        `${BASE_URL}/user/cart/cart_toggle`,
+        { type, item_id }, // ✅ No quantity = remove item
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -117,17 +110,48 @@ export const removeFromCart = createAsyncThunk(
         }
       );
 
-      return { ...response.data, round_id };
+      return { ...response.data, type, item_id };
     } catch (error) {
       return rejectWithValue({
         message: error.response?.data?.message || "Failed to remove from cart",
-        round_id,
+        type,
+        item_id,
       });
     }
   }
 );
 
-// ✅ Delete Entire Cart (with optional loading)
+export const deleteCartItem = createAsyncThunk(
+  "cart/deleteCartItem",
+  async ({ type, item_id, loading = false }, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+
+      console.log("🗑️ Deleting cart item:", { type, item_id });
+
+      const response = await axios.post(
+        `${BASE_URL}/user/cart/delete_cart_item`,
+        { type, item_id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return { ...response.data, type, item_id };
+    } catch (error) {
+      return rejectWithValue({
+        message: error.response?.data?.message || "Failed to delete cart item",
+        type,
+        item_id,
+      });
+    }
+  }
+);
+
 export const deleteCart = createAsyncThunk(
   "cart/deleteCart",
   async ({ loading = false } = {}, { getState, rejectWithValue }) => {
@@ -155,6 +179,35 @@ export const deleteCart = createAsyncThunk(
   }
 );
 
+const getItemPrice = (item) => {
+  switch (item.type) {
+    case "rounds":
+      return item.round?.price || 0;
+    case "books":
+      return item.store?.price || 0;
+    case "bags":
+      return item.store?.price || 0;
+    case "accessories":
+      return item.store?.price || 0;
+    default:
+      return item.price || 0;
+  }
+};
+
+const calculateTotals = (items) => ({
+  totalItems: items.reduce((total, item) => total + item.quantity, 0),
+  totalPrice: items.reduce(
+    (total, item) => total + getItemPrice(item) * item.quantity,
+    0
+  ),
+});
+
+const findItemIndex = (items, type, item_id) => {
+  return items.findIndex(
+    (item) => item.type === type && item.item_id === item_id
+  );
+};
+
 const initialState = {
   items: [],
   totalItems: 0,
@@ -163,19 +216,11 @@ const initialState = {
   isAdding: false,
   isRemoving: false,
   isDeleting: false,
-  removingItemId: null,
+  removingItem: null,
   error: null,
   successMessage: null,
   previousItems: [],
 };
-
-const calculateTotals = (items) => ({
-  totalItems: items.reduce((total, item) => total + item.quantity, 0),
-  totalPrice: items.reduce(
-    (total, item) => total + (item.round?.price || 0) * item.quantity,
-    0
-  ),
-});
 
 const cartSlice = createSlice({
   name: "cart",
@@ -190,12 +235,12 @@ const cartSlice = createSlice({
     resetCart: () => initialState,
 
     updateQuantityLocally: (state, action) => {
-      const { round_id, quantity } = action.payload;
+      const { type, item_id, quantity } = action.payload;
       state.previousItems = JSON.parse(JSON.stringify(state.items));
 
-      const item = state.items.find((item) => item.round_id === round_id);
-      if (item) {
-        item.quantity = quantity;
+      const itemIndex = findItemIndex(state.items, type, item_id);
+      if (itemIndex !== -1) {
+        state.items[itemIndex].quantity = quantity;
         const totals = calculateTotals(state.items);
         state.totalItems = totals.totalItems;
         state.totalPrice = totals.totalPrice;
@@ -203,10 +248,12 @@ const cartSlice = createSlice({
     },
 
     removeItemLocally: (state, action) => {
-      const round_id = action.payload;
+      const { type, item_id } = action.payload;
       state.previousItems = JSON.parse(JSON.stringify(state.items));
 
-      state.items = state.items.filter((item) => item.round_id !== round_id);
+      state.items = state.items.filter(
+        (item) => !(item.type === type && item.item_id === item_id)
+      );
       const totals = calculateTotals(state.items);
       state.totalItems = totals.totalItems;
       state.totalPrice = totals.totalPrice;
@@ -256,7 +303,6 @@ const cartSlice = createSlice({
 
       // ==================== ADD TO CART ====================
       .addCase(addToCart.pending, (state, action) => {
-        // ✅ Check if loading flag is true
         if (action.meta.arg.loading) {
           state.isAdding = true;
         }
@@ -273,7 +319,6 @@ const cartSlice = createSlice({
 
       // ==================== UPDATE QUANTITY ====================
       .addCase(updateCartQuantity.pending, (state, action) => {
-        // ✅ Check if loading flag is true
         if (action.meta.arg.loading) {
           state.isAdding = true;
         }
@@ -289,26 +334,48 @@ const cartSlice = createSlice({
 
       // ==================== REMOVE FROM CART ====================
       .addCase(removeFromCart.pending, (state, action) => {
-        // ✅ Check if loading flag is true
         if (action.meta.arg.loading) {
           state.isRemoving = true;
-          state.removingItemId = action.meta.arg.round_id;
+          state.removingItem = {
+            type: action.meta.arg.type,
+            item_id: action.meta.arg.item_id,
+          };
         }
         state.error = null;
       })
       .addCase(removeFromCart.fulfilled, (state) => {
         state.isRemoving = false;
-        state.removingItemId = null;
+        state.removingItem = null;
       })
       .addCase(removeFromCart.rejected, (state, action) => {
         state.isRemoving = false;
-        state.removingItemId = null;
+        state.removingItem = null;
+        state.error = action.payload?.message || "فشل حذف العنصر";
+      })
+
+      // ==================== DELETE CART ITEM ====================
+      .addCase(deleteCartItem.pending, (state, action) => {
+        if (action.meta.arg.loading) {
+          state.isRemoving = true;
+          state.removingItem = {
+            type: action.meta.arg.type,
+            item_id: action.meta.arg.item_id,
+          };
+        }
+        state.error = null;
+      })
+      .addCase(deleteCartItem.fulfilled, (state) => {
+        state.isRemoving = false;
+        state.removingItem = null;
+      })
+      .addCase(deleteCartItem.rejected, (state, action) => {
+        state.isRemoving = false;
+        state.removingItem = null;
         state.error = action.payload?.message || "فشل حذف العنصر";
       })
 
       // ==================== DELETE CART ====================
       .addCase(deleteCart.pending, (state, action) => {
-        // ✅ Check if loading flag is true
         if (action.meta.arg?.loading) {
           state.isDeleting = true;
         }

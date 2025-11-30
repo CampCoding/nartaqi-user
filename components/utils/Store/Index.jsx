@@ -16,6 +16,7 @@ import userSlice from "./Slices/UserSllice.jsx";
 import blogSlice from "./Slices/BlogSlice.jsx";
 import redirectSlice from "./Slices/redirectSlice.jsx";
 import cartSlice from "./Slices/cartSlice.jsx";
+import storeSlice from "./Slices/storeSlice.jsx";
 
 const persistConfig = {
   key: "root",
@@ -29,6 +30,7 @@ const rootReducer = combineReducers({
   blog: blogSlice.reducer,
   redirect: redirectSlice.reducer,
   cart: cartSlice.reducer,
+  store: storeSlice.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
