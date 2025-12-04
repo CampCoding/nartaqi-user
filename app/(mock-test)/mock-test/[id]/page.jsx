@@ -1,250 +1,370 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { MockExamHeader } from "../../../../components/MockTestPage/MockTestHeader";
 import { MockTestFooter } from "../../../../components/MockTestPage/MockTestFooter";
 import VerbalSection from "../../../../components/MockTestPage/VerbalSection";
 import MockExamQuestion from "../../../../components/MockTestPage/MockExamQuestion";
 import MockTestReview from "../../../../components/MockTestPage/MockTestReview";
+import { ConfirmationPopup } from "../../../../components/ui/ConfirmationPopup";
+import { SuccessPopup } from "../../../../components/ui/SuccessPopup";
 import axios from "axios";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import {
+  initializeExam,
+  setIsSolved,
+  startExam,
+  decrementTime,
+  setCurrentSectionIndex,
+  setCurrentBlockIndex,
+  setAnswer,
+  toggleBlockFlag,
+  submitExam,
+  restoreState,
+  resetExam,
+  selectSections,
+  selectCurrentSection,
+  selectCurrentBlock,
+  selectCurrentSectionIndex,
+  selectCurrentBlockIndex,
+  selectTimeRemaining,
+  selectAnsweredMap,
+  selectFlaggedMap,
+  selectIsStarted,
+  selectIsSubmitted,
+  selectIsSolved,
+  selectTotalQuestions,
+  selectProgressText,
+  selectIsCurrentBlockMarked,
+  selectIsLastBlockInSection,
+  selectIsLastSection,
+  selectFormattedAnswersForAPI,
+  selectStateForSave,
+  selectScore,
+  selectPercentage,
+  selectExamId,
+  selectStudentId,
+} from "../../../../components/utils/Store/Slices/mockExamSlice";
+
+// Already Solved Popup
+const AlreadySolvedPopup = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative bg-white rounded-[30px] p-8 md:p-12 max-w-md w-[90%] mx-auto shadow-2xl">
+        <div className="flex justify-center mb-6">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center">
+            <svg
+              className="w-12 h-12 text-red-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+        </div>
+        <h2 className="text-2xl font-bold text-center text-text mb-4">
+          تم حل هذا الاختبار مسبقاً
+        </h2>
+        <p className="text-center text-text-alt mb-8 leading-relaxed">
+          لقد قمت بحل هذا الاختبار من قبل ولا يمكنك إعادة حله مرة أخرى.
+          <br />
+          يمكنك مراجعة نتائجك من صفحة الدورة.
+        </p>
+        <button
+          onClick={onClose}
+          className="w-full py-4 bg-primary text-white rounded-xl font-medium text-lg hover:opacity-90 transition-opacity"
+        >
+          العودة للصفحة السابقة
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const MockTest = () => {
-  const [TestData, setTestData] = useState(null);
-  const [currentSection, setCurrentSection] = useState(0);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [markedForReview, setMarkedForReview] = useState(new Set());
-  const [timeRemaining, setTimeRemaining] = useState(60 * 60); // 60 minutes
-  const [isStart, setIsStart] = useState(false);
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const { id } = useParams();
+  const user = useSelector((state) => state?.auth);
+
+  // Redux selectors
+  const sections = useSelector(selectSections);
+  const currentSection = useSelector(selectCurrentSection);
+  const currentBlock = useSelector(selectCurrentBlock);
+  const currentSectionIndex = useSelector(selectCurrentSectionIndex);
+  const currentBlockIndex = useSelector(selectCurrentBlockIndex);
+  const timeRemaining = useSelector(selectTimeRemaining);
+  const answeredMap = useSelector(selectAnsweredMap);
+  const flaggedMap = useSelector(selectFlaggedMap);
+  const isStarted = useSelector(selectIsStarted);
+  const isSubmitted = useSelector(selectIsSubmitted);
+  const isSolved = useSelector(selectIsSolved);
+  const totalQuestions = useSelector(selectTotalQuestions);
+  const progressText = useSelector(selectProgressText);
+  const isCurrentBlockMarked = useSelector(selectIsCurrentBlockMarked);
+  const isLastBlockInSection = useSelector(selectIsLastBlockInSection);
+  const isLastSection = useSelector(selectIsLastSection);
+  const formattedAnswers = useSelector(selectFormattedAnswersForAPI);
+  const stateForSave = useSelector(selectStateForSave);
+  const examScore = useSelector(selectScore);
+  const examPercentage = useSelector(selectPercentage);
+  const examId = useSelector(selectExamId);
+  const studentId = useSelector(selectStudentId);
+
+  // Local state
+  const [isLoading, setIsLoading] = useState(true);
   const [isInReview, setIsInReview] = useState(false);
   const [fontSize, setFontSize] = useState("normal");
   const [activeFilter, setActiveFilter] = useState("all");
-  const { id } = useParams();
+  const [isConfirmSectionEnd, setIsConfirmSectionEnd] = useState(false);
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (!isStart || isInReview) return;
-
-    const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          handleSubmitTest();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isStart, isInReview]);
-
-  const transformApiDataToTestData = (apiData) => {
-    const sections = [];
-
-    apiData.forEach((section) => {
-      const questions = [];
-
-      section.paragraphs.forEach((paraObj) => {
-        const passage = paraObj.paragraph.paragraph_content;
-
-        paraObj.questions.forEach((q) => {
-          if (!q.options || q.options.length === 0) return;
-
-          const formattedOptions = q.options.map((opt) => ({
-            id: opt.id,
-            text: opt.option_text,
-            isCorrect: opt.is_correct === 1,
-          }));
-
-          const correctOption = q.options.find((o) => o.is_correct === 1);
-
-          questions.push({
-            id: q.id,
-            text: q.question_text,
-            passage: passage,
-            options: formattedOptions,
-            explanation:
-              correctOption?.question_explanation || "لا يوجد تفسير متاح.",
-            instructions: q.instructions || "",
-          });
-        });
-      });
-
-      section.mcq.forEach((q) => {
-        if (!q.options || q.options.length === 0) return;
-
-        const formattedOptions = q.options.map((opt) => ({
-          id: opt.id,
-          text: opt.option_text,
-          isCorrect: opt.is_correct === 1,
-        }));
-
-        const correctOption = q.options.find((o) => o.is_correct === 1);
-
-        questions.push({
-          id: q.id,
-          text: q.question_text,
-          passage: null,
-          options: formattedOptions,
-          explanation:
-            correctOption?.question_explanation || "لا يوجد تفسير متاح.",
-          instructions: q.instructions || "",
-        });
-      });
-
-      if (questions.length > 0) {
-        sections.push({
-          section: section.title.replace(/<[^>]*>/g, "").trim(),
-          description:
-            section.description?.replace(/<[^>]*>/g, "").trim() || "",
-          questions,
-        });
-      }
-    });
-
-    return {
-      data: sections,
-      verbalSection: <VerbalSection />,
-    };
-  };
-
-  const fetchMockTestData = async () => {
+  // Fetch exam data
+  const fetchMockTestData = useCallback(async () => {
+    setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         alert("يرجى تسجيل الدخول أولاً");
+        router.back();
         return;
       }
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/get_exam_sectionsWithQuestions`,
-        { exam_id: id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { exam_id: id, student_id: user?.user?.id },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data.status === "success") {
-        const formattedData = transformApiDataToTestData(response.data.message);
-        setTestData(formattedData);
+        // Check if already solved
+        if (response.data.message.is_solved === true) {
+          dispatch(setIsSolved(true));
+          setIsLoading(false);
+          return;
+        }
+
+        // Initialize exam with API data
+        dispatch(
+          initializeExam({
+            examId: id,
+            studentId: user?.user?.id,
+            sections: response.data.message.sections,
+          })
+        );
+
+        // Try to restore saved state
+        const savedState = localStorage.getItem(`mock_exam_state_${id}`);
+        if (savedState) {
+          try {
+            const parsed = JSON.parse(savedState);
+            if (parsed.examId === id && parsed.timeRemaining > 0) {
+              dispatch(restoreState(parsed));
+            }
+          } catch (e) {
+            console.error("Error restoring state:", e);
+          }
+        }
       }
     } catch (error) {
       console.error("Error loading exam:", error);
       alert("فشل تحميل الاختبار، تأكد من الاتصال بالإنترنت أو حاول مرة أخرى.");
+      router.back();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id, user?.user?.id, dispatch, router]);
+
+  // Initial fetch
+  useEffect(() => {
+    if (id) {
+      dispatch(resetExam());
+      fetchMockTestData();
+    }
+  }, [id, fetchMockTestData, dispatch]);
+
+  // Timer effect
+  useEffect(() => {
+    if (!isStarted || isInReview || isSubmitted) return;
+
+    const timer = setInterval(() => {
+      dispatch(decrementTime());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isStarted, isInReview, isSubmitted, dispatch]);
+
+  // Auto submit when time runs out
+  useEffect(() => {
+    if (timeRemaining <= 0 && isStarted && !isSubmitted) {
+      handleSubmitExam();
+    }
+  }, [timeRemaining, isStarted, isSubmitted]);
+
+  // Save state to localStorage
+  useEffect(() => {
+    if (isStarted && !isSubmitted && sections.length > 0) {
+      localStorage.setItem(
+        `mock_exam_state_${id}`,
+        JSON.stringify(stateForSave)
+      );
+    }
+  }, [stateForSave, isStarted, isSubmitted, sections, id]);
+
+  // Submit exam to API
+  const handleSubmitExam = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      // Calculate and store results in Redux
+      dispatch(submitExam());
+
+      const token = localStorage.getItem("token");
+
+      // Submit answers
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/storeStudentAnswers`,
+        {
+          student_id: studentId,
+          exam_id: examId,
+          answers: formattedAnswers,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Submit score (need to get from state after submitExam)
+      const scoreToSubmit = `${
+        formattedAnswers.filter((a) => a.is_correct).length
+      }/${totalQuestions}`;
+
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/storeStudentScore`,
+        {
+          student_id: studentId,
+          exam_id: examId,
+          score: scoreToSubmit,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Clear saved state
+      localStorage.removeItem(`mock_exam_state_${id}`);
+
+      setIsSuccessOpen(true);
+    } catch (error) {
+      console.error("Error submitting exam:", error);
+      alert("حدث خطأ أثناء حفظ الإجابات. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    if (id) fetchMockTestData();
-  }, [id]);
+  // Handle answer selection
+  const handleAnswerSelect = (questionId, optionId) => {
+    dispatch(setAnswer({ questionId, optionId }));
+  };
 
-  if (!TestData) {
+  // Navigation
+  const handleNextBlock = () => {
+    if (!isLastBlockInSection) {
+      dispatch(setCurrentBlockIndex(currentBlockIndex + 1));
+    } else {
+      setIsConfirmSectionEnd(true);
+    }
+  };
+
+  const handlePreviousBlock = () => {
+    if (currentBlockIndex > 0) {
+      dispatch(setCurrentBlockIndex(currentBlockIndex - 1));
+    }
+  };
+
+  const handleConfirmSectionEnd = () => {
+    setIsConfirmSectionEnd(false);
+
+    if (!isLastSection) {
+      dispatch(setCurrentSectionIndex(currentSectionIndex + 1));
+      dispatch(setCurrentBlockIndex(0));
+    } else {
+      setIsInReview(true);
+    }
+  };
+
+  // Mark for review
+  const handleMarkForReview = () => {
+    if (!currentBlock) return;
+    const questionIds = currentBlock.questions.map((q) => q.id);
+    dispatch(toggleBlockFlag(questionIds));
+  };
+
+  // Start exam handler
+  const handleStartExam = () => {
+    dispatch(startExam());
+  };
+
+  // Format time display
+  const formatTime = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+
+    if (h > 0) {
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(
+        2,
+        "0"
+      )}:${String(s).padStart(2, "0")}`;
+    }
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
+
+  // Loading state
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-primary">
-        <div className="text-white text-2xl font-bold">
-          جاري تحميل الاختبار...
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white mx-auto mb-4"></div>
+          <div className="text-white text-2xl font-bold">
+            جاري تحميل الاختبار...
+          </div>
         </div>
       </div>
     );
   }
 
-  const currentSectionData = TestData.data[currentSection];
-  const currentQuestionData = currentSectionData?.questions[currentQuestion];
-
-  const totalQuestions = TestData.data.reduce(
-    (sum, sec) => sum + sec.questions.length,
-    0
-  );
-
-  const currentQuestionNumber =
-    TestData.data
-      .slice(0, currentSection)
-      .reduce((sum, sec) => sum + sec.questions.length, 0) +
-    currentQuestion +
-    1;
-
-  const handleAnswerSelect = (optionId) => {
-    const key = `${currentSection}-${currentQuestion}`;
-    setAnswers((prev) => ({
-      ...prev,
-      [key]: optionId,
-    }));
-  };
-
-  const handleNextQuestion = () => {
-    if (currentQuestion < currentSectionData.questions.length - 1) {
-      setCurrentQuestion((prev) => prev + 1);
-    } else if (currentSection < TestData.data.length - 1) {
-      setCurrentSection((prev) => prev + 1);
-      setCurrentQuestion(0);
-    }
-  };
-
-  const handlePreviousQuestion = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion((prev) => prev - 1);
-    } else if (currentSection > 0) {
-      setCurrentSection((prev) => prev - 1);
-      setCurrentQuestion(
-        TestData.data[currentSection - 1].questions.length - 1
-      );
-    }
-  };
-
-  const handleMarkForReview = () => {
-    const key = `${currentSection}-${currentQuestion}`;
-    setMarkedForReview((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(key)) newSet.delete(key);
-      else newSet.add(key);
-      return newSet;
-    });
-  };
-
-  const handleFontSizeChange = (size) => setFontSize(size);
-
-  const getFontSizeClass = (size) => {
-    const map = {
-      small: "text-sm",
-      normal: "text-base",
-      large: "text-lg",
-      xlarge: "text-xl",
-    };
-    return map[size] || "text-base";
-  };
-
-  const handleSubmitTest = () => {
-    let correct = 0;
-
-    TestData.data.forEach((section, sIdx) => {
-      section.questions.forEach((question, qIdx) => {
-        const key = `${sIdx}-${qIdx}`;
-        const selected = answers[key];
-        if (selected !== undefined) {
-          const isCorrect = question.options.some(
-            (opt) => opt.id === selected && opt.isCorrect
-          );
-          if (isCorrect) correct++;
-        }
-      });
-    });
-
-    const score = Math.round((correct / totalQuestions) * 100);
-
-    alert(
-      `تم تسليم الاختبار!\n\nالنتيجة: ${score}%\nالإجابات الصحيحة: ${correct} من ${totalQuestions}`
+  // Already solved
+  if (isSolved) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-primary">
+        <AlreadySolvedPopup isOpen={true} onClose={() => router.back()} />
+      </div>
     );
+  }
 
-    setIsInReview(true);
-  };
-
-  const formatTime = (seconds) => {
-    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
-    const s = String(seconds % 60).padStart(2, "0");
-    return `${m}:${s}`;
-  };
+  // No sections
+  if (!sections || sections.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-primary">
+        <div className="text-white text-2xl font-bold">
+          لا توجد بيانات للاختبار
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-primary min-h-screen">
@@ -253,64 +373,74 @@ const MockTest = () => {
         isInReview={isInReview}
         setIsInReview={setIsInReview}
         timeRemaining={formatTime(timeRemaining)}
-        questionProgress={`${currentQuestionNumber} من ${totalQuestions}`}
+        questionProgress={progressText}
         onMarkForReview={handleMarkForReview}
-        isMarkedForReview={markedForReview.has(
-          `${currentSection}-${currentQuestion}`
-        )}
+        isMarkedForReview={isCurrentBlockMarked}
         fontSize={fontSize}
-        onFontSizeChange={handleFontSizeChange}
+        onFontSizeChange={setFontSize}
       />
 
       {isInReview ? (
         <MockTestReview
-          testData={TestData}
-          answers={answers}
+          sections={sections}
+          answers={answeredMap}
           setIsInReview={setIsInReview}
-          markedForReview={markedForReview}
-          onNavigateToQuestion={(sIdx, qIdx) => {
-            setCurrentSection(sIdx);
-            setCurrentQuestion(qIdx);
+          markedForReview={
+            new Set(
+              Object.keys(flaggedMap)
+                .filter((k) => flaggedMap[k])
+                .map((k) => parseInt(k))
+            )
+          }
+          onNavigateToQuestion={(sectionIdx, blockIdx) => {
+            dispatch(setCurrentSectionIndex(sectionIdx));
+            dispatch(setCurrentBlockIndex(blockIdx));
             setIsInReview(false);
           }}
           onBackToTest={() => setIsInReview(false)}
           activeFilter={activeFilter}
           setActiveFilter={setActiveFilter}
+          onSubmitExam={handleSubmitExam}
+          isSubmitting={isSubmitting}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 h-auto md:h-[calc(100vh-235px)]">
           <div className="bg-white px-6 md:px-16 overflow-y-auto custom-scroll py-8">
-            {isStart && currentQuestionData ? (
+            {isStarted && currentBlock ? (
               <MockExamQuestion
-                questionData={currentQuestionData}
-                questionNumber={currentQuestionNumber}
-                passage={currentQuestionData.passage}
-                selectedAnswer={answers[`${currentSection}-${currentQuestion}`]}
+                block={currentBlock}
+                questionNumberStart={
+                  parseInt(progressText.split(" ")[0].split("-")[0]) || 1
+                }
+                answers={answeredMap}
                 onAnswerSelect={handleAnswerSelect}
                 fontSize={fontSize}
               />
             ) : (
-              <VerbalSection />
+              <VerbalSection
+                sectionTitle={currentSection?.title}
+                sectionDescription={currentSection?.description}
+              />
             )}
           </div>
 
           <div className="bg-white p-8 md:p-16 flex items-start">
-            {isStart && currentSectionData && (
+            {isStarted && currentSection && (
               <div
-                className={`text-right text-[#be1919] ${getFontSizeClass(
-                  fontSize
-                )} leading-relaxed`}
+                className={`text-right text-[#be1919] ${
+                  fontSize === "small"
+                    ? "text-sm"
+                    : fontSize === "large"
+                    ? "text-lg"
+                    : fontSize === "xlarge"
+                    ? "text-xl"
+                    : "text-base"
+                } leading-relaxed`}
               >
                 <h3 className="font-bold text-xl mb-4">
-                  {currentSectionData.section || "استيعاب المقروء"}
+                  {currentSection.title}
                 </h3>
-                <p className="font-medium">
-                  الأسئلة التالية تتعلق بالنص الذي يسبقها، بعد كل سؤال أربعة
-                  اختيارات، واحد منها صحيح.
-                  <br />
-                  المطلوب هو: قراءة النص بعناية واختيار الإجابة الصحيحة عن كل
-                  سؤال.
-                </p>
+                <p className="font-medium">{currentSection.description}</p>
               </div>
             )}
           </div>
@@ -318,22 +448,49 @@ const MockTest = () => {
       )}
 
       <MockTestFooter
-        isStart={isStart}
+        isStart={isStarted}
         isInReview={isInReview}
         setIsInReview={setIsInReview}
-        setIsStart={setIsStart}
-        onPrevious={handlePreviousQuestion}
-        onNext={handleNextQuestion}
-        onSubmit={handleSubmitTest}
-        canGoPrevious={currentQuestion > 0 || currentSection > 0}
-        canGoNext={
-          currentQuestion < currentSectionData?.questions.length - 1 ||
-          currentSection < TestData.data.length - 1
-        }
-        isLastQuestion={currentQuestionNumber === totalQuestions}
+        setIsStart={handleStartExam}
+        onPrevious={handlePreviousBlock}
+        onNext={handleNextBlock}
+        onSubmit={handleSubmitExam}
+        canGoPrevious={currentBlockIndex > 0}
+        canGoNext={true}
+        isLastQuestion={isLastBlockInSection}
+        isLastSection={isLastSection}
         fontSize={fontSize}
         activeFilter={activeFilter}
         setActiveFilter={setActiveFilter}
+      />
+
+      {/* Section End Confirmation */}
+      <ConfirmationPopup
+        isOpen={isConfirmSectionEnd}
+        onClose={() => setIsConfirmSectionEnd(false)}
+        onConfirm={handleConfirmSectionEnd}
+        title="إنهاء القسم"
+        message={
+          isLastSection
+            ? "هل أنت متأكد من إنهاء هذا القسم والانتقال إلى صفحة المراجعة؟"
+            : "هل أنت متأكد من إنهاء هذا القسم والانتقال إلى القسم التالي؟"
+        }
+        confirmText={
+          isLastSection ? "الانتقال للمراجعة" : "الانتقال للقسم التالي"
+        }
+        cancelText="إلغاء"
+      />
+
+      {/* Success Popup */}
+      <SuccessPopup
+        isOpen={isSuccessOpen}
+        onClose={() => {
+          setIsSuccessOpen(false);
+          router.push("/");
+        }}
+        title="تم إرسال الاختبار بنجاح!"
+        message={`نتيجتك: ${examScore} (${examPercentage}%)`}
+        buttonText="العودة للصفحة الرئيسية"
       />
     </div>
   );

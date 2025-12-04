@@ -108,7 +108,7 @@ export const BlogContent = ({ blog }) => {
         className="relative w-full h-[220px] xs:h-[280px] sm:h-[350px] md:h-[420px] lg:h-[480px] xl:h-[523px] rounded-2xl sm:rounded-[25px] md:rounded-[30px] overflow-hidden shadow-lg"
         style={{
           backgroundImage: `url('${
-            blog?.image || "/images/Frame 1000004929.png"
+            blog?.image_url || "/images/Frame 1000004929.png"
           }')`,
           backgroundSize: "cover",
           backgroundPosition: "center",

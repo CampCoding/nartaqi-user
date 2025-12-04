@@ -14,10 +14,13 @@ import { MobileHero } from "../components/Home/Hero.mobile";
 import { useHomeData } from "../hooks/useHomeData";
 import { Icon } from "@iconify/react";
 import LoadingPage from "../components/shared/Loading";
+import { useSelector } from "react-redux";
 
 export default function Home() {
-  const { data, isLoading, isError, error, refetch } = useHomeData();
-  console.log(error);
+  const user = useSelector((state) => state.auth);
+  const studentId = user?.user?.id || null; // Get student_id from Redux
+
+  const { data, isLoading, isError, error, refetch } = useHomeData(studentId);
 
   // Loading State
   if (isLoading) {
@@ -35,7 +38,9 @@ export default function Home() {
           />
           <h2 className="text-2xl font-bold text-red-600">حدث خطأ</h2>
           <p className="text-gray-600">
-            {error.response.data.message || "فشل تحميل البيانات"}
+            {error?.response?.data?.message ||
+              error?.message ||
+              "فشل تحميل البيانات"}
           </p>
           <button
             onClick={refetch}
@@ -49,7 +54,7 @@ export default function Home() {
     );
   }
 
-  // Extract data
+  // Extract data with fallbacks
   const latestRounds = data?.latestRounds || [];
   const categories = data?.categories_with_rounds || [];
   const studentRates = data?.student_rates || [];

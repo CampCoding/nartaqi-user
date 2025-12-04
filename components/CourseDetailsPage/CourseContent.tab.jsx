@@ -3,10 +3,19 @@
 import React, { useState, useCallback } from "react";
 import CourseContentDrawer from "../ui/CourseContentDrawer";
 import Link from "next/link";
+import {
+  DownloadIcon,
+  FileIcon,
+  RoundedPlayIcon,
+  LockIcon2,
+} from "../../public/svgs";
+import cx from "../../lib/cx";
 
 const CourseContent = ({ isRegistered, courseData }) => {
   const [selectedTab, setSelectedTab] = useState("foundation");
-  const { contents, round } = courseData;
+
+  // تحديث: جلب exams_round من المستوى الرئيسي للـ courseData
+  const { contents, round, exams_round } = courseData;
 
   // فلترة المحتوى حسب النوع
   const foundationContents = contents.filter(
@@ -15,8 +24,8 @@ const CourseContent = ({ isRegistered, courseData }) => {
 
   const lectureContents = contents.filter((c) => c.content_type === "lecture");
 
-  // جمع كل الامتحانات من كل المحتوى
-  const allExams = contents.flatMap((content) => content.exams_round || []);
+  // تحديث: استخدام exams_round مباشرة من courseData
+  const allExams = exams_round || [];
 
   return (
     <div className="w-full flex-1">
@@ -67,7 +76,13 @@ const CourseContent = ({ isRegistered, courseData }) => {
       {selectedTab === "tests" && (
         <div className="flex flex-col gap-3 md:gap-4">
           {allExams.length > 0 ? (
-            allExams.map((exam) => <TestRow key={exam.id} exam={exam} />)
+            allExams.map((examData) => (
+              <TestRow
+                key={examData.exam.id}
+                examData={examData}
+                isRegistered={isRegistered}
+              />
+            ))
           ) : (
             <div className="text-center py-8 text-text-alt">
               لا توجد اختبارات متاحة
@@ -141,30 +156,469 @@ export const Navs = ({ selectedTab, setSelectedTab }) => {
   );
 };
 
-export const TestRow = ({ exam }) => {
+export const TestRow = ({ examData, isRegistered }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(null);
+
+  const { exam, videos = [], exam_pdfs = [], is_solved = false } = examData;
+
   const formatTime = (timeString) => {
     if (!timeString) return "غير محدد";
     const [hours, minutes] = timeString.split(":");
-    return `${hours} ساعة ${minutes} دقيقة`;
+    const h = parseInt(hours);
+    const m = parseInt(minutes);
+    if (h === 0) return `${m} دقيقة`;
+    if (m === 0) return `${h} ساعة`;
+    return `${h} ساعة ${m} دقيقة`;
   };
 
+  const getLevelLabel = (level) => {
+    const levels = {
+      easy: "سهل",
+      medium: "متوسط",
+      hard: "صعب",
+    };
+    return levels[level] || "";
+  };
+
+  const getLevelColor = (level) => {
+    const colors = {
+      easy: "bg-green-100 text-green-600",
+      medium: "bg-yellow-100 text-yellow-600",
+      hard: "bg-red-100 text-red-600",
+    };
+    return colors[level] || "";
+  };
+
+  // دالة تحميل ملف مباشرة للجهاز
+  const handleDownloadFile = async (e, fileUrl, title, extension = "pdf") => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isRegistered) {
+      alert("يجب التسجيل في الدورة أولاً للتحميل 🔒");
+      return;
+    }
+
+    const downloadId = `${title}-${extension}`;
+    setIsDownloading(downloadId);
+
+    try {
+      const response = await fetch(fileUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/octet-stream",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("فشل في جلب الملف");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${title}.${extension}`;
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+    } catch (error) {
+      console.error("خطأ في تحميل الملف:", error);
+      // Fallback
+      const link = document.createElement("a");
+      link.href = fileUrl;
+      link.download = `${title}.${extension}`;
+      link.setAttribute("download", `${title}.${extension}`);
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } finally {
+      setIsDownloading(null);
+    }
+  };
+
+  const hasContent = videos.length > 0 || exam_pdfs.length > 0;
+
   return (
-    <Link
-      href={`/mock-test/${exam.id}`}
-      className="flex flex-col lg:flex-row items-start lg:items-center group hover:shadow-2xl cursor-pointer duration-75 transition-all justify-between p-4 lg:px-6 lg:py-8 relative bg-white rounded-[20px] border-2 border-solid border-zinc-500 gap-4"
+    <div
+      className={cx(
+        "flex flex-col relative bg-white rounded-[20px] border-2 border-solid transition-all",
+        is_solved ? "border-green-300" : "border-zinc-300",
+        isExpanded ? "shadow-xl" : "hover:shadow-2xl"
+      )}
     >
-      <div className="flex items-center gap-3">
-        <p className="group-hover:text-primary transition-all duration-75 font-medium text-text text-sm md:text-base">
-          {exam.title || "غير محدد"}
-        </p>
+      {/* Main Row - Clickable Header */}
+      <div
+        onClick={() => hasContent && setIsExpanded(!isExpanded)}
+        className={cx(
+          "flex flex-col lg:flex-row items-start lg:items-center justify-between p-4 lg:px-6 lg:py-6 gap-4",
+          hasContent && "cursor-pointer"
+        )}
+      >
+        <div className="flex items-center gap-3 flex-1 flex-wrap">
+          {/* Exam Title - Still clickable to view results if solved */}
+          <Link
+            href={isRegistered ? `/mock-test/${exam.id}` : "#"}
+            onClick={(e) => {
+              if (!isRegistered) {
+                e.preventDefault();
+                alert("يجب التسجيل في الدورة أولاً 🔒");
+              }
+              e.stopPropagation();
+            }}
+            className="group-hover:text-primary transition-all duration-75 font-medium text-text text-sm md:text-base hover:text-primary hover:underline"
+          >
+            {exam.title || "غير محدد"}
+          </Link>
+
+          {/* Level Badge */}
+          {exam.level && (
+            <span
+              className={`text-xs px-2 py-0.5 rounded-full ${getLevelColor(
+                exam.level
+              )}`}
+            >
+              {getLevelLabel(exam.level)}
+            </span>
+          )}
+
+          {/* ✅ Solved Badge */}
+          {is_solved && (
+            <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-green-100 text-green-600 font-medium">
+              <svg
+                className="w-3.5 h-3.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              تم الحل
+            </span>
+          )}
+
+          {/* Lock Icon for unregistered */}
+          {!isRegistered && (
+            <LockIcon2 className="fill-secondary w-4 h-4 md:w-5 md:h-5" />
+          )}
+        </div>
+
+        <div className="w-full lg:w-auto flex items-center justify-between lg:justify-end lg:gap-4">
+          <div className="flex items-center gap-3">
+            {exam.date && (
+              <span className="text-text-alt text-xs md:text-sm">
+                {exam.date}
+              </span>
+            )}
+            <span className="text-text-alt text-xs md:text-sm">
+              {formatTime(exam.time)}
+            </span>
+          </div>
+
+          {hasContent && (
+            <div
+              className={`w-5 h-5 transition-transform duration-300 mr-2 ${
+                isExpanded ? "rotate-180" : "rotate-0"
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-5 h-5 text-primary"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                />
+              </svg>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="w-full lg:w-auto flex items-center justify-between lg:justify-start lg:gap-4">
-        <div className="font-bold text-primary text-base lg:text-lg">
-          ({exam.exam_type === "full_round" ? "اختبار شامل" : "اختبار محاكي"})
+      {/* Expanded Content */}
+      {isExpanded && hasContent && (
+        <div className="border-t-2 border-zinc-200 px-4 lg:px-6 py-4 space-y-4">
+          {/* Description */}
+          {exam.description && (
+            <p className="text-text-alt text-sm">{exam.description}</p>
+          )}
+
+          {/* Videos Section */}
+          {videos.length > 0 && (
+            <div className="space-y-3">
+              <h4 className="font-medium text-text text-sm flex items-center gap-2">
+                <RoundedPlayIcon className="w-5 h-5 stroke-primary" />
+                فيديوهات الشرح
+              </h4>
+              {videos.map((video) => {
+                const videoDownloadId = `${video.title}-mp4`;
+                const isVideoDownloading = isDownloading === videoDownloadId;
+
+                return (
+                  <div
+                    key={video.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200"
+                  >
+                    <div className="flex items-center gap-3">
+                      <RoundedPlayIcon className="w-6 h-6 stroke-primary" />
+                      <div className="flex flex-col">
+                        <span className="font-medium text-text text-sm">
+                          {video.title}
+                        </span>
+                        {video.description && (
+                          <span className="text-text-alt text-xs">
+                            {video.description}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {!isRegistered ? (
+                      <LockIcon2 className="fill-secondary w-5 h-5" />
+                    ) : (
+                      <button
+                        onClick={(e) =>
+                          handleDownloadFile(
+                            e,
+                            video.video_url,
+                            video.title,
+                            "mp4"
+                          )
+                        }
+                        disabled={isVideoDownloading}
+                        className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 bg-secondary rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-wait"
+                      >
+                        {isVideoDownloading ? (
+                          <svg
+                            className="animate-spin w-4 h-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                            />
+                          </svg>
+                        ) : (
+                          <DownloadIcon className="w-4 h-4" />
+                        )}
+                        <span className="text-white font-medium text-xs sm:text-sm">
+                          {isVideoDownloading ? "جاري..." : "تحميل"}
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* PDFs Section */}
+          {exam_pdfs.length > 0 && (
+            <div className="space-y-3">
+              <h4 className="font-medium text-text text-sm flex items-center gap-2">
+                <FileIcon className="w-5 h-5 fill-primary" />
+                ملفات الاختبار
+              </h4>
+              {exam_pdfs.map((pdf) => {
+                const pdfDownloadId = `${pdf.title}-pdf`;
+                const isPdfDownloading = isDownloading === pdfDownloadId;
+
+                return (
+                  <div
+                    key={pdf.id}
+                    className={cx(
+                      "flex items-center justify-between p-3 rounded-xl border",
+                      pdf.type === "question"
+                        ? "bg-gray-50 border-gray-200"
+                        : "bg-gray-50 border-gray-200"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <FileIcon
+                        className={cx(
+                          "w-6 h-6",
+                          pdf.type === "question"
+                            ? "fill-blue-600"
+                            : "fill-green-600"
+                        )}
+                      />
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-text text-sm">
+                            {pdf.title}
+                          </span>
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              pdf.type === "question"
+                                ? "bg-blue-100 text-blue-600"
+                                : "bg-green-100 text-green-600"
+                            }`}
+                          >
+                            {pdf.type === "question" ? "أسئلة" : "إجابات"}
+                          </span>
+                        </div>
+                        {pdf.description && (
+                          <span className="text-text-alt text-xs">
+                            {pdf.description}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {!isRegistered ? (
+                      <LockIcon2 className="fill-secondary w-5 h-5" />
+                    ) : (
+                      <button
+                        onClick={(e) =>
+                          handleDownloadFile(e, pdf.pdf_url, pdf.title, "pdf")
+                        }
+                        disabled={isPdfDownloading}
+                        className={cx(
+                          "inline-flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-wait",
+                          pdf.type === "question"
+                            ? "bg-blue-600"
+                            : "bg-green-600"
+                        )}
+                      >
+                        {isPdfDownloading ? (
+                          <svg
+                            className="animate-spin w-4 h-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                            />
+                          </svg>
+                        ) : (
+                          <DownloadIcon className="w-4 h-4" />
+                        )}
+                        <span className="text-white font-medium text-xs sm:text-sm">
+                          {isPdfDownloading ? "جاري..." : "تحميل"}
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          {isRegistered && (
+            <div className="flex justify-center gap-3 pt-2">
+              {is_solved ? (
+                <>
+                  {/* View Results Button */}
+                  {/* <Link
+                    href={`/mock-test/${exam.id}/results`}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:opacity-90 transition-opacity font-medium"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                      />
+                    </svg>
+                    عرض النتيجة
+                  </Link> */}
+
+                  {/* Disabled Start Button */}
+                  <button
+                    disabled
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gray-300 text-gray-500 rounded-xl cursor-not-allowed font-medium"
+                    title="لقد قمت بحل هذا الاختبار مسبقاً"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    تم الحل مسبقاً
+                  </button>
+                </>
+              ) : (
+                /* Start Exam Button - Only shown if not solved */
+                <Link
+                  href={`/mock-test/${exam.id}`}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:opacity-90 transition-opacity font-medium"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  بدء الاختبار
+                </Link>
+              )}
+            </div>
+          )}
         </div>
-        <div className="text-text-alt text-sm">{formatTime(exam.time)}</div>
-      </div>
-    </Link>
+      )}
+    </div>
   );
 };

@@ -30,9 +30,18 @@ const CourseCard = ({
   const { mutate, error, isLoading, data, isError } =
     useHandleFavoriteActions();
   const { token } = useSelector((state) => state.auth);
+
+  // Local state for optimistic update
+  const [isFavorite, setIsFavorite] = useState(payload?.favorite || isInFav);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Sync with payload when it changes
+  useEffect(() => {
+    setIsFavorite(payload?.favorite || isInFav);
+  }, [payload?.favorite, isInFav]);
+
   const handleAddToFavorite = async (id) => {
     try {
-      console.log("enter");
       const mustLogin = redirect({
         token,
         action: saveContent,
@@ -42,16 +51,34 @@ const CourseCard = ({
           link: window.location.pathname,
         },
       });
-      console.log("must login");
 
       if (!mustLogin) return;
 
-      const payload = {
+      // Optimistic update - update UI immediately
+      setIsFavorite((prev) => !prev);
+      setIsUpdating(true);
+
+      const requestPayload = {
         round_id: id,
       };
-      mutate({ id, payload });
+
+      mutate(
+        { id, payload: requestPayload },
+        {
+          onError: () => {
+            // Revert on error
+            setIsFavorite((prev) => !prev);
+          },
+          onSettled: () => {
+            setIsUpdating(false);
+          },
+        }
+      );
     } catch (error) {
       console.log(error);
+      // Revert on error
+      setIsFavorite((prev) => !prev);
+      setIsUpdating(false);
     }
   };
 
@@ -104,7 +131,7 @@ const CourseCard = ({
       >
         <div className="bg-white pb-6 sm:pb-8 h-full rounded-[23px] sm:rounded-[28px] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start gap-2">
           <div
-            className="self-stretch h-40 sm:h-48 pt-[20px] sm:pt-[24px] px-[14px] sm:px-[16px] relative bg-black/25 rounded-tl-[20px] sm:rounded-tl-[20px] rounded-tr-[20px] sm:rounded-tr-[20px] overflow-hidden"
+            className="self-stretch h-40 sm:h-48 pt-[20px] sm:pt-[24px] px-[14px] sm:px-[16px] relative bg-black/25 rounded-tl-[inherit] sm:rounded-tl-[inherit] rounded-tr-[inherit] sm:rounded-tr-[inherit] overflow-hidden "
             style={{
               backgroundImage: `url('${
                 payload?.image_url || "/images/Image-48.png"
@@ -123,16 +150,14 @@ const CourseCard = ({
               </div>
             </div>
             <div className="absolute top-3 sm:top-4 left-3 sm:left-4">
-              <div className="flex justify-between gap-5  items-center">
-                <button
-                  onClick={() => {
-                    handleAddToFavorite(payload?.id);
-                  }}
-                >
-                  <FavIcon isFav={payload?.favorite} />
-                </button>
+              <div className="flex justify-between gap-5 items-center">
+                <FavIcon
+                  isFav={isFavorite}
+                  isLoading={isUpdating}
+                  onClick={() => handleAddToFavorite(payload?.id)}
+                />
                 {payload?.free !== "0" && (
-                  <div className="flex justify-center px-3 py-1  group hover:bg-white hover:text-secondary   rounded-lg items-center bg-secondary">
+                  <div className="flex justify-center px-3 py-1 group hover:bg-white hover:text-secondary rounded-lg items-center bg-secondary">
                     <span className="text-white group-hover:text-secondary transition-all">
                       مجاني
                     </span>
@@ -246,8 +271,8 @@ const CourseCard = ({
                 </div>
                 <div className="flex justify-start items-center gap-[5px] flex-shrink-0">
                   <Avatar.Group>
-                    {payload?.teacher?.map((instructor) => (
-                      <Tooltip title={instructor?.name}>
+                    {payload?.teachers?.map((instructor) => (
+                      <Tooltip title={instructor?.name} key={instructor?.id}>
                         <Avatar
                           src={instructor?.image_url}
                           onError={() => false}
@@ -401,24 +426,66 @@ export const MobileCourseCard = ({ freeWidth }) => {
   );
 };
 
-const FavIcon = ({ isFav = false, onClick = () => null }) => {
+const FavIcon = ({
+  isFav = false,
+  onClick = () => null,
+  isLoading = false,
+}) => {
   return (
     <div
-      onClick={onClick}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!isLoading) {
+          onClick();
+        }
+      }}
       className={`w-7 h-7 sm:w-8 sm:h-8 relative z-40 cursor-pointer ${
-        isFav ? "bg-secondary" : "border border-white"
-      } rounded-[8px] sm:rounded-[10px] inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden transition-all duration-200`}
+        isFav
+          ? "bg-secondary"
+          : "bg-black/30 backdrop-blur-sm border border-white/50"
+      } rounded-[8px] sm:rounded-[10px] inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden transition-all duration-300 hover:scale-110 active:scale-95 ${
+        isLoading ? "opacity-70 pointer-events-none" : ""
+      }`}
     >
-      <svg
-        width={16}
-        height={14}
-        viewBox="0 0 18 16"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="fill-white w-4 h-4 sm:w-[18px] sm:h-4"
-      >
-        <path d="M9 16C8.79 16 8.5764 15.9623 8.3592 15.8868C8.142 15.8114 7.9506 15.6907 7.785 15.5248L6.2325 14.099C4.6425 12.6355 3.2061 11.1836 1.9233 9.74303C0.6405 8.3025 -0.000599579 6.71442 4.20757e-07 4.97878C4.20757e-07 3.56058 0.472501 2.37624 1.4175 1.42574C2.3625 0.475247 3.54 0 4.95 0C5.745 0 6.495 0.16958 7.2 0.508741C7.905 0.847902 8.505 1.31198 9 1.90099C9.495 1.31259 10.095 0.848807 10.8 0.509646C11.505 0.170486 12.255 0.000603489 13.05 0C14.46 0 15.6375 0.475247 16.5825 1.42574C17.5275 2.37624 18 3.56058 18 4.97878C18 6.71381 17.3625 8.30552 16.0875 9.75389C14.8125 11.2023 13.365 12.6582 11.745 14.1216L10.215 15.5248C10.05 15.6907 9.8589 15.8114 9.6417 15.8868C9.4245 15.9623 9.2106 16 9 16Z" />
-      </svg>
+      {isLoading ? (
+        <svg
+          className="animate-spin w-4 h-4 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
+      ) : (
+        <svg
+          width={16}
+          height={14}
+          viewBox="0 0 18 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={`w-4 h-4 sm:w-[18px] sm:h-4 transition-all duration-300 ${
+            isFav ? "fill-white scale-110" : "fill-white"
+          }`}
+        >
+          <path
+            d="M9 16C8.79 16 8.5764 15.9623 8.3592 15.8868C8.142 15.8114 7.9506 15.6907 7.785 15.5248L6.2325 14.099C4.6425 12.6355 3.2061 11.1836 1.9233 9.74303C0.6405 8.3025 -0.000599579 6.71442 4.20757e-07 4.97878C4.20757e-07 3.56058 0.472501 2.37624 1.4175 1.42574C2.3625 0.475247 3.54 0 4.95 0C5.745 0 6.495 0.16958 7.2 0.508741C7.905 0.847902 8.505 1.31198 9 1.90099C9.495 1.31259 10.095 0.848807 10.8 0.509646C11.505 0.170486 12.255 0.000603489 13.05 0C14.46 0 15.6375 0.475247 16.5825 1.42574C17.5275 2.37624 18 3.56058 18 4.97878C18 6.71381 17.3625 8.30552 16.0875 9.75389C14.8125 11.2023 13.365 12.6582 11.745 14.1216L10.215 15.5248C10.05 15.6907 9.8589 15.8114 9.6417 15.8868C9.4245 15.9623 9.2106 16 9 16Z"
+            className={isFav ? "" : "opacity-80"}
+          />
+        </svg>
+      )}
     </div>
   );
 };

@@ -1,22 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 
 const MockExamQuestion = ({
-  questionData,
-  questionNumber = 1,
-  passage,
-  selectedAnswer,
+  block,
+  questionNumberStart = 1,
+  answers,
   onAnswerSelect,
   fontSize = "normal",
 }) => {
-  if (!questionData) {
+  if (!block) {
     return <div>جاري تحميل السؤال...</div>;
   }
 
-  console.log(questionData);
-
-  // Font size mapping
   const getFontSizeClass = (size) => {
     const sizeMap = {
       small: "text-sm",
@@ -31,24 +27,29 @@ const MockExamQuestion = ({
 
   return (
     <div>
-      {passage && (
-        <div className=" mb-6">
+      {/* Show passage if exists */}
+      {block.passage && (
+        <div className="mb-6">
           <p
             className={`flex items-center justify-center font-medium text-zinc-500 ${textSizeClass} tracking-[0] leading-[normal] [direction:rtl]`}
           >
-            &quot;{passage}&quot;
+            &quot;{block.passage}&quot;
           </p>
         </div>
       )}
 
+      {/* Show all questions in this block */}
       <div className="grid grid-cols-1 gap-6 mt-6">
-        <SingleQuestion
-          questionData={questionData}
-          questionNumber={questionNumber}
-          selectedAnswer={selectedAnswer}
-          onAnswerSelect={onAnswerSelect}
-          fontSize={fontSize}
-        />
+        {block.questions.map((question, index) => (
+          <SingleQuestion
+            key={question.id}
+            questionData={question}
+            questionNumber={questionNumberStart + index}
+            selectedAnswer={answers[question.id]}
+            onAnswerSelect={(optionId) => onAnswerSelect(question.id, optionId)}
+            fontSize={fontSize}
+          />
+        ))}
       </div>
     </div>
   );
@@ -67,7 +68,6 @@ export const SingleQuestion = ({
     onAnswerSelect(optionId);
   };
 
-  // Font size mapping
   const getFontSizeClass = (size) => {
     const sizeMap = {
       small: "text-sm",
@@ -108,7 +108,7 @@ export const SingleQuestion = ({
           >
             <input
               type="radio"
-              name={`question-${questionNumber}`}
+              name={`question-${questionData.id}`}
               value={option.id}
               checked={selectedAnswer === option.id}
               onChange={() => handleOptionChange(option.id)}

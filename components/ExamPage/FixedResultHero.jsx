@@ -1,7 +1,18 @@
+"use client";
+
 import Link from "next/link";
 import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import {
+  selectExamScore,
+  selectExamPercentage,
+} from "../../components/utils/Store/Slices/examSlice";
 
 export const FixedResultHero = ({ open, setOpen, id }) => {
+  // Get score from Redux
+  const score = useSelector(selectExamScore);
+  const percentage = useSelector(selectExamPercentage);
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -15,6 +26,15 @@ export const FixedResultHero = ({ open, setOpen, id }) => {
   }, [open]);
 
   if (!open) return null;
+
+  // Determine if passed (you can adjust this threshold)
+  const passed = percentage >= 50;
+  const resultImage = passed
+    ? "/images/good-exam-result.png"
+    : "/images/bad-exam-result.png";
+  const resultMessage = passed
+    ? "تهانينا لقد نجحت في الاختبار"
+    : "للأسف لم تنجح في الاختبار";
 
   return (
     <div
@@ -33,11 +53,12 @@ export const FixedResultHero = ({ open, setOpen, id }) => {
         <div className="flex flex-col lg:flex-row">
           {/* Content Section */}
           <section className="w-full lg:w-[42%] flex flex-col items-center justify-center gap-6 sm:gap-8 lg:gap-[54px] px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12 bg-white">
+            {/* Mobile Image */}
             <div className="w-32 h-32 sm:w-40 sm:h-40 lg:hidden mb-4">
               <img
                 className="w-full h-full object-contain"
-                alt="Success icon"
-                src={"/images/good-exam-result.png"}
+                alt="Result icon"
+                src={resultImage}
               />
             </div>
 
@@ -46,17 +67,37 @@ export const FixedResultHero = ({ open, setOpen, id }) => {
                 نتيجة الاختبار
               </h1>
 
-              <div
-                className="font-bold text-secondary text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[80px] text-center tracking-tight leading-none"
-                role="status"
-                aria-label="Test score: 85 percent"
-              >
-                85%
-              </div>
+              {/* Score Display */}
+              {score && (
+                <div className="flex flex-col items-center gap-2">
+                  <div
+                    className={`font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[80px] text-center tracking-tight leading-none ${
+                      passed ? "text-secondary" : "text-red-500"
+                    }`}
+                    role="status"
+                    aria-label={`Test score: ${percentage} percent`}
+                  >
+                    {percentage}%
+                  </div>
+                  <div className="text-text-alt text-lg sm:text-xl md:text-2xl font-medium">
+                    {score}
+                  </div>
+                </div>
+              )}
+
+              {/* Fallback if no score */}
+              {!score && (
+                <div
+                  className="font-bold text-secondary text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[80px] text-center tracking-tight leading-none"
+                  role="status"
+                >
+                  --
+                </div>
+              )}
             </header>
 
             <p className="font-medium text-variable-collection-text text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-center px-2 leading-relaxed">
-              تهانينا لقد نجحت في الاختبار
+              {resultMessage}
             </p>
 
             {/* Action Buttons */}
@@ -84,8 +125,8 @@ export const FixedResultHero = ({ open, setOpen, id }) => {
           <div className="hidden lg:block lg:w-[58%] relative">
             <img
               className="w-full h-full object-cover"
-              alt="Congratulations illustration"
-              src={"/images/good-exam-result.png"}
+              alt="Result illustration"
+              src={resultImage}
             />
           </div>
         </div>

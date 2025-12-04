@@ -1,6 +1,11 @@
-import React from "react";
+"use client";
 
-const ExamDetailsHeader = ({ title }) => {
+import React, { useEffect } from "react";
+
+const ExamDetailsHeader = ({ title, examData }) => {
+  useEffect(() => {
+    console.log(examData?.sections, "examData?.sections");
+  }, [examData?.sections]);
   return (
     <header
       dir="rtl"
@@ -30,7 +35,7 @@ const ExamDetailsHeader = ({ title }) => {
           </div>
           <div className="bg-secondary-light inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-1 rounded-lg">
             <div className="font-medium text-secondary text-sm sm:text-base leading-tight sm:leading-normal">
-              20 سؤالا
+              {examData?.sections[0]?.mcq?.length + " سؤالا"}
             </div>
           </div>
         </div>

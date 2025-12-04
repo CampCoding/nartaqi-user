@@ -22,6 +22,11 @@ const ExamDetails = ({ params }) => {
   const [examResult, setExamResult] = useState(null);
   const { id } = useParams();
   const { token } = useSelector((state) => state.auth);
+  const user = useSelector((state) => state.auth);
+
+  // useEffect(() => {
+  //   console.log(user, "user");
+  // }, [user]);
 
   // Fetch exam data
   useEffect(() => {
@@ -32,6 +37,7 @@ const ExamDetails = ({ params }) => {
           `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/get_exam_sectionsWithQuestions`,
           {
             exam_id: id,
+            student_id: user?.user?.id,
           },
           {
             headers: {

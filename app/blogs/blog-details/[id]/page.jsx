@@ -26,7 +26,7 @@ const BlogDetails = () => {
   return (
     <div className="">
       <PagesBanner
-        image={blog?.image || "/images/Frame 1000004929.png"}
+        image={blog?.image_cover_url || "/images/Frame 1000004929.png"}
         objectPosition={"100%_100%"}
         variant="large"
         title={blog?.title}
@@ -43,7 +43,7 @@ const BlogDetails = () => {
       />
       <Container className={"mt-[32px] mb-[100px]"}>
         <BlogContent blog={blog} />
-        <RelatedBlogs />
+        <RelatedBlogs blogs={blog?.related_blogs} />
         <BlogComments
           count={blog?.comments_count}
           id={blog?.id}

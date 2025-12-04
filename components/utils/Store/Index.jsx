@@ -17,6 +17,8 @@ import blogSlice from "./Slices/BlogSlice.jsx";
 import redirectSlice from "./Slices/redirectSlice.jsx";
 import cartSlice from "./Slices/cartSlice.jsx";
 import storeSlice from "./Slices/storeSlice.jsx";
+import examReducer from "./Slices/examSlice";
+import mockExamReducer from "./Slices/mockExamSlice.js";
 
 const persistConfig = {
   key: "root",
@@ -31,6 +33,8 @@ const rootReducer = combineReducers({
   redirect: redirectSlice.reducer,
   cart: cartSlice.reducer,
   store: storeSlice.reducer,
+  exam: examReducer,
+  mockExam: mockExamReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

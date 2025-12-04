@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   CalenderEndIcon,
   CalenderStartIcon,
@@ -13,6 +13,10 @@ import {
 } from "../../public/svgs";
 import Link from "next/link";
 import { message } from "antd";
+import { useSelector } from "react-redux";
+import useRedirect from "../../components/shared/Hooks/useRedirect";
+// import { saveContent } from "../../utils/Store/Slices/redirectSlice";
+import useHandleFavoriteActions from "../../components/shared/Hooks/useHandleFavoriteActions";
 
 const RegCourseDetailsCard = ({
   courseData,
@@ -23,6 +27,21 @@ const RegCourseDetailsCard = ({
 }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const { round, roundRate } = courseData;
+
+  // Hooks
+  const redirect = useRedirect();
+  const { token } = useSelector((state) => state.auth);
+  const { mutate, error, isLoading, data, isError } =
+    useHandleFavoriteActions();
+
+  // Local state for optimistic updates
+  const [isFavorite, setIsFavorite] = useState(isInFavorites);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Sync with props when they change
+  useEffect(() => {
+    setIsFavorite(isInFavorites);
+  }, [isInFavorites]);
 
   // حساب التقييم
   const calculateRating = () => {
@@ -41,15 +60,70 @@ const RegCourseDetailsCard = ({
     });
   };
 
-  const handleToggleFavorite = () => {
-    onToggleFavorite();
-    messageApi.open({
-      type: "success",
-      content: !isInFavorites
-        ? "تم إضافة الدورة إلى المفضلة"
-        : "تم إزالة الدورة من المفضلة",
-      duration: 3,
-    });
+  const handleAddToFavorite = async (id) => {
+    try {
+      const mustLogin = redirect({
+        token,
+        // action: saveContent,
+        payload: {
+          id,
+          type: "favorite",
+          link: window.location.pathname,
+        },
+      });
+
+      if (!mustLogin) return;
+
+      // Optimistic update - update UI immediately
+      setIsFavorite((prev) => !prev);
+      setIsUpdating(true);
+
+      const requestPayload = {
+        round_id: id,
+      };
+
+      mutate(
+        { id, payload: requestPayload },
+        {
+          onSuccess: () => {
+            // messageApi.open({
+            //   type: "success",
+            //   content: !isFavorite
+            //     ? "تم إضافة الدورة إلى المفضلة"
+            //     : "تم إزالة الدورة من المفضلة",
+            //   duration: 3,
+            // });
+
+            // Call parent's toggle function if provided
+            if (onToggleFavorite) {
+              onToggleFavorite();
+            }
+          },
+          onError: () => {
+            // Revert on error
+            setIsFavorite((prev) => !prev);
+            messageApi.open({
+              type: "error",
+              content: "حدث خطأ في العملية",
+              duration: 3,
+            });
+          },
+          onSettled: () => {
+            setIsUpdating(false);
+          },
+        }
+      );
+    } catch (error) {
+      console.log(error);
+      // Revert on error
+      setIsFavorite((prev) => !prev);
+      setIsUpdating(false);
+      messageApi.open({
+        type: "error",
+        content: "حدث خطأ في العملية",
+        duration: 3,
+      });
+    }
   };
 
   return (
@@ -67,17 +141,11 @@ const RegCourseDetailsCard = ({
 
         {/* Share and Favorite Icons */}
         <div className="absolute top-4 right-4 flex items-center gap-3">
-          <button
-            onClick={handleToggleFavorite}
-            className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors duration-200 cursor-pointer active:scale-90"
-            aria-label="Add to favorites"
-          >
-            {isInFavorites ? (
-              <HeartFillIcon className="w-5 h-5 text-white fill-white" />
-            ) : (
-              <HeartIcon className="w-5 h-5 text-white fill-white" />
-            )}
-          </button>
+          <FavIconButton
+            isFav={isFavorite}
+            isLoading={isUpdating}
+            onClick={() => handleAddToFavorite(round?.id || courseData?.id)}
+          />
           <button
             onClick={() => onShare(true)}
             className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors duration-200 cursor-pointer active:scale-90"
@@ -176,6 +244,71 @@ const RegCourseDetailsCard = ({
         </Link>
       </div>
       {contextHolder}
+    </div>
+  );
+};
+
+// Reusable FavIconButton component (matching CourseCard design)
+const FavIconButton = ({
+  isFav = false,
+  onClick = () => null,
+  isLoading = false,
+}) => {
+  return (
+    <div
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!isLoading) {
+          onClick();
+        }
+      }}
+      className={`w-8 h-8 relative z-40 cursor-pointer ${
+        isFav
+          ? "bg-secondary"
+          : "bg-black/30 backdrop-blur-sm border border-white/50"
+      } rounded-[10px] inline-flex flex-col justify-center items-center gap-2.5 overflow-hidden transition-all duration-300 hover:scale-110 active:scale-95 ${
+        isLoading ? "opacity-70 pointer-events-none" : ""
+      }`}
+    >
+      {isLoading ? (
+        <svg
+          className="animate-spin w-4 h-4 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
+      ) : (
+        <svg
+          width={18}
+          height={16}
+          viewBox="0 0 18 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className={`w-[18px] h-4 transition-all duration-300 ${
+            isFav ? "fill-white scale-110" : "fill-white"
+          }`}
+        >
+          <path
+            d="M9 16C8.79 16 8.5764 15.9623 8.3592 15.8868C8.142 15.8114 7.9506 15.6907 7.785 15.5248L6.2325 14.099C4.6425 12.6355 3.2061 11.1836 1.9233 9.74303C0.6405 8.3025 -0.000599579 6.71442 4.20757e-07 4.97878C4.20757e-07 3.56058 0.472501 2.37624 1.4175 1.42574C2.3625 0.475247 3.54 0 4.95 0C5.745 0 6.495 0.16958 7.2 0.508741C7.905 0.847902 8.505 1.31198 9 1.90099C9.495 1.31259 10.095 0.848807 10.8 0.509646C11.505 0.170486 12.255 0.000603489 13.05 0C14.46 0 15.6375 0.475247 16.5825 1.42574C17.5275 2.37624 18 3.56058 18 4.97878C18 6.71381 17.3625 8.30552 16.0875 9.75389C14.8125 11.2023 13.365 12.6582 11.745 14.1216L10.215 15.5248C10.05 15.6907 9.8589 15.8114 9.6417 15.8868C9.4245 15.9623 9.2106 16 9 16Z"
+            className={isFav ? "" : "opacity-80"}
+          />
+        </svg>
+      )}
     </div>
   );
 };

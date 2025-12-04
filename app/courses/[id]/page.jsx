@@ -99,6 +99,7 @@ const TeachersCourses = () => {
                       rating: course?.average_rating,
                       totalRates: course?.ratings_count,
                       capacity: course?.capacity,
+                      teachers: course?.teachers,
                       course: {
                         name: course?.category_parts_name,
                       },

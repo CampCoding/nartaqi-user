@@ -136,6 +136,9 @@ export const RegLectureDrawer = ({ lesson, isDone }) => {
     ...(lesson.live || []).map((live) => ({ ...live, type: "live" })),
   ];
 
+  // التحقق من وجود امتحانات - تحديث للهيكل الجديد
+  const hasExams = lesson.exam_all_data && lesson.exam_all_data.length > 0;
+
   return (
     <article
       className={cx(
@@ -232,9 +235,12 @@ export const RegLectureDrawer = ({ lesson, isDone }) => {
             </div>
           ))}
 
-          {/* Exams */}
-          {lesson.exams && lesson.exams.length > 0 && (
-            <ExerciseDropDown lesson={lesson} isDone={isDone} />
+          {/* Exams - تحديث للهيكل الجديد */}
+          {hasExams && (
+            <ExerciseDropDown
+              examAllData={lesson.exam_all_data}
+              isDone={isDone}
+            />
           )}
         </section>
       )}
@@ -242,11 +248,35 @@ export const RegLectureDrawer = ({ lesson, isDone }) => {
   );
 };
 
-export const ExerciseDropDown = ({ lesson, isDone = false }) => {
+export const ExerciseDropDown = ({ examAllData, isDone = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const sectionId = useId();
 
   const toggleExpanded = () => setIsExpanded((v) => !v);
+
+  // دالة تحميل ملف (PDF أو فيديو)
+  const handleDownloadFile = async (fileUrl, title, extension = "pdf") => {
+    if (!isDone) {
+      alert("يجب إكمال الدرس أولاً للتحميل 🔒");
+      return;
+    }
+
+    try {
+      const response = await fetch(fileUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${title}.${extension}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("خطأ في تحميل الملف:", error);
+      window.open(fileUrl, "_blank");
+    }
+  };
 
   return (
     <>
@@ -286,59 +316,160 @@ export const ExerciseDropDown = ({ lesson, isDone = false }) => {
 
       {isExpanded && (
         <div id={sectionId} className="w-full">
-          {lesson.exams.map((exam) => (
-            <div key={exam.id} className="flex flex-col">
-              <div className="flex w-full flex-row items-center justify-between border-b-[2px] border-solid last:border-none pt-3 sm:pt-4 pb-4 sm:pb-6 bg-white">
-                {(() => {
-                  const Tag = isDone ? Link : "div";
-                  return (
-                    <>
-                      <Tag
-                        href={isDone ? `/exam-details/${exam.id}` : undefined}
-                        className="inline-flex items-center gap-4 sm:gap-6"
-                      >
-                        <div className="inline-flex items-center gap-0 sm:gap-4 bg-white hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded">
-                          <div
-                            className="relative w-6 h-6 sm:w-7 sm:h-7 aspect-[1]"
-                            aria-hidden="true"
-                          >
-                            <FileIcon
-                              className={
-                                "w-[20px] h-[20px] md:w-[28px] md:h-[28px] fill-primary"
-                              }
-                            />
+          {examAllData.map((examData) => {
+            const exam = examData.exam;
+            const examVideos = examData.videos || [];
+            const examPdfs = examData.exam_pdfs || [];
+            // التحقق من حالة الحل - من البيانات الجديدة
+            const isSolved = examData.is_solved === true;
+
+            const questionPdf = examPdfs.find((pdf) => pdf.type === "question");
+            const answerPdf = examPdfs.find((pdf) => pdf.type === "answers");
+
+            return (
+              <div key={exam.id} className="flex flex-col">
+                {/* Exam Title Row */}
+                <div className="flex w-full flex-row items-center justify-between border-b-[2px] border-solid last:border-none pt-3 sm:pt-4 pb-4 sm:pb-6 bg-white">
+                  {(() => {
+                    const Tag = isDone ? Link : "div";
+                    return (
+                      <>
+                        <Tag
+                          href={isDone ? `/exam-details/${exam.id}` : undefined}
+                          className="inline-flex items-center gap-4 sm:gap-6"
+                        >
+                          <div className="inline-flex items-center gap-2 sm:gap-4 bg-white hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded">
+                            <div
+                              className="relative w-6 h-6 sm:w-7 sm:h-7 aspect-[1]"
+                              aria-hidden="true"
+                            >
+                              <FileIcon
+                                className={
+                                  "w-[20px] h-[20px] md:w-[28px] md:h-[28px] fill-primary"
+                                }
+                              />
+                            </div>
+                            <span className="font-medium text-text text-sm sm:text-base leading-normal">
+                              {exam.title || "أسئلة الاختبار"}
+                            </span>
+
+                            {/* ✅ علامة تم الحل مسبقاً */}
+                            {isSolved && (
+                              <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-green-100 text-green-600 font-medium">
+                                <svg
+                                  className="w-3 h-3"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                تم الحل
+                              </span>
+                            )}
                           </div>
-                          <span className="font-medium text-text text-sm sm:text-base leading-normal">
-                            {exam.title || "أسئلة الاختبار"}
+
+                          {!isDone && (
+                            <div className="relative w-6 h-6 sm:w-7 sm:h-7 aspect-[1]">
+                              <LockIcon2 className="fill-secondary w-5 h-5" />
+                            </div>
+                          )}
+                        </Tag>
+                      </>
+                    );
+                  })()}
+                </div>
+
+                {/* Exam Videos - شرح الاختبار */}
+                {examVideos.length > 0 &&
+                  examVideos.map((video) => (
+                    <div
+                      key={`exam-video-${video.id}`}
+                      className="flex items-start gap-3 pt-3 sm:pt-4 pb-4 sm:pb-6 w-full border-b-[2px] border-solid border-variable-collection-stroke"
+                    >
+                      <RoundedPlayIcon
+                        className={cx(
+                          "w-[27px] h-[27px] md:w-[32px] md:h-[32px] stroke-primary"
+                        )}
+                      />
+                      <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 self-stretch">
+                        <div className="inline-flex items-center gap-2">
+                          <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-sm sm:text-base leading-normal">
+                            {video.title || "شرح الاختبار"}
+                          </h2>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                            شرح
                           </span>
                         </div>
 
-                        {!isDone && (
-                          <div className="relative w-6 h-6 sm:w-7 sm:h-7 aspect-[1]">
+                        <div className="inline-flex items-center gap-3 sm:gap-4">
+                          {!isDone ? (
                             <LockIcon2 className="fill-secondary w-5 h-5" />
-                          </div>
-                        )}
-                      </Tag>
+                          ) : (
+                            <button
+                              onClick={() =>
+                                handleDownloadFile(
+                                  video.video_url,
+                                  video.title,
+                                  "mp4"
+                                )
+                              }
+                              className="inline-flex items-center justify-end gap-2 px-3 md:px-4 py-1.5 bg-secondary rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity"
+                            >
+                              <DownloadIcon className="w-[16px] h-[16px] md:w-[20px] md:h-[20px]" />
+                              <span className="text-white font-medium text-xs sm:text-sm leading-normal">
+                                تحميل
+                              </span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                {/* Additional PDFs */}
+                {isDone &&
+                  examPdfs.length > 1 &&
+                  examPdfs.map((pdf) => (
+                    <div
+                      key={pdf.id}
+                      className="flex w-full flex-row items-center justify-between border-b-[2px] border-solid last:border-none pt-3 sm:pt-4 pb-4 sm:pb-6 bg-white"
+                    >
+                      <div className="inline-flex items-center gap-2 sm:gap-4">
+                        <FileIcon className="w-[20px] h-[20px] md:w-[24px] md:h-[24px] fill-primary" />
+                        <span className="font-medium text-text text-sm sm:text-base leading-normal">
+                          {pdf.title}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full ${
+                            pdf.type === "question"
+                              ? "bg-blue-100 text-blue-600"
+                              : "bg-green-100 text-green-600"
+                          }`}
+                        >
+                          {pdf.type === "question" ? "أسئلة" : "إجابات"}
+                        </span>
+                      </div>
 
                       <button
-                        className="inline-flex disabled:!opacity-50 disabled:cursor-not-allowed items-center justify-end gap-2.5 px-4 md:px-6 sm:px-8 py-2 bg-secondary rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
-                        disabled={!isDone}
+                        onClick={() =>
+                          handleDownloadFile(pdf.pdf_url, pdf.title, "pdf")
+                        }
+                        className="inline-flex items-center justify-end gap-2 px-3 md:px-4 py-1.5 bg-secondary rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity"
                       >
-                        <DownloadIcon
-                          className={
-                            "w-[20px] h-[20px] md:w-[28px] md:h-[28px]"
-                          }
-                        />
-                        <span className="text-white font-medium text-sm sm:text-base leading-normal">
+                        <DownloadIcon className="w-[16px] h-[16px] md:w-[20px] md:h-[20px]" />
+                        <span className="text-white font-medium text-xs sm:text-sm leading-normal">
                           تحميل
                         </span>
                       </button>
-                    </>
-                  );
-                })()}
+                    </div>
+                  ))}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </>

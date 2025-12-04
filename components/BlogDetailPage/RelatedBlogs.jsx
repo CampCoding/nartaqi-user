@@ -30,10 +30,10 @@ const RelatedBlogs = ({ blogs }) => {
                 >
                   <BlogCard
                     freeWidth
-                    item={item}
+                    item={blog}
                     handleBlogClick={() => {
-                      setSelectedBlogId(item.id);
-                      router.push(`/blogs/blog-details/${item.id}`);
+                      setSelectedBlogId(blog.id);
+                      router.push(`/blogs/blog-details/${blog.id}`);
                     }}
                   />
                 </Link>

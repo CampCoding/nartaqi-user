@@ -72,9 +72,9 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
           },
         ]
       : [],
-    // Additional properties that might be useful
-    is_favorite: item?.is_favorite || false,
+    is_favorite: item?.fav || false,
     enrolled: item.enrolled || false,
+    teachers: item.teachers,
   }));
   console.log(transformedData, "transformedData");
 
@@ -135,7 +135,7 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
               prevEl: ".swiper-button-prev",
               nextEl: ".swiper-button-next",
             }}
-            modules={[FreeMode, Mousewheel, Navigation, Autoplay]}
+            modules={[FreeMode, Mousewheel, Navigation]}
             className="w-full relative pb-8"
             breakpoints={{
               0: {

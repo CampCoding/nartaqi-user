@@ -1,32 +1,88 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setExamData,
+  setCurrentIndex,
+  nextQuestion,
+  prevQuestion,
+  setAnswer,
+  startExam,
+  submitExam,
+  selectQuestions,
+  selectCurrentIndex,
+  selectCurrentQuestion,
+  selectAnsweredMap,
+  selectFlaggedMap,
+  selectIsStarted,
+} from "../../components/utils/Store/Slices/examSlice";
 import { ExamQuesionsSummery } from "./examQuesionsSummery";
 import { McqQuestion } from "./McqQuestion";
 import { TrueFalseQuestion } from "./TrueFalseQuestion";
 import { TextQuestion } from "./TextQuestion";
 
-const ExamContent = ({
-  questions = [],
-  currentIndex = 0,
-  answeredMap = {},
-  flaggedMap = {},
-  onSelectOption,
-  onPrev,
-  onNext,
-  onSubmit,
-  onJumpTo,
-  isStarted,
-  setIsStarted,
-}) => {
-  const current = questions[currentIndex] || {
-    type: "mcq",
-    text: "",
-    options: [],
-  };
-  const answerValue = answeredMap[currentIndex] ?? null;
+const ExamContent = ({ examData, onSubmitExam }) => {
+  const dispatch = useDispatch();
+
+  // Redux selectors
+  const questions = useSelector(selectQuestions);
+  const currentIndex = useSelector(selectCurrentIndex);
+  const currentQuestion = useSelector(selectCurrentQuestion);
+  const answeredMap = useSelector(selectAnsweredMap);
+  const flaggedMap = useSelector(selectFlaggedMap);
+  const isStarted = useSelector(selectIsStarted);
+
+  // Initialize exam data when it changes
+  useEffect(() => {
+    if (examData) {
+      dispatch(setExamData(examData));
+    }
+  }, [examData, dispatch]);
+
+  // Get answer for current question
+  const currentAnswer = currentQuestion
+    ? answeredMap[currentQuestion.id] ?? null
+    : null;
+
+  // Create answeredMap by index for summary component
+  const answeredMapByIndex = {};
+  questions.forEach((q, index) => {
+    if (answeredMap[q.id] !== undefined) {
+      answeredMapByIndex[index] = answeredMap[q.id];
+    }
+  });
+
   const isLastQuestion =
     questions.length > 0 && currentIndex === questions.length - 1;
+
+  // Handlers
+  const handleSelectOption = (questionId, answer) => {
+    dispatch(setAnswer({ questionId, answer }));
+  };
+
+  const handlePrev = () => {
+    dispatch(prevQuestion());
+  };
+
+  const handleNext = () => {
+    dispatch(nextQuestion());
+  };
+
+  const handleJumpTo = (index) => {
+    dispatch(setCurrentIndex(index));
+  };
+
+  const handleStart = () => {
+    dispatch(startExam());
+  };
+
+  const handleSubmit = () => {
+    // Call parent submit handler
+    if (onSubmitExam) {
+      onSubmitExam();
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8 lg:gap-12">
@@ -34,36 +90,47 @@ const ExamContent = ({
       <div className="flex flex-col lg:flex-row items-start gap-6 sm:gap-8 lg:gap-12 xl:gap-[58px]">
         {/* Question Section */}
         <div className="w-full lg:flex-1">
-          {isStarted ? (
+          {isStarted && currentQuestion ? (
             <>
-              {current.type === "mcq" && (
+              {/* Question Counter */}
+              <div className="mb-4 text-sm text-text-alt">
+                السؤال {currentIndex + 1} من {questions.length}
+              </div>
+
+              {currentQuestion.type === "mcq" && (
                 <McqQuestion
-                  questionText={current.text}
-                  imageUrl={current.imageUrl}
-                  options={current.options}
-                  selectedOptionId={answerValue}
-                  onSelectOption={(id) =>
-                    onSelectOption && onSelectOption(currentIndex, id)
+                  questionText={currentQuestion.text}
+                  questionHtml={currentQuestion.textHtml}
+                  imageUrl={currentQuestion.imageUrl}
+                  options={currentQuestion.options}
+                  selectedOptionId={currentAnswer}
+                  onSelectOption={(optionId) =>
+                    handleSelectOption(currentQuestion.id, optionId)
                   }
                 />
               )}
-              {current.type === "boolean" && (
+
+              {currentQuestion.type === "boolean" && (
                 <TrueFalseQuestion
-                  questionText={current.text}
-                  imageUrl={current.imageUrl}
-                  value={answerValue}
+                  questionText={currentQuestion.text}
+                  questionHtml={currentQuestion.textHtml}
+                  imageUrl={currentQuestion.imageUrl}
+                  value={currentAnswer}
                   onChange={(val) =>
-                    onSelectOption && onSelectOption(currentIndex, val)
+                    handleSelectOption(currentQuestion.id, val)
                   }
                 />
               )}
-              {current.type === "text" && (
+
+              {(currentQuestion.type === "text" ||
+                currentQuestion.type === "paragraph") && (
                 <TextQuestion
-                  questionText={current.text}
-                  imageUrl={current.imageUrl}
-                  value={answerValue || ""}
+                  questionText={currentQuestion.text}
+                  questionHtml={currentQuestion.textHtml}
+                  imageUrl={currentQuestion.imageUrl}
+                  value={currentAnswer || ""}
                   onChange={(val) =>
-                    onSelectOption && onSelectOption(currentIndex, val)
+                    handleSelectOption(currentQuestion.id, val)
                   }
                 />
               )}
@@ -79,9 +146,9 @@ const ExamContent = ({
             <ExamQuesionsSummery
               totalQuestions={questions.length}
               currentIndex={currentIndex}
-              answeredMap={answeredMap}
+              answeredMap={answeredMapByIndex}
               flaggedMap={flaggedMap}
-              onJumpTo={onJumpTo}
+              onJumpTo={handleJumpTo}
             />
           </div>
         )}
@@ -92,7 +159,7 @@ const ExamContent = ({
         {isStarted ? (
           <>
             <button
-              onClick={onPrev}
+              onClick={handlePrev}
               className="cursor-pointer px-8 sm:px-12 lg:px-20 py-4 sm:py-5 bg-white hover:bg-primary group transition rounded-[15px] sm:rounded-[20px] outline outline-[3px] outline-offset-[-3px] outline-primary flex justify-center items-center gap-2.5"
               style={{
                 opacity: currentIndex === 0 ? "0.5" : "1",
@@ -104,8 +171,9 @@ const ExamContent = ({
                 السابق
               </span>
             </button>
+
             <button
-              onClick={isLastQuestion ? onSubmit || onNext : onNext}
+              onClick={isLastQuestion ? handleSubmit : handleNext}
               className="px-8 sm:px-12 lg:px-20 py-4 sm:py-5 bg-gradient-to-r from-primary to-secondary hover:scale-105 transition cursor-pointer rounded-[15px] sm:rounded-[20px] flex justify-center items-center gap-2.5"
             >
               <span className="text-center text-white text-sm sm:text-base font-bold">
@@ -115,7 +183,7 @@ const ExamContent = ({
           </>
         ) : (
           <button
-            onClick={() => setIsStarted(true)}
+            onClick={handleStart}
             className="px-8 ms-auto sm:px-12 lg:px-20 py-4 sm:py-5 bg-gradient-to-r from-primary to-secondary hover:scale-105 transition cursor-pointer rounded-[15px] sm:rounded-[20px] flex justify-center items-center gap-2.5"
           >
             <span className="text-center text-white text-sm sm:text-base font-bold">

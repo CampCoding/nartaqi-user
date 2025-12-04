@@ -2,56 +2,58 @@ import React, { useState, useEffect } from "react";
 import { InfoIcon } from "./../../public/svgs";
 
 const MockTestReview = ({
-  testData,
+  sections,
   answers,
   markedForReview,
   onNavigateToQuestion,
   onBackToTest,
   activeFilter,
   setActiveFilter,
+  onSubmitExam,
+  isSubmitting = false,
 }) => {
   const [filteredQuestions, setFilteredQuestions] = useState([]);
+  const [isConfirmSubmit, setIsConfirmSubmit] = useState(false);
 
-  // Calculate question statistics
-  const totalQuestions =
-    testData?.data.reduce(
-      (total, section) => total + section.questions.length,
-      0
-    ) || 0;
+  // Calculate totals
+  const totalQuestions = sections.reduce(
+    (sum, section) =>
+      sum +
+      section.blocks.reduce((bSum, block) => bSum + block.questions.length, 0),
+    0
+  );
 
   const completedQuestions = Object.keys(answers).length;
   const flaggedQuestions = markedForReview.size;
   const incompleteQuestions = totalQuestions - completedQuestions;
 
-  // Filter questions based on active filter
   useEffect(() => {
-    if (!testData?.data) return;
-
     let questions = [];
     let questionNumber = 1;
 
-    testData.data.forEach((section, sectionIndex) => {
-      section.questions.forEach((question, questionIndex) => {
-        const answerKey = `${sectionIndex}-${questionIndex}`;
-        const isAnswered = answers[answerKey] !== undefined;
-        const isFlagged = markedForReview.has(answerKey);
+    sections.forEach((section, sectionIndex) => {
+      section.blocks.forEach((block, blockIndex) => {
+        block.questions.forEach((question) => {
+          const isAnswered = answers[question.id] !== undefined;
+          const isFlagged =
+            markedForReview.has(String(question.id)) ||
+            markedForReview.has(question.id);
 
-        questions.push({
-          ...question,
-          questionNumber,
-          sectionIndex,
-          questionIndex,
-          answerKey,
-          isAnswered,
-          isFlagged,
-          sectionName: section.section,
+          questions.push({
+            ...question,
+            questionNumber,
+            sectionIndex,
+            blockIndex,
+            isAnswered,
+            isFlagged,
+            sectionName: section.title,
+          });
+
+          questionNumber++;
         });
-
-        questionNumber++;
       });
     });
 
-    // Apply filter
     switch (activeFilter) {
       case "flagged":
         questions = questions.filter((q) => q.isFlagged);
@@ -59,17 +61,16 @@ const MockTestReview = ({
       case "incomplete":
         questions = questions.filter((q) => !q.isAnswered);
         break;
-      case "all":
       default:
         break;
     }
 
     setFilteredQuestions(questions);
-  }, [testData, answers, markedForReview, activeFilter]);
+  }, [sections, answers, markedForReview, activeFilter]);
 
   const handleQuestionClick = (question) => {
     if (onNavigateToQuestion) {
-      onNavigateToQuestion(question.sectionIndex, question.questionIndex);
+      onNavigateToQuestion(question.sectionIndex, question.blockIndex);
     }
   };
 
@@ -79,7 +80,6 @@ const MockTestReview = ({
         return flaggedQuestions;
       case "incomplete":
         return incompleteQuestions;
-      case "all":
       default:
         return totalQuestions;
     }
@@ -91,7 +91,6 @@ const MockTestReview = ({
         return "أسئلة مميزة";
       case "incomplete":
         return "أسئلة غير مكتملة";
-      case "all":
       default:
         return "جميع الأسئلة";
     }
@@ -99,10 +98,32 @@ const MockTestReview = ({
 
   return (
     <div className="min-h-screen bg-white pt-[48px] pb-[32px]">
-      <div className="container max-w-[1312px] mx-auto">
+      <div className="container max-w-[1312px] mx-auto px-4">
         <div className="text-center mb-[16px] justify-center text-text text-3xl font-bold leading-[50px]">
           قسم المراجعة
         </div>
+
+        {/* Stats Cards */}
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 text-center">
+            <div className="text-2xl font-bold text-blue-600">
+              {totalQuestions}
+            </div>
+            <div className="text-sm text-blue-800">إجمالي الأسئلة</div>
+          </div>
+          <div className="bg-green-50 p-4 rounded-xl border border-green-200 text-center">
+            <div className="text-2xl font-bold text-green-600">
+              {completedQuestions}
+            </div>
+            <div className="text-sm text-green-800">أسئلة مُجابة</div>
+          </div>
+          <div className="bg-red-50 p-4 rounded-xl border border-red-200 text-center">
+            <div className="text-2xl font-bold text-red-600">
+              {incompleteQuestions}
+            </div>
+            <div className="text-sm text-red-800">أسئلة غير مُجابة</div>
+          </div>
+        </div> */}
 
         <div className="w-full px-6 py-4 bg-primary-light rounded-2xl inline-flex justify-start items-center gap-4 mb-[24px]">
           <div className="flex justify-start items-center gap-4">
@@ -126,8 +147,7 @@ const MockTestReview = ({
             <br />
             2- زر مراجعة الغير مكتمل: قم بمراجعة الأسئلة غير المكتملة.
             <br />
-            3- زر المميز بعلامة: قم بمراجعة الأسئلة المميزة بعلامة للمراجعة،
-            انقر فوق رمز التمييز لتغيير حالة المراجعة.
+            3- زر المميز بعلامة: قم بمراجعة الأسئلة المميزة بعلامة للمراجعة.
             <br />
             <br />
             يمكنك أيضاً النقر فوق رقم السؤال للانتقال مباشرة إلى موقعه في
@@ -135,74 +155,11 @@ const MockTestReview = ({
           </span>
         </div>
 
-        {/* Filter Buttons */}
-        {/* <div className="flex flex-wrap gap-4 mt-8 mb-6 justify-center">
-          <button
-            onClick={() => setActiveFilter("all")}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              activeFilter === "all"
-                ? "bg-primary text-white"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            مراجعة الكل ({totalQuestions})
-          </button>
-          <button
-            onClick={() => setActiveFilter("incomplete")}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              activeFilter === "incomplete"
-                ? "bg-red-500 text-white"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            مراجعة الغير مكتمل ({incompleteQuestions})
-          </button>
-          <button
-            onClick={() => setActiveFilter("flagged")}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              activeFilter === "flagged"
-                ? "bg-orange-500 text-white"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            مراجعة المميز بعلامة ({flaggedQuestions})
-          </button>
-        </div> */}
-
-        {/* Statistics */}
-        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {totalQuestions}
-              </div>
-              <div className="text-sm text-blue-800">إجمالي الأسئلة</div>
-            </div>
-          </div>
-          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {completedQuestions}
-              </div>
-              <div className="text-sm text-green-800">أسئلة مكتملة</div>
-            </div>
-          </div>
-          <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">
-                {flaggedQuestions}
-              </div>
-              <div className="text-sm text-orange-800">أسئلة مميزة</div>
-            </div>
-          </div>
-        </div> */}
-
-        {/* Section Header */}
         <div className="w-full px-6 py-4 bg-primary-light rounded-2xl inline-flex justify-between mt-[32px] items-center gap-4 mb-[24px]">
           <div className="flex justify-start items-center gap-4">
             <InfoIcon />
             <div className="text-right justify-center text-primary text-2xl font-semibold leading-[50px]">
-              { "القسم اللفظي"}
+              الإمتحان
             </div>
           </div>
           <div className="text-right justify-center text-text text-2xl font-semibold leading-[50px]">
@@ -210,27 +167,116 @@ const MockTestReview = ({
           </div>
         </div>
 
-        {/* Questions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-2 border-[#E4E4E7] rounded-[30px] overflow-hidden">
           {filteredQuestions.map((question) => (
             <Review
-              key={question.answerKey}
+              key={question.id}
               question={question}
               onClick={() => handleQuestionClick(question)}
             />
           ))}
         </div>
 
-        {/* Back to Test Button */}
-        {/* <div className="flex justify-center mt-8">
+        {/* Submit Button */}
+        <div className="flex justify-center mt-8">
           <button
-            onClick={onBackToTest}
-            className="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-200 font-medium text-lg"
+            onClick={() => setIsConfirmSubmit(true)}
+            disabled={isSubmitting}
+            className="px-12 py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
           >
-            العودة إلى الاختبار
+            {isSubmitting ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                جاري الإرسال...
+              </>
+            ) : (
+              <>
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                إرسال الاختبار
+              </>
+            )}
           </button>
-        </div> */}
+        </div>
+
+        {/* Warning if incomplete */}
+        {incompleteQuestions > 0 && (
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-center">
+            <p className="text-yellow-800 font-medium">
+              ⚠️ لديك {incompleteQuestions} سؤال غير مُجاب. هل أنت متأكد من
+              إرسال الاختبار؟
+            </p>
+          </div>
+        )}
       </div>
+
+      {/* Confirm Submit Modal */}
+      {isConfirmSubmit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setIsConfirmSubmit(false)}
+          />
+          <div className="relative bg-white rounded-[20px] p-8 max-w-md w-[90%] mx-auto shadow-2xl">
+            <h3 className="text-xl font-bold text-center mb-4">
+              تأكيد إرسال الاختبار
+            </h3>
+            <p className="text-center text-gray-600 mb-6">
+              {incompleteQuestions > 0
+                ? `لديك ${incompleteQuestions} سؤال غير مُجاب. هل أنت متأكد من إرسال الاختبار؟`
+                : "هل أنت متأكد من إرسال الاختبار؟ لن تتمكن من تعديل إجاباتك بعد الإرسال."}
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setIsConfirmSubmit(false)}
+                className="flex-1 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={() => {
+                  setIsConfirmSubmit(false);
+                  onSubmitExam();
+                }}
+                disabled={isSubmitting}
+                className="flex-1 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 disabled:opacity-50"
+              >
+                تأكيد الإرسال
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -238,16 +284,6 @@ const MockTestReview = ({
 export default MockTestReview;
 
 export const Review = ({ question, onClick }) => {
-  const getStatusColor = () => {
-    if (question.isAnswered) return "text-green-700";
-    return "text-red-700";
-  };
-
-  const getStatusText = () => {
-    if (question.isAnswered) return "مكتمل";
-    return "غير مكتمل";
-  };
-
   return (
     <div
       className="flex items-center justify-between border border-[#E4E4E7] !px-4 !py-6 cursor-pointer hover:bg-gray-50 transition-colors"
@@ -259,25 +295,19 @@ export const Review = ({ question, onClick }) => {
           سؤال {question.questionNumber}
         </div>
       </div>
-
       <div
-        className={`justify-start text-base font-medium font-noto ${getStatusColor()}`}
+        className={`justify-start text-base font-medium ${
+          question.isAnswered ? "text-green-700" : "text-red-700"
+        }`}
       >
-        {getStatusText()}
+        {question.isAnswered ? "مكتمل" : "غير مكتمل"}
       </div>
     </div>
   );
 };
 
-const FilledFlagIcon = (props) => (
-  <svg
-    width={24}
-    height={24}
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
+const FilledFlagIcon = () => (
+  <svg width={24} height={24} viewBox="0 0 24 24" fill="none">
     <path
       d="M5.5 3V21"
       stroke="#3B82F6"
@@ -302,15 +332,8 @@ const FilledFlagIcon = (props) => (
   </svg>
 );
 
-const OutlinedFlagIcon = (props) => (
-  <svg
-    width={24}
-    height={24}
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
+const OutlinedFlagIcon = () => (
+  <svg width={24} height={24} viewBox="0 0 24 24" fill="none">
     <path
       d="M5.5 3V21"
       stroke="#3B82F6"

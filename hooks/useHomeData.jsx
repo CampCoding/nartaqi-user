@@ -5,8 +5,13 @@ import axios from "axios";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const fetchHomeData = async () => {
-  const { data } = await axios.post(`${BASE_URL}/user/categories/getAllInHome`);
+const fetchHomeData = async (student_id) => {
+  const { data } = await axios.post(
+    `${BASE_URL}/user/categories/getAllInHome`,
+    {
+      student_id: student_id || null,
+    }
+  );
 
   if (data.status !== "success") {
     throw new Error(data?.message || "Failed to fetch home data");
@@ -15,12 +20,13 @@ const fetchHomeData = async () => {
   return data.message;
 };
 
-export const useHomeData = () => {
+export const useHomeData = (student_id) => {
   return useQuery({
-    queryKey: ["homeData"],
-    queryFn: fetchHomeData,
-    staleTime: 1000 * 60 * 5, // 5 mins cache
+    queryKey: ["homeData", student_id],
+    queryFn: () => fetchHomeData(student_id),
+    staleTime: 1000 * 60 * 5,
     retry: 2,
     refetchOnWindowFocus: false,
+    enabled: true,
   });
 };

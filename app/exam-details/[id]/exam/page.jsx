@@ -1,27 +1,63 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Timer } from "../../../../components/ExamPage/Timer";
 import ExamContent from "../../../../components/ExamPage/ExamContent";
 import { FixedResultHero } from "../../../../components/ExamPage/FixedResultHero";
 import Container from "../../../../components/ui/Container";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import LoadingPage from "@/components/shared/Loading";
 import { useParams } from "next/navigation";
+import {
+  resetExam,
+  setStudentId,
+  setExamId,
+  selectQuestions,
+  selectCurrentIndex,
+  selectAnsweredMap,
+  selectIsStarted,
+  selectIsSubmitted,
+  selectSubmissionData,
+  selectAnswers,
+  startExam,
+  submitExam,
+  setExamResults,
+} from "../../../../components/utils/Store/Slices/examSlice";
 
-const ExamPage = ({ params }) => {
+const ExamPage = () => {
+  const dispatch = useDispatch();
+  const { token, user } = useSelector((state) => state.auth);
+  const { id } = useParams();
+
+  // Local state for loading/error
   const [examData, setExamData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [answeredMap, setAnsweredMap] = useState({});
-  const [flaggedMap, setFlaggedMap] = useState({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isStarted, setIsStarted] = useState(false);
+  const [initialSeconds, setInitialSeconds] = useState(3600);
+  const [submitting, setSubmitting] = useState(false);
 
-  const { token } = useSelector((state) => state.auth);
-  const { id } = useParams();
+  // Redux state
+  const questions = useSelector(selectQuestions);
+  const currentIndex = useSelector(selectCurrentIndex);
+  const answeredMap = useSelector(selectAnsweredMap);
+  const isStarted = useSelector(selectIsStarted);
+  const isSubmitted = useSelector(selectIsSubmitted);
+  const submissionData = useSelector(selectSubmissionData);
+  const answers = useSelector(selectAnswers);
+
+  // Reset exam when component mounts or exam ID changes
+  useEffect(() => {
+    dispatch(resetExam());
+
+    // Set student ID and exam ID from auth
+    if (user?.id) {
+      dispatch(setStudentId(user.id));
+    }
+    if (id) {
+      dispatch(setExamId(id));
+    }
+  }, [dispatch, id, user]);
 
   // Fetch exam data
   useEffect(() => {
@@ -32,6 +68,7 @@ const ExamPage = ({ params }) => {
           `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/get_exam_sectionsWithQuestions`,
           {
             exam_id: id,
+            student_id: user?.id,
           },
           {
             headers: {
@@ -44,7 +81,15 @@ const ExamPage = ({ params }) => {
           response.data.statusCode === 200 &&
           response.data.status === "success"
         ) {
-          setExamData(response.data.message);
+          const data = response.data.message;
+          setExamData(data);
+
+          // Calculate initial seconds
+          if (data && data.length > 0 && data[0].time_if_free) {
+            const timeString = data[0].time_if_free;
+            const [hours, minutes, seconds] = timeString.split(":").map(Number);
+            setInitialSeconds(hours * 3600 + minutes * 60 + (seconds || 0));
+          }
         } else {
           setError("Failed to load exam data");
         }
@@ -56,98 +101,123 @@ const ExamPage = ({ params }) => {
       }
     };
 
-    fetchExamData();
-  }, []);
+    if (token && id) {
+      fetchExamData();
+    }
+  }, [token, id]);
 
-  // Transform API data to questions array
-  const questions = useMemo(() => {
-    if (!examData) return [];
-
-    const allQuestions = [];
-
-    examData.forEach((section) => {
-      // Add MCQ questions only
-      section.mcq?.forEach((question) => {
-        allQuestions.push({
-          id: question.id,
-          type: "mcq",
-          text: stripHtml(question.question_text),
-          imageUrl: question.image_url || undefined,
-          sectionId: section.id,
-          sectionTitle: stripHtml(section.title),
-          options:
-            question.options?.map((opt) => ({
-              id: opt.id,
-              label: stripHtml(opt.option_text),
-              isCorrect: opt.is_correct === 1,
-              explanation: stripHtml(opt.question_explanation),
-            })) || [],
-        });
-      });
-    });
-
-    return allQuestions;
-  }, [examData]);
-
-  // Get total time from first section
-  const initialSeconds = useMemo(() => {
-    if (!examData || examData.length === 0) return 60 * 60;
-
-    const timeString = examData[0].time_if_free; // "01:30:00"
-    if (!timeString) return 60 * 60;
-
-    const [hours, minutes, seconds] = timeString.split(":").map(Number);
-    return hours * 3600 + minutes * 60 + seconds;
-  }, [examData]);
-
-  const handleSelectOption = useCallback((index, value) => {
-    setAnsweredMap((prev) => ({ ...prev, [index]: value }));
-  }, []);
-
-  const handlePrev = useCallback(() => {
-    setCurrentIndex((i) => Math.max(0, i - 1));
-  }, []);
-
-  const handleNext = useCallback(() => {
-    setCurrentIndex((i) => Math.min(questions.length - 1, i + 1));
-  }, [questions.length]);
-
-  const handleJumpTo = useCallback((index) => setCurrentIndex(index), []);
-
+  // Handle time up
   const handleTimeUp = useCallback(() => {
-    console.log("Time is up", answeredMap);
+    console.log("Time is up");
     handleSubmitTheExam();
-  }, [answeredMap]);
+  }, []);
 
+  // Calculate score from answers
+  const calculateScore = () => {
+    const correctAnswers = answers.filter((answer) => answer.is_correct).length;
+    const totalQuestions = questions.length;
+    const percentage =
+      totalQuestions > 0
+        ? Math.round((correctAnswers / totalQuestions) * 100)
+        : 0;
+
+    return {
+      score: `${correctAnswers}/${totalQuestions}`,
+      percentage,
+      correctAnswers,
+      totalQuestions,
+    };
+  };
+
+  // Handle exam submission
   const handleSubmitTheExam = async () => {
+    if (submitting) return; // Prevent double submission
+
     try {
-      // Transform answers to API format
-      const submissionData = Object.entries(answeredMap).map(
-        ([index, answerId]) => ({
-          question_id: questions[index].id,
-          answer_id: answerId, // The selected option id
+      setSubmitting(true);
+
+      // Get submission data from Redux (already in API format)
+      console.log("Submitting exam:", submissionData);
+
+      // Step 1: Store student answers
+      const answersResponse = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/storeStudentAnswers`,
+        submissionData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Answers stored:", answersResponse.data);
+
+      // Calculate score
+      const scoreData = calculateScore();
+
+      // Step 2: Store student score
+      const scorePayload = {
+        student_id: user?.id,
+        exam_id: id,
+        score: scoreData.score,
+      };
+
+      const scoreResponse = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/storeStudentScore`,
+        scorePayload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Score stored:", scoreResponse.data);
+
+      // Store results in Redux
+      dispatch(
+        setExamResults({
+          score: scoreData.score,
+          percentage: scoreData.percentage,
+          resultData: {
+            answersResponse: answersResponse.data,
+            scoreResponse: scoreResponse.data,
+            ...scoreData,
+          },
         })
       );
 
-      console.log("Submitting answers:", submissionData);
-
-      // TODO: Replace with actual submit endpoint when provided
-      // const response = await axios.post("/user/rounds/exams/submit_exam", {
-      //   exam_id: 28,
-      //   answers: submissionData,
-      // });
-
-      // if (response.data.statusCode === 200) {
-      //   // Handle success
-      //   console.log("Exam submitted successfully:", response.data);
-      // }
-
-      setIsSubmitted(true);
+      // Mark as submitted
+      dispatch(submitExam());
     } catch (err) {
       console.error("Failed to submit exam:", err);
-      // You might want to show an error message to the user here
+
+      // Calculate and store score locally even if API fails
+      const scoreData = calculateScore();
+      dispatch(
+        setExamResults({
+          score: scoreData.score,
+          percentage: scoreData.percentage,
+          resultData: scoreData,
+        })
+      );
+
+      // Still mark as submitted in UI
+      dispatch(submitExam());
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  // Handle start exam (for Timer component)
+  const handleSetIsStarted = useCallback(
+    (value) => {
+      if (value) {
+        dispatch(startExam());
+      }
+    },
+    [dispatch]
+  );
 
   if (loading) {
     return <LoadingPage />;
@@ -170,18 +240,6 @@ const ExamPage = ({ params }) => {
     );
   }
 
-  if (!questions || questions.length === 0) {
-    return (
-      <Container className="flex items-center justify-center py-20">
-        <div className="text-center text-text">
-          <p className="text-lg font-bold">
-            لا توجد أسئلة متاحة في هذا الاختبار
-          </p>
-        </div>
-      </Container>
-    );
-  }
-
   return (
     <Container className="flex flex-col py-[48px]">
       <Timer
@@ -190,37 +248,16 @@ const ExamPage = ({ params }) => {
         initialSeconds={initialSeconds}
         onTimeUp={handleTimeUp}
         isStarted={isStarted}
-        setIsStarted={setIsStarted}
+        setIsStarted={handleSetIsStarted}
       />
       <ExamContent
-        questions={questions}
-        currentIndex={currentIndex}
-        answeredMap={answeredMap}
-        flaggedMap={flaggedMap}
-        onSelectOption={handleSelectOption}
-        onPrev={handlePrev}
-        onNext={handleNext}
-        onJumpTo={handleJumpTo}
-        isStarted={isStarted}
-        setIsStarted={setIsStarted}
-        onSubmit={handleSubmitTheExam}
+        examData={examData?.sections}
+        onSubmitExam={handleSubmitTheExam}
+        submitting={submitting}
       />
-      <FixedResultHero id={id} open={isSubmitted} setOpen={setIsSubmitted} />
+      <FixedResultHero id={id} open={isSubmitted} setOpen={() => {}} />
     </Container>
   );
 };
 
 export default ExamPage;
-
-// Helper function to strip HTML tags
-function stripHtml(html) {
-  if (!html) return "";
-  if (typeof window === "undefined") {
-    // Server-side: use regex
-    return html.replace(/<[^>]*>/g, "");
-  }
-  // Client-side: use DOM
-  const tmp = document.createElement("DIV");
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || "";
-}

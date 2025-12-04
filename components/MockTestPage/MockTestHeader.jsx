@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Drawer, Button } from "antd";
-// If you're using icons, keep your existing ones:
-/// import { Menu } from "lucide-react";  // optional
-/// import { CloseOutlined } from "@ant-design/icons"; // optional
+import { useSelector } from "react-redux";
 
 export const MockExamHeader = ({
   timeRemaining = "56:25",
@@ -18,6 +16,8 @@ export const MockExamHeader = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const selectRef = useRef(null);
+
+  const { user } = useSelector((state) => state.auth);
 
   const fontSizes = [
     { value: "small", label: "صغير" },
@@ -45,7 +45,7 @@ export const MockExamHeader = ({
 
   const examData = {
     examTitle: "اختبار استراتيجيات التدريس الحديثة -",
-    studentName: "الطالب: علي محمد احمد",
+    studentName: `الطالب: ${user?.name}`,
     timeRemaining: `الوقت المتبقي: ${timeRemaining}`,
     questionProgress: questionProgress,
     markForReview: isMarkedForReview
