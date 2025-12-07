@@ -74,6 +74,7 @@ const CategorySection = ({ category, color, index }) => {
             href={`/courses/${category.id}?category=${item.id}&&categoryName=${item.name}`}
             key={item.id}
           >
+            {/* Desktop Card */}
             <div className="md:block hidden">
               <CoursesCategoryCard
                 color={color}
@@ -85,8 +86,11 @@ const CategorySection = ({ category, color, index }) => {
                 freeWidth={true}
               />
             </div>
+
+            {/* Mobile Card - Now with color prop */}
             <div className="block md:hidden">
               <CoursesCategoryCardMobile
+                color={color}
                 data={{
                   image: item.image_url,
                   title: item.name,
