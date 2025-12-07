@@ -278,7 +278,7 @@ const CourseCard = ({
                           onError={() => false}
                           icon={<img src="/images/Image-48.png" />}
                           draggable={true}
-                          crossOrigin="anonymous"
+                          // crossOrigin="anonymous"
                         />
                       </Tooltip>
                     ))}

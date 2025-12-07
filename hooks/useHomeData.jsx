@@ -6,11 +6,15 @@ import axios from "axios";
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const fetchHomeData = async (student_id) => {
+  const requestBody = {};
+
+  if (student_id) {
+    requestBody.student_id = student_id;
+  }
+
   const { data } = await axios.post(
     `${BASE_URL}/user/categories/getAllInHome`,
-    {
-      student_id: student_id || null,
-    }
+    requestBody
   );
 
   if (data.status !== "success") {

@@ -478,6 +478,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   animation: spin 0.6s linear infinite;
 }
 
+#vimeo-player div {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .spinner-sm {
   width: 12px;
   height: 12px;

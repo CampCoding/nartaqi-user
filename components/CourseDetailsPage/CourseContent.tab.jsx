@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from "react";
 import CourseContentDrawer from "../ui/CourseContentDrawer";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   DownloadIcon,
   FileIcon,
@@ -11,20 +12,44 @@ import {
 } from "../../public/svgs";
 import cx from "../../lib/cx";
 
+// ==================== ENCODING HELPERS ====================
+const encodeId = (value) => {
+  if (!value) return null;
+  try {
+    return encodeURIComponent(btoa(String(value)));
+  } catch (e) {
+    console.error("Encoding error:", e);
+    return null;
+  }
+};
+
+const extractVimeoId = (url) => {
+  if (!url) return null;
+  if (/^\d+$/.test(url)) return url;
+  const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  return match ? match[1] : null;
+};
+
+const extractYoutubeId = (url) => {
+  if (!url) return null;
+  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+};
+
 const CourseContent = ({ isRegistered, courseData }) => {
   const [selectedTab, setSelectedTab] = useState("foundation");
 
-  // تحديث: جلب exams_round من المستوى الرئيسي للـ courseData
   const { contents, round, exams_round } = courseData;
 
-  // فلترة المحتوى حسب النوع
   const foundationContents = contents.filter(
     (c) => c.content_type === "basic" || c.content_type === "foundation"
   );
 
   const lectureContents = contents.filter((c) => c.content_type === "lecture");
 
-  // تحديث: استخدام exams_round مباشرة من courseData
   const allExams = exams_round || [];
 
   return (
@@ -160,7 +185,84 @@ export const TestRow = ({ examData, isRegistered }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(null);
 
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const { exam, videos = [], exam_pdfs = [], is_solved = false } = examData;
+
+  // Build merged params for video links
+  const mergedParams = {
+    ...Object.fromEntries(searchParams.entries()),
+    watch: true,
+  };
+
+  // Build encoded video query for exam videos
+  const buildExamVideoQuery = (video) => {
+    const query = {
+      ...mergedParams,
+      exam_video: video.id,
+    };
+
+    const videoUrl = video.video_url;
+
+    // Try to extract Vimeo ID first
+    const vimeoId = extractVimeoId(videoUrl);
+    if (vimeoId) {
+      query.vimeo_id = encodeId(vimeoId);
+      return query;
+    }
+
+    // Try to extract YouTube ID
+    const youtubeId = extractYoutubeId(videoUrl);
+    if (youtubeId) {
+      query.youtube_id = encodeId(youtubeId);
+      return query;
+    }
+
+    // If URL contains "vimeo", encode full URL as vimeo_id
+    if (videoUrl && videoUrl.toLowerCase().includes("vimeo")) {
+      query.vimeo_id = encodeId(videoUrl);
+      return query;
+    }
+
+    // If URL contains "youtube" or "youtu.be", encode as youtube_id
+    if (
+      videoUrl &&
+      (videoUrl.toLowerCase().includes("youtube") ||
+        videoUrl.toLowerCase().includes("youtu.be"))
+    ) {
+      query.youtube_id = encodeId(videoUrl);
+      return query;
+    }
+
+    // Default: try as vimeo (encode full URL)
+    if (videoUrl) {
+      query.vimeo_id = encodeId(videoUrl);
+    }
+
+    return query;
+  };
+
+  // Check if video has playable content
+  const getVideoPlatform = (videoUrl) => {
+    if (!videoUrl) return null;
+
+    const vimeoId = extractVimeoId(videoUrl);
+    if (vimeoId || videoUrl.toLowerCase().includes("vimeo")) {
+      return "vimeo";
+    }
+
+    const youtubeId = extractYoutubeId(videoUrl);
+    if (
+      youtubeId ||
+      videoUrl.toLowerCase().includes("youtube") ||
+      videoUrl.toLowerCase().includes("youtu.be")
+    ) {
+      return "youtube";
+    }
+
+    return null;
+  };
 
   const formatTime = (timeString) => {
     if (!timeString) return "غير محدد";
@@ -190,7 +292,6 @@ export const TestRow = ({ examData, isRegistered }) => {
     return colors[level] || "";
   };
 
-  // دالة تحميل ملف مباشرة للجهاز
   const handleDownloadFile = async (e, fileUrl, title, extension = "pdf") => {
     e.preventDefault();
     e.stopPropagation();
@@ -230,7 +331,6 @@ export const TestRow = ({ examData, isRegistered }) => {
       }, 100);
     } catch (error) {
       console.error("خطأ في تحميل الملف:", error);
-      // Fallback
       const link = document.createElement("a");
       link.href = fileUrl;
       link.download = `${title}.${extension}`;
@@ -263,7 +363,6 @@ export const TestRow = ({ examData, isRegistered }) => {
         )}
       >
         <div className="flex items-center gap-3 flex-1 flex-wrap">
-          {/* Exam Title - Still clickable to view results if solved */}
           <Link
             href={isRegistered ? `/mock-test/${exam.id}` : "#"}
             onClick={(e) => {
@@ -278,7 +377,6 @@ export const TestRow = ({ examData, isRegistered }) => {
             {exam.title || "غير محدد"}
           </Link>
 
-          {/* Level Badge */}
           {exam.level && (
             <span
               className={`text-xs px-2 py-0.5 rounded-full ${getLevelColor(
@@ -289,7 +387,6 @@ export const TestRow = ({ examData, isRegistered }) => {
             </span>
           )}
 
-          {/* ✅ Solved Badge */}
           {is_solved && (
             <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-green-100 text-green-600 font-medium">
               <svg
@@ -307,7 +404,6 @@ export const TestRow = ({ examData, isRegistered }) => {
             </span>
           )}
 
-          {/* Lock Icon for unregistered */}
           {!isRegistered && (
             <LockIcon2 className="fill-secondary w-4 h-4 md:w-5 md:h-5" />
           )}
@@ -353,12 +449,11 @@ export const TestRow = ({ examData, isRegistered }) => {
       {/* Expanded Content */}
       {isExpanded && hasContent && (
         <div className="border-t-2 border-zinc-200 px-4 lg:px-6 py-4 space-y-4">
-          {/* Description */}
           {exam.description && (
             <p className="text-text-alt text-sm">{exam.description}</p>
           )}
 
-          {/* Videos Section */}
+          {/* Videos Section - Updated with Link to Player */}
           {videos.length > 0 && (
             <div className="space-y-3">
               <h4 className="font-medium text-text text-sm flex items-center gap-2">
@@ -366,72 +461,77 @@ export const TestRow = ({ examData, isRegistered }) => {
                 فيديوهات الشرح
               </h4>
               {videos.map((video) => {
-                const videoDownloadId = `${video.title}-mp4`;
-                const isVideoDownloading = isDownloading === videoDownloadId;
+                const platform = getVideoPlatform(video.video_url);
+                const isPlayable = !!platform;
 
                 return (
                   <div
                     key={video.id}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200"
                   >
-                    <div className="flex items-center gap-3">
-                      <RoundedPlayIcon className="w-6 h-6 stroke-primary" />
-                      <div className="flex flex-col">
-                        <span className="font-medium text-text text-sm">
-                          {video.title}
-                        </span>
+                    <div className="flex items-center gap-3 flex-1">
+                      <RoundedPlayIcon className="w-6 h-6 stroke-primary flex-shrink-0" />
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {isRegistered && isPlayable ? (
+                            <Link
+                              href={{
+                                pathname,
+                                query: buildExamVideoQuery(video),
+                                hash: "player",
+                              }}
+                              className="font-medium text-text text-sm hover:text-primary hover:underline transition-colors"
+                            >
+                              {video.title}
+                            </Link>
+                          ) : (
+                            <span className="font-medium text-text text-sm">
+                              {video.title}
+                            </span>
+                          )}
+                        </div>
                         {video.description && (
-                          <span className="text-text-alt text-xs">
+                          <span className="text-text-alt text-xs truncate">
                             {video.description}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    {!isRegistered ? (
-                      <LockIcon2 className="fill-secondary w-5 h-5" />
-                    ) : (
-                      <button
-                        onClick={(e) =>
-                          handleDownloadFile(
-                            e,
-                            video.video_url,
-                            video.title,
-                            "mp4"
-                          )
-                        }
-                        disabled={isVideoDownloading}
-                        className="inline-flex items-center gap-2 px-3 md:px-4 py-1.5 bg-secondary rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-wait"
-                      >
-                        {isVideoDownloading ? (
-                          <svg
-                            className="animate-spin w-4 h-4 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                            />
-                          </svg>
-                        ) : (
-                          <DownloadIcon className="w-4 h-4" />
-                        )}
-                        <span className="text-white font-medium text-xs sm:text-sm">
-                          {isVideoDownloading ? "جاري..." : "تحميل"}
-                        </span>
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {!isRegistered ? (
+                        <LockIcon2 className="fill-secondary w-5 h-5" />
+                      ) : (
+                        <>
+                          {/* Play Button - Only show if playable */}
+                          {isPlayable && (
+                            <Link
+                              href={{
+                                pathname,
+                                query: buildExamVideoQuery(video),
+                                hash: "player",
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary rounded-full hover:opacity-90 transition-opacity"
+                            >
+                              <svg
+                                className="w-4 h-4 text-white"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              <span className="text-white font-medium text-xs">
+                                تشغيل
+                              </span>
+                            </Link>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -545,50 +645,25 @@ export const TestRow = ({ examData, isRegistered }) => {
           {isRegistered && (
             <div className="flex justify-center gap-3 pt-2">
               {is_solved ? (
-                <>
-                  {/* View Results Button */}
-                  {/* <Link
-                    href={`/mock-test/${exam.id}/results`}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:opacity-90 transition-opacity font-medium"
+                <button
+                  disabled
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gray-300 text-gray-500 rounded-xl cursor-not-allowed font-medium"
+                  title="لقد قمت بحل هذا الاختبار مسبقاً"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                      />
-                    </svg>
-                    عرض النتيجة
-                  </Link> */}
-
-                  {/* Disabled Start Button */}
-                  <button
-                    disabled
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-gray-300 text-gray-500 rounded-xl cursor-not-allowed font-medium"
-                    title="لقد قمت بحل هذا الاختبار مسبقاً"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    تم الحل مسبقاً
-                  </button>
-                </>
+                    <path
+                      fillRule="evenodd"
+                      d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  تم الحل مسبقاً
+                </button>
               ) : (
-                /* Start Exam Button - Only shown if not solved */
                 <Link
                   href={`/mock-test/${exam.id}`}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:opacity-90 transition-opacity font-medium"
