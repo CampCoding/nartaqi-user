@@ -1,0 +1,16 @@
+.videos-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.videos-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.videos-list::-webkit-scrollbar-thumb {
+  background: #f97316;
+  border-radius: 10px;
+}
+
+.videos-list::-webkit-scrollbar-thumb:hover {
+  background: #d7620e;
+}

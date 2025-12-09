@@ -89,8 +89,8 @@ const Reg_courseDetails = ({ courseData }) => {
             <VideoPlayer defaultPlay={true} />
           )}
 
-          <Container className="mt-[48px] mb-[139px]">
-            <div className="flex gap-5 justify-between items-start">
+          <Container className="mt-[48px] xl:!px-10 !px-0 ">
+            <div className="flex gap-8 xl:gap-5 justify-between items-start">
               <div className="max-w-[762px] w-full">
                 <RegCourseDetailsContent
                   courseData={courseData}
@@ -98,7 +98,10 @@ const Reg_courseDetails = ({ courseData }) => {
                 />
               </div>
               <div
-                className={cx("space-y-6", watch ? "" : "translate-y-[-441px]")}
+                className={cx(
+                  "space-y-20",
+                  watch ? "" : "translate-y-[-441px]"
+                )}
               >
                 <RegCourseDetailsCard
                   courseData={courseData}
@@ -108,7 +111,6 @@ const Reg_courseDetails = ({ courseData }) => {
                   isDone={isDone}
                 />
 
-                {/* عرض LiveCard فقط لو في session active */}
                 {activeLiveSession && (
                   <LiveCard
                     liveData={activeLiveSession}

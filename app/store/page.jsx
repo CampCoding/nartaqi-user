@@ -45,7 +45,9 @@ const Store = () => {
     return price ? parseFloat(price) : null;
   };
 
-  const [selectedCategoryId, setSelectedCategoryId] = useState(getInitialCategory());
+  const [selectedCategoryId, setSelectedCategoryId] = useState(
+    getInitialCategory()
+  );
   const [priceRange, setPriceRange] = useState(getInitialPrice());
   const [sortBy, setSortBy] = useState(getInitialSort());
   const [currentPage, setCurrentPage] = useState(getInitialPage());
@@ -88,7 +90,12 @@ const Store = () => {
       const params = new URLSearchParams(searchParams.toString());
 
       Object.entries(updates).forEach(([key, value]) => {
-        if (value === null || value === undefined || value === "" || value === "all") {
+        if (
+          value === null ||
+          value === undefined ||
+          value === "" ||
+          value === "all"
+        ) {
           params.delete(key);
         } else if (key === "sort" && value === "newest") {
           params.delete(key); // Don't show default sort in URL
@@ -110,7 +117,8 @@ const Store = () => {
   // ✅ Fetch items
   const fetchItems = useCallback(
     (overridePrice, overridePage) => {
-      const priceToUse = overridePrice !== undefined ? overridePrice : priceRange;
+      const priceToUse =
+        overridePrice !== undefined ? overridePrice : priceRange;
       const pageToUse = overridePage !== undefined ? overridePage : currentPage;
 
       dispatch(
@@ -357,7 +365,7 @@ const Store = () => {
             ) : (
               <>
                 {/* Products Grid */}
-                <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-6">
+                <section className="grid px-3 sm:px-0  sm:grid-cols-2 lg:grid-cols-2  2xl:grid-cols-3  xl:grid-cols-2 gap-x-4 gap-y-6">
                   {items.map((item, index) => {
                     const normalizedItem = normalizeItem(item);
                     return (
@@ -462,10 +470,11 @@ export const FrameExtra = ({
                   aria-label={`اختر ${category.label}`}
                 />
                 <div
-                  className={`relative w-4 h-4 rounded cursor-pointer ${selectedCategoryId === category.id
+                  className={`relative w-4 h-4 rounded cursor-pointer ${
+                    selectedCategoryId === category.id
                       ? "bg-primary"
                       : "border border-solid border-zinc-900"
-                    }`}
+                  }`}
                 >
                   {selectedCategoryId === category.id && (
                     <svg
@@ -488,10 +497,11 @@ export const FrameExtra = ({
                 </div>
               </div>
               <div
-                className={`${index === 0
+                className={`${
+                  index === 0
                     ? "self-stretch text-text-duplicate text-base leading-5 relative w-fit text-left whitespace-nowrap"
                     : "mt-[-2.00px] mb-[-2.00px] font-semibold text-text-duplicate text-base tracking-[0] leading-6 overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] relative w-fit text-left whitespace-nowrap"
-                  }`}
+                }`}
               >
                 {category.label}
               </div>
@@ -647,7 +657,9 @@ export const PriceRange = ({ priceRange, onPriceCommit, maxPrice }) => {
 
       <div className="flex w-[280px] h-5 items-start justify-between">
         <span className="text-text-alt text-sm">0 ر.س</span>
-        <span className="text-text-alt text-sm">{Math.round(maxValue)} ر.س</span>
+        <span className="text-text-alt text-sm">
+          {Math.round(maxValue)} ر.س
+        </span>
       </div>
     </div>
   );

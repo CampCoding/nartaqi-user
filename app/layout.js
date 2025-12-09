@@ -7,6 +7,7 @@ import { UserProvider } from "../lib/useUser.jsx";
 import MarginLabels from "../lib/MarginLabels";
 import Providers from "../components/utils/Store/Provider.jsx";
 import { Toaster } from "react-hot-toast";
+import ScrollToTop from "../components/ScrollToTop/ScrollToTop";
 
 const cairo = Cairo({
   subsets: ["latin", "arabic"],
@@ -34,6 +35,7 @@ export default function RootLayout({ children }) {
           <UserProvider>
             <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
             <Header />
+            <ScrollToTop />
             {children}
             <Footer />
           </UserProvider>

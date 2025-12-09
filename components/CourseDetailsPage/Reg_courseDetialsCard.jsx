@@ -127,9 +127,9 @@ const RegCourseDetailsCard = ({
   };
 
   return (
-    <div className="w-full px-5 pt-6 bg-white rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)]">
+    <div className="overflow-hidden w-full px-3 sm:px-4 lg:px-5 pt-4 sm:pt-5 lg:pt-6 bg-white rounded-[24px] sm:rounded-[30px] lg:rounded-[36px] shadow-[0px_4px_15px_0px_rgba(0,0,0,0.15)] sm:shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)]">
       <div
-        className="w-full h-60 relative bg-black/20 rounded-[28px] overflow-hidden"
+        className="w-full h-40 sm:h-48 lg:h-60 relative bg-black/20 rounded-[20px] sm:rounded-[24px] lg:rounded-[28px] overflow-hidden"
         style={{
           backgroundImage: `url('${round.image_url}')`,
           backgroundSize: "cover",
@@ -140,7 +140,7 @@ const RegCourseDetailsCard = ({
         <div className="absolute inset-0 bg-gradient-to-b to-black/40 via-black/20 from-transparent"></div>
 
         {/* Share and Favorite Icons */}
-        <div className="absolute top-4 right-4 flex items-center gap-3">
+        <div className="absolute top-2 sm:top-3 lg:top-4 right-2 sm:right-3 lg:right-4 flex items-center gap-2 sm:gap-2.5 lg:gap-3">
           <FavIconButton
             isFav={isFavorite}
             isLoading={isUpdating}
@@ -148,47 +148,49 @@ const RegCourseDetailsCard = ({
           />
           <button
             onClick={() => onShare(true)}
-            className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors duration-200 cursor-pointer active:scale-90"
+            className="p-1.5 sm:p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors duration-200 cursor-pointer active:scale-90"
             aria-label="Share course"
           >
-            <ShareIcon className="w-5 h-5 text-white stroke-white" />
+            <ShareIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white stroke-white" />
           </button>
         </div>
       </div>
 
-      <div className="inline-flex flex-col justify-start w-full mt-5 mb-7">
-        <div className="w-full pb-3.5 border-b-2 border-zinc-100 inline-flex justify-between items-center">
-          <div className="flex justify-start w-[200px] items-center gap-2">
-            <CalenderStartIcon />
-            <div className="justify-center text-text text-sm font-medium">
+      <div className="inline-flex flex-col justify-start w-full mt-3 sm:mt-4 lg:mt-5 mb-4 sm:mb-5 lg:mb-7">
+        <div className="w-full pb-2 sm:pb-2.5 lg:pb-3.5 border-b-2 border-zinc-100 flex flex-col sm:inline-flex sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+          <div className="flex justify-start w-full sm:w-[180px] lg:w-[200px] items-center gap-1.5 sm:gap-2">
+            <CalenderStartIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 flex-shrink-0" />
+            <div className="justify-center text-text text-[10px] sm:text-xs lg:!text-sm font-medium line-clamp-1">
               تاريخ البداية : {formatDate(round.start_date)}
             </div>
           </div>
 
-          <div className="flex justify-start w-[200px] items-center gap-2">
-            <CalenderEndIcon />
-            <div className="justify-center text-text text-sm font-medium">
+          <div className="flex justify-start w-full sm:w-[180px] lg:w-[200px] items-center gap-1.5 sm:gap-2">
+            <CalenderEndIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 flex-shrink-0" />
+            <div className="justify-center text-text text-[10px] sm:text-xs lg:!text-sm font-medium line-clamp-1">
               تاريخ الإنتهاء : {formatDate(round.end_date)}
             </div>
           </div>
         </div>
 
-        <div className="w-full pt-[16px] border-b-2 border-zinc-100 inline-flex justify-between items-center">
-          <div className="flex justify-start w-[202px] items-center gap-2">
-            <SeatsIcon />
-            <div className="justify-center text-text text-sm font-medium">
+        <div className="w-full py-2 sm:py-3 lg:py-[16px] border-b-2 border-zinc-100 flex flex-col sm:inline-flex sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 pb-2 sm:pb-0">
+          <div className="flex justify-start w-full sm:w-[180px] lg:w-[202px] items-center gap-1.5 sm:gap-2">
+            <SeatsIcon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 flex-shrink-0" />
+            <div className="justify-center text-text text-[10px] sm:text-xs lg:!text-sm font-medium line-clamp-1">
               المقاعد المتبقية: {round.capacity || "غير محدد"}
             </div>
           </div>
 
-          <div className="flex justify-start w-[202px] items-center gap-2">
-            <RatingLike />
-            <div className="flex items-center gap-1">
+          <div className="flex justify-start w-full sm:w-[180px] lg:w-[202px] items-center gap-1.5 sm:gap-2">
+            <RatingLike className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 flex-shrink-0" />
+            <div className="flex items-center text-[10px] sm:text-xs lg:!text-sm gap-1">
               التقييم :
               <div className="flex items-center gap-1">
-                <div>{calculateRating()}</div>
+                <div className="text-[10px] sm:text-xs lg:!text-sm">
+                  {calculateRating()}
+                </div>
                 <div>
-                  <RatingStarIcon />
+                  <RatingStarIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                 </div>
               </div>
             </div>
@@ -196,34 +198,34 @@ const RegCourseDetailsCard = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-center relative py-4">
-        <div className="w-8 h-8 absolute right-6 aspect-[1]">
-          <CycleClock />
+      <div className="flex items-center justify-center relative py-3 sm:py-4">
+        <div className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 absolute right-4 sm:right-5 lg:right-6 aspect-[1]">
+          <CycleClock className="w-full h-full" />
         </div>
-        <div className="relative w-[253px] h-[104px]">
-          <div className="inline-flex flex-col items-center gap-3 absolute top-0 left-0">
-            <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-bold text-text text-xl tracking-[0] leading-[normal]">
+        <div className="relative w-full max-w-[253px] flex justify-around items-center">
+          <div className="inline-flex flex-col items-center gap-2 sm:gap-3">
+            <div className="relative flex items-center justify-center w-fit font-bold text-text text-xs sm:text-sm lg:text-base xl:text-lg tracking-[0] leading-[normal]">
               الساعات
             </div>
-            <div className="relative flex items-center justify-center w-fit font-bold text-primary text-xl text-center tracking-[0] leading-[normal]">
+            <div className="relative flex items-center justify-center w-fit font-bold text-primary text-xs sm:text-sm lg:text-base xl:text-lg text-center tracking-[0] leading-[normal]">
               {round.total_hours || "غير محدد"}
             </div>
           </div>
 
-          <div className="inline-flex flex-col items-center gap-3 absolute top-0 left-[196px]">
-            <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-bold text-text text-xl tracking-[0] leading-[normal]">
+          <div className="inline-flex flex-col items-center gap-2 sm:gap-3">
+            <div className="relative flex items-center justify-center w-fit font-bold text-text text-xs sm:text-sm lg:text-base xl:text-lg tracking-[0] leading-[normal]">
               الأيام
             </div>
-            <div className="relative flex items-center justify-center w-fit font-bold text-primary text-xl text-center tracking-[0] leading-[normal]">
+            <div className="relative flex items-center justify-center w-fit font-bold text-primary text-xs sm:text-sm lg:text-base xl:text-lg text-center tracking-[0] leading-[normal]">
               {round.total_days || "غير محدد"}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="relative bg-white w-full pt-[45px] px-2 pb-[38px] h-[210px] border-t-4 [border-top-style:solid] border-variable-collection-stroke">
+      <div className="relative bg-white w-full pt-6 sm:pt-8 lg:pt-[45px] px-2 pb-6 sm:pb-7 lg:pb-[38px] min-h-[180px] sm:min-h-[200px] lg:h-[210px] border-t-4 [border-top-style:solid] border-variable-collection-stroke">
         {!(isDone === "true") && (
-          <p className="absolute top-[calc(50.00%_+_43px)] left-[calc(50.00%_-_164px)] h-[30px] font-medium text-danger text-base flex items-center justify-center text-center tracking-[0] leading-[normal]">
+          <p className="mb-3 sm:mb-4 lg:absolute lg:top-[calc(50.00%_+_43px)] lg:left-[calc(50.00%_-_164px)] font-medium text-danger text-xs sm:text-sm lg:text-base flex items-center justify-center text-center tracking-[0] leading-[normal]">
             أكمل الدورة حتى تتمكن من تسجيل بيانات الشهادة
           </p>
         )}
@@ -231,13 +233,13 @@ const RegCourseDetailsCard = ({
         <Link
           onClick={(e) => isDone !== "true" && e.preventDefault()}
           href={isDone === "true" ? "/register-certificate" : "#"}
-          className={`flex w-full justify-center px-6 py-4 ${
+          className={`flex w-full justify-center px-4 sm:px-5 lg:px-6 py-3 sm:py-3.5 lg:py-4 ${
             isDone === "true" ? "bg-primary" : "bg-[#71717A] cursor-not-allowed"
-          } rounded-[20px] items-center gap-6`}
+          } rounded-[16px] sm:rounded-[18px] lg:rounded-[20px] items-center gap-3 sm:gap-4 lg:gap-6`}
         >
-          <div className="inline-flex relative flex-[0_0_auto] items-center gap-6">
-            <CertificationIcon />
-            <div className="relative w-fit mt-[-1.00px] font-bold text-white text-xl flex items-center justify-center text-center tracking-[0] leading-[normal]">
+          <div className="inline-flex relative flex-[0_0_auto] items-center gap-3 sm:gap-4 lg:gap-6">
+            <CertificationIcon className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 flex-shrink-0" />
+            <div className="relative w-fit font-bold text-white text-sm lg:text-base xl:text-lg flex items-center justify-center text-center tracking-[0] leading-[normal]">
               تسجيل بيانات الشهادة
             </div>
           </div>

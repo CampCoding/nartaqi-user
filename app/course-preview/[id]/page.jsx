@@ -9,8 +9,14 @@ import VideoPlayer from "./../../../components/ui/Video";
 import useIsLgUp from "../../../hooks/useLgUp";
 import axios from "axios";
 import LoadingPage from "@/components/shared/Loading";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import {
+  useRouter,
+  useSearchParams,
+  usePathname,
+  useParams,
+} from "next/navigation";
 import Link from "next/link";
+import "./style.css";
 
 // ==================== ENCODING HELPERS ====================
 const encodeId = (value) => {
@@ -39,7 +45,7 @@ const extractYoutubeId = (url) => {
   return match ? match[1] : null;
 };
 
-const CoursePreviewPage = ({ params }) => {
+const CoursePreviewPage = () => {
   const [courseData, setCourseData] = useState(null);
   const [freeVideos, setFreeVideos] = useState([]);
   const [isLessonStart, setIsLessonStart] = useState(false);
@@ -49,6 +55,10 @@ const CoursePreviewPage = ({ params }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const params = useParams();
+  useEffect(() => {
+    console.log(params, "params");
+  }, []);
 
   // Check if watching video from URL
   const isWatching = searchParams.get("watch") === "true";
@@ -179,18 +189,16 @@ const CoursePreviewPage = ({ params }) => {
     const isFree =
       freeVideos?.some((v) => v.id === video.id) || video.free === "1";
 
-    // Check if user can watch this video
     if (!isFree && !isRegistered) {
       alert("هذا الدرس مقفل 🔒 يجب التسجيل في الدورة للمشاهدة");
       return;
     }
 
-    // Build query and navigate
     const query = buildVideoQuery(video);
     const queryString = new URLSearchParams(query).toString();
-    router.push(`${pathname}?${queryString}#player`);
 
-    // Auto-start on mobile/tablet
+    router.push(`${pathname}?${queryString}`);
+
     if (!isLgUp && !isLessonStart) {
       setIsLessonStart(true);
     }
@@ -482,7 +490,7 @@ const VideosList = ({
 
   return (
     <div
-      className="w-full lg:max-w-[437px] lg:min-w-[437px] flex flex-col gap-6 md:gap-[32px] pt-6 md:pt-10 pb-4 md:pb-5 px-3 md:px-4 relative bg-white md:rounded-[30px] lg:outline outline-[3px] outline-offset-[-3px] outline-gray-300 overflow-hidden"
+      className="  w-full lg:max-w-[437px] lg:min-w-[437px] flex flex-col gap-6 md:gap-[32px] pt-6 md:pt-10 pb-4 md:pb-5 px-3 md:px-4 relative bg-white md:rounded-[30px] lg:outline outline-[3px] outline-offset-[-3px] outline-gray-300 overflow-hidden"
       dir="rtl"
       aria-label="قائمة الفيديوهات"
     >
@@ -503,7 +511,7 @@ const VideosList = ({
       </div>
 
       {/* List */}
-      <div className="inline-flex flex-col justify-start items-start gap-3 md:gap-4 max-h-[600px] overflow-y-auto">
+      <div className="videos-list overflow-x-hidden inline-flex flex-col justify-start items-start gap-3 md:gap-4 max-h-[600px] overflow-y-auto">
         {allVideos.length > 0 ? (
           allVideos.map((video, i) => {
             const isFree = isFreeVideo(video.id, video);

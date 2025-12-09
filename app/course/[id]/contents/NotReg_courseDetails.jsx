@@ -38,7 +38,7 @@ const NotReg_courseDetails = ({ courseData }) => {
           />
         </div>
 
-        <Container className="mt-[48px] mb-[139px]">
+        <Container className="mt-[48px] ">
           <div className="flex justify-between gap-10 items-start">
             <div className="w-full max-w-[762px]">
               <CourseDetailsContent courseData={courseData} />

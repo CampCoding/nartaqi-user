@@ -151,7 +151,7 @@ export const Navs = ({ selectedTab, setSelectedTab }) => {
       role="tablist"
       aria-label="أقسام الدورة"
       onKeyDown={onKeyDown}
-      className="flex w-full lg:w-[720px] mb-6 items-center justify-between p-2 lg:p-3 bg-[#ebf3fe] rounded-[20px] lg:rounded-[26px] overflow-x-auto hidden-scroll gap-1 lg:gap-1.5"
+      className="flex w-full mb-6 items-center justify-between p-2 lg:p-3 bg-[#ebf3fe] rounded-[20px] lg:rounded-[26px] overflow-x-auto hidden-scroll gap-1 lg:gap-1.5"
     >
       {tabsData.map((tab) => {
         const selected = selectedTab === tab.id;
@@ -358,11 +358,12 @@ export const TestRow = ({ examData, isRegistered }) => {
       <div
         onClick={() => hasContent && setIsExpanded(!isExpanded)}
         className={cx(
-          "flex flex-col lg:flex-row items-start lg:items-center justify-between p-4 lg:px-6 lg:py-6 gap-4",
+          "flex flex-col lg:flex-row items-start lg:items-center justify-between p-3 sm:p-4 lg:px-6 lg:py-6 gap-3 sm:gap-4",
           hasContent && "cursor-pointer"
         )}
       >
-        <div className="flex items-center gap-3 flex-1 flex-wrap">
+        {/* Title and Tags Section */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-1 flex-wrap w-full lg:w-auto">
           <Link
             href={isRegistered ? `/mock-test/${exam.id}` : "#"}
             onClick={(e) => {
@@ -372,14 +373,14 @@ export const TestRow = ({ examData, isRegistered }) => {
               }
               e.stopPropagation();
             }}
-            className="group-hover:text-primary transition-all duration-75 font-medium text-text text-sm md:text-base hover:text-primary hover:underline"
+            className="group-hover:text-primary transition-all duration-75 font-medium text-text text-xs sm:text-sm md:text-base hover:text-primary hover:underline line-clamp-2 sm:line-clamp-1"
           >
             {exam.title || "غير محدد"}
           </Link>
 
           {exam.level && (
             <span
-              className={`text-xs px-2 py-0.5 rounded-full ${getLevelColor(
+              className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap ${getLevelColor(
                 exam.level
               )}`}
             >
@@ -388,9 +389,9 @@ export const TestRow = ({ examData, isRegistered }) => {
           )}
 
           {is_solved && (
-            <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-green-100 text-green-600 font-medium">
+            <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-green-100 text-green-600 font-medium whitespace-nowrap">
               <svg
-                className="w-3.5 h-3.5"
+                className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -400,30 +401,31 @@ export const TestRow = ({ examData, isRegistered }) => {
                   clipRule="evenodd"
                 />
               </svg>
-              تم الحل
+              <span className="hidden sm:inline">تم الحل</span>
             </span>
           )}
 
           {!isRegistered && (
-            <LockIcon2 className="fill-secondary w-4 h-4 md:w-5 md:h-5" />
+            <LockIcon2 className="fill-secondary w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
           )}
         </div>
 
-        <div className="w-full lg:w-auto flex items-center justify-between lg:justify-end lg:gap-4">
-          <div className="flex items-center gap-3">
+        {/* Time and Date Section */}
+        <div className="w-full lg:w-auto flex items-center justify-between lg:justify-end gap-2 sm:gap-3 lg:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             {exam.date && (
-              <span className="text-text-alt text-xs md:text-sm">
+              <span className="text-text-alt text-[10px] sm:text-xs md:text-sm whitespace-nowrap">
                 {exam.date}
               </span>
             )}
-            <span className="text-text-alt text-xs md:text-sm">
+            <span className="text-text-alt text-[10px] sm:text-xs md:text-sm whitespace-nowrap">
               {formatTime(exam.time)}
             </span>
           </div>
 
           {hasContent && (
             <div
-              className={`w-5 h-5 transition-transform duration-300 mr-2 ${
+              className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 flex-shrink-0 ${
                 isExpanded ? "rotate-180" : "rotate-0"
               }`}
             >
@@ -433,7 +435,7 @@ export const TestRow = ({ examData, isRegistered }) => {
                 viewBox="0 0 24 24"
                 strokeWidth={2}
                 stroke="currentColor"
-                className="w-5 h-5 text-primary"
+                className="w-full h-full text-primary"
               >
                 <path
                   strokeLinecap="round"
@@ -448,16 +450,18 @@ export const TestRow = ({ examData, isRegistered }) => {
 
       {/* Expanded Content */}
       {isExpanded && hasContent && (
-        <div className="border-t-2 border-zinc-200 px-4 lg:px-6 py-4 space-y-4">
+        <div className="border-t-2 border-zinc-200 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4">
           {exam.description && (
-            <p className="text-text-alt text-sm">{exam.description}</p>
+            <p className="text-text-alt text-xs sm:text-sm">
+              {exam.description}
+            </p>
           )}
 
-          {/* Videos Section - Updated with Link to Player */}
+          {/* Videos Section */}
           {videos.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="font-medium text-text text-sm flex items-center gap-2">
-                <RoundedPlayIcon className="w-5 h-5 stroke-primary" />
+            <div className="space-y-2 sm:space-y-3">
+              <h4 className="font-medium text-text text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
+                <RoundedPlayIcon className="w-4 h-4 sm:w-5 sm:h-5 stroke-primary flex-shrink-0" />
                 فيديوهات الشرح
               </h4>
               {videos.map((video) => {
@@ -467,10 +471,10 @@ export const TestRow = ({ examData, isRegistered }) => {
                 return (
                   <div
                     key={video.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-xl border border-gray-200 gap-2 sm:gap-3"
                   >
-                    <div className="flex items-center gap-3 flex-1">
-                      <RoundedPlayIcon className="w-6 h-6 stroke-primary flex-shrink-0" />
+                    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                      <RoundedPlayIcon className="w-5 h-5 sm:w-6 sm:h-6 stroke-primary flex-shrink-0" />
                       <div className="flex flex-col flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           {isRegistered && isPlayable ? (
@@ -480,30 +484,29 @@ export const TestRow = ({ examData, isRegistered }) => {
                                 query: buildExamVideoQuery(video),
                                 hash: "player",
                               }}
-                              className="font-medium text-text text-sm hover:text-primary hover:underline transition-colors"
+                              className="font-medium text-text text-xs sm:text-sm hover:text-primary hover:underline transition-colors line-clamp-1"
                             >
                               {video.title}
                             </Link>
                           ) : (
-                            <span className="font-medium text-text text-sm">
+                            <span className="font-medium text-text text-xs sm:text-sm line-clamp-1">
                               {video.title}
                             </span>
                           )}
                         </div>
                         {video.description && (
-                          <span className="text-text-alt text-xs truncate">
+                          <span className="text-text-alt text-[10px] sm:text-xs line-clamp-1">
                             {video.description}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0 self-end sm:self-auto">
                       {!isRegistered ? (
-                        <LockIcon2 className="fill-secondary w-5 h-5" />
+                        <LockIcon2 className="fill-secondary w-4 h-4 sm:w-5 sm:h-5" />
                       ) : (
                         <>
-                          {/* Play Button - Only show if playable */}
                           {isPlayable && (
                             <Link
                               href={{
@@ -511,10 +514,10 @@ export const TestRow = ({ examData, isRegistered }) => {
                                 query: buildExamVideoQuery(video),
                                 hash: "player",
                               }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary rounded-full hover:opacity-90 transition-opacity"
+                              className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-primary rounded-full hover:opacity-90 transition-opacity"
                             >
                               <svg
-                                className="w-4 h-4 text-white"
+                                className="w-3 h-3 sm:w-4 sm:h-4 text-white flex-shrink-0"
                                 fill="currentColor"
                                 viewBox="0 0 20 20"
                               >
@@ -524,7 +527,7 @@ export const TestRow = ({ examData, isRegistered }) => {
                                   clipRule="evenodd"
                                 />
                               </svg>
-                              <span className="text-white font-medium text-xs">
+                              <span className="text-white font-medium text-[10px] sm:text-xs whitespace-nowrap">
                                 تشغيل
                               </span>
                             </Link>
@@ -540,9 +543,9 @@ export const TestRow = ({ examData, isRegistered }) => {
 
           {/* PDFs Section */}
           {exam_pdfs.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="font-medium text-text text-sm flex items-center gap-2">
-                <FileIcon className="w-5 h-5 fill-primary" />
+            <div className="space-y-2 sm:space-y-3">
+              <h4 className="font-medium text-text text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
+                <FileIcon className="w-4 h-4 sm:w-5 sm:h-5 fill-primary flex-shrink-0" />
                 ملفات الاختبار
               </h4>
               {exam_pdfs.map((pdf) => {
@@ -553,28 +556,28 @@ export const TestRow = ({ examData, isRegistered }) => {
                   <div
                     key={pdf.id}
                     className={cx(
-                      "flex items-center justify-between p-3 rounded-xl border",
+                      "flex flex-col sm:flex-row sm:items-center justify-between p-2 sm:p-3 rounded-xl border gap-2 sm:gap-3",
                       pdf.type === "question"
                         ? "bg-gray-50 border-gray-200"
                         : "bg-gray-50 border-gray-200"
                     )}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                       <FileIcon
                         className={cx(
-                          "w-6 h-6",
+                          "w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0",
                           pdf.type === "question"
                             ? "fill-blue-600"
                             : "fill-green-600"
                         )}
                       />
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-text text-sm">
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                          <span className="font-medium text-text text-xs sm:text-sm line-clamp-1">
                             {pdf.title}
                           </span>
                           <span
-                            className={`text-xs px-2 py-0.5 rounded-full ${
+                            className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap ${
                               pdf.type === "question"
                                 ? "bg-blue-100 text-blue-600"
                                 : "bg-green-100 text-green-600"
@@ -584,57 +587,59 @@ export const TestRow = ({ examData, isRegistered }) => {
                           </span>
                         </div>
                         {pdf.description && (
-                          <span className="text-text-alt text-xs">
+                          <span className="text-text-alt text-[10px] sm:text-xs line-clamp-1">
                             {pdf.description}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    {!isRegistered ? (
-                      <LockIcon2 className="fill-secondary w-5 h-5" />
-                    ) : (
-                      <button
-                        onClick={(e) =>
-                          handleDownloadFile(e, pdf.pdf_url, pdf.title, "pdf")
-                        }
-                        disabled={isPdfDownloading}
-                        className={cx(
-                          "inline-flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-wait",
-                          pdf.type === "question"
-                            ? "bg-blue-600"
-                            : "bg-green-600"
-                        )}
-                      >
-                        {isPdfDownloading ? (
-                          <svg
-                            className="animate-spin w-4 h-4 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                            />
-                          </svg>
-                        ) : (
-                          <DownloadIcon className="w-4 h-4" />
-                        )}
-                        <span className="text-white font-medium text-xs sm:text-sm">
-                          {isPdfDownloading ? "جاري..." : "تحميل"}
-                        </span>
-                      </button>
-                    )}
+                    <div className="self-end sm:self-auto flex-shrink-0">
+                      {!isRegistered ? (
+                        <LockIcon2 className="fill-secondary w-4 h-4 sm:w-5 sm:h-5" />
+                      ) : (
+                        <button
+                          onClick={(e) =>
+                            handleDownloadFile(e, pdf.pdf_url, pdf.title, "pdf")
+                          }
+                          disabled={isPdfDownloading}
+                          className={cx(
+                            "inline-flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 md:px-4 py-1 sm:py-1.5 rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-wait",
+                            pdf.type === "question"
+                              ? "bg-blue-600"
+                              : "bg-green-600"
+                          )}
+                        >
+                          {isPdfDownloading ? (
+                            <svg
+                              className="animate-spin w-3 h-3 sm:w-4 sm:h-4 text-white flex-shrink-0"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              />
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                              />
+                            </svg>
+                          ) : (
+                            <DownloadIcon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                          )}
+                          <span className="text-white font-medium text-[10px] sm:text-xs whitespace-nowrap">
+                            {isPdfDownloading ? "جاري..." : "تحميل"}
+                          </span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -643,15 +648,15 @@ export const TestRow = ({ examData, isRegistered }) => {
 
           {/* Action Buttons */}
           {isRegistered && (
-            <div className="flex justify-center gap-3 pt-2">
+            <div className="flex justify-center gap-2 sm:gap-3 pt-2">
               {is_solved ? (
                 <button
                   disabled
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gray-300 text-gray-500 rounded-xl cursor-not-allowed font-medium"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gray-300 text-gray-500 rounded-xl cursor-not-allowed font-medium text-xs sm:text-sm md:text-base"
                   title="لقد قمت بحل هذا الاختبار مسبقاً"
                 >
                   <svg
-                    className="w-5 h-5"
+                    className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -661,15 +666,16 @@ export const TestRow = ({ examData, isRegistered }) => {
                       clipRule="evenodd"
                     />
                   </svg>
-                  تم الحل مسبقاً
+                  <span className="hidden sm:inline">تم الحل مسبقاً</span>
+                  <span className="sm:hidden">تم الحل</span>
                 </button>
               ) : (
                 <Link
                   href={`/mock-test/${exam.id}`}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl hover:opacity-90 transition-opacity font-medium"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-primary text-white rounded-xl hover:opacity-90 transition-opacity font-medium text-xs sm:text-sm md:text-base"
                 >
                   <svg
-                    className="w-5 h-5"
+                    className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"

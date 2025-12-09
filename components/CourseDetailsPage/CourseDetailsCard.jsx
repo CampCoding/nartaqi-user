@@ -18,31 +18,43 @@ import {
   removeFromCart,
   getUserCart,
 } from "@/components/utils/Store/Slices/cartSlice";
+import useHandleFavoriteActions from "../shared/Hooks/useHandleFavoriteActions";
 
-const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
+const CourseDetailsCard = ({ courseData }) => {
   const dispatch = useDispatch();
 
   const round = courseData?.round || courseData;
 
-
   const [isLoading, setIsLoading] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(round?.fav || false); // ✅ Local favorite state
 
   const { items: cartItems } = useSelector((state) => state.cart);
   const { token } = useSelector((state) => state.auth);
 
+  // ✅ Use the favorite hook
+  const { mutate: toggleFavorite, isLoading: isFavLoading } =
+    useHandleFavoriteActions();
+
   const roundId = round?.id;
+  useEffect(() => {
+    console.log(roundId, "round");
+  }, []);
+
+  // ✅ Sync favorite state when courseData changes
+  useEffect(() => {
+    setIsFavorited(round?.fav || false);
+  }, [round?.fav]);
 
   const isInCart = useMemo(() => {
     if (!roundId) return false;
 
     return cartItems.some((item) => {
       const matchById =
-        (item.item_id === roundId) ||
-        (item.round_id === roundId) ||
-        (item.round?.id === roundId);
+        item.item_id === roundId ||
+        item.round_id === roundId ||
+        item.round?.id === roundId;
 
       const matchByType = item.type === "rounds";
-
 
       return matchById && matchByType;
     });
@@ -53,9 +65,9 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
 
     return cartItems.find((item) => {
       const matchById =
-        (item.item_id === roundId) ||
-        (item.round_id === roundId) ||
-        (item.round?.id === roundId);
+        item.item_id === roundId ||
+        item.round_id === roundId ||
+        item.round?.id === roundId;
 
       return matchById && item.type === "rounds";
     });
@@ -73,8 +85,6 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
     }
 
     setIsLoading(true);
-
-
 
     try {
       if (isInCart) {
@@ -102,6 +112,38 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
     }
   };
 
+  // ✅ Handle favorite toggle
+  const handleToggleFavorite = () => {
+    if (!token) {
+      window.location.href = "/login";
+      return;
+    }
+
+    if (!roundId) {
+      console.error("Round ID is undefined!");
+      return;
+    }
+
+    // Optimistic update
+    setIsFavorited((prev) => !prev);
+
+    toggleFavorite(
+      {
+        id: roundId,
+        payload: {
+          // type: "rounds",
+          round_id: roundId,
+        },
+      },
+      {
+        onError: () => {
+          // Revert on error
+          setIsFavorited((prev) => !prev);
+        },
+      }
+    );
+  };
+
   const calculateRating = () => {
     const rates = courseData?.roundRate || round?.students_rates || [];
     if (rates.length === 0) return 0;
@@ -125,7 +167,6 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
     both: "الجميع",
   };
 
-  // ✅ Safety check - if no round data, show error
   if (!round || !round.id) {
     return (
       <div className="w-full max-w-[460px] px-5 pt-6 bg-white rounded-[36px] shadow-lg">
@@ -208,7 +249,7 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
           </div>
         </div>
 
-        <div className="w-full pt-3.5 border-b-2 border-zinc-100 inline-flex justify-between items-center">
+        <div className="w-full py-3.5 border-b-2 border-zinc-100 inline-flex justify-between items-center">
           <div className="flex justify-start w-[200px] items-center gap-2">
             <CycleClock />
             <div className="inline-flex justify-start items-center gap-4">
@@ -256,12 +297,13 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
             type="button"
             onClick={handleToggleCart}
             disabled={isLoading}
-            className={`flex-1 px-3.5 py-3 rounded-[16px] outline outline-1 outline-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200
-              ${isInCart && !isLoading
-                ? "bg-red-50 outline-red-500 hover:bg-red-100 group"
-                : isLoading
-                  ? "bg-gray-50 outline-gray-300 cursor-wait opacity-70"
-                  : "bg-white outline-secondary hover:bg-secondary group"
+            className={`flex-1 px-3.5 py-3 rounded-[16px] border border-1 border-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200
+              ${
+                isInCart && !isLoading
+                  ? "bg-red-50 border-red-500 hover:bg-red-100 group"
+                  : isLoading
+                  ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
+                  : "bg-white border-secondary hover:bg-secondary group"
               }
             `}
           >
@@ -316,12 +358,63 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
             )}
           </button>
 
+          {/* ✅ Favorite Button - Same style as cart button */}
           <button
             type="button"
-            onClick={onToggleFavorite}
-            className="w-12 h-12 p-2 flex justify-center items-center bg-white rounded-xl outline outline-1 outline-offset-[-1px] outline-secondary hover:bg-secondary/10 transition-colors"
+            onClick={handleToggleFavorite}
+            disabled={isFavLoading}
+            className={`flex px-3.5 py-3 rounded-[16px] border border-1 border-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200
+    ${
+      isFavorited && !isFavLoading
+        ? "bg-red-50 border-red-500 hover:bg-red-100 group"
+        : isFavLoading
+        ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
+        : "bg-white border-secondary hover:bg-secondary group"
+    }
+  `}
           >
-            <CourseHeartIcon fill={round.fav ? "#F97316" : "none"} />
+            {isFavLoading ? (
+              <>
+                <div className="spinner"></div>
+                {/* <span className="text-center justify-center text-gray-500 text-sm font-bold">
+                  {isFavorited ? "جاري الحذف..." : "جاري الإضافة..."}
+                </span> */}
+              </>
+            ) : isFavorited ? (
+              <>
+                <svg
+                  className="w-5 h-5 text-red-500 transition-transform group-hover:scale-110"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+                {/* <span className="text-center justify-center text-red-600 text-sm font-bold">
+                  حذف من المفضلة
+                </span> */}
+              </>
+            ) : (
+              <>
+                <svg
+                  className="w-5 h-5 text-secondary group-hover:text-white transition-colors"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {/* <span className="text-center justify-center text-secondary text-sm font-bold group-hover:text-white transition-colors">
+                  أضف للمفضلة
+                </span> */}
+              </>
+            )}
           </button>
         </div>
 
@@ -340,6 +433,15 @@ const CourseDetailsCard = ({ courseData, onToggleFavorite }) => {
           width: 18px;
           height: 18px;
           border: 2.5px solid #e5e7eb;
+          border-top-color: #f97316;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+
+        .fav-spinner {
+          width: 20px;
+          height: 20px;
+          border: 2.5px solid #fed7aa;
           border-top-color: #f97316;
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
