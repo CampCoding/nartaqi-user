@@ -46,7 +46,7 @@ const FAQs = () => {
         image={"/images/faq-banner.png"}
         breadcrumb={[
           { title: "الرئيسية", link: "/" },
-          { title: "الأسئلة الشائعة", link: "/students-courses" },
+          { title: "الأسئلة الشائعة", link: "/faqs" },
         ]}
       />
 

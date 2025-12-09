@@ -49,9 +49,9 @@ const SupportGate = () => {
         ]}
       />
       <Container className="space-y-[64px] mt-[48px] mb-[74px]">
-        <div className="  grid grid-cols-1   gap-4 md:gap-[32px]">
+        <div className="grid grid-cols-1 gap-4 md:gap-[32px]">
           {supportData.map((item, index) => {
-            return <SupportSection data={item} />;
+            return <SupportSection key={index} data={item} />;
           })}
         </div>
         <GuideLines />
@@ -61,17 +61,16 @@ const SupportGate = () => {
 };
 
 export default SupportGate;
-// import vector from "./vector.svg";
 
 export const SupportSection = ({ data }) => {
   return (
-    <article className="flex flex-col  items-start gap-4 rounded-[30px] border-[3px] border-solid bg-white p-4 md:gap-6 md:p-6 md:pb-8">
+    <article className="flex flex-col items-start gap-4 rounded-[30px] border-[3px] border-solid bg-white p-4 md:gap-6 md:p-6 md:pb-8">
       {/* Header */}
       <header className="flex w-full flex-col items-start gap-2 self-stretch md:gap-3">
         <h1 className="self-stretch font-bold leading-tight tracking-[0] text-secondary text-xl md:text-[32px] md:leading-[normal]">
           {data.title}
         </h1>
-        <p className="self-stretch   text-sm md:text-base leading-[normal] text-text">
+        <p className="self-stretch text-sm md:text-base leading-[normal] text-text">
           {data.description}
         </p>
       </header>
@@ -89,12 +88,11 @@ export const SupportSection = ({ data }) => {
             onClick={data.onPlay}
           >
             <div className="relative h-7 w-7 md:h-12 md:w-12">
-              {/* Play Icon */}
               <svg
                 viewBox="0 0 48 48"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-full w-full" // Makes SVG scale to fit its parent
+                className="h-full w-full"
               >
                 <path
                   d="M13.5292 40.657C11.9864 41.595 10 40.4985 10 38.7084L10 10.2915C10 8.50162 11.9864 7.40494 13.5292 8.343L36.8981 22.5514C38.3673 23.4448 38.3673 25.5551 36.8981 26.4486L13.5292 40.657Z"
@@ -140,13 +138,14 @@ export const GuideLines = () => {
   ];
 
   return (
-    <article className="flex flex-col items-start gap-6 pt-6 pb-12 px-0 relative bg-white rounded-[30px] border-2 border-solid ">
-      <header className="flex-col h-[98px] items-start gap-3 p-6 self-stretch w-full flex relative">
-        <div className="flex-col items-start gap-3 self-stretch w-full flex-[0_0_auto] mb-[-6.00px] flex relative">
-          <h1 className="self-stretch mt-[-1.00px] font-bold text-[#2d2d2d] text-2xl tracking-[-0.60px] leading-6 relative ">
+    <article className="flex flex-col items-start gap-6 pt-6 pb-12 px-0 relative bg-white rounded-[30px] border-2 border-solid">
+      <header className="flex-col items-start gap-3 p-6 self-stretch w-full flex relative">
+        <div className="flex-col items-start gap-3 self-stretch w-full flex-[0_0_auto] flex relative">
+          <h1 className="self-stretch mt-[-1.00px] font-bold text-[#2d2d2d] text-2xl tracking-[-0.60px] leading-6 relative">
             إرشادات لاستخدام الصف الافتراضي
           </h1>
-          <p className="self-stretch h-5  text-text-alt text-base leading-5 whitespace-nowrap relative ">
+          {/* ✅ Removed whitespace-nowrap and fixed height */}
+          <p className="self-stretch text-text-alt text-base leading-5 relative">
             القواعد الهامة وأفضل الممارسات
           </p>
         </div>
@@ -155,10 +154,11 @@ export const GuideLines = () => {
         {guidelines.map((guideline, index) => (
           <div
             key={index}
-            className="w-[550px] items-start justify-start gap-3 flex-[0_0_auto] flex relative"
+            className="w-full md:w-[550px] items-start justify-start gap-3 flex-[0_0_auto] flex relative"
           >
+            {/* ✅ Icon container with flex-shrink-0 to prevent icon from shrinking */}
             <div
-              className="relative w-6 h-6 z-0 aspect-[1]"
+              className="relative w-6 h-6 flex-shrink-0"
               role="img"
               aria-label="تم"
             >
@@ -168,8 +168,10 @@ export const GuideLines = () => {
                 </div>
               </div>
             </div>
-            <div className="inline-flex h-5 items-center justify-start relative flex-[0_0_auto] z-[1]">
-              <p className="w-fit  text-[#2d2d2d] text-sm text-left leading-5 whitespace-nowrap relative ">
+            {/* ✅ Removed fixed height (h-5) and inline-flex, using flex-1 for proper text wrapping */}
+            <div className="flex-1 items-center justify-start relative">
+              {/* ✅ Changed to text-wrap and md:whitespace-nowrap for responsive behavior */}
+              <p className="w-full text-[#2d2d2d] text-sm text-right leading-5 break-words md:whitespace-nowrap relative">
                 {guideline.text}
               </p>
             </div>

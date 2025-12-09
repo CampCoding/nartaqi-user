@@ -45,17 +45,16 @@ export default Footer;
 
 export const Frame = () => {
   const aboutPlatform = [
-    
-      { text: "من نحن", href: "/about-us" },
-      { text: "فريق العمل", href: "/team-work" },
-      { text: "الأسئلة الشائعة", href: "/faqs" },
-      { text: "شروط الاستخدام والخصوصية", href: "/conditions-and-privacy" },
-      { text: "المدونة", href: "/blogs" },
-      { text: "تواصل معنا", href: "/contact-us" },
+    { text: "من نحن", href: "/about-us" },
+    { text: "فريق العمل", href: "/team-work" },
+    { text: "الأسئلة الشائعة", href: "/faqs" },
+    { text: "شروط الاستخدام والخصوصية", href: "/conditions-and-privacy" },
+    { text: "المدونة", href: "/blogs" },
+    { text: "تواصل معنا", href: "/contact-us" },
   ];
 
   const quickLinks = [
-    { text: "الدورات", href: "/students-courses" },
+    // { text: "الدورات", href: "/courses" },
     { text: "المدربون", href: "/instructors" },
     { text: "بوابة الدعم", href: "/support-gate" },
     { text: "شروط الالتحاق بالدورات", href: "/enroll-terms" },

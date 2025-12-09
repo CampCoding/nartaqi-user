@@ -18,10 +18,10 @@ const TeachersCourses = () => {
             title: "الرئيسية",
             link: "/",
           },
-          {
-            title: "الدورات العامة",
-            link: "/students-courses",
-          },
+          // {
+          //   title: "الدورات العامة",
+          //   link: "/courses",
+          // },
         ]}
       />
       <div>
