@@ -17,7 +17,7 @@ const initialState = {
   timeRemaining: 0,
 
   // Answers
-  answeredMap: {}, // { [questionId]: optionId }
+  answeredMap: {}, // { [questionId]: optionId } - keeps ID for UI
   flaggedMap: {}, // { [questionId]: true/false }
 
   // All questions flat (for easy access)
@@ -29,7 +29,7 @@ const initialState = {
   isSolved: false,
 
   // Results
-  score: null, // "10/20"
+  score: null,
   correctAnswers: 0,
   totalQuestions: 0,
   percentage: 0,
@@ -86,7 +86,6 @@ const mockExamSlice = createSlice({
         const sectionTitle = stripHtml(section.title) || "||";
         const sectionDescription = stripHtml(section.description) || "||";
 
-        // Add section time
         calculatedTotalTime += parseTimeToSeconds(section.time_if_free);
 
         const blocks = [];
@@ -111,7 +110,9 @@ const mockExamSlice = createSlice({
               id: q.id,
               text: stripHtml(q.question_text),
               options: formattedOptions,
+              // ✅ Store both ID and TEXT for correct answer
               correctAnswer: correctOption?.id || null,
+              correctAnswerText: stripHtml(correctOption?.option_text) || null,
               explanation:
                 stripHtml(correctOption?.question_explanation) ||
                 "لا يوجد تفسير متاح.",
@@ -149,7 +150,9 @@ const mockExamSlice = createSlice({
             id: q.id,
             text: stripHtml(q.question_text),
             options: formattedOptions,
+            // ✅ Store both ID and TEXT for correct answer
             correctAnswer: correctOption?.id || null,
+            correctAnswerText: stripHtml(correctOption?.option_text) || null,
             explanation:
               stripHtml(correctOption?.question_explanation) ||
               "لا يوجد تفسير متاح.",
@@ -167,7 +170,41 @@ const mockExamSlice = createSlice({
           allQuestions.push(questionData);
         });
 
-        // Shuffle blocks only (questions inside blocks stay in order)
+        // Process Boolean questions (if any)
+        section.boolean?.forEach((q) => {
+          const questionData = {
+            id: q.id,
+            text: stripHtml(q.question_text),
+            options: [
+              {
+                id: "true",
+                text: "صح",
+                isCorrect: q.correct_answer === "true",
+              },
+              {
+                id: "false",
+                text: "خطأ",
+                isCorrect: q.correct_answer === "false",
+              },
+            ],
+            correctAnswer: q.correct_answer,
+            correctAnswerText: q.correct_answer === "true" ? "صح" : "خطأ",
+            explanation: "لا يوجد تفسير متاح.",
+            instructions: q.instructions || "",
+            type: "boolean",
+            globalIndex: questionCounter++,
+          };
+
+          blocks.push({
+            type: "boolean",
+            passage: null,
+            questions: [questionData],
+          });
+
+          allQuestions.push(questionData);
+        });
+
+        // Shuffle blocks only
         const shuffledBlocks = shuffleArray(blocks);
 
         if (shuffledBlocks.length > 0) {
@@ -187,39 +224,32 @@ const mockExamSlice = createSlice({
       state.totalQuestions = allQuestions.length;
     },
 
-    // Set solved status
     setIsSolved: (state, action) => {
       state.isSolved = action.payload;
     },
 
-    // Start exam
     startExam: (state) => {
       state.isStarted = true;
     },
 
-    // Decrement time
     decrementTime: (state) => {
       if (state.timeRemaining > 0) {
         state.timeRemaining -= 1;
       }
     },
 
-    // Set time remaining (for restore)
     setTimeRemaining: (state, action) => {
       state.timeRemaining = action.payload;
     },
 
-    // Set current section index
     setCurrentSectionIndex: (state, action) => {
       state.currentSectionIndex = action.payload;
     },
 
-    // Set current block index
     setCurrentBlockIndex: (state, action) => {
       state.currentBlockIndex = action.payload;
     },
 
-    // Go to next block
     nextBlock: (state) => {
       const currentSection = state.sections[state.currentSectionIndex];
       if (!currentSection) return;
@@ -229,14 +259,12 @@ const mockExamSlice = createSlice({
       }
     },
 
-    // Go to previous block
     prevBlock: (state) => {
       if (state.currentBlockIndex > 0) {
         state.currentBlockIndex -= 1;
       }
     },
 
-    // Move to next section
     nextSection: (state) => {
       if (state.currentSectionIndex < state.sections.length - 1) {
         state.currentSectionIndex += 1;
@@ -244,21 +272,18 @@ const mockExamSlice = createSlice({
       }
     },
 
-    // Set answer for a question
     setAnswer: (state, action) => {
       const { questionId, optionId } = action.payload;
       state.answeredMap[questionId] = optionId;
     },
 
-    // Toggle flag for a question
     toggleFlag: (state, action) => {
       const questionId = action.payload;
       state.flaggedMap[questionId] = !state.flaggedMap[questionId];
     },
 
-    // Toggle flag for all questions in a block
     toggleBlockFlag: (state, action) => {
-      const questionIds = action.payload; // array of question ids
+      const questionIds = action.payload;
       const firstId = questionIds[0];
       const isCurrentlyFlagged = state.flaggedMap[firstId];
 
@@ -267,11 +292,9 @@ const mockExamSlice = createSlice({
       });
     },
 
-    // Submit exam and calculate results
     submitExam: (state) => {
       state.isSubmitted = true;
 
-      // Calculate score
       let correct = 0;
       state.allQuestions.forEach((question) => {
         const userAnswer = state.answeredMap[question.id];
@@ -288,7 +311,6 @@ const mockExamSlice = createSlice({
           : 0;
     },
 
-    // Restore state from localStorage
     restoreState: (state, action) => {
       const savedState = action.payload;
       state.currentSectionIndex = savedState.currentSectionIndex || 0;
@@ -300,7 +322,6 @@ const mockExamSlice = createSlice({
       state.isStarted = savedState.isStarted || false;
     },
 
-    // Reset exam
     resetExam: () => initialState,
   },
 });
@@ -385,7 +406,6 @@ export const selectUnansweredCount = (state) =>
   state.mockExam.totalQuestions -
   Object.keys(state.mockExam.answeredMap).length;
 
-// Get current question number (first question in current block)
 export const selectCurrentQuestionNumber = (state) => {
   const { sections, currentSectionIndex, currentBlockIndex } = state.mockExam;
   let count = 0;
@@ -406,7 +426,6 @@ export const selectCurrentQuestionNumber = (state) => {
   return count + 1;
 };
 
-// Get progress text
 export const selectProgressText = (state) => {
   const currentQuestionNumber = selectCurrentQuestionNumber(state);
   const currentBlock = selectCurrentBlock(state);
@@ -420,41 +439,53 @@ export const selectProgressText = (state) => {
   return `${currentQuestionNumber} من ${totalQuestions}`;
 };
 
-// Check if current block is marked
 export const selectIsCurrentBlockMarked = (state) => {
   const currentBlock = selectCurrentBlock(state);
   if (!currentBlock) return false;
   return currentBlock.questions.some((q) => state.mockExam.flaggedMap[q.id]);
 };
 
-// Check if last block in section
 export const selectIsLastBlockInSection = (state) => {
   const currentSection = selectCurrentSection(state);
   if (!currentSection) return false;
   return state.mockExam.currentBlockIndex === currentSection.blocks.length - 1;
 };
 
-// Check if last section
 export const selectIsLastSection = (state) => {
   return (
     state.mockExam.currentSectionIndex === state.mockExam.sections.length - 1
   );
 };
 
-// Format answers for API submission
+// ✅ UPDATED: Format answers for API submission - NOW SENDS TEXT INSTEAD OF ID
 export const selectFormattedAnswersForAPI = (state) => {
   const { allQuestions, answeredMap } = state.mockExam;
   const formattedAnswers = [];
 
   allQuestions.forEach((question) => {
-    const userAnswer = answeredMap[question.id];
-    if (userAnswer !== undefined) {
+    const userAnswerId = answeredMap[question.id];
+
+    if (userAnswerId !== undefined) {
+      // ✅ Find the selected option to get its TEXT
+      const selectedOption = question.options.find(
+        (opt) => opt.id === userAnswerId
+      );
+
+      // ✅ Get student answer text
+      const studentAnswerText = selectedOption?.text || null;
+
+      // ✅ Get correct answer text
+      const correctAnswerText = question.correctAnswerText;
+
+      // ✅ Check if correct
+      const isCorrect = userAnswerId === question.correctAnswer;
+
       formattedAnswers.push({
         question_id: question.id,
         type: question.type,
-        student_answer: userAnswer,
-        correct_answer: question.correctAnswer,
-        is_correct: userAnswer === question.correctAnswer,
+        student_answer: studentAnswerText, // ✅ Now TEXT instead of ID
+        correct_answer: correctAnswerText, // ✅ Now TEXT instead of ID
+        is_correct: isCorrect,
       });
     }
   });
@@ -462,7 +493,18 @@ export const selectFormattedAnswersForAPI = (state) => {
   return formattedAnswers;
 };
 
-// Get state for localStorage save
+// ✅ NEW: Get submission data ready for API
+export const selectSubmissionData = (state) => {
+  const { examId, studentId } = state.mockExam;
+  const answers = selectFormattedAnswersForAPI(state);
+
+  return {
+    student_id: studentId,
+    exam_id: examId,
+    answers: answers,
+  };
+};
+
 export const selectStateForSave = (state) => {
   const {
     examId,

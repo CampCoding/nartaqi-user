@@ -16,7 +16,7 @@ const initialState = {
   answers: [], // Array of { question_id, type, student_answer, correct_answer, is_correct }
 
   // Helper maps for UI
-  answeredMap: {}, // { [questionId]: student_answer } - for UI only
+  answeredMap: {}, // { [questionId]: optionId } - for UI only (keeps ID for selection state)
   flaggedMap: {}, // { [index]: true/false }
 
   // State
@@ -26,9 +26,9 @@ const initialState = {
   endTime: null,
 
   // Results
-  score: null, // "10/20"
-  percentage: null, // 85
-  resultData: null, // Full API response
+  score: null,
+  percentage: null,
+  resultData: null,
 };
 
 // Helper function to strip HTML tags
@@ -41,29 +41,29 @@ const examSlice = createSlice({
   name: "exam",
   initialState,
   reducers: {
-    // Set student ID
     setStudentId: (state, action) => {
       state.studentId = action.payload;
     },
 
-    // Set exam ID
     setExamId: (state, action) => {
       state.examId = action.payload;
     },
 
-    // Set exam data from API and transform questions
     setExamData: (state, action) => {
       const data = action.payload;
       state.examData = data;
 
-      // Transform questions from API format
       const allQuestions = [];
 
-      // Handle if data is an array of sections
       if (Array.isArray(data)) {
         data.forEach((section) => {
           // MCQ questions
           section.mcq?.forEach((question) => {
+            // ✅ Find correct option
+            const correctOption = question.options?.find(
+              (opt) => opt.is_correct === 1
+            );
+
             allQuestions.push({
               id: question.id,
               type: "mcq",
@@ -82,10 +82,10 @@ const examSlice = createSlice({
                   explanation: stripHtml(opt.question_explanation),
                   explanationHtml: opt.question_explanation,
                 })) || [],
-              // Store correct answer for later validation
-              correctAnswer:
-                question.options?.find((opt) => opt.is_correct === 1)?.id ||
-                null,
+              // ✅ Store correct answer ID for UI comparison
+              correctAnswerId: correctOption?.id || null,
+              // ✅ Store correct answer TEXT for API submission
+              correctAnswerText: stripHtml(correctOption?.option_text) || null,
             });
           });
 
@@ -124,7 +124,6 @@ const examSlice = createSlice({
       state.questions = allQuestions;
     },
 
-    // Set current index
     setCurrentIndex: (state, action) => {
       const index = action.payload;
       if (index >= 0 && index < state.questions.length) {
@@ -132,88 +131,91 @@ const examSlice = createSlice({
       }
     },
 
-    // Go to next question
     nextQuestion: (state) => {
       if (state.currentIndex < state.questions.length - 1) {
         state.currentIndex += 1;
       }
     },
 
-    // Go to previous question
     prevQuestion: (state) => {
       if (state.currentIndex > 0) {
         state.currentIndex -= 1;
       }
     },
 
-    // Set answer for a question (stores in API format)
+    // ✅ UPDATED: Set answer with TEXT instead of ID
     setAnswer: (state, action) => {
       const { questionId, answer } = action.payload;
 
-      // Find the question
       const question = state.questions.find((q) => q.id === questionId);
       if (!question) return;
 
-      // Update answeredMap for UI
+      // Update answeredMap for UI (keep ID for selection state)
       state.answeredMap[questionId] = answer;
 
-      // Find or create answer in answers array
       const existingAnswerIndex = state.answers.findIndex(
         (a) => a.question_id === questionId
       );
 
-      // Determine correct answer and if student is correct
-      let correctAnswer = null;
+      let studentAnswerText = null;
+      let correctAnswerText = null;
       let isCorrect = false;
 
       if (question.type === "mcq") {
-        correctAnswer = question.correctAnswer;
-        isCorrect = answer === correctAnswer;
+        // ✅ Find selected option and get its TEXT
+        const selectedOption = question.options.find(
+          (opt) => opt.id === answer
+        );
+        studentAnswerText = selectedOption ? selectedOption.label : null;
+
+        // ✅ Get correct answer TEXT
+        correctAnswerText = question.correctAnswerText;
+
+        // ✅ Check if correct by comparing IDs
+        isCorrect = answer === question.correctAnswerId;
       } else if (question.type === "boolean") {
-        correctAnswer = question.correctAnswer;
-        isCorrect = answer === correctAnswer;
-      } else if (question.type === "paragraph") {
-        correctAnswer = question.correctAnswer || "";
-        // For paragraph, we can't determine correctness client-side
+        // ✅ Convert boolean to string "true" or "false"
+        studentAnswerText = String(answer);
+        correctAnswerText = String(question.correctAnswer);
+        isCorrect = answer === question.correctAnswer;
+      } else if (question.type === "paragraph" || question.type === "text") {
+        // ✅ Already a string
+        studentAnswerText = answer;
+        correctAnswerText = question.correctAnswer || "";
+        // For paragraph, server will validate
         isCorrect = false;
       }
 
       const answerObject = {
         question_id: questionId,
         type: question.type,
-        student_answer: answer,
-        correct_answer: correctAnswer,
+        student_answer: studentAnswerText, // ✅ Now sending TEXT
+        correct_answer: correctAnswerText, // ✅ Now sending TEXT
         is_correct: isCorrect,
       };
 
       if (existingAnswerIndex >= 0) {
-        // Update existing answer
         state.answers[existingAnswerIndex] = answerObject;
       } else {
-        // Add new answer
         state.answers.push(answerObject);
       }
     },
 
-    // Toggle flag for a question
     toggleFlag: (state, action) => {
       const index = action.payload;
       state.flaggedMap[index] = !state.flaggedMap[index];
     },
 
-    // Start exam
     startExam: (state) => {
       state.isStarted = true;
       state.startTime = new Date().toISOString();
     },
 
-    // Submit exam
     submitExam: (state) => {
       state.isSubmitted = true;
       state.endTime = new Date().toISOString();
     },
 
-    // Set exam results
     setExamResults: (state, action) => {
       const { score, percentage, resultData } = action.payload;
       state.score = score;
@@ -221,7 +223,6 @@ const examSlice = createSlice({
       state.resultData = resultData;
     },
 
-    // Reset exam state
     resetExam: () => initialState,
   },
 });
@@ -255,18 +256,12 @@ export const selectAnsweredMap = (state) => state.exam.answeredMap;
 export const selectFlaggedMap = (state) => state.exam.flaggedMap;
 export const selectIsStarted = (state) => state.exam.isStarted;
 export const selectIsSubmitted = (state) => state.exam.isSubmitted;
-
-// Selector for API submission format
 export const selectSubmissionData = (state) => ({
   student_id: state.exam.studentId,
   exam_id: state.exam.examId,
   answers: state.exam.answers,
 });
-
-// Selector for answers array
 export const selectAnswers = (state) => state.exam.answers;
-
-// Selector for exam results
 export const selectExamScore = (state) => state.exam.score;
 export const selectExamPercentage = (state) => state.exam.percentage;
 export const selectExamResultData = (state) => state.exam.resultData;
