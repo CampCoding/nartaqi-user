@@ -54,6 +54,7 @@ const TeachersCourses = () => {
     loading,
     refetch,
   } = useGetCourseRounds(apiParams);
+  console.log(data);
 
   useEffect(() => {
     refetch();

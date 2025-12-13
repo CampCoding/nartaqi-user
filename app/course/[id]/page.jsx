@@ -24,15 +24,15 @@ const CourseDetailsPage = () => {
     const fetchCourseData = async () => {
       try {
         setLoading(true);
-        
-        const payload={round_id: roundId,}
-        if(studentId){
-          payload.student_id=studentId
+
+        const payload = { round_id: roundId };
+        if (studentId) {
+          payload.student_id = studentId;
         }
-        
+
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/roundBundle`,
-         payload,
+          payload,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -72,6 +72,7 @@ const CourseDetailsPage = () => {
       </div>
     );
   }
+  console.log(courseData.own);
 
   const isRegistered = courseData.own;
 

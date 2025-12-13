@@ -50,7 +50,7 @@ const extractYoutubeId = (url) => {
 };
 
 // ==================== MAIN COMPONENT ====================
-const CourseContentDrawer = ({ isRegistered, content }) => {
+const CourseContentDrawer = ({ isRegistered, content, allExams }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleToggle = () => {
@@ -71,6 +71,8 @@ const CourseContentDrawer = ({ isRegistered, content }) => {
     return `${mins} دقيقة`;
   };
 
+
+
   return (
     <div
       className={cx(
@@ -86,12 +88,17 @@ const CourseContentDrawer = ({ isRegistered, content }) => {
         <div className="text-right justify-center text-text text-sm md:text-base font-bold">
           {content.content_title || "غير محدد"}
         </div>
-        <div
-          className={`md:w-6 md:h-6 transition-transform duration-300 ${
-            !isOpen ? "rotate-180" : "rotate-0"
-          }`}
-        >
-          <CourseChevronTopIcon className="w-[20px] h-[20px] md:w-[24px] md:h-[24px] !fill-primary" />
+        <div className={` md:h-6 transition-transform duration-300 `}>
+          <div className="flex justify-between items-center gap-4">
+            <CourseChevronTopIcon
+              className={`w-[20px] ${
+                !isOpen ? "rotate-180" : "rotate-0"
+              } transition-transform duration-300 h-[20px] md:w-[24px] md:h-[24px] !fill-primary`}
+            />
+            {!isRegistered && (
+              <CourseLockIcon className="w-[20px] h-[20px] md:w-[24px] md:h-[24px] !fill-primary " />
+            )}
+          </div>
         </div>
       </div>
 
@@ -104,31 +111,15 @@ const CourseContentDrawer = ({ isRegistered, content }) => {
             ))}
           </div>
         ) : (
-          <div className="self-stretch flex flex-col justify-start items-start gap-6 px-4 md:px-6 pb-4 md:pb-[24px]">
-            {content.lessons.flatMap((lesson) =>
-              lesson.videos.map((video) => (
-                <div
-                  key={video.id}
-                  className="self-stretch inline-flex justify-between items-start gap-3"
-                >
-                  <div
-                    className="flex justify-start items-center gap-2 cursor-pointer"
-                    onClick={() => handlePlay(video)}
-                  >
-                    <CoursePlayIcon className="stroke-primary" />
-                    <div className="text-right justify-center text-text text-sm md:text-base font-medium">
-                      {video.title || "غير محدد"}
-                    </div>
-                  </div>
-                  <div className="flex justify-start items-center gap-4">
-                    <div className="text-right whitespace-nowrap justify-center text-text text-xs md:text-sm font-medium">
-                      {formatTime(video.time)}
-                    </div>
-                    {video.free === "0" && <CourseLockIcon />}
-                  </div>
-                </div>
-              ))
-            )}
+          <div className="w-full flex flex-col gap-3 sm:gap-4 px-4 md:px-6 pb-4 md:pb-[24px]">
+            {content.lessons.map((lesson) => (
+              <RegLectureDrawer
+                key={lesson.id}
+                lesson={lesson}
+                isDone={true}
+                isRegistered={!isRegistered}
+              />
+            ))}
           </div>
         ))}
     </div>
@@ -138,7 +129,7 @@ const CourseContentDrawer = ({ isRegistered, content }) => {
 export default CourseContentDrawer;
 
 // ==================== REG LECTURE DRAWER ====================
-export const RegLectureDrawer = ({ lesson, isDone }) => {
+export const RegLectureDrawer = ({ lesson, isDone, isRegistered }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const sectionId = useId();
   const pathname = usePathname();
@@ -221,12 +212,18 @@ export const RegLectureDrawer = ({ lesson, isDone }) => {
           {lesson.lesson_title || "غير محدد"}
         </h1>
         <div
-          className={`shrink-0 w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 ${
-            !isExpanded ? "rotate-180" : "rotate-0"
-          }`}
+          className={`shrink-0  transition-transform duration-300`}
           aria-hidden="true"
         >
-          <CourseChevronTopIcon className="w-[20px] h-[20px] md:w-[24px] md:h-[24px] !fill-primary" />
+          <div className="flex justify-between items-center gap-4">
+            <CourseChevronTopIcon
+              className={`w-[20px] ${!isExpanded ? "rotate-180" : "rotate-0"}
+              transition-transform duration-300 h-[20px] md:w-[24px] md:h-[24px] !fill-primary`}
+            />
+            {isRegistered && (
+              <CourseLockIcon className="w-[20px] h-[20px] md:w-[24px] md:h-[24px] !fill-primary " />
+            )}
+          </div>
         </div>
       </header>
 
@@ -250,17 +247,23 @@ export const RegLectureDrawer = ({ lesson, isDone }) => {
               <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 self-stretch">
                 <div className="inline-flex items-center gap-2">
                   {item.type === "video" ? (
-                    <Link
-                      href={{
-                        pathname,
-                        query: buildVideoQuery(item),
-                        hash: "player",
-                      }}
-                    >
-                      <h2 className="cursor-pointer font-medium flex items-center justify-center w-fit -mt-px text-text text-sm sm:text-base leading-normal hover:underline">
+                    !isRegistered ? (
+                      <Link
+                        href={{
+                          pathname,
+                          query: buildVideoQuery(item),
+                          hash: "player",
+                        }}
+                      >
+                        <h2 className="cursor-pointer font-medium flex items-center justify-center w-fit -mt-px text-text text-sm sm:text-base leading-normal hover:underline">
+                          {item.title || "غير محدد"}
+                        </h2>
+                      </Link>
+                    ) : (
+                      <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-sm sm:text-base leading-normal">
                         {item.title || "غير محدد"}
                       </h2>
-                    </Link>
+                    )
                   ) : (
                     <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-sm sm:text-base leading-normal">
                       {item.title || "غير محدد"}
@@ -293,6 +296,7 @@ export const RegLectureDrawer = ({ lesson, isDone }) => {
             <ExerciseDropDown
               examAllData={lesson.exam_all_data}
               isDone={isDone}
+              isRegistered={isRegistered}
             />
           )}
         </section>
@@ -303,7 +307,11 @@ export const RegLectureDrawer = ({ lesson, isDone }) => {
 
 // ==================== EXERCISE DROPDOWN ====================
 // ==================== EXERCISE DROPDOWN ====================
-export const ExerciseDropDown = ({ examAllData, isDone = false }) => {
+export const ExerciseDropDown = ({
+  examAllData,
+  isDone = false,
+  isRegistered,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const sectionId = useId();
   const pathname = usePathname();
@@ -444,13 +452,16 @@ export const ExerciseDropDown = ({ examAllData, isDone = false }) => {
             تدريب
           </span>
         </div>
-        <div
-          className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 ${
-            !isExpanded ? "rotate-180" : "rotate-0"
-          }`}
-          aria-hidden="true"
-        >
-          <CourseChevronTopIcon className="w-[20px] h-[20px] md:w-[24px] md:h-[24px] !fill-primary" />
+        <div className={``} aria-hidden="true">
+          <div className="flex justify-between items-center gap-4">
+            <CourseChevronTopIcon
+              className={`w-[20px] ${!isExpanded ? "rotate-180" : "rotate-0"}
+              transition-transform duration-300 h-[20px] md:w-[24px] md:h-[24px] !fill-primary`}
+            />
+            {isRegistered && (
+              <CourseLockIcon className="w-[20px] h-[20px] md:w-[24px] md:h-[24px] !fill-primary " />
+            )}
+          </div>
         </div>
       </header>
 
@@ -467,7 +478,8 @@ export const ExerciseDropDown = ({ examAllData, isDone = false }) => {
                 {/* Exam Title Row */}
                 <div className="flex w-full flex-row items-center justify-between border-b-[2px] border-solid last:border-none pt-3 sm:pt-4 pb-4 sm:pb-6 bg-white">
                   {(() => {
-                    const Tag = isDone ? Link : "div";
+                    const Tag = isDone && !isRegistered ? Link : "div";
+
                     return (
                       <Tag
                         href={isDone ? `/exam-details/${exam.id}` : undefined}
@@ -612,17 +624,19 @@ export const ExerciseDropDown = ({ examAllData, isDone = false }) => {
                         </span>
                       </div>
 
-                      <button
-                        onClick={() =>
-                          handleDownloadFile(pdf.pdf_url, pdf.title, "pdf")
-                        }
-                        className="inline-flex items-center justify-end gap-2 px-3 md:px-4 py-1.5 bg-secondary rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity"
-                      >
-                        <DownloadIcon className="w-[16px] h-[16px] md:w-[20px] md:h-[20px]" />
-                        <span className="text-white font-medium text-xs sm:text-sm leading-normal">
-                          تحميل
-                        </span>
-                      </button>
+                      {!isRegistered && (
+                        <button
+                          onClick={() =>
+                            handleDownloadFile(pdf.pdf_url, pdf.title, "pdf")
+                          }
+                          className="inline-flex items-center justify-end gap-2 px-3 md:px-4 py-1.5 bg-secondary rounded-full md:rounded-[10px] hover:opacity-90 transition-opacity"
+                        >
+                          <DownloadIcon className="w-[16px] h-[16px] md:w-[20px] md:h-[20px]" />
+                          <span className="text-white font-medium text-xs sm:text-sm leading-normal">
+                            تحميل
+                          </span>
+                        </button>
+                      )}
                     </div>
                   ))}
               </div>

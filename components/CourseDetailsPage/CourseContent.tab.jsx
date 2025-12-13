@@ -42,7 +42,9 @@ const extractYoutubeId = (url) => {
 const CourseContent = ({ isRegistered, courseData }) => {
   const [selectedTab, setSelectedTab] = useState("foundation");
 
-  const { contents, round, exams_round } = courseData;
+  const { contents, round, exams_round, own } = courseData;
+
+  console.log(own);
 
   const foundationContents = contents.filter(
     (c) => c.content_type === "basic" || c.content_type === "foundation"
@@ -58,7 +60,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
         محتوي الدورة : {round.name}
       </div>
 
-      {isRegistered && (
+      {own && (
         <Navs selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       )}
 
@@ -69,7 +71,8 @@ const CourseContent = ({ isRegistered, courseData }) => {
               <CourseContentDrawer
                 key={content.id}
                 content={content}
-                isRegistered={isRegistered}
+                isRegistered={own}
+                allExams={allExams}
               />
             ))
           ) : (
@@ -87,7 +90,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
               <CourseContentDrawer
                 key={content.id}
                 content={content}
-                isRegistered={isRegistered}
+                isRegistered={own}
               />
             ))
           ) : (
@@ -105,7 +108,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
               <TestRow
                 key={examData.exam.id}
                 examData={examData}
-                isRegistered={isRegistered}
+                isRegistered={own}
               />
             ))
           ) : (
