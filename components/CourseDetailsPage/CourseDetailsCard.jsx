@@ -167,6 +167,9 @@ const CourseDetailsCard = ({ courseData }) => {
     both: "الجميع",
   };
 
+  const handleSubscribe = async () => {
+    console.log("sub");
+  };
   if (!round || !round.id) {
     return (
       <div className="w-full max-w-[460px] px-5 pt-6 bg-white rounded-[36px] shadow-lg">
@@ -420,6 +423,7 @@ const CourseDetailsCard = ({ courseData }) => {
 
         <button
           type="button"
+          onClick={handleSubscribe}
           className="w-full px-3.5 py-3.5 bg-secondary rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 hover:bg-secondary-warm focus:bg-primary group"
         >
           <span className="text-center justify-center text-slate-200 text-sm font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">

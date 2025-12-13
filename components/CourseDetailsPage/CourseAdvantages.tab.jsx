@@ -10,24 +10,25 @@ import {
 
 const CourseFeatures = ({ courseData }) => {
   const { features } = courseData;
+  console.log(courseData);
 
   // Default icons للاستخدام
-  // const defaultIcons = [
-  //   <CourseFeatureSkills />,
-  //   <CourseFeatureNewTeaching />,
-  //   <CourseFeatureTimeIcon />,
-  //   <CourseFeatureExpertTeacherIcon />,
-  //   <CourseFeaturesGreadManagmentIcon />,
-  //   <CourseFeaturesCertificateIcon />,
-  // ];
+  const defaultIcons = [
+    <CourseFeatureSkills />,
+    <CourseFeatureNewTeaching />,
+    <CourseFeatureTimeIcon />,
+    <CourseFeatureExpertTeacherIcon />,
+    <CourseFeaturesGreadManagmentIcon />,
+    <CourseFeaturesCertificateIcon />,
+  ];
 
   // دالة لاختيار icon بناءً على الـ index
   const getIcon = (index) => {
-    return defaultIcons[index % defaultIcons.length];
+    return defaultIcons[index % defaultIcons?.length];
   };
 
   return (
-    <div className="flex flex-col gap-6 lg:gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-2  gap-6 lg:gap-8">
       {features && features.length > 0 ? (
         features.map((feature, index) => (
           <div
@@ -36,14 +37,14 @@ const CourseFeatures = ({ courseData }) => {
           >
             <div className="inline-flex justify-start items-center gap-3 lg:gap-4">
               {/* استخدام icon افتراضي */}
-              {/* {getIcon(index)} */}
-
+              {/*  {getIcon(index)}
+               */}
               {/* عرض الصورة من الـ API - معطلة */}
-              {/* <img 
-                src={feature.image_url} 
+              <img
+                src={feature.image_url}
                 alt={feature.title}
-                className="w-12 h-12 object-contain"
-              /> */}
+                className="w-12 h-12 rounded-full object-contain"
+              />
 
               <div className="text-right justify-center text-text text-lg md:text-xl font-bold">
                 {feature.title || "غير محدد"}
