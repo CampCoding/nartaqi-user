@@ -1,0 +1,33 @@
+/* Add to your global CSS */
+@media (max-width: 1023px) {
+  .profile-sidebar {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .profile-sidebar.collapsed {
+    transform: translateX(calc(100% - 80px));
+  }
+
+  .profile-sidebar.expanded {
+    transform: translateX(0);
+  }
+}
+
+/* Smooth scrollbar for sidebar */
+.profile-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.profile-sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.profile-sidebar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.profile-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
