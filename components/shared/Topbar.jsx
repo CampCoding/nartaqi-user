@@ -123,9 +123,9 @@ export default function Header() {
             {token && (
               <Link href="/notifications" className="relative">
                 <headerIcons.Notification className="text-text stroke-primary" />
-                <div className="absolute w-6 h-6 bg-red-700 text-white text-base font-bold flex items-center justify-center top-[-5px] right-[5px] translate-x-1/2 rounded-full">
+                {/* <div className="absolute w-6 h-6 bg-red-700 text-white text-base font-bold flex items-center justify-center top-[-5px] right-[5px] translate-x-1/2 rounded-full">
                   5
-                </div>
+                </div> */}
               </Link>
             )}
 

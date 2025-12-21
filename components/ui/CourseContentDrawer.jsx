@@ -1,3 +1,5 @@
+// CourseContentDrawer.jsx (full file)
+
 "use client";
 
 import {
@@ -8,7 +10,7 @@ import {
   LockIcon2,
   RoundedPlayIcon,
 } from "./../../public/svgs";
-import React, { useState, useId } from "react";
+import React, { useEffect, useMemo, useState, useId } from "react";
 import {
   CourseChevronTopIcon,
   CourseLockIcon,
@@ -17,6 +19,10 @@ import {
 import cx from "../../lib/cx";
 import Link from "next/link";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
+import toast from "react-hot-toast";
+import useMakeStudentView from "../shared/Hooks/useMakestudentView";
+import { useSelector } from "react-redux";
+import CheckboxButton from "./CheckboxButton";
 
 // ==================== ENCODING/DECODING HELPERS ====================
 const encodeId = (value) => {
@@ -48,37 +54,28 @@ const extractYoutubeId = (url) => {
 // ==================== MAIN COMPONENT ====================
 const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { token, user } = useSelector((state) => state.auth);
 
   const handleToggle = () => setIsOpen((prev) => !prev);
-
-  const formatTime = (seconds) => {
-    if (!seconds) return "غير محدد";
-    const mins = Math.floor(seconds / 60);
-    return `${mins} دقيقة`;
-  };
 
   return (
     <div
       className={cx(
-        // ✅ slightly bigger radius + more breathing space in shadows (same design)
         "self-stretch w-full transition-all bg-white rounded-2xl md:rounded-[24px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] outline outline-2 outline-offset-[-1px] outline-neutral-300 inline-flex flex-col justify-start items-start",
         !isOpen ? "hover:shadow-2xl" : "shadow-xl"
       )}
     >
       {/* Header */}
       <div
-        // ✅ more padding + align nicer
         className="self-stretch px-5 md:px-7 py-5 md:py-7 inline-flex justify-between items-center cursor-pointer"
         onClick={handleToggle}
       >
-        {/* ✅ slightly larger text */}
         <div className="text-right justify-center text-text text-base md:text-lg font-bold">
           {content.content_title || "غير محدد"}
         </div>
 
         <div className="transition-transform duration-300">
           <div className="flex justify-between items-center gap-4 md:gap-5">
-            {/* ✅ larger icon */}
             <CourseChevronTopIcon
               className={`w-[22px] h-[22px] md:w-[26px] md:h-[26px] ${
                 !isOpen ? "rotate-180" : "rotate-0"
@@ -97,10 +94,15 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
           <div className="w-full flex flex-col gap-4 md:gap-5 px-5 md:px-7 pb-5 md:pb-7">
             {content.lessons.map((lesson) => (
               <RegLectureDrawer
-                own={own}
                 key={lesson.id}
                 lesson={lesson}
                 isDone={true}
+                own={own}
+                isRegistered={isRegistered}
+                token={token}
+                studentId={user?.id}
+                // ✅ round_id كان غلط/غير معرّف — لازم من الداتا
+                roundId={content?.round_id}
               />
             ))}
           </div>
@@ -108,11 +110,15 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
           <div className="w-full flex flex-col gap-4 md:gap-5 px-5 md:px-7 pb-5 md:pb-7">
             {content.lessons.map((lesson) => (
               <RegLectureDrawer
-                own={own}
                 key={lesson.id}
                 lesson={lesson}
                 isDone={true}
-                isRegistered={!isRegistered}
+                own={own}
+                // ✅ كان غلط: isRegistered={!isRegistered}
+                isRegistered={isRegistered}
+                token={token}
+                studentId={user?.id}
+                roundId={content?.round_id}
               />
             ))}
           </div>
@@ -124,7 +130,77 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
 export default CourseContentDrawer;
 
 // ==================== REG LECTURE DRAWER ====================
-export const RegLectureDrawer = ({ lesson, isDone, isRegistered, own }) => {
+export const RegLectureDrawer = ({
+  lesson,
+  isDone,
+  isRegistered,
+  own,
+  roundId,
+  token,
+  studentId,
+}) => {
+  const [savingMap, setSavingMap] = useState({});
+
+  const { makeStudentView, loading: markingView } = useMakeStudentView(token, {
+    onSuccess: () => toast.success("تم تسجيل المشاهدة ✅"),
+    onError: (msg) => toast.error(msg || "حصل خطأ أثناء تسجيل المشاهدة"),
+  });
+
+  const markingRef = React.useRef(new Set());
+
+  const setWatched = async (item, nextChecked) => {
+    if (item.type !== "video") return;
+    if (!isRegistered) return;
+
+    // لو unwatch: local فقط
+    if (!nextChecked) {
+      toast("تم إلغاء التحديد محليًا فقط", { icon: "ℹ️" });
+      return;
+    }
+
+    if (!token) {
+      toast.error("token غير متوفر");
+      return;
+    }
+    if (!studentId || !roundId) {
+      toast.error("studentId أو roundId غير متوفر");
+      return;
+    }
+
+    const key = `video-${item.id}`;
+    if (markingRef.current.has(key)) return;
+    markingRef.current.add(key);
+
+    // ✅ loading للفيديو الحالي فقط
+    setSavingMap((prev) => ({ ...prev, [key]: true }));
+
+    try {
+      const res = await makeStudentView({
+        student_id: String(studentId),
+        round_id: String(roundId),
+        video_id: String(item.id),
+      });
+
+      if (!res) {
+        setCheckedMap((prev) => ({ ...prev, [key]: false }));
+      }
+    } finally {
+      setSavingMap((prev) => ({ ...prev, [key]: false }));
+      markingRef.current.delete(key);
+    }
+  };
+
+  const toggleChecked = async (item) => {
+    const key = `video-${item.id}`;
+    const nextChecked = !checkedMap[key];
+
+    // optimistic UI
+    setCheckedMap((prev) => ({ ...prev, [key]: nextChecked }));
+
+    // call API if checked = true
+    await setWatched(item, nextChecked);
+  };
+
   const [isExpanded, setIsExpanded] = useState(false);
   const sectionId = useId();
   const pathname = usePathname();
@@ -137,10 +213,78 @@ export const RegLectureDrawer = ({ lesson, isDone, isRegistered, own }) => {
 
   const toggleExpanded = () => setIsExpanded((v) => !v);
 
-  const formatTime = (seconds) => {
-    if (!seconds) return "غير محدد";
-    const mins = Math.floor(seconds / 60);
-    return `${mins} دقيقة`;
+  // ✅ professional time formatter: supports seconds (number) or "mm:ss" / "hh:mm:ss"
+  const formatTime = (
+    input,
+    { style = "long", roundToMinute = false } = {}
+  ) => {
+    if (input === null || input === undefined || input === "" || input === 0) {
+      return "غير محدد";
+    }
+
+    let totalSeconds = 0;
+
+    // number seconds OR numeric string
+    if (
+      typeof input === "number" ||
+      (typeof input === "string" && /^\d+(\.\d+)?$/.test(input.trim()))
+    ) {
+      totalSeconds = Math.floor(Number(input));
+    }
+    // "mm:ss" or "hh:mm:ss"
+    else if (typeof input === "string") {
+      const parts = input
+        .trim()
+        .split(":")
+        .map((p) => p.trim());
+      if (parts.length === 2 || parts.length === 3) {
+        const nums = parts.map((p) => Number(p));
+        if (nums.some((n) => Number.isNaN(n) || n < 0)) return "غير محدد";
+
+        if (parts.length === 2) {
+          const [m, s] = nums;
+          totalSeconds = m * 60 + s;
+        } else {
+          const [h, m, s] = nums;
+          totalSeconds = h * 3600 + m * 60 + s;
+        }
+      } else {
+        return "غير محدد";
+      }
+    } else {
+      return "غير محدد";
+    }
+
+    if (totalSeconds <= 0) return "غير محدد";
+
+    if (roundToMinute) {
+      const mins = Math.round(totalSeconds / 60);
+      return `${mins} دقيقة`;
+    }
+
+    const hours = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+
+    if (style === "short") {
+      const mm = String(mins).padStart(2, "0");
+      const ss = String(secs).padStart(2, "0");
+      if (hours > 0) {
+        const hh = String(hours).padStart(2, "0");
+        return `${hh}:${mm}:${ss}`;
+      }
+      return `${mins}:${ss}`;
+    }
+
+    const parts = [];
+    if (hours) parts.push(`${hours} ساعة`);
+    if (mins) parts.push(`${mins} دقيقة`);
+    if (secs) parts.push(`${secs} ثانية`);
+
+    if (parts.length === 0) return "أقل من دقيقة";
+    if (parts.length === 1) return parts[0];
+    if (parts.length === 2) return `${parts[0]} و ${parts[1]}`;
+    return `${parts[0]} و ${parts[1]} و ${parts[2]}`;
   };
 
   const buildVideoQuery = (item) => {
@@ -166,10 +310,35 @@ export const RegLectureDrawer = ({ lesson, isDone, isRegistered, own }) => {
 
   const hasExams = lesson.exam_all_data && lesson.exam_all_data.length > 0;
 
+  // ✅ Checkbox state per item (video/live), matches YOUR API: video.watched boolean
+  const toBool = (v) => v === true || v === 1 || v === "1" || v === "true";
+
+  const buildInitCheckedMap = () => {
+    const init = {};
+    (lesson?.videos || []).forEach((v) => {
+      init[`video-${v.id}`] =
+        toBool(v?.watched) || v?.is_viewed == "1" || v?.is_done == "1" || false;
+    });
+    (lesson?.live || []).forEach((l) => {
+      init[`live-${l.id}`] =
+        toBool(l?.watched) || l?.is_viewed == "1" || l?.is_done == "1" || false;
+    });
+    return init;
+  };
+
+  const [checkedMap, setCheckedMap] = useState(() => buildInitCheckedMap());
+
+  // ✅ sync لو الداتا اتغيرت / refetch
+  useEffect(() => {
+    setCheckedMap(buildInitCheckedMap());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lesson?.id]);
+
+  const itemKey = (item) => `${item.type}-${item.id}`;
+
   return (
     <article
       className={cx(
-        // ✅ a touch larger radius + same border/shadow behavior
         "flex w-full flex-col items-start relative bg-white rounded-2xl md:rounded-[32px] border-2 border-solid border-variable-collection-stroke transition-all",
         isExpanded ? "shadow-xl" : "hover:shadow-2xl"
       )}
@@ -182,26 +351,28 @@ export const RegLectureDrawer = ({ lesson, isDone, isRegistered, own }) => {
             toggleExpanded();
           }
         }}
-        // ✅ bigger padding + better rhythm
         className="flex cursor-pointer gap-4 sm:gap-6 p-5 sm:p-6 md:p-7 items-center justify-between self-stretch w-full"
         role="button"
         tabIndex={0}
         aria-expanded={isExpanded}
         aria-controls={sectionId}
       >
-        {/* ✅ slightly larger title */}
         <h1 className="font-bold cursor-pointer flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
           {lesson.lesson_title || "غير محدد"}
         </h1>
 
-        <div className="shrink-0 transition-transform duration-300" aria-hidden="true">
+        <div
+          className="shrink-0 transition-transform duration-300"
+          aria-hidden="true"
+        >
           <div className="flex justify-between items-center gap-4 md:gap-5">
             <CourseChevronTopIcon
               className={`w-[22px] h-[22px] md:w-[26px] md:h-[26px] ${
                 !isExpanded ? "rotate-180" : "rotate-0"
               } transition-transform duration-300 !fill-primary`}
             />
-            {isRegistered && (
+            {/* ✅ القفل يظهر لغير المسجل */}
+            {!isRegistered && (
               <CourseLockIcon className="w-[22px] h-[22px] md:w-[26px] md:h-[26px] !fill-primary" />
             )}
           </div>
@@ -211,95 +382,125 @@ export const RegLectureDrawer = ({ lesson, isDone, isRegistered, own }) => {
       {isExpanded && (
         <section
           id={sectionId}
-          // ✅ more spacing, keep structure
           className="flex flex-col items-start self-stretch w-full gap-4 sm:gap-6 p-5 sm:p-6 md:p-7 !pt-0"
         >
           {/* Videos and Live Sessions */}
-          {allContent.map((item) => (
-            <div
-              key={`${item.type}-${item.id}`}
-              // ✅ slightly bigger paddings
-              className="flex items-start gap-4 pt-4 pb-5 sm:pb-6 w-full border-b-[2px] border-solid border-variable-collection-stroke"
-            >
-              {/* ✅ larger play icon */}
-              <RoundedPlayIcon
-                className={cx(
-                  "w-[30px] h-[30px] md:w-[36px] md:h-[36px]",
-                  item.type === "live" ? "stroke-danger" : "stroke-primary"
-                )}
-              />
+          {allContent.map((item) => {
+            const key = `video-${item.id}`;
+            const isSaving = !!savingMap[key];
 
-              <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 self-stretch">
-                <div className="inline-flex items-center gap-3">
-                  {item.type === "video" ? (
-                    !isRegistered ? (
-                      <Link
-                        href={{
-                          pathname,
-                          query: buildVideoQuery(item),
-                          hash: "player",
-                        }}
-                      >
-                        {/* ✅ larger title */}
-                        <h2 className="cursor-pointer font-medium flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug hover:underline">
+            return (
+              <div
+                key={`${item.type}-${item.id}`}
+                className="flex items-start gap-4 pt-4 pb-5 sm:pb-6 w-full border-b-[2px] border-solid border-variable-collection-stroke"
+              >
+                <RoundedPlayIcon
+                  className={cx(
+                    "w-[30px] h-[30px] md:w-[36px] md:h-[36px]",
+                    item.type === "live" ? "stroke-danger" : "stroke-primary"
+                  )}
+                />
+
+                <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 self-stretch">
+                  <div className="inline-flex items-center gap-3">
+                    {item.type === "video" ? (
+                      // ✅ المسجّل هو اللي يفتح الفيديو
+                      isRegistered ? (
+                        <Link
+                          href={{
+                            pathname,
+                            query: buildVideoQuery(item),
+                            hash: "player",
+                          }}
+                          onClick={() => {
+                            const key = `video-${item.id}`;
+                            if (!checkedMap[key] && isRegistered) {
+                              // optimistic
+                              setCheckedMap((prev) => ({
+                                ...prev,
+                                [key]: true,
+                              }));
+                              // fire-and-forget
+                              setWatched(item, true);
+                            }
+                          }}
+                        >
+                          <h2 className="cursor-pointer font-medium ...">
+                            {item.title || "غير محدد"}
+                          </h2>
+                        </Link>
+                      ) : (
+                        <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
                           {item.title || "غير محدد"}
                         </h2>
-                      </Link>
+                      )
                     ) : (
-                      <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
-                        {item.title || "غير محدد"}
-                      </h2>
-                    )
-                  ) : (
-                    <div className="flex flex-col gap-1">
-                      <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
-                        {item.title || "غير محدد"}
-                      </h2>
+                      <div className="flex flex-col gap-1">
+                        <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
+                          {item.title || "غير محدد"}
+                        </h2>
 
-                      {item.finished == "1" ? (
-                        <a
-                          className="text-gray-500 underline text-sm md:text-base"
-                          href={item.link}
-                          target="_blank"
-                        >
-                          عرض التسجيل
-                        </a>
-                      ) : (
-                        <a
-                          className="text-gray-500 underline text-sm md:text-base"
-                          href={item.link}
-                          target="_blank"
-                        >
-                          دخول البث
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="inline-flex items-center gap-3 sm:gap-4">
-                  {item.type === "live" ? (
-                    <div className="inline-flex items-center gap-2">
-                      <span className="font-bold text-sm md:text-base leading-normal">
                         {item.finished == "1" ? (
-                          <span className="text-green-500">انتهى البث</span>
+                          <a
+                            className="text-gray-500 underline text-sm md:text-base"
+                            href={item.link}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            عرض التسجيل
+                          </a>
                         ) : (
-                          <span className="text-danger">بث مباشر</span>
+                          <a
+                            className="text-gray-500 underline text-sm md:text-base"
+                            href={item.link}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            دخول البث
+                          </a>
                         )}
-                      </span>
-                      <time className="font-medium text-text-alt text-xs md:text-sm">
-                        {item.date} - {item.time}
-                      </time>
-                    </div>
-                  ) : (
-                    <time className="font-medium text-text text-sm md:text-base leading-normal">
-                      {formatTime(item.time)}
-                    </time>
-                  )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right side: status/time + checkbox for videos */}
+                  <div className="inline-flex items-center gap-3 sm:gap-4">
+                    {item.type === "live" ? (
+                      <div className="inline-flex items-center gap-2">
+                        <span className="font-bold text-sm md:text-base leading-normal">
+                          {item.finished == "1" ? (
+                            <span className="text-green-500">انتهى البث</span>
+                          ) : (
+                            <span className="text-danger">بث مباشر</span>
+                          )}
+                        </span>
+                        <time className="font-medium text-text-alt text-xs md:text-sm">
+                          {item.date} - {item.time}
+                        </time>
+                      </div>
+                    ) : (
+                      <div className="inline-flex items-center gap-3 sm:gap-4">
+                        {/* ✅ Checkbox لكل فيديو */}
+
+                        <time className="font-medium text-text text-sm md:text-base leading-normal">
+                          {formatTime(item.time)}
+                        </time>
+                        <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                          <CheckboxButton
+                            id={key}
+                            type="checkbox"
+                            checked={!!checkedMap[key]}
+                            onChange={() => toggleChecked(item)}
+                            disabled={!isRegistered || isSaving}
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {/* Exams */}
           {hasExams && (
@@ -317,28 +518,17 @@ export const RegLectureDrawer = ({ lesson, isDone, isRegistered, own }) => {
 };
 
 // ==================== EXERCISE DROPDOWN ====================
-export const ExerciseDropDown = ({ examAllData, isDone = false, isRegistered, lesson }) => {
+export const ExerciseDropDown = ({
+  examAllData,
+  isDone = false,
+  isRegistered,
+  lesson,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const sectionId = useId();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { id } = useParams();
-
-  const extractVimeoId = (url) => {
-    if (!url) return null;
-    if (/^\d+$/.test(url)) return url;
-    const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-    return match ? match[1] : null;
-  };
-
-  const extractYoutubeId = (url) => {
-    if (!url) return null;
-    if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
-    const match = url.match(
-      /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
-    );
-    return match ? match[1] : null;
-  };
 
   const getVideoPlatform = (videoUrl) => {
     if (!videoUrl) return null;
@@ -347,7 +537,11 @@ export const ExerciseDropDown = ({ examAllData, isDone = false, isRegistered, le
     if (vimeoId || videoUrl.toLowerCase().includes("vimeo")) return "vimeo";
 
     const youtubeId = extractYoutubeId(videoUrl);
-    if (youtubeId || videoUrl.toLowerCase().includes("youtube") || videoUrl.toLowerCase().includes("youtu.be"))
+    if (
+      youtubeId ||
+      videoUrl.toLowerCase().includes("youtube") ||
+      videoUrl.toLowerCase().includes("youtu.be")
+    )
       return "youtube";
 
     return null;
@@ -381,7 +575,11 @@ export const ExerciseDropDown = ({ examAllData, isDone = false, isRegistered, le
       return query;
     }
 
-    if (videoUrl && (videoUrl.toLowerCase().includes("youtube") || videoUrl.toLowerCase().includes("youtu.be"))) {
+    if (
+      videoUrl &&
+      (videoUrl.toLowerCase().includes("youtube") ||
+        videoUrl.toLowerCase().includes("youtu.be"))
+    ) {
       query.youtube_id = encodeId(videoUrl);
       return query;
     }
@@ -423,7 +621,6 @@ export const ExerciseDropDown = ({ examAllData, isDone = false, isRegistered, le
             toggleExpanded();
           }
         }}
-        // ✅ bigger padding & spacing
         className="flex select-none cursor-pointer items-center justify-between py-4 sm:py-5 w-full"
         role="button"
         tabIndex={0}
@@ -468,12 +665,19 @@ export const ExerciseDropDown = ({ examAllData, isDone = false, isRegistered, le
                       const Tag = isDone && !isRegistered ? Link : "div";
                       return (
                         <Tag
-                          href={isDone ? `/course/${id}/lesson/${lesson.id}/exam-details/${exam?.id}` : undefined}
+                          href={
+                            isDone
+                              ? `/course/${id}/lesson/${lesson.id}/exam-details/${exam?.id}`
+                              : undefined
+                          }
                           onClick={() => console.log("lesson", lesson)}
                           className="inline-flex items-center gap-5 sm:gap-7"
                         >
                           <div className="inline-flex items-center gap-3 sm:gap-5 bg-white hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded">
-                            <div className="relative w-7 h-7 sm:w-8 sm:h-8 aspect-[1]" aria-hidden="true">
+                            <div
+                              className="relative w-7 h-7 sm:w-8 sm:h-8 aspect-[1]"
+                              aria-hidden="true"
+                            >
                               <FileIcon className="w-[22px] h-[22px] md:w-[30px] md:h-[30px] fill-primary" />
                             </div>
                             <span className="font-medium text-text text-base md:text-lg leading-normal">
@@ -510,7 +714,11 @@ export const ExerciseDropDown = ({ examAllData, isDone = false, isRegistered, le
                           <div className="inline-flex items-center gap-2.5 flex-wrap flex-1 min-w-0">
                             {isDone && isPlayable ? (
                               <Link
-                                href={{ pathname, query: buildExamVideoQuery(video), hash: "player" }}
+                                href={{
+                                  pathname,
+                                  query: buildExamVideoQuery(video),
+                                  hash: "player",
+                                }}
                                 className="font-medium text-text text-base md:text-lg leading-snug hover:text-primary hover:underline transition-colors"
                               >
                                 {video.title || "شرح الاختبار"}
@@ -532,10 +740,18 @@ export const ExerciseDropDown = ({ examAllData, isDone = false, isRegistered, le
                             ) : (
                               isPlayable && (
                                 <Link
-                                  href={{ pathname, query: buildExamVideoQuery(video), hash: "player" }}
+                                  href={{
+                                    pathname,
+                                    query: buildExamVideoQuery(video),
+                                    hash: "player",
+                                  }}
                                   className="inline-flex items-center gap-2 px-4 py-2 bg-primary rounded-full hover:opacity-90 transition-opacity"
                                 >
-                                  <svg className="w-4.5 h-4.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <svg
+                                    className="w-4.5 h-4.5 text-white"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
                                     <path
                                       fillRule="evenodd"
                                       d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
@@ -580,7 +796,9 @@ export const ExerciseDropDown = ({ examAllData, isDone = false, isRegistered, le
 
                       {!isRegistered && (
                         <button
-                          onClick={() => handleDownloadFile(pdf.pdf_url, pdf.title, "pdf")}
+                          onClick={() =>
+                            handleDownloadFile(pdf.pdf_url, pdf.title, "pdf")
+                          }
                           className="inline-flex items-center justify-end gap-2.5 px-4 py-2 bg-secondary rounded-full md:rounded-[12px] hover:opacity-90 transition-opacity"
                         >
                           <DownloadIcon className="w-[18px] h-[18px] md:w-[22px] md:h-[22px]" />

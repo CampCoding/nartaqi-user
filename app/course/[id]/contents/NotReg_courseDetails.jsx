@@ -31,7 +31,7 @@ const NotReg_courseDetails = ({ courseData, onSubscribe }) => {
           isShareOpen={openShareDrawer}
         />
 
-        <Container className="px-3 sm:px-4">
+        <Container className="">
           <div className="space-y-6 sm:space-y-8">
             <CourseDetailsContent courseData={courseData} />
           </div>

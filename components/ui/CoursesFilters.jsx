@@ -27,6 +27,28 @@ const CoursesFilters = ({ onFiltersChange, filters, isFree = false }) => {
   }, [filters]);
 
   ///////////////////////////////////////////////////////////////
+  // DEFAULT FILTERS
+  ///////////////////////////////////////////////////////////////
+  const defaultFilters = {
+    search: "",
+    category: "",
+    sort: "sort_latest",
+    rating: "rating_highest",
+    type: "",
+    gender: "",
+    level: "",
+  };
+
+  ///////////////////////////////////////////////////////////////
+  // CHECK IF ANY FILTERS ARE ACTIVE
+  ///////////////////////////////////////////////////////////////
+  const hasActiveFilters = useMemo(() => {
+    return Object.keys(defaultFilters).some(
+      (key) => localFilters[key] !== defaultFilters[key]
+    );
+  }, [localFilters]);
+
+  ///////////////////////////////////////////////////////////////
   // MAPPINGS
   ///////////////////////////////////////////////////////////////
   const mapSortLabel = {
@@ -125,19 +147,9 @@ const CoursesFilters = ({ onFiltersChange, filters, isFree = false }) => {
   ///////////////////////////////////////////////////////////////
   // CLEAR FILTERS BUTTON
   ///////////////////////////////////////////////////////////////
-  const defaultFilters = {
-    search: "",
-    category: "",
-    sort: "sort_latest",
-    rating: "rating_highest",
-    type: "",
-    gender: "",
-    level: "",
-  };
-
   const handleClear = () => {
     setLocalFilters(defaultFilters);
-    onFiltersChange(defaultFilters); // ✅ This will also update URL in parent now
+    onFiltersChange(defaultFilters);
   };
 
   ///////////////////////////////////////////////////////////////
@@ -229,24 +241,26 @@ const CoursesFilters = ({ onFiltersChange, filters, isFree = false }) => {
 
           {/* APPLY BUTTON */}
           <div
-            onClick={() => onFiltersChange(localFilters)} // ✅ parent will update URL
+            onClick={() => onFiltersChange(localFilters)}
             className="flex-1 px-12 py-6 bg-secondary rounded-[20px] cursor-pointer flex justify-center items-center"
           >
             <span className="text-white font-semibold">بحث</span>
           </div>
 
-          {/* CLEAR BUTTON */}
-          <div
-            onClick={handleClear}
-            className=" px-3 py-2 bg-red-500 rounded-[20px] cursor-pointer flex justify-center items-center"
-          >
-            <Icon
-              icon={"typcn:delete-outline"}
-              className="text-white rotate-180"
-              width={30}
-              height={30}
-            />
-          </div>
+          {/* CLEAR BUTTON - Only show when filters are active */}
+          {hasActiveFilters && (
+            <div
+              onClick={handleClear}
+              className="px-3 py-2 bg-red-500 rounded-[20px] cursor-pointer flex justify-center items-center"
+            >
+              <Icon
+                icon={"typcn:delete-outline"}
+                className="text-white rotate-180"
+                width={30}
+                height={30}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -314,6 +328,15 @@ export const MobileCoursesFilters = ({
   }, [open, localFilters]);
 
   ///////////////////////////////////////////////////////////////
+  // CHECK IF ANY FILTERS ARE ACTIVE (for mobile)
+  ///////////////////////////////////////////////////////////////
+  const hasActiveFilters = useMemo(() => {
+    return Object.keys(defaultFilters).some(
+      (key) => tempFilters[key] !== defaultFilters[key]
+    );
+  }, [tempFilters, defaultFilters]);
+
+  ///////////////////////////////////////////////////////////////
   // ON MENU CLICK
   ///////////////////////////////////////////////////////////////
   const handleMenuClick =
@@ -362,7 +385,7 @@ export const MobileCoursesFilters = ({
 
   const handleApply = () => {
     setLocalFilters(tempFilters);
-    onFiltersChange(tempFilters); // ✅ parent updates URL
+    onFiltersChange(tempFilters);
     setOpen(false);
   };
 
@@ -497,15 +520,18 @@ export const MobileCoursesFilters = ({
               فلترة
             </div>
           </div>
-
-          <div
-            className="pl-4 pr-3 py-4 rounded-2xl outline outline-1 outline-offset-[-1px] outline-orange-500 flex justify-center items-center gap-2.5 cursor-pointer"
-            onClick={handleReset}
-          >
-            <div className="justify-center text-orange-500 text-base font-normal font-['Cairo'] leading-normal">
-              حذف الأختيارات
+            
+          {/* RESET BUTTON - Only show when filters are active */}
+          {hasActiveFilters && (
+            <div
+              className="pl-4 pr-3 py-4 rounded-2xl outline outline-1 outline-offset-[-1px] outline-orange-500 flex justify-center items-center gap-2.5 cursor-pointer"
+              onClick={handleReset}
+            >
+              <div className="justify-center text-orange-500 text-base font-normal font-['Cairo'] leading-normal">
+                حذف الأختيارات
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </BottomDrawer>

@@ -4,11 +4,10 @@ import "./globals.css";
 import Header from "../components/shared/Topbar";
 import Footer from "../components/shared/Footer";
 import { UserProvider } from "../lib/useUser.jsx";
-import MarginLabels from "../lib/MarginLabels";
 import Providers from "../components/utils/Store/Provider.jsx";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "../components/ScrollToTop/ScrollToTop";
-import Shared from './../components/shared/Shared';
+import Shared from "./../components/shared/Shared";
 
 const cairo = Cairo({
   subsets: ["latin", "arabic"],
@@ -32,15 +31,36 @@ export default function RootLayout({ children }) {
     <html lang="ar" dir="rtl">
       <body className={`${cairo.variable} ${notoSansArabic.variable}`}>
         <Providers>
-          {" "}
           <UserProvider>
-            <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+            {/* ✅ Big creative Toaster */}
+            <Toaster
+              position="top-center"
+              reverseOrder={false}
+              gutter={12}
+              containerStyle={{
+                top: 14,
+                left: 14,
+                right: 14,
+                pointerEvents: "none", // so it doesn't block UI
+              }}
+              toastOptions={{
+                duration: 4000,
+                className: "toast-card",
+                style: {
+                  pointerEvents: "auto",
+                  width: "min(640px, 100%)",
+                  padding: 0, // we handle padding in CSS
+                },
+                success: { className: "toast-card toast-success" },
+                error: { className: "toast-card toast-error" },
+                loading: { className: "toast-card toast-loading" },
+              }}
+            />
+
             <Header />
             <Shared />
             <ScrollToTop />
-            <div className="min-h-[100svh]">
-            {children}
-            </div>
+            <div className="min-h-[100svh]">{children}</div>
             <Footer />
           </UserProvider>
         </Providers>

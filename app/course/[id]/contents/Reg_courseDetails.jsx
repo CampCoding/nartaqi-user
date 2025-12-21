@@ -197,7 +197,7 @@ const Reg_courseDetails = ({ courseData }) => {
             />
           </div>
 
-          <Container className="mt-10 xl:mt-12 xl:!px-10 !px-0">
+          <Container className="mt-10 xl:mt-12">
             <div className="flex gap-8 xl:gap-6 justify-between items-start">
               {/* Left content */}
               <div className="max-w-[762px] w-full">

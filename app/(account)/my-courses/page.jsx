@@ -77,7 +77,6 @@ const MyCourses = () => {
               enrollment_id: course.id,
               status: course.status,
             }));
-
           setActiveCourses(activeCoursesList);
           setCompletedCourses(completedCoursesList);
 

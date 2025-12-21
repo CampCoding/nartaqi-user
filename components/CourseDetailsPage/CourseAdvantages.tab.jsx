@@ -24,7 +24,7 @@ const CourseFeatures = ({ courseData }) => {
   const getIcon = (index) => defaultIcons[index % defaultIcons?.length];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+    <div className="grid grid-cols-1 md:grid-cols-1 gap-8 lg:gap-10">
       {features && features.length > 0 ? (
         features.map((feature, index) => (
           <div
