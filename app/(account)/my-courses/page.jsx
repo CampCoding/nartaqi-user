@@ -1,120 +1,80 @@
-// pages/MyCourses.jsx - Alternative with predefined progress
+// pages/MyCourses.jsx
 "use client";
-import React, { useEffect, useState } from "react";
+
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import axios from "axios";
+
+import LoadingPage from "@/components/shared/Loading";
 import { MyActiveCourseCard } from "@/components/ui/Cards/MyActiveCourseCard";
 import { MyCompletedCourseCard } from "@/components/ui/Cards/MyCompletedCourseCard";
-import LoadingPage from "@/components/shared/Loading";
+import useUserCourses from "../../../components/shared/Hooks/useGetMyCourses";
 
 const MyCourses = () => {
-  const [activeCourses, setActiveCourses] = useState([]);
-  const [completedCourses, setCompletedCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [overallProgress, setOverallProgress] = useState(0);
-
-  // جلب الـ token من Redux
   const token = useSelector((state) => state.auth?.token);
 
-  // Predefined dummy progress values (will cycle through these)
-  const dummyProgressValues = [65, 78, 45, 82, 56, 91, 38, 72, 88, 54];
+  const { rounds, totalAchievementRate, loading, error, refetch } =
+    useUserCourses(token);
 
-  useEffect(() => {
-    const fetchUserCourses = async () => {
-      if (!token) {
-        setError("يجب تسجيل الدخول أولاً");
-        setLoading(false);
-        return;
-      }
 
-      try {
-        setLoading(true);
+  // ✅ Normalize API response to match cards props as much as possible
+  const normalizedCourses = useMemo(() => {
+    return (rounds || []).map((r) => {
+      const total = Number(r.total_videos || 0);
+      const watched = Number(r.watched_videos || 0);
 
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/userCourses`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+      // Prefer accurate progress from watched/total
+      const progress =
+        total > 0 ? Math.round((watched / total) * 100) : Number(r.achievement_rate || 0);
 
-        if (response.data.status === "success") {
-          const allCourses = response.data.message || [];
+      return {
+        id: r.id,
+        name: r.name,
+        image_url: r.image, // ✅ API gives "image"
+        description: r.description || "",
 
-          // فلترة الـ active courses مع إضافة dummy progress
-          const activeCoursesList = allCourses
-            .filter((course) => course.status === "active")
-            .map((course, index) => ({
-              id: course.round.id,
-              name: course.round.name,
-              image_url: course.round.image_url,
-              description: course.round.description,
-              // استخدم progress من API أو استخدم dummy من المصفوفة
-              progress:
-                course.progress ||
-                dummyProgressValues[index % dummyProgressValues.length],
-              start_date: course.round.start_date,
-              end_date: course.round.end_date,
-              enrollment_id: course.id,
-              status: course.status,
-            }));
+        // Progress + stats
+        progress: Number.isFinite(progress) ? progress : 0,
+        total_videos: total,
+        watched_videos: watched,
 
-          // فلترة الـ completed courses
-          const completedCoursesList = allCourses
-            .filter((course) => course.status === "completed")
-            .map((course) => ({
-              id: course.round.id,
-              name: course.round.name,
-              image_url: course.round.image_url,
-              description: course.round.description,
-              progress: 100, // الدورات المكتملة progress = 100
-              start_date: course.round.start_date,
-              end_date: course.round.end_date,
-              enrollment_id: course.id,
-              status: course.status,
-            }));
-          setActiveCourses(activeCoursesList);
-          setCompletedCourses(completedCoursesList);
+        // Optional fields (API doesn't provide these, kept for card compatibility)
+        start_date: r.start_date || null,
+        end_date: r.end_date || null,
+        enrollment_id: r.enrollment_id || null,
+        status: r.status || null,
+      };
+    });
+  }, [rounds]);
 
-          // حساب Overall Progress (للدورات النشطة فقط)
-          if (activeCoursesList.length > 0) {
-            const totalProgress = activeCoursesList.reduce(
-              (sum, course) => sum + (course.progress || 0),
-              0
-            );
-            setOverallProgress(
-              Math.round(totalProgress / activeCoursesList.length)
-            );
-          } else {
-            setOverallProgress(0);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching courses:", err);
-        setError(err.response?.data?.message || "حدث خطأ أثناء تحميل الدورات");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // ✅ Split active/completed based on watched/total (or progress)
+  const { activeCourses, completedCourses } = useMemo(() => {
+    const active = [];
+    const completed = [];
 
-    fetchUserCourses();
-  }, [token]);
+    for (const c of normalizedCourses) {
+      const isCompleted =
+        (c.total_videos > 0 && c.watched_videos >= c.total_videos) || c.progress >= 100;
 
-  if (loading) {
-    return <LoadingPage />;
-  }
+      if (isCompleted) completed.push({ ...c, progress: 100 });
+      else active.push(c);
+    }
+
+    return { activeCourses: active, completedCourses: completed };
+  }, [normalizedCourses]);
+
+  // ✅ Overall progress: use API total_achievement_rate (already number in hook)
+  const overallProgress = totalAchievementRate
+
+  if (loading) return <LoadingPage />;
 
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center bg-red-50 border border-red-200 rounded-lg p-8">
           <p className="text-red-600 text-lg font-bold">{error}</p>
+
           <button
-            onClick={() => window.location.reload()}
+            onClick={refetch}
             className="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition"
           >
             إعادة المحاولة
@@ -203,9 +163,7 @@ export const AchievementRate = ({ percentage = 0 }) => {
         >
           <div
             className="h-full bg-primary mr-auto rounded-[50px] transition-all duration-300"
-            style={{
-              width: `${progressData.percentage}%`,
-            }}
+            style={{ width: `${progressData.percentage}` }}
           />
         </div>
 
@@ -214,7 +172,7 @@ export const AchievementRate = ({ percentage = 0 }) => {
           role="status"
           aria-label={`Progress: ${progressData.percentage} percent`}
         >
-          %{progressData.percentage}
+          {progressData.percentage}
         </div>
       </div>
     </div>

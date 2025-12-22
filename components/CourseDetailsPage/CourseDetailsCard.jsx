@@ -248,7 +248,7 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
           <div className="flex justify-start w-1/2 items-center gap-2">
             <SeatsIcon />
             <div className="justify-center text-text text-xs sm:text-[13px] font-medium leading-5">
-              المقاعد المتبقية: {round.capacity || "غير محدد"}
+              المقاعد المتبقية: {+round.capacity - +round.students_count || "غير محدد"}
             </div>
           </div>
         </div>

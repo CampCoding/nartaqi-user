@@ -167,7 +167,7 @@ const RegCourseDetailsCard = ({
             <div className="flex w-full sm:w-[200px] items-center gap-2">
               <SeatsIcon className="w-5 h-5 flex-shrink-0" />
               <div className="text-text text-xs sm:text-[13px] font-medium leading-relaxed line-clamp-1">
-                المقاعد المتبقية: {round.capacity || "غير محدد"}
+                المقاعد المتبقية: {round.capacity - round?.students_count || "غير محدد"}
               </div>
             </div>
 

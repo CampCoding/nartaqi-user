@@ -76,7 +76,7 @@ export default function Home() {
       </div>
 
       <AboutUs />
-
+      
       <CoursesCategoriesLable />
 
       {/* Dynamic Category Sections */}

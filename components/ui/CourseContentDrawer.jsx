@@ -152,38 +152,37 @@ export const RegLectureDrawer = ({
     if (item.type !== "video") return;
     if (!isRegistered) return;
 
-    // لو unwatch: local فقط
-    if (!nextChecked) {
-      toast("تم إلغاء التحديد محليًا فقط", { icon: "ℹ️" });
-      return;
-    }
-
     if (!token) {
       toast.error("token غير متوفر");
-      return;
+      return false;
     }
     if (!studentId || !roundId) {
       toast.error("studentId أو roundId غير متوفر");
-      return;
+      return false;
     }
 
     const key = `video-${item.id}`;
-    if (markingRef.current.has(key)) return;
+    if (markingRef.current.has(key)) return false;
     markingRef.current.add(key);
 
-    // ✅ loading للفيديو الحالي فقط
     setSavingMap((prev) => ({ ...prev, [key]: true }));
 
     try {
+      // ✅ نفس الـ endpoint في الحالتين (حدد/الغِ)
+      // لازم الـ API يدعم flag زي watched / is_viewed / action
       const res = await makeStudentView({
         student_id: String(studentId),
         round_id: String(roundId),
         video_id: String(item.id),
+
+        // ✅ ده اللي يخلي الـ endpoint يعرف هل مشاهدة ولا إلغاء مشاهدة
+        watched: nextChecked ? "1" : "0",
       });
 
-      if (!res) {
-        setCheckedMap((prev) => ({ ...prev, [key]: false }));
-      }
+      // لو الـ hook بيرجع falsy على failure
+      return !!res;
+    } catch (e) {
+      return false;
     } finally {
       setSavingMap((prev) => ({ ...prev, [key]: false }));
       markingRef.current.delete(key);
@@ -192,14 +191,24 @@ export const RegLectureDrawer = ({
 
   const toggleChecked = async (item) => {
     const key = `video-${item.id}`;
-    const nextChecked = !checkedMap[key];
+    const prevChecked = !!checkedMap[key];
+    const nextChecked = !prevChecked;
 
-    // optimistic UI
+    // ✅ Optimistic UI
     setCheckedMap((prev) => ({ ...prev, [key]: nextChecked }));
 
-    // call API if checked = true
-    await setWatched(item, nextChecked);
+    // ✅ Call API on BOTH check/uncheck
+    const ok = await setWatched(item, nextChecked);
+
+    // ✅ Rollback لو فشل
+    if (!ok) {
+      setCheckedMap((prev) => ({ ...prev, [key]: prevChecked }));
+      toast.error("حصل خطأ أثناء تحديث حالة المشاهدة");
+      return;
+    }
+
   };
+
 
   const [isExpanded, setIsExpanded] = useState(false);
   const sectionId = useId();
@@ -412,18 +421,13 @@ export const RegLectureDrawer = ({
                             query: buildVideoQuery(item),
                             hash: "player",
                           }}
-                          onClick={() => {
+                          onClick={async () => {
                             const key = `video-${item.id}`;
                             if (!checkedMap[key] && isRegistered) {
-                              // optimistic
-                              setCheckedMap((prev) => ({
-                                ...prev,
-                                [key]: true,
-                              }));
-                              // fire-and-forget
-                              setWatched(item, true);
+                              await toggleChecked(item);
                             }
                           }}
+                          
                         >
                           <h2 className="cursor-pointer font-medium ...">
                             {item.title || "غير محدد"}
@@ -641,7 +645,7 @@ export const ExerciseDropDown = ({
                 !isExpanded ? "rotate-180" : "rotate-0"
               } transition-transform duration-300 !fill-primary`}
             />
-            {isRegistered && (
+            {!isRegistered && (
               <CourseLockIcon className="w-[22px] h-[22px] md:w-[26px] md:h-[26px] !fill-primary" />
             )}
           </div>
@@ -662,7 +666,7 @@ export const ExerciseDropDown = ({
                 {exam && (
                   <div className="flex w-full flex-row items-center justify-between border-b-[2px] border-solid last:border-none pt-4 pb-5 bg-white">
                     {(() => {
-                      const Tag = isDone && !isRegistered ? Link : "div";
+                      const Tag = isDone && isRegistered ? Link : "div";
                       return (
                         <Tag
                           href={

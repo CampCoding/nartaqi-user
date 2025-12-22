@@ -17,7 +17,6 @@ const MyFavourites = () => {
 
   // فلترة أو تجهيز الداتا لو محتاج
   const displayedCourses = data?.message || [];
-  console.log(data?.message);
 
   if (isLoading) return <LoadingPage />;
 
@@ -31,7 +30,7 @@ const MyFavourites = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-[32px] lg:gap-[42px] place-items-center">
           {displayedCourses.map((course) => {
             const payload = {
-              id: course?.round.id,
+              id: course?.round_id,
               name: course.round.name,
               description: course?.round?.description,
               image_url: course?.round?.image_url,

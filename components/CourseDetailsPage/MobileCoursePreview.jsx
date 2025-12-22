@@ -13,16 +13,63 @@ import {
 import { ChevronLeft } from "lucide-react";
 import ShareBottomDrawer from "../shared/ShareBottomDrawer";
 import { useRouter } from "next/navigation";
+import useHandleFavoriteActions from "@/components/shared/Hooks/useHandleFavoriteActions";
+import toast from "react-hot-toast";
 
 const MobileCoursePreview = ({ courseData, onClick = () => null }) => {
   const router = useRouter();
+  console.log("courseDataDetails" , courseData )
+
   const [openShareDrawer, setOpenShareDrawer] = React.useState(false);
-  const [isFavorited, setIsFavorited] = React.useState(
-    courseData?.fav || false
-  );
+
+  // ✅ Hook
+  const { mutate: toggleFavMutate, isLoading: favLoading } =
+    useHandleFavoriteActions();
+
+  // ✅ optimistic state
+  const initialFav =
+    !!courseData?.round?.fav || !!courseData?.fav || false;
+
+  const [isFavorited, setIsFavorited] = React.useState(initialFav);
+
+  // ✅ keep UI in sync when courseData updates after refetch
+  React.useEffect(() => {
+    const nextFav =
+      !!courseData?.round?.fav || !!courseData?.fav || false;
+    setIsFavorited(nextFav);
+  }, [courseData?.round?.fav, courseData?.fav]);
 
   const handleToggleFavorite = () => {
-    setIsFavorited(!isFavorited);
+    if (favLoading) return;
+
+    const prev = isFavorited;
+    const next = !prev;
+
+    // optimistic UI
+    setIsFavorited(next);
+
+    // call API
+    const roundId = courseData?.round?.id;
+
+    if (!roundId) {
+      // rollback (no id)
+      setIsFavorited(prev);
+      toast.error("لا يمكن تحديث المفضلة: معرّف الدورة غير متوفر");
+      return;
+    }
+
+    toggleFavMutate(
+      { round_id: roundId },
+      {
+        onError: (err) => {
+          // rollback
+          setIsFavorited(prev);
+          toast.error(
+            err?.response?.data?.message || "حدث خطأ أثناء تحديث المفضلة"
+          );
+        },
+      }
+    );
   };
 
   // تنسيق التاريخ
@@ -39,10 +86,13 @@ const MobileCoursePreview = ({ courseData, onClick = () => null }) => {
   // حساب المقاعد المتبقية
   const getRemainingSeats = () => {
     const capacity = parseInt(courseData?.round?.capacity);
-    const enrolled = parseInt(courseData?.round?.enrolled_students_count); // ← ناقص من API
+    // ✅ عندك أكثر من اسم محتمل من الـ API
+    const enrolled =
+      parseInt(courseData?.round?.students_count) ||
+      parseInt(courseData?.round?.enrolled_students_count);
 
     if (!capacity || isNaN(capacity)) return "غير محدد";
-    if (!enrolled || isNaN(enrolled)) return "غير محدد"; // ← سيظهر "غير محدد"
+    if (!enrolled || isNaN(enrolled)) return capacity; // لو مش موجودة اعتبر كله متاح
 
     const remaining = capacity - enrolled;
     return remaining > 0 ? remaining : 0;
@@ -76,7 +126,7 @@ const MobileCoursePreview = ({ courseData, onClick = () => null }) => {
     },
     {
       id: 3,
-      label: `المقاعد المتبقية: ${getRemainingSeats()}`, // ← سيظهر "غير محدد"
+      label: `المقاعد المتبقية: ${getRemainingSeats()}`,
       icon: <SeatsIcon />,
     },
     {
@@ -92,15 +142,14 @@ const MobileCoursePreview = ({ courseData, onClick = () => null }) => {
         className="w-full h-[280px] relative bg-black/20 overflow-hidden mb-[16px]"
         style={{
           backgroundImage: `url('${
-            courseData?.round?.image_url ||
-            "/images/daily-competition-image.png"
+            courseData?.round?.image_url || "/images/daily-competition-image.png"
           }')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b to-black/60 via-black/20 from-black/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-b to-black/60 via-black/20 from-black/50" />
 
         <div
           onClick={() => onClick()}
@@ -126,22 +175,29 @@ const MobileCoursePreview = ({ courseData, onClick = () => null }) => {
           </div>
         </div>
 
-        <div class="w-full p-5 !pt-10 h-8 relative flex items-center justify-between">
+        {/* ✅ className بدل class */}
+        <div className="w-full p-5 !pt-10 h-8 relative flex items-center justify-between">
           <div className="flex items-center gap-[22px]">
             <ShareIcon
               onClick={() => setOpenShareDrawer(true)}
               className="stroke-white w-7 h-7 cursor-pointer active:scale-90 transition-all duration-300"
             />
-            <div
+
+            <button
+              type="button"
               onClick={handleToggleFavorite}
-              className="cursor-pointer active:scale-90 transition-all duration-300"
+              disabled={favLoading}
+              className={`cursor-pointer active:scale-90 transition-all duration-300 ${
+                favLoading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+              aria-label="toggle favorite"
             >
               {isFavorited ? (
                 <HeartFillIcon className="w-8 h-8 !fill-white" />
               ) : (
                 <HeartIcon className="w-7 h-7 fill-white" />
               )}
-            </div>
+            </button>
           </div>
 
           <ChevronLeft

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { BadgeCard } from "../../../components/ui/Cards/BadgeCard";
 import { useSelector } from "react-redux";
@@ -12,13 +12,32 @@ const MyBadgesPage = () => {
   const [activeCategory, setActiveCategory] = useState("الكل");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { token } = useSelector((state) => state.auth);
+
+  const token = useSelector((state) => state.auth?.token);
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
+    let didCancel = false;
+
     const fetchBadges = async () => {
+      if (!token) {
+        setError("يجب تسجيل الدخول أولاً");
+        setLoading(false);
+        return;
+      }
+
+      if (!baseUrl) {
+        setError("NEXT_PUBLIC_API_URL غير مُعرّف");
+        setLoading(false);
+        return;
+      }
+
       try {
+        setLoading(true);
+        setError(null);
+
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/user/badges`,
+          `${baseUrl}/user/badges`,
           {},
           {
             headers: {
@@ -28,44 +47,62 @@ const MyBadgesPage = () => {
           }
         );
 
-        if (response.data.status === "success") {
-          // Map API response to badges array
-          const badges = response.data?.message.map((item) => ({
-            id: item.id,
-            title: item.badge.name,
-            subtitle: item.badge.description,
-            image: item.badge.image_path,
-            category: item.badge.category,
+        if (didCancel) return;
+
+        if (response.data?.status === "success") {
+          const raw = Array.isArray(response.data?.message)
+            ? response.data.message
+            : [];
+
+          const badges = raw.map((item) => ({
+            id: item?.id,
+            title: item?.badge?.name ?? "بدون اسم",
+            subtitle: item?.badge?.description ?? "",
+            image: item?.badge?.image_path ?? "",
+            category: item?.badge?.category ?? "أخرى",
           }));
 
           setAllBadges(badges);
 
-          const uniqueCategories = new Set(
-            badges.map((badge) => badge.category)
-          );
-          setCategories(["الكل", ...Array.from(uniqueCategories)]);
+          const uniqueCategories = Array.from(
+            new Set(badges.map((b) => b.category))
+          ).filter(Boolean);
+
+          setCategories(["الكل", ...uniqueCategories]);
+
+          // لو الفئة الحالية اختفت لأي سبب رجّعها للكل
+          if (
+            activeCategory !== "الكل" &&
+            !uniqueCategories.includes(activeCategory)
+          ) {
+            setActiveCategory("الكل");
+          }
+        } else {
+          setError("حدث خطأ أثناء تحميل الشارات");
         }
-      } catch (error) {
-        console.error("Error fetching badges:", error);
-        setError(
-          error.response?.data?.message || "حدث خطأ أثناء تحميل الشارات"
-        );
+      } catch (err) {
+        if (didCancel) return;
+        setError(err?.response?.data?.message || "حدث خطأ أثناء تحميل الشارات");
       } finally {
-        setLoading(false);
+        if (!didCancel) setLoading(false);
       }
     };
 
     fetchBadges();
-  }, []);
 
-  const visibleBadges =
-    activeCategory === "الكل"
+    return () => {
+      didCancel = true;
+    };
+    // ✅ لازم token/baseUrl عشان لو اتغيروا يعيد fetch
+  }, [token, baseUrl]);
+
+  const visibleBadges = useMemo(() => {
+    return activeCategory === "الكل"
       ? allBadges
       : allBadges.filter((b) => b.category === activeCategory);
+  }, [allBadges, activeCategory]);
 
-  if (loading) {
-    return <LoadingPage />;
-  }
+  if (loading) return <LoadingPage />;
 
   if (error) {
     return (
@@ -85,8 +122,7 @@ const MyBadgesPage = () => {
         </h1>
 
         <p className="font-medium text-text-alt text-sm sm:text-base relative flex items-center self-stretch tracking-[0] leading-[normal]">
-          استكشف مجموعتك من الشارات التي حصلت عليها لإنجازاتك التعليمية
-          المتميزة.
+          استكشف مجموعتك من الشارات التي حصلت عليها لإنجازاتك التعليمية المتميزة.
         </p>
       </header>
 
@@ -120,22 +156,27 @@ export default MyBadgesPage;
 
 export const BadgesNavs = ({ items, value, onChange, className = "" }) => {
   const defaultItems = ["الكل"];
-
   const labels =
     Array.isArray(items) && items.length > 0 ? items : defaultItems;
 
   const [selected, setSelected] = useState(value ?? labels[0]);
 
   useEffect(() => {
-    if (value !== undefined) {
-      setSelected(value);
-    }
+    if (value !== undefined) setSelected(value);
   }, [value]);
 
-  const handleClick = (label) => {
-    if (value === undefined) {
-      setSelected(label);
+  // ✅ لو labels اتغيرت (بعد fetch) والـ selected مش موجود، رجّعه لأول عنصر
+  useEffect(() => {
+    if (!labels.includes(selected)) {
+      const next = value ?? labels[0];
+      setSelected(next);
+      onChange?.(next);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [labels.join("|")]);
+
+  const handleClick = (label) => {
+    if (value === undefined) setSelected(label);
     onChange?.(label);
   };
 
@@ -145,15 +186,19 @@ export const BadgesNavs = ({ items, value, onChange, className = "" }) => {
     <nav
       className={`w-full bg-primary-light rounded-[20px] sm:rounded-[25px] p-3 sm:p-4 ${className}`}
       role="navigation"
-      aria-label="Navigation menu"
+      aria-label="Badges categories"
     >
-      {/* Mobile */}
+      {/* ✅ Mobile + Tablet */}
       <div className="xl:hidden">
-        <div className="flex items-center gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
+        <div
+          className="flex items-center gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2"
+          role="tablist"
+          aria-label="Badges categories tabs"
+        >
           <div className="flex items-center gap-2 min-w-max">
-            {/*  {labels.map((label, index) => (
+            {labels.map((label, index) => (
               <button
-                key={index}
+                key={`${label}-${index}`}
                 className={`
                   px-4 py-3 rounded-[12px] sm:rounded-[15px] 
                   inline-flex items-center justify-center 
@@ -162,6 +207,8 @@ export const BadgesNavs = ({ items, value, onChange, className = "" }) => {
                   ${selected === label ? "bg-primary" : "hover:bg-primary/10"}
                 `}
                 type="button"
+                role="tab"
+                aria-selected={selected === label}
                 aria-current={selected === label ? "page" : undefined}
                 onClick={() => handleClick(label)}
               >
@@ -175,7 +222,7 @@ export const BadgesNavs = ({ items, value, onChange, className = "" }) => {
                   {label}
                 </span>
               </button>
-            ))} */}
+            ))}
           </div>
         </div>
       </div>
@@ -183,12 +230,11 @@ export const BadgesNavs = ({ items, value, onChange, className = "" }) => {
       {/* Desktop */}
       <div className="hidden xl:block">
         {isScrollable ? (
-          // Scrollable version when more than 5 items
           <div className="overflow-x-auto snap-x snap-mandatory scrollbar-hide">
             <div className="flex items-center gap-2 min-w-max pb-2">
-              {/*  {labels.map((label, index) => (
+              {labels.map((label, index) => (
                 <button
-                  key={index}
+                  key={`${label}-${index}`}
                   className={`
                     px-6 py-4 rounded-[15px] 
                     inline-flex items-center justify-center 
@@ -203,29 +249,24 @@ export const BadgesNavs = ({ items, value, onChange, className = "" }) => {
                   <span
                     className={`
                       text-base font-medium text-center leading-tight
-                      ${
-                        selected === label
-                          ? "text-white font-bold"
-                          : "text-text"
-                      }
+                      ${selected === label ? "text-white font-bold" : "text-text"}
                       [direction:rtl]
                     `}
                   >
                     {label}
                   </span>
                 </button>
-              ))} */}
+              ))}
             </div>
           </div>
         ) : (
-          // Grid version when 5 or less items
           <div
             className="grid gap-2"
             style={{ gridTemplateColumns: `repeat(${labels.length}, 1fr)` }}
           >
             {labels.map((label, index) => (
               <button
-                key={index}
+                key={`${label}-${index}`}
                 className={`
                   px-4 py-4 rounded-[15px] 
                   inline-flex items-center justify-center 
