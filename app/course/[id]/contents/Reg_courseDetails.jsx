@@ -188,16 +188,17 @@ const Reg_courseDetails = ({ courseData }) => {
       {/* ===================== DESKTOP ===================== */}
       {isLgUp && (
         <div className="hidden lg:block">
-          <div className="w-full h-[560px] xl:h-[611px] relative">
-            <img
-              loading="lazy"
-              src={courseData.round.image_url}
-              className="w-full h-full object-cover object-top"
-              alt={courseData.round.name}
-            />
+          <div className="w-full h-[560px] xl:h-[611px] relative ">
+              <div className="absolute inset-0 z-30  bg-gradient-to-b   from-transparent to-black/90" />{" "}
+              <img
+                loading="lazy"
+                src={courseData.round.image_url}
+                className="w-full h-full object-cover object-top"
+                alt={courseData.round.name}
+              />
           </div>
 
-          <Container className="mt-10 xl:mt-12">
+          <Container className="mt-10 xl:mt-12 relative z-30">
             <div className="flex gap-8 xl:gap-6 justify-between items-start">
               {/* Left content */}
               <div className="max-w-[762px] w-full">
@@ -211,7 +212,7 @@ const Reg_courseDetails = ({ courseData }) => {
               <div
                 className={cx(
                   "space-y-12 xl:space-y-14",
-                   "translate-y-[-441px]"
+                  "translate-y-[-441px]"
                 )}
               >
                 <RegCourseDetailsCard

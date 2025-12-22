@@ -1,82 +1,177 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useMemo } from "react";
+
+// ✅ strip HTML tags safely (simple)
+const stripHtml = (html) => {
+  if (!html) return "";
+  return String(html)
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const toArabicLevel = (level) => {
+  const v = String(level || "").toLowerCase();
+  if (v === "easy") return { label: "سهل", tone: "success" };
+  if (v === "medium") return { label: "متوسط", tone: "warning" };
+  if (v === "hard") return { label: "صعب", tone: "danger" };
+  return { label: "غير محدد", tone: "neutral" };
+};
+
+const levelClasses = (tone) => {
+  if (tone === "success") return "bg-green-100 text-green-700";
+  if (tone === "warning") return "bg-warning-light text-warning";
+  if (tone === "danger") return "bg-red-100 text-red-700";
+  return "bg-slate-100 text-slate-600";
+};
+
+const formatDuration = (timeStr) => {
+  // expects "HH:MM:SS" or "MM:SS"
+  if (!timeStr) return "غير محدد";
+  const s = String(timeStr).trim();
+
+  const parts = s.split(":").map((x) => Number(x));
+  if (parts.some((n) => Number.isNaN(n))) return "غير محدد";
+
+  let h = 0,
+    m = 0,
+    sec = 0;
+
+  if (parts.length === 3) [h, m, sec] = parts;
+  else if (parts.length === 2) [m, sec] = parts;
+  else return "غير محدد";
+
+  // prefer minutes
+  const totalMins = h * 60 + m + Math.round(sec / 60);
+  if (totalMins <= 0) return "غير محدد";
+  return `${totalMins} دقيقة`;
+};
 
 const ExamDetailsHeader = ({ title, examData }) => {
-  useEffect(() => {
-    console.log(examData?.sections, "examData?.sections");
-  }, [examData?.sections]);
+  const info = examData?.exam_info;
+  const sections = examData?.sections || [];
+
+  const computed = useMemo(() => {
+    const totalQuestions = sections.reduce(
+      (sum, s) => sum + (s?.mcq?.length || 0),
+      0
+    );
+
+    // description priority:
+    // 1) exam_info.description
+    // 2) first section description
+    // 3) empty
+    const desc =
+      stripHtml(info?.description) ||
+      stripHtml(sections?.[0]?.description) ||
+      "لا يوجد وصف متاح لهذا الاختبار حالياً.";
+
+    const headerTitle = title || info?.title || "تفاصيل الاختبار";
+
+    const lvl = toArabicLevel(info?.level);
+
+    return {
+      headerTitle,
+      desc,
+      totalQuestions,
+      lvl,
+      durationLabel: formatDuration(info?.time),
+      successPercentage: info?.success_percentage,
+      examType: info?.type,
+    };
+  }, [title, info, sections]);
+
   return (
     <header
       dir="rtl"
-      className="flex flex-col items-start gap-6 sm:gap-8 md:gap-12 relative  mx-auto w-full"
+      className="mx-auto w-full flex flex-col items-start gap-6 sm:gap-8 md:gap-10"
       aria-label="معلومات الاختبار"
     >
-      {/* Title + Subtitle */}
-      <div className="flex flex-col items-start gap-3 sm:gap-4 self-stretch w-full relative min-w-0">
-        <h1 className="font-bold text-text text-xl sm:text-3xl md:text-4xl leading-tight relative flex items-center justify-center sm:justify-start tracking-[0] w-full text-center sm:text-right">
-          {title || "اختبار استراتيجيات التدريس الحديثة"}
+      {/* Title + Description */}
+      <div className="w-full min-w-0 flex flex-col items-start gap-3 sm:gap-4">
+        <h1 className="w-full text-center sm:text-right font-bold text-text text-xl sm:text-3xl md:text-4xl leading-tight">
+          {computed.headerTitle}
         </h1>
-        <p className="font-medium text-text-alt leading-loose text-base md:text-2xl max-w-4xl  relative text-center sm:text-right tracking-[0] w-full">
-          {"هذا الاختبار يهدف إلى قياس مدى إلمامك بأهم استراتيجيات التدريس الفعال، وإدارة الصف بشكل احترافي، وتقييم الطلاب بطرق مبتكرة." ||
-            description}
+
+        <p className="w-full text-center sm:text-right font-medium text-text-alt text-base md:text-xl leading-loose max-w-4xl">
+          {computed.desc}
         </p>
       </div>
 
-      {/* Stats Bar */}
-      <div className="flex flex-col md:flex-row md:flex-nowrap flex-wrap items-center md:items-start justify-between  py-6 sm:py-8 self-stretch w-full bg-foundation-bluedark rounded-2xl sm:rounded-3xl relative gap-4">
-        {/* عدد الأسئلة */}
-        <div className="inline-flex items-center justify-between sm:justify-start gap-2 sm:gap-3 relative w-full md:w-auto min-w-0">
-          <div className="inline-flex items-center gap-2 sm:gap-3 relative flex-[0_0_auto] min-w-0">
-            <QuestionsListIcon className="fill-secondary w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
-            <div className="font-medium text-secondary text-sm sm:text-base leading-8 sm:leading-[50px] whitespace-nowrap">
-              عدد الأسئلة
+      {/* Stats */}
+      <div className="w-full bg-foundation-bluedark rounded-2xl sm:rounded-3xl px-4 sm:px-6 md:px-8 py-6 sm:py-7">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 w-full">
+          {/* عدد الأسئلة */}
+          <div className="flex items-center  gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <QuestionsListIcon className="fill-secondary w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
+              <span className="font-medium text-secondary text-sm sm:text-base whitespace-nowrap">
+                عدد الأسئلة
+              </span>
             </div>
-          </div>
-          <div className="bg-secondary-light inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-1 rounded-lg">
-            <div className="font-medium text-secondary text-sm sm:text-base leading-tight sm:leading-normal">
-              {examData?.sections[0]?.mcq?.length + " سؤالا"}
-            </div>
-          </div>
-        </div>
 
-        {/* مستوى الصعوبة */}
-        <div className="inline-flex items-center justify-between sm:justify-start gap-2 sm:gap-3 relative w-full md:w-auto min-w-0">
-          <div className="inline-flex items-center justify-between sm:justify-start gap-2 sm:gap-3 relative w-full md:w-auto min-w-0">
-            <div className="inline-flex items-center gap-2 sm:gap-3 min-w-0">
+            <span className="bg-secondary-light px-3 sm:px-4 py-1 rounded-lg font-medium text-secondary text-sm sm:text-base">
+              {computed.totalQuestions} سؤال
+            </span>
+          </div>
+
+          {/* مستوى الصعوبة */}
+          <div className="flex items-center md:justify-center  gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <SpeedometerIcon className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
-              <div className="font-medium text-warning text-sm sm:text-base leading-8 sm:leading-[50px] whitespace-nowrap">
+              <span className="font-medium text-warning text-sm sm:text-base whitespace-nowrap">
                 مستوى الصعوبة
-              </div>
+              </span>
             </div>
-            <div className="bg-warning-light inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-1 rounded-lg">
-              <div className="font-medium text-warning text-sm sm:text-base leading-tight sm:leading-normal">
-                متوسط
-              </div>
+
+            <span
+              className={`px-3 sm:px-4 py-1 rounded-lg font-medium text-sm sm:text-base ${levelClasses(
+                computed.lvl.tone
+              )}`}
+            >
+              {computed.lvl.label}
+            </span>
+          </div>
+
+          {/* مدة الاختبار */}
+          <div className="flex items-center md:justify-end gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <ClockReminderIcon className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
+              <span className="font-medium text-primary text-sm sm:text-base whitespace-nowrap">
+                مدة الاختبار
+              </span>
             </div>
+
+            <span className="bg-primary-light px-3 sm:px-4 py-1 rounded-lg font-medium text-primary text-sm sm:text-base">
+              {computed.durationLabel}
+            </span>
           </div>
         </div>
 
-        {/* مدة الاختبار */}
-        {/* <div className="inline-flex items-center justify-between sm:justify-start gap-2 sm:gap-3 relative w-full md:w-auto min-w-0">
-          <div className="inline-flex items-center gap-2 sm:gap-3 min-w-0">
-            <ClockReminderIcon className="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
-            <div className="font-medium text-primary text-sm sm:text-base leading-8 sm:leading-[50px] whitespace-nowrap">
-              مدة الاختبار
-            </div>
+        {/* extra meta row (optional) */}
+        {(computed.successPercentage || computed.examType) && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {computed.successPercentage && (
+              <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs sm:text-sm">
+                نسبة النجاح: {computed.successPercentage}%
+              </span>
+            )}
+            {computed.examType && (
+              <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs sm:text-sm">
+                النوع: {computed.examType}
+              </span>
+            )}
           </div>
-          <div className="inline-flex items-center justify-center gap-2 px-3 sm:px-4 py-1 bg-primary-light rounded-lg">
-            <div className="font-medium text-primary text-sm sm:text-base leading-tight sm:leading-normal">
-              30 دقيقة
-            </div>
-          </div>
-        </div> */}
+        )}
       </div>
     </header>
   );
 };
 
 export default ExamDetailsHeader;
+
 
 const QuestionsListIcon = (props) => (
   <svg

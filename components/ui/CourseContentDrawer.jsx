@@ -23,6 +23,8 @@ import toast from "react-hot-toast";
 import useMakeStudentView from "../shared/Hooks/useMakestudentView";
 import { useSelector } from "react-redux";
 import CheckboxButton from "./CheckboxButton";
+import { InfoIcon } from "./../../public/svgs";
+import { Modal } from "antd";
 
 // ==================== ENCODING/DECODING HELPERS ====================
 const encodeId = (value) => {
@@ -58,6 +60,15 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
 
   const handleToggle = () => setIsOpen((prev) => !prev);
 
+  const [infoOpen, setInfoOpen] = useState(false);
+
+  const openInfo = (e) => {
+    e.stopPropagation(); // ✅ يمنع toggle للدراور
+    setInfoOpen(true);
+  };
+
+  const closeInfo = () => setInfoOpen(false);
+
   return (
     <div
       className={cx(
@@ -70,7 +81,16 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
         className="self-stretch px-5 md:px-7 py-5 md:py-7 inline-flex justify-between items-center cursor-pointer"
         onClick={handleToggle}
       >
-        <div className="text-right justify-center text-text text-base md:text-lg font-bold">
+        <div className="text-right flex items-center gap-2 justify-center text-text text-base md:text-lg font-bold">
+          <button
+            type="button"
+            onClick={openInfo}
+            className="inline-flex items-center justify-center"
+            aria-label="عرض وصف المحتوى"
+          >
+            <InfoIcon />
+          </button>
+
           {content.content_title || "غير محدد"}
         </div>
 
@@ -87,6 +107,24 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
           </div>
         </div>
       </div>
+
+      <Modal
+        open={infoOpen}
+        onCancel={closeInfo}
+        footer={null}
+        centered
+        title={content.content_title || "وصف المحتوى"}
+      >
+        <div
+          className="text-right leading-relaxed text-text leading-7 md:leading-8 text-sm md:text-base font-normal"
+          dangerouslySetInnerHTML={{
+            __html:
+              content?.description ||
+              content?.content_description ||
+              "<p>لا يوجد وصف متاح</p>",
+          }}
+        />
+      </Modal>
 
       {/* Body */}
       {isOpen &&
@@ -206,9 +244,7 @@ export const RegLectureDrawer = ({
       toast.error("حصل خطأ أثناء تحديث حالة المشاهدة");
       return;
     }
-
   };
-
 
   const [isExpanded, setIsExpanded] = useState(false);
   const sectionId = useId();
@@ -298,19 +334,51 @@ export const RegLectureDrawer = ({
 
   const buildVideoQuery = (item) => {
     const query = { ...mergedParams, video: item.id };
-
-    if (item.vimeo_link) {
-      const vimeoId = extractVimeoId(item.vimeo_link);
-      query.vimeo_id = encodeId(vimeoId || item.vimeo_link);
+  
+    // ✅ جمع كل الروابط المحتملة (video/live)
+    const vimeoSource = item?.vimeo_link || item?.link || item?.video_url || item?.url;
+    const youtubeSource = item?.youtube_link || item?.link || item?.video_url || item?.url;
+  
+    // ✅ حاول Vimeo أولاً
+    const vimeoId = extractVimeoId(vimeoSource);
+    if (vimeoId) {
+      query.vimeo_id = encodeId(vimeoId);
+      return query;
     }
-
-    if (item.youtube_link) {
-      const youtubeId = extractYoutubeId(item.youtube_link);
-      query.youtube_id = encodeId(youtubeId || item.youtube_link);
+  
+    // ✅ ثم YouTube
+    const youtubeId = extractYoutubeId(youtubeSource);
+    if (youtubeId) {
+      query.youtube_id = encodeId(youtubeId);
+      return query;
     }
-
+  
+    // ✅ fallback: لو الرابط موجود بس مش معروف هل vimeo/youtube
+    // (لو player عندك بيفهم vimeo_id كـ url كمان)
+    const raw = item?.vimeo_link || item?.youtube_link || item?.link || item?.video_url || item?.url;
+    if (raw) {
+      // إذا الرابط فيه كلمة vimeo استخدمه كـ vimeo_id
+      if (String(raw).toLowerCase().includes("vimeo")) {
+        query.vimeo_id = encodeId(raw);
+        return query;
+      }
+  
+      // إذا الرابط فيه youtube/youtu.be استخدمه كـ youtube_id
+      if (
+        String(raw).toLowerCase().includes("youtube") ||
+        String(raw).toLowerCase().includes("youtu.be")
+      ) {
+        query.youtube_id = encodeId(raw);
+        return query;
+      }
+  
+      // آخر حل: اعتبره vimeo
+      query.vimeo_id = encodeId(raw);
+    }
+  
     return query;
   };
+  
 
   const allContent = [
     ...(lesson.videos || []).map((video) => ({ ...video, type: "video" })),
@@ -345,6 +413,19 @@ export const RegLectureDrawer = ({
 
   const itemKey = (item) => `${item.type}-${item.id}`;
 
+  const [lessonInfoOpen, setLessonInfoOpen] = useState(false);
+
+  const openLessonInfo = (e) => {
+    e.stopPropagation(); // ✅ عشان مايفتحش/يقفل الـ drawer
+    setLessonInfoOpen(true);
+  };
+
+  const closeLessonInfo = () => setLessonInfoOpen(false);
+
+  // اختار field الوصف حسب API عندك
+  const lessonDescription =
+    lesson?.description || lesson?.lesson_description || lesson?.desc || "";
+
   return (
     <article
       className={cx(
@@ -366,9 +447,20 @@ export const RegLectureDrawer = ({
         aria-expanded={isExpanded}
         aria-controls={sectionId}
       >
-        <h1 className="font-bold cursor-pointer flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
-          {lesson.lesson_title || "غير محدد"}
-        </h1>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={openLessonInfo}
+            className="inline-flex items-center justify-center"
+            aria-label="عرض وصف الدرس"
+          >
+            <InfoIcon />
+          </button>
+
+          <h1 className="font-bold cursor-pointer flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
+            {lesson.lesson_title || "غير محدد"}
+          </h1>
+        </div>
 
         <div
           className="shrink-0 transition-transform duration-300"
@@ -387,6 +479,23 @@ export const RegLectureDrawer = ({
           </div>
         </div>
       </header>
+
+      <Modal
+        open={lessonInfoOpen}
+        onCancel={closeLessonInfo}
+        footer={null}
+        centered
+        title={lesson.lesson_title || "وصف الدرس"}
+      >
+        <div
+          className="text-right leading-relaxed text-text leading-7 md:leading-8 text-sm md:text-base font-normal"
+          dangerouslySetInnerHTML={{
+            __html: lessonDescription?.trim()
+              ? lessonDescription
+              : "<p>لا يوجد وصف متاح لهذا الدرس</p>",
+          }}
+        />
+      </Modal>
 
       {isExpanded && (
         <section
@@ -427,7 +536,6 @@ export const RegLectureDrawer = ({
                               await toggleChecked(item);
                             }
                           }}
-                          
                         >
                           <h2 className="cursor-pointer font-medium ...">
                             {item.title || "غير محدد"}
@@ -445,14 +553,17 @@ export const RegLectureDrawer = ({
                         </h2>
 
                         {item.finished == "1" ? (
-                          <a
+                          <Link
+                            href={{
+                              pathname,
+                              query: buildVideoQuery(item),
+                              hash: "player",
+                            }}
                             className="text-gray-500 underline text-sm md:text-base"
-                            href={item.link}
-                            target="_blank"
                             rel="noreferrer"
                           >
                             عرض التسجيل
-                          </a>
+                          </Link>
                         ) : (
                           <a
                             className="text-gray-500 underline text-sm md:text-base"
@@ -597,23 +708,33 @@ export const ExerciseDropDown = ({
       alert("يجب إكمال الدرس أولاً للتحميل 🔒");
       return;
     }
-
+  
     try {
-      const response = await fetch(fileUrl);
-      const blob = await response.blob();
+      const res = await fetch(fileUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ لازم token من props/state
+        },
+      });
+  
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  
+      const blob = await res.blob();
+  
+      const a = document.createElement("a");
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${title}.${extension}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      a.href = url;
+      a.download = `${title}.${extension}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("خطأ في تحميل الملف:", error);
-      window.open(fileUrl, "_blank");
+    } catch (err) {
+      console.error("Download failed:", err);
+      // بدل ما تفتح تاب جديد، اعرض رسالة واضحة
+      alert("تعذر تحميل الملف. قد يكون الرابط يحتاج صلاحيات أو CORS.");
     }
   };
+  
 
   return (
     <>
@@ -798,7 +919,7 @@ export const ExerciseDropDown = ({
                         </span>
                       </div>
 
-                      {!isRegistered && (
+                      {isRegistered && (
                         <button
                           onClick={() =>
                             handleDownloadFile(pdf.pdf_url, pdf.title, "pdf")

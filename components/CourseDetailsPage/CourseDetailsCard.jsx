@@ -166,7 +166,15 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
     } finally {
       setIsEnrollLoading(false);
     }
-  }, [token, roundId, studentId, enroll, onSubscribe, goLogin, round?.end_date]);
+  }, [
+    token,
+    roundId,
+    studentId,
+    enroll,
+    onSubscribe,
+    goLogin,
+    round?.end_date,
+  ]);
 
   if (!round || !roundId) {
     return (
@@ -248,7 +256,8 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
           <div className="flex justify-start w-1/2 items-center gap-2">
             <SeatsIcon />
             <div className="justify-center text-text text-xs sm:text-[13px] font-medium leading-5">
-              المقاعد المتبقية: {+round.capacity - +round.students_count || "غير محدد"}
+              المقاعد المتبقية:{" "}
+              {+round.capacity - +round.students_count || "غير محدد"}
             </div>
           </div>
         </div>
@@ -404,6 +413,9 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
               </svg>
             )}
           </button>
+          {/* <button
+            className={` px-3 py-3 rounded-[14px] sm:rounded-[16px] border border-1 border-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200`}
+          ></button> */}
         </div>
 
         {/* Subscribe */}

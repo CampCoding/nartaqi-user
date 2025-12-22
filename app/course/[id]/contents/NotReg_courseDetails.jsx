@@ -41,7 +41,8 @@ const NotReg_courseDetails = ({ courseData, onSubscribe }) => {
       {/* ===================== DESKTOP ===================== */}
       <div className="hidden lg:block">
         <div className="w-full h-[560px] xl:h-[611px] relative">
-          <img
+        <div className="absolute inset-0 z-30  bg-gradient-to-b   from-transparent to-black/90" />{" "}
+        <img
             loading="lazy"
             src={courseData.round.image_url}
             className="w-full h-full object-cover object-top"
@@ -49,7 +50,7 @@ const NotReg_courseDetails = ({ courseData, onSubscribe }) => {
           />
         </div>
 
-        <Container className="mt-10 xl:mt-12 xl:!px-10">
+        <Container className="mt-10 xl:mt-12 xl:!px-10 relative z-40">
           <div className="flex justify-between gap-8 xl:gap-10 items-start">
             {/* Content */}
             <div className="w-full max-w-[762px]">

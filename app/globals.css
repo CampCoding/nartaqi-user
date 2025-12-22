@@ -763,3 +763,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   -webkit-animation: dothatopcheck-19 0.4s ease 0s forwards;
   animation: dothatopcheck-19 0.4s ease 0s forwards;
 }
+
+
+.course-goal-content * {
+  white-space: pre-wrap !important;
+}

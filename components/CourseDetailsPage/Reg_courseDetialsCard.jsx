@@ -242,7 +242,7 @@ const RegCourseDetailsCard = ({
 };
 
 // ✅ Fav icon button (same design, but semantic button + sizes tuned)
-const FavIconButton = ({
+export const FavIconButton = ({
   isFav = false,
   onClick = () => null,
   isLoading = false,

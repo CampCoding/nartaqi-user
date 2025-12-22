@@ -180,7 +180,7 @@ const ExamDetails = ({ params }) => {
             {!endExam && (
               <>
                 {" "}
-                <Link href={`/course/${id}/exam-details/${examId}/exam`}>
+                <Link href={`${examId}/exam`}>
                   <button
                     type="button"
                     aria-label="بدء الأختبار"

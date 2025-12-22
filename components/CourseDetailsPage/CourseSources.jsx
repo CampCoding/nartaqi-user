@@ -65,9 +65,9 @@ const CourseSources = ({ courseData }) => {
           roundResources.map((resource) => (
             <div
               key={resource.id}
-              className="flex items-center justify-between px-4 sm:px-5 py-4 sm:py-6 bg-white rounded-[16px] sm:rounded-[22px] border border-zinc-200"
+              className="flex items-end justify-between px-4 sm:px-5 py-4 sm:py-6 bg-white rounded-[16px] sm:rounded-[22px] border border-zinc-200"
             >
-              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className="flex items-start gap-3 sm:gap-4 min-w-0">
                 <FileText className="text-primary w-6 h-6 sm:w-7 sm:h-7 flex-shrink-0" />
 
                 <div className="flex flex-col gap-0.5 min-w-0">
@@ -76,7 +76,7 @@ const CourseSources = ({ courseData }) => {
                   </h2>
 
                   {resource.description && (
-                    <p className="text-sm sm:text-base text-text-alt leading-relaxed line-clamp-2">
+                    <p className="text-sm sm:text-base text-text-alt leading-relaxed ">
                       {resource.description}
                     </p>
                   )}

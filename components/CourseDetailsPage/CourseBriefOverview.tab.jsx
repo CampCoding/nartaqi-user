@@ -32,8 +32,9 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
       {round.goal ? (
         <div
           className="course-goal-content"
-          dangerouslySetInnerHTML={{ __html: round.goal }}
+          dangerouslySetInnerHTML={{ __html: round?.goal?.replaceAll(/&nbsp;/ig , " ") }}
         />
+          
       ) : (
         <>
           <div className="self-stretch inline-flex flex-col justify-start items-end gap-2">
