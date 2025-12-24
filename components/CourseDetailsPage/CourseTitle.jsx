@@ -32,7 +32,6 @@ const CourseTitle = ({
     { title: "دورات المعلمين", link: "/courses" },
     { title: "مهارات التعليم والتدريس", link: "/courses/teaching-skills" },
   ],
-  
 }) => {
   return (
     // 2. Responsive padding and margin for the main container
@@ -44,36 +43,38 @@ const CourseTitle = ({
         </div>
 
         {/* 4. Breadcrumb container now uses Swiper */}
-        <div className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-none lg:w-auto px-4 py-2 bg-secondary rounded-xl">
-          <Swiper
-            slidesPerView="auto" // This is key for different width slides
-            spaceBetween={8} // A small gap between breadcrumbs
-            className="!w-full"
-          >
-            {breadcrumbs?.map((crumb, idx) => (
-              <SwiperSlide key={idx} className="!w-auto">
-                {" "}
-                {/* Ensures slide fits content */}
-                <div className="flex items-center">
-                  <Link
-                    href={crumb.link ? crumb.link : "#"}
-                    // 5. Responsive font size for breadcrumbs
-                    className={`whitespace-nowrap justify-center text-sm md:text-lg leading-normal ${
-                      idx === 0
-                        ? "font-bold text-text"
-                        : "font-semibold text-white"
-                    }`}
-                  >
-                    {crumb.title}
-                  </Link>
-                  {idx < breadcrumbs.length - 1 && (
-                    <ArrowIcon className="rotate-180" />
-                  )}
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
+        { breadcrumbs && breadcrumbs.length > 0 ?  (
+          <div className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-none lg:w-auto px-4 py-2 bg-secondary rounded-xl">
+            <Swiper
+              slidesPerView="auto" // This is key for different width slides
+              spaceBetween={8} // A small gap between breadcrumbs
+              className="!w-full"
+            >
+              {breadcrumbs?.map((crumb, idx) => (
+                <SwiperSlide key={idx} className="!w-auto">
+                  {" "}
+                  {/* Ensures slide fits content */}
+                  <div className="flex items-center">
+                    <Link
+                      href={crumb.link ? crumb.link : "#"}
+                      // 5. Responsive font size for breadcrumbs
+                      className={`whitespace-nowrap justify-center text-sm md:text-lg leading-normal ${
+                        idx === 0
+                          ? "font-bold text-text"
+                          : "font-semibold text-white"
+                      }`}
+                    >
+                      {crumb.title}
+                    </Link>
+                    {idx < breadcrumbs.length - 1 && (
+                      <ArrowIcon className="rotate-180" />
+                    )}
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+         ) : null }
       </div>
     </div>
   );

@@ -13,9 +13,10 @@ import {
 } from "../../public/svgs";
 import Link from "next/link";
 import { message } from "antd";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import useRedirect from "../../components/shared/Hooks/useRedirect";
 import useHandleFavoriteActions from "../../components/shared/Hooks/useHandleFavoriteActions";
+import { openShare } from "../utils/Store/Slices/shareSlice";
 
 const RegCourseDetailsCard = ({
   courseData,
@@ -26,7 +27,7 @@ const RegCourseDetailsCard = ({
 }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const { round, roundRate } = courseData;
-
+  const dispatch = useDispatch()
   const redirect = useRedirect();
   const { token } = useSelector((state) => state.auth);
   const { mutate } = useHandleFavoriteActions();
@@ -37,10 +38,18 @@ const RegCourseDetailsCard = ({
   useEffect(() => {
     setIsFavorite(!!isInFavorites);
   }, [isInFavorites]);
+  const buildShareUrl = () => {
+    if (typeof window === "undefined") return "";
+    const origin = window.location.origin;
+    return roundId ? `${origin}/course/${roundId}` : window.location.href;
+  };
 
   const ratingValue = useMemo(() => {
     if (!roundRate || roundRate.length === 0) return "0.0";
-    const sum = roundRate.reduce((acc, curr) => acc + Number(curr.rate || 0), 0);
+    const sum = roundRate.reduce(
+      (acc, curr) => acc + Number(curr.rate || 0),
+      0
+    );
     return (sum / roundRate.length).toFixed(1);
   }, [roundRate]);
 
@@ -63,7 +72,8 @@ const RegCourseDetailsCard = ({
           payload: {
             id,
             type: "favorite",
-            link: typeof window !== "undefined" ? window.location.pathname : "/",
+            link:
+              typeof window !== "undefined" ? window.location.pathname : "/",
           },
         });
 
@@ -124,6 +134,30 @@ const RegCourseDetailsCard = ({
         >
           <div className="absolute inset-0 bg-gradient-to-b to-black/45 via-black/20 from-transparent" />
 
+        <Link
+          href={`/course-preview/${roundId}`}
+          className="absolute inset-0 flex items-center justify-center"
+          aria-label="مشاهدة المعاينة"
+        >
+          <div className="p-3.5 sm:p-4 bg-secondary rounded-full shadow-[0px_0px_40px_0px_rgba(249,115,22,1)] inline-flex justify-center items-center overflow-hidden">
+            <div className="w-5 h-5 relative flex justify-center items-center">
+              <svg
+                width="15"
+                height="17"
+                viewBox="0 0 15 17"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M2.5241 15.2741C1.85783 15.6841 1 15.2048 1 14.4224L1 2.00157C1 1.21925 1.85783 0.739905 2.5241 1.14992L12.6161 7.36032C13.2506 7.75082 13.2506 8.67321 12.6161 9.06371L2.5241 15.2741Z"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+        </Link>
           {/* Share + Fav */}
           <div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex items-center gap-2 sm:gap-2.5">
             <FavIconButton
@@ -134,11 +168,23 @@ const RegCourseDetailsCard = ({
 
             <button
               type="button"
-              onClick={() => onShare?.(true)}
-              className="p-2 sm:p-2.5 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors duration-200 cursor-pointer active:scale-90"
+              onClick={() => {
+                  console.log("round" , round)
+                const url = buildShareUrl();
+                    dispatch(
+                      openShare({
+                        url,
+                        title: round?.name || "مشاركة الدورة",
+                        summary: round?.description || "",
+                        image: round?.image_url || "",
+                      })
+                    );
+                  }
+              }
+              className="p-2 sm:p-2.5 bg-black/20 backdrop-blur-sm rounded-full group hover:bg-white/30 transition-colors duration-200 cursor-pointer active:scale-90"
               aria-label="مشاركة الدورة"
             >
-              <ShareIcon className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-white stroke-white" />
+              <ShareIcon className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-white stroke-white group-hover:stroke-secondary" />
             </button>
           </div>
         </div>
@@ -167,7 +213,8 @@ const RegCourseDetailsCard = ({
             <div className="flex w-full sm:w-[200px] items-center gap-2">
               <SeatsIcon className="w-5 h-5 flex-shrink-0" />
               <div className="text-text text-xs sm:text-[13px] font-medium leading-relaxed line-clamp-1">
-                المقاعد المتبقية: {round.capacity - round?.students_count || "غير محدد"}
+                المقاعد المتبقية:{" "}
+                {round.capacity - round?.students_count || "غير محدد"}
               </div>
             </div>
 
@@ -209,32 +256,34 @@ const RegCourseDetailsCard = ({
       </div>
 
       {/* Certificate CTA */}
-      <div className="relative bg-white w-full pt-6 sm:pt-8 lg:pt-10 px-4 sm:px-5 lg:px-6 pb-6 sm:pb-7 lg:pb-8 min-h-[175px] sm:min-h-[190px] border-t-4 [border-top-style:solid] border-variable-collection-stroke">
-        {isDone !== "true" && (
-          <p className="mb-4 font-medium text-danger text-xs sm:text-sm flex items-center justify-center text-center leading-relaxed">
-            أكمل الدورة حتى تتمكن من تسجيل بيانات الشهادة
-          </p>
-        )}
-
-        <Link
-          onClick={(e) => isDone !== "true" && e.preventDefault()}
-          href={isDone === "true" ? "/register-certificate" : "#"}
-          className={[
-            "flex w-full justify-center items-center gap-3",
-            "px-5 sm:px-6 py-3 sm:py-3.5",
-            "rounded-[14px] sm:rounded-[16px] lg:rounded-[18px]",
-            isDone === "true"
-              ? "bg-primary hover:opacity-95"
-              : "bg-[#71717A] cursor-not-allowed",
-            "transition-opacity",
-          ].join(" ")}
-        >
-          <CertificationIcon className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-          <span className="font-bold text-white text-sm sm:text-[15px] text-center">
-            تسجيل بيانات الشهادة
-          </span>
-        </Link>
-      </div>
+      {round.have_certificate != 0 && (
+        <div className="relative bg-white w-full pt-6 sm:pt-8 lg:pt-10 px-4 sm:px-5 lg:px-6 pb-6 sm:pb-7 lg:pb-8 min-h-[175px] sm:min-h-[190px] border-t-4 [border-top-style:solid] border-variable-collection-stroke">
+          {isDone !== "true" && (
+            <p className="mb-4 font-medium text-danger text-xs sm:text-sm flex items-center justify-center text-center leading-relaxed">
+              أكمل الدورة حتى تتمكن من تسجيل بيانات الشهادة
+            </p>
+          )}
+          
+          <Link
+            onClick={(e) => isDone !== "true" && e.preventDefault()}
+            href={isDone === "true" ? "/register-certificate" : "#"}
+            className={[
+              "flex w-full justify-center items-center gap-3",
+              "px-5 sm:px-6 py-3 sm:py-3.5",
+              "rounded-[14px] sm:rounded-[16px] lg:rounded-[18px]",
+              isDone === "true"
+                ? "bg-primary hover:opacity-95"
+                : "bg-[#71717A] cursor-not-allowed",
+              "transition-opacity",
+            ].join(" ")}
+          >
+            <CertificationIcon className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+            <span className="font-bold text-white text-sm sm:text-[15px] text-center">
+              تسجيل بيانات الشهادة
+            </span>
+          </Link>
+        </div>
+      )}
 
       {contextHolder}
     </div>
@@ -259,7 +308,7 @@ export const FavIconButton = ({
       className={[
         "w-9 h-9 sm:w-10 sm:h-10",
         "relative z-40",
-        "rounded-[10px]",
+        "rounded-full",
         "inline-flex justify-center items-center overflow-hidden",
         "transition-all duration-300 hover:scale-110 active:scale-95",
         isFav

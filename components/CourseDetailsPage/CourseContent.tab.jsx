@@ -43,6 +43,8 @@ const CourseContent = ({ isRegistered, courseData }) => {
   const [selectedTab, setSelectedTab] = useState("foundation");
 
   const { contents, round, exams_round, own } = courseData;
+  const isFree = round.free == 1;
+  console.log("CourseContent", isFree);
 
   const foundationContents = contents.filter(
     (c) => c.content_type === "basic" || c.content_type === "foundation"
@@ -67,9 +69,9 @@ const CourseContent = ({ isRegistered, courseData }) => {
               <CourseContentDrawer
                 key={content.id}
                 content={content}
-                isRegistered={own}
+                isRegistered={own || isFree}
                 allExams={allExams}
-                own={own}
+                own={own || isFree}
               />
             ))
           ) : (
@@ -87,8 +89,8 @@ const CourseContent = ({ isRegistered, courseData }) => {
               <CourseContentDrawer
                 key={content.id}
                 content={content}
-                isRegistered={own}
-                own={own}
+                isRegistered={own || isFree}
+                own={own || isFree}
               />
             ))
           ) : (
@@ -174,7 +176,9 @@ export const Navs = ({ selectedTab, setSelectedTab }) => {
               "transition-all duration-200",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300",
               tab.id === "tests" ? "lg:w-[210px]" : "lg:inline-flex",
-              selected ? "bg-primary font-bold text-white shadow-sm" : "text-zinc-500",
+              selected
+                ? "bg-primary font-bold text-white shadow-sm"
+                : "text-zinc-500",
               !selected ? "hover:bg-white/60 hover:text-zinc-700" : "",
             ].join(" ")}
           >

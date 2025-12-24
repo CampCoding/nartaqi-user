@@ -122,7 +122,8 @@ const CourseDetailsPage = () => {
   }
 
   const isRegistered = !!courseData?.own;
-
+  const isFree = courseData?.round?.free == 1 ;
+  console.log(  "isFree" , isFree);
   return (
     <div>
       <CourseTitle
@@ -134,7 +135,7 @@ const CourseDetailsPage = () => {
         ]}
       />
 
-      {isRegistered ? (
+      {isRegistered || isFree ? (
         <Reg_courseDetails courseData={courseData} />
       ) : (
         <NotReg_courseDetails courseData={courseData} onSubscribe={fetchCourseData} />

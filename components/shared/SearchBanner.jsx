@@ -368,7 +368,6 @@ export const Navs = ({ activeTab, setActiveTab, counts }) => {
         <div className="inline-flex items-center">
           {items
             .slice() // avoid mutating
-            .reverse()
             .map((item) => {
               const isActive = item.key === activeTab;
               return (

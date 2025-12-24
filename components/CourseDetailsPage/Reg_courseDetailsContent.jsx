@@ -84,7 +84,7 @@ function setNormalizedScrollLeft(el, dir, rtlType, value) {
 /** ----------------------------------------------- */
 
 const RegCourseDetailsContent = ({ courseData, onTabsChange = () => {} }) => {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("content");
 
   const tabs = useMemo(
     () => [

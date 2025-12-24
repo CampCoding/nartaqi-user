@@ -1,3 +1,9 @@
+// app/(whatever)/courses/preview/[id]/page.jsx  (CoursePreviewPage)
+// ✅ Updated to be fully compatible with getFreeVideos response
+// ✅ Robust URL sanitizing + YouTube (including /live/) + Vimeo extraction
+// ✅ Preview mode: non-registered users ONLY see/play freeVideos list
+// ✅ Registered users see/play all course videos (sorted with free first)
+
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -20,6 +26,21 @@ import LoadingPage from "@/components/shared/Loading";
 
 import "./style.css";
 
+// ==================== URL SANITIZERS ====================
+const cleanEmbedUrl = (raw) => {
+  if (!raw) return null;
+
+  // Convert HTML entities like &amp; -> &
+  let s = String(raw).replaceAll("&amp;", "&");
+
+  // If backend accidentally returns iframe attributes, cut at first quote
+  // e.g. ...app_id=58479" frameborder="0" ...  => keep only before "
+  const quoteIndex = s.indexOf('"');
+  if (quoteIndex !== -1) s = s.slice(0, quoteIndex);
+
+  return s.trim();
+};
+
 // ==================== ENCODING HELPERS ====================
 const encodeId = (value) => {
   if (!value) return null;
@@ -32,21 +53,38 @@ const encodeId = (value) => {
 };
 
 const extractVimeoId = (url) => {
-  if (!url) return null;
-  if (/^\d+$/.test(url)) return url;
-  const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  const cleaned = cleanEmbedUrl(url);
+  if (!cleaned) return null;
+  if (/^\d+$/.test(cleaned)) return cleaned;
+
+  // Works with:
+  // https://vimeo.com/123
+  // https://player.vimeo.com/video/123?...
+  const match = cleaned.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   return match ? match[1] : null;
 };
 
 const extractYoutubeId = (url) => {
-  if (!url) return null;
-  if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
-  const match = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  const cleaned = cleanEmbedUrl(url);
+  if (!cleaned) return null;
+
+  // already an id
+  if (/^[a-zA-Z0-9_-]{11}$/.test(cleaned)) return cleaned;
+
+  // Supports:
+  // - youtube.com/watch?v=ID
+  // - youtube.com/embed/ID
+  // - youtu.be/ID
+  // - youtube.com/shorts/ID
+  // - youtube.com/live/ID
+  const match = cleaned.match(
+    /(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
   );
+
   return match ? match[1] : null;
 };
 
+// ==================== PAGE ====================
 const CoursePreviewPage = () => {
   const router = useRouter();
   const pathname = usePathname();
@@ -64,15 +102,13 @@ const CoursePreviewPage = () => {
   }, [params]);
 
   const [courseData, setCourseData] = useState(null);
-  const [freeVideos, setFreeVideos] = useState([]);
+  const [freeVideos, setFreeVideos] = useState([]); // ✅ always array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // ✅ URL is the source of truth
   const isWatching = searchParams.get("watch") === "true";
   const currentVideoId = searchParams.get("video");
 
-  // ✅ cancel old requests
   const abortRef = useRef(null);
   const mountedRef = useRef(false);
 
@@ -86,7 +122,6 @@ const CoursePreviewPage = () => {
   const fetchCourseData = useCallback(async () => {
     if (!roundId) return;
 
-    // cancel previous
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -118,10 +153,14 @@ const CoursePreviewPage = () => {
       if (!mountedRef.current) return;
 
       const bundleData = bundleRes?.data?.message;
-      const freeList = freeRes?.data?.message;
+
+      // ✅ free videos is data.message (array)
+      const freeList = Array.isArray(freeRes?.data?.message)
+        ? freeRes.data.message
+        : [];
 
       setCourseData(bundleData || null);
-      setFreeVideos(Array.isArray(freeList) ? freeList : []);
+      setFreeVideos(freeList);
     } catch (err) {
       if (err?.code === "ERR_CANCELED" || err?.name === "CanceledError") return;
       console.error("Error fetching course data:", err);
@@ -147,9 +186,13 @@ const CoursePreviewPage = () => {
     };
   }, [fetchCourseData]);
 
-  // ✅ Collect & sort videos (free first)
-  const { allVideos, sortedVideos } = useMemo(() => {
-    if (!courseData?.contents) return { allVideos: [], sortedVideos: [] };
+  const isRegistered = useMemo(() => {
+    return !!(courseData?.own || courseData?.is_registered);
+  }, [courseData]);
+
+  // ✅ Collect all course videos (from bundle)
+  const { allCourseVideos, sortedCourseVideos } = useMemo(() => {
+    if (!courseData?.contents) return { allCourseVideos: [], sortedCourseVideos: [] };
 
     const videos = [];
     courseData.contents.forEach((content) => {
@@ -164,52 +207,62 @@ const CoursePreviewPage = () => {
       });
     });
 
-    const isFreeVideo = (videoId, video) =>
-      freeVideos?.some((v) => String(v.id) === String(videoId)) ||
-      video?.free === "1";
+    const isFreeByApiOrFlag = (video) => {
+      const inFreeList =
+        Array.isArray(freeVideos) &&
+        freeVideos.some((v) => String(v.id) === String(video?.id));
+      const markedFree = String(video?.free) === "1";
+      return inFreeList || markedFree;
+    };
 
+    // free first
     const sorted = [...videos].sort((a, b) => {
-      const aFree = isFreeVideo(a.id, a);
-      const bFree = isFreeVideo(b.id, b);
+      const aFree = isFreeByApiOrFlag(a);
+      const bFree = isFreeByApiOrFlag(b);
       if (aFree && !bFree) return -1;
       if (!aFree && bFree) return 1;
       return 0;
     });
 
-    return { allVideos: videos, sortedVideos: sorted };
+    return { allCourseVideos: videos, sortedCourseVideos: sorted };
   }, [courseData, freeVideos]);
 
+  // ✅ Source of truth for what the user can see in the list
+  const playableVideos = useMemo(() => {
+    if (isRegistered) return sortedCourseVideos;
+
+    // Preview mode: ONLY freeVideos response
+    return Array.isArray(freeVideos) ? freeVideos : [];
+  }, [isRegistered, sortedCourseVideos, freeVideos]);
+
+  // ✅ current video based on playable list
   const currentVideo = useMemo(() => {
-    if (!sortedVideos.length) return null;
-    if (!currentVideoId) return sortedVideos[0];
+    if (!playableVideos.length) return null;
+    if (!currentVideoId) return playableVideos[0];
 
     return (
-      allVideos.find((v) => String(v.id) === String(currentVideoId)) ||
-      sortedVideos[0]
+      playableVideos.find((v) => String(v.id) === String(currentVideoId)) ||
+      playableVideos[0]
     );
-  }, [currentVideoId, allVideos, sortedVideos]);
+  }, [currentVideoId, playableVideos]);
 
-  // ✅ Registration detection
-  const isRegistered = useMemo(() => {
-    return !!(courseData?.own || courseData?.is_registered);
-  }, [courseData]);
-
+  // ✅ Build player query (sanitized)
   const buildVideoQuery = useCallback((video) => {
     const query = {
       watch: "true",
       video: String(video.id),
     };
 
-    // Vimeo
-    if (video.vimeo_link) {
-      const vimeoId = extractVimeoId(video.vimeo_link);
-      query.vimeo_id = encodeId(vimeoId || video.vimeo_link);
+    const vimeoUrl = cleanEmbedUrl(video.vimeo_link);
+    if (vimeoUrl) {
+      const vimeoId = extractVimeoId(vimeoUrl);
+      query.vimeo_id = encodeId(vimeoId || vimeoUrl);
     }
 
-    // YouTube
-    if (video.youtube_link) {
-      const youtubeId = extractYoutubeId(video.youtube_link);
-      query.youtube_id = encodeId(youtubeId || video.youtube_link);
+    const ytUrl = cleanEmbedUrl(video.youtube_link);
+    if (ytUrl) {
+      const youtubeId = extractYoutubeId(ytUrl);
+      query.youtube_id = encodeId(youtubeId || ytUrl);
     }
 
     return query;
@@ -217,28 +270,30 @@ const CoursePreviewPage = () => {
 
   const handleVideoSelect = useCallback(
     (video) => {
-      const isFree =
-        freeVideos?.some((v) => String(v.id) === String(video.id)) ||
-        video.free === "1";
+      // ✅ In preview mode, list is already filtered, but we keep a safe guard:
+      if (!isRegistered) {
+        const isFree =
+          (Array.isArray(freeVideos) &&
+            freeVideos.some((v) => String(v.id) === String(video.id))) ||
+          String(video?.free) === "1";
 
-      if (!isFree && !isRegistered) {
-        alert("هذا الدرس مقفل 🔒 يجب التسجيل في الدورة للمشاهدة");
-        return;
+        if (!isFree) {
+          alert("هذا الدرس مقفل 🔒 يجب التسجيل في الدورة للمشاهدة");
+          return;
+        }
       }
 
       const query = buildVideoQuery(video);
       const qs = new URLSearchParams(query).toString();
-
-      // ✅ replace (better UX) + scroll to player
       router.replace(`${pathname}?${qs}#player`);
     },
-    [freeVideos, isRegistered, buildVideoQuery, router, pathname]
+    [isRegistered, freeVideos, buildVideoQuery, router, pathname]
   );
 
   const handleStartWatching = useCallback(() => {
-    const firstVideo = sortedVideos[0];
-    if (firstVideo) handleVideoSelect(firstVideo);
-  }, [sortedVideos, handleVideoSelect]);
+    const targetVideo = playableVideos?.[0] || null;
+    if (targetVideo) handleVideoSelect(targetVideo);
+  }, [playableVideos, handleVideoSelect]);
 
   if (loading) return <LoadingPage />;
 
@@ -249,7 +304,6 @@ const CoursePreviewPage = () => {
           <p className="text-red-600 text-lg font-bold">
             {error || "لم يتم العثور على الدورة"}
           </p>
-
           <button
             type="button"
             onClick={fetchCourseData}
@@ -268,7 +322,10 @@ const CoursePreviewPage = () => {
       {!isLgUp && (
         <div className="space-y-4">
           {!isWatching && (
-            <MobileCoursePreview courseData={courseData} onClick={handleStartWatching} />
+            <MobileCoursePreview
+              courseData={courseData}
+              onClick={handleStartWatching}
+            />
           )}
 
           {isWatching && (
@@ -279,8 +336,7 @@ const CoursePreviewPage = () => {
 
           <VideosList
             courseData={courseData}
-            freeVideos={freeVideos}
-            allVideos={sortedVideos}
+            videos={playableVideos}
             currentVideo={currentVideo}
             onVideoSelect={handleVideoSelect}
             isRegistered={isRegistered}
@@ -301,7 +357,8 @@ const CoursePreviewPage = () => {
               { title: "الرئيسية", link: "/" },
               { title: "الدورات", link: "/courses" },
               {
-                title: courseData?.round?.course_categories?.name || "غير محدد",
+                title:
+                  courseData?.round?.course_categories?.name || "غير محدد",
                 link: `/courses/category/${courseData?.round?.course_category_id}`,
               },
               { title: courseData?.round?.name || "غير محدد", link: "#" },
@@ -316,14 +373,18 @@ const CoursePreviewPage = () => {
                   className="cursor-pointer group flex-1 h-[300px] sm:h-[380px] lg:h-[455px] relative bg-black/20 rounded-[30px] overflow-hidden"
                   role="button"
                   tabIndex={0}
-                  aria-label="تشغيل أول فيديو مجاني"
+                  aria-label="تشغيل أول فيديو"
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") handleStartWatching();
+                    if (e.key === "Enter" || e.key === " ")
+                      handleStartWatching();
                   }}
                 >
                   <img
                     loading="lazy"
-                    src={courseData?.round?.image_url || "/images/Frame 1000004932.png"}
+                    src={
+                      courseData?.round?.image_url ||
+                      "/images/Frame 1000004932.png"
+                    }
                     className="w-full h-full object-cover object-top"
                     alt={courseData?.round?.name || "صورة الدورة"}
                   />
@@ -364,8 +425,7 @@ const CoursePreviewPage = () => {
 
             <VideosList
               courseData={courseData}
-              freeVideos={freeVideos}
-              allVideos={sortedVideos}
+              videos={playableVideos}
               currentVideo={currentVideo}
               onVideoSelect={handleVideoSelect}
               isRegistered={isRegistered}
@@ -387,8 +447,7 @@ const VideoItem = ({
   duration,
   isActive,
   onClick,
-  isFree,
-  isRegistered,
+  canPlay,
 }) => {
   const formatDuration = (time) => {
     if (!time) return "غير محدد";
@@ -416,8 +475,6 @@ const VideoItem = ({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const canPlay = isFree || isRegistered;
-
   return (
     <div
       onClick={() => canPlay && onClick()}
@@ -433,7 +490,11 @@ const VideoItem = ({
         ${!canPlay ? "opacity-60" : ""}
       `}
     >
-      <div className={`text-right text-xl md:text-2xl font-medium ${isActive ? "text-secondary" : "text-zinc-400"}`}>
+      <div
+        className={`text-right text-xl md:text-2xl font-medium ${
+          isActive ? "text-secondary" : "text-zinc-400"
+        }`}
+      >
         {idx}
       </div>
 
@@ -461,7 +522,11 @@ const VideoItem = ({
 
           {!canPlay && (
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                className="w-6 h-6 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path
                   fillRule="evenodd"
                   d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
@@ -487,21 +552,23 @@ const VideoItem = ({
 // ==================== VIDEOS LIST ====================
 const VideosList = ({
   courseData,
-  freeVideos,
-  allVideos,
+  videos,
   currentVideo,
   onVideoSelect,
   isRegistered,
 }) => {
-  const isFreeVideo = (videoId, video) =>
-    freeVideos?.some((v) => String(v.id) === String(videoId)) ||
-    video?.free === "1";
+  const list = Array.isArray(videos) ? videos : [];
 
-  const currentIndex = allVideos.findIndex((v) => v.id === currentVideo?.id);
   const teacherName =
     courseData?.round?.teachers?.[0]?.name ||
     courseData?.round?.teacher?.name ||
     "غير محدد";
+
+  const currentIndex = useMemo(() => {
+    if (!currentVideo?.id) return 1;
+    const idx = list.findIndex((v) => String(v.id) === String(currentVideo.id));
+    return idx >= 0 ? idx + 1 : 1;
+  }, [list, currentVideo]);
 
   return (
     <div
@@ -516,7 +583,7 @@ const VideosList = ({
 
         <div className="inline-flex justify-start items-center gap-2">
           <div className="text-primary text-sm md:text-base font-bold">
-            {currentIndex >= 0 ? currentIndex + 1 : 1} من {allVideos.length || 0}
+            {currentIndex} من {list.length || 0}
           </div>
           <div className="text-primary text-sm md:text-base font-bold">
             {teacherName}
@@ -525,9 +592,11 @@ const VideosList = ({
       </div>
 
       <div className="videos-list overflow-x-hidden inline-flex flex-col justify-start items-start gap-3 md:gap-4 max-h-[600px] overflow-y-auto">
-        {allVideos.length > 0 ? (
-          allVideos.map((video, i) => {
-            const isFree = isFreeVideo(video.id, video);
+        {list.length > 0 ? (
+          list.map((video, i) => {
+            // In preview mode list is free only => canPlay true
+            // In registered mode list is all => canPlay true
+            const canPlay = true;
             return (
               <VideoItem
                 key={video.id || i}
@@ -535,9 +604,8 @@ const VideosList = ({
                 title={video.title}
                 thumb={video.thumbnail}
                 duration={video.time}
-                isActive={video.id === currentVideo?.id}
-                isFree={isFree}
-                isRegistered={isRegistered}
+                isActive={String(video.id) === String(currentVideo?.id)}
+                canPlay={canPlay}
                 onClick={() => onVideoSelect(video)}
               />
             );
@@ -548,6 +616,12 @@ const VideosList = ({
           </div>
         )}
       </div>
+
+      {!isRegistered && (
+        <div className="text-xs text-gray-500 mt-2">
+          * أنت الآن في وضع المعاينة: المعروض فقط الفيديوهات المجانية.
+        </div>
+      )}
     </div>
   );
 };

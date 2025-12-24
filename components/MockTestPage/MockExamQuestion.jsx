@@ -88,7 +88,7 @@ export const SingleQuestion = ({
         >
           السؤال {questionNumber}:
           <br />
-          {questionData.text}
+          <div dangerouslySetInnerHTML={{ __html: questionData.text }} />
         </p>
         {selectedAnswer && (
           <div
@@ -117,7 +117,7 @@ export const SingleQuestion = ({
             <span
               className={`relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-black ${textSizeClass} tracking-[0] leading-[normal] [direction:rtl]`}
             >
-              {option.text}
+              <div  dangerouslySetInnerHTML={{ __html: option.text }}  />
             </span>
           </label>
         ))}

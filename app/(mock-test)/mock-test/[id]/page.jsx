@@ -13,7 +13,6 @@ import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import {
   initializeExam,
-  setIsSolved,
   startExam,
   decrementTime,
   setCurrentSectionIndex,
@@ -47,7 +46,58 @@ import {
   selectStudentId,
 } from "../../../../components/utils/Store/Slices/mockExamSlice";
 
-// Already Solved Popup
+/* =========================
+   UI: No Access Screen
+========================= */
+const NoAccessScreen = ({ onBack, onHome }) => {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-primary px-4">
+      <div className="bg-white rounded-[30px] p-8 md:p-12 max-w-md w-full shadow-2xl text-center">
+        <div className="flex justify-center mb-6">
+          <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center">
+            <svg
+              className="w-12 h-12 text-amber-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v3m0 4h.01M10.29 3.86l-7.1 12.29A2 2 0 005.92 19h12.16a2 2 0 001.73-2.85l-7.1-12.29a2 2 0 00-3.42 0z"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-bold text-text mb-3">لا تملك صلاحية الوصول</h2>
+        <p className="text-text-alt leading-relaxed mb-8">
+          لا يمكنك فتح هذا الاختبار حاليًا.
+          <br />
+          قد يكون السبب أنك غير مشترك في الدورة أو ليس لديك تصريح للوصول للاختبار.
+        </p>
+
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={onBack}
+            className="w-full py-4 bg-primary text-white rounded-xl font-medium text-lg hover:opacity-90 transition-opacity"
+          >
+            الرجوع
+          </button>
+          <button
+            onClick={onHome}
+            className="w-full py-4 bg-gray-100 text-text rounded-xl font-medium text-lg hover:bg-gray-200 transition-colors"
+          >
+            الصفحة الرئيسية
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Already Solved Popup (unchanged)
 const AlreadySolvedPopup = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
@@ -126,6 +176,7 @@ const MockTest = () => {
 
   // Local state
   const [isLoading, setIsLoading] = useState(true);
+  const [noAccess, setNoAccess] = useState(false); // ✅ NEW
   const [isInReview, setIsInReview] = useState(false);
   const [fontSize, setFontSize] = useState("normal");
   const [activeFilter, setActiveFilter] = useState("all");
@@ -136,6 +187,8 @@ const MockTest = () => {
   // Fetch exam data
   const fetchMockTestData = useCallback(async () => {
     setIsLoading(true);
+    setNoAccess(false);
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -150,15 +203,16 @@ const MockTest = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (response.data.status === "success") {
-        // Check if already solved
-        // if (response.data.message.is_solved === true) {
-        //   dispatch(setIsSolved(true));
-        //   setIsLoading(false);
-        //   return;
-        // }
+      // ✅ handle no_access from normal response
+      if (
+        response?.data?.status === "failed" &&
+        response?.data?.message === "no_access"
+      ) {
+        setNoAccess(true);
+        return;
+      }
 
-        // Initialize exam with API data
+      if (response.data.status === "success") {
         dispatch(
           initializeExam({
             examId: id,
@@ -181,9 +235,17 @@ const MockTest = () => {
         }
       }
     } catch (error) {
+      // ✅ handle no_access from axios error response (400)
+      const msg = error?.response?.data?.message;
+      if (msg === "no_access") {
+        setNoAccess(true);
+        return;
+      }
+
       console.error("Error loading exam:", error);
-      alert("فشل تحميل الاختبار، تأكد من الاتصال بالإنترنت أو حاول مرة أخرى.");
-      router.back();
+      // تقدر تعرض رسالة عامة لو حبيت
+      // alert("فشل تحميل الاختبار، تأكد من الاتصال بالإنترنت أو حاول مرة أخرى.");
+      // router.back();
     } finally {
       setIsLoading(false);
     }
@@ -213,6 +275,7 @@ const MockTest = () => {
     if (timeRemaining <= 0 && isStarted && !isSubmitted) {
       handleSubmitExam();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRemaining, isStarted, isSubmitted]);
 
   // Save state to localStorage
@@ -231,12 +294,10 @@ const MockTest = () => {
     setIsSubmitting(true);
 
     try {
-      // Calculate and store results in Redux
       dispatch(submitExam());
 
       const token = localStorage.getItem("token");
 
-      // Submit answers
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/storeStudentAnswers`,
         {
@@ -247,7 +308,6 @@ const MockTest = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Submit score (need to get from state after submitExam)
       const scoreToSubmit = `${
         formattedAnswers.filter((a) => a.is_correct).length
       }/${totalQuestions}`;
@@ -262,9 +322,7 @@ const MockTest = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Clear saved state
       localStorage.removeItem(`mock_exam_state_${id}`);
-
       setIsSuccessOpen(true);
     } catch (error) {
       console.error("Error submitting exam:", error);
@@ -274,7 +332,6 @@ const MockTest = () => {
     }
   };
 
-  // Handle answer selection
   const handleAnswerSelect = (questionId, optionId) => {
     dispatch(setAnswer({ questionId, optionId }));
   };
@@ -305,19 +362,16 @@ const MockTest = () => {
     }
   };
 
-  // Mark for review
   const handleMarkForReview = () => {
     if (!currentBlock) return;
     const questionIds = currentBlock.questions.map((q) => q.id);
     dispatch(toggleBlockFlag(questionIds));
   };
 
-  // Start exam handler
   const handleStartExam = () => {
     dispatch(startExam());
   };
 
-  // Format time display
   const formatTime = (seconds) => {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -346,7 +400,17 @@ const MockTest = () => {
     );
   }
 
-  // Already solved
+  // ✅ No access
+  if (noAccess) {
+    return (
+      <NoAccessScreen
+        onBack={() => router.back()}
+        onHome={() => router.push("/")}
+      />
+    );
+  }
+
+  // Already solved (optional)
   // if (isSolved) {
   //   return (
   //     <div className="flex items-center justify-center h-screen bg-primary">
@@ -437,9 +501,10 @@ const MockTest = () => {
                     : "text-base"
                 } leading-relaxed`}
               >
-                <h3 className="font-bold text-xl mb-4">
-                  {currentSection.title}
-                </h3>
+                <h3
+                  className="font-bold text-xl mb-4"
+                  dangerouslySetInnerHTML={{ __html: currentSection.title }}
+                />
                 <p className="font-medium">{currentSection.description}</p>
               </div>
             )}
@@ -464,7 +529,6 @@ const MockTest = () => {
         setActiveFilter={setActiveFilter}
       />
 
-      {/* Section End Confirmation */}
       <ConfirmationPopup
         isOpen={isConfirmSectionEnd}
         onClose={() => setIsConfirmSectionEnd(false)}
@@ -481,7 +545,6 @@ const MockTest = () => {
         cancelText="إلغاء"
       />
 
-      {/* Success Popup */}
       <SuccessPopup
         isOpen={isSuccessOpen}
         onClose={() => {

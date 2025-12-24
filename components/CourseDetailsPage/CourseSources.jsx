@@ -3,7 +3,12 @@ import { DownloadIcon, PeopleGroup, TelegramIcon } from "../../public/svgs";
 import { FileText } from "lucide-react";
 
 const CourseSources = ({ courseData }) => {
+  console.log("courseData__", courseData);
   const { roundResources, round } = courseData;
+  const {
+    group_links: { telegram_link, whatsapp_link },
+    resource,
+  } = roundResources;
 
   const getTelegramLink = () => {
     const resource = roundResources?.find((r) => r.telegram_link);
@@ -32,37 +37,41 @@ const CourseSources = ({ courseData }) => {
 
       {/* Quick links */}
       <div className="flex flex-col gap-4 sm:gap-6">
-        <a
-          href={getTelegramLink()}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-5 sm:gap-7 px-5 py-4 sm:px-6 sm:py-6 bg-secondary rounded-[16px] sm:rounded-[22px] hover:opacity-90 transition-opacity no-underline"
-          aria-label="قناة التيليجرام"
-        >
-          <TelegramIcon />
-          <span className="font-bold text-white text-lg sm:text-xl leading-normal">
-            قناة التيليجرام
-          </span>
-        </a>
+        {telegram_link && (
+          <a
+            href={telegram_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-5 sm:gap-7 px-5 py-4 sm:px-6 sm:py-6 bg-secondary rounded-[16px] sm:rounded-[22px] hover:opacity-90 transition-opacity no-underline"
+            aria-label="قناة التيليجرام"
+          >
+            <TelegramIcon />
+            <span className="font-bold text-white text-lg sm:text-xl leading-normal">
+              قناة التيليجرام
+            </span>
+          </a>
+        )}
 
-        <a
-          href={getWhatsappLink()}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-5 sm:gap-7 px-5 py-4 sm:px-6 sm:py-6 bg-primary rounded-[16px] sm:rounded-[22px] hover:opacity-90 transition-opacity no-underline"
-          aria-label="جروب الاستفسارات"
-        >
-          <PeopleGroup />
-          <span className="font-bold text-white text-lg sm:text-xl leading-normal">
-            جروب الاستفسارات
-          </span>
-        </a>
+        {whatsapp_link && (
+          <a
+            href={whatsapp_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-5 sm:gap-7 px-5 py-4 sm:px-6 sm:py-6 bg-primary rounded-[16px] sm:rounded-[22px] hover:opacity-90 transition-opacity no-underline"
+            aria-label="جروب الاستفسارات"
+          >
+            <PeopleGroup />
+            <span className="font-bold text-white text-lg sm:text-xl leading-normal">
+              جروب الاستفسارات
+            </span>
+          </a>
+        )}
       </div>
 
       {/* Sources list */}
       <div className="mt-5 sm:mt-6 flex flex-col gap-4 sm:gap-6">
-        {roundResources && roundResources.length > 0 ? (
-          roundResources.map((resource) => (
+        {resource && resource.length > 0 ? (
+          resource.map((resource) => (
             <div
               key={resource.id}
               className="flex items-end justify-between px-4 sm:px-5 py-4 sm:py-6 bg-white rounded-[16px] sm:rounded-[22px] border border-zinc-200"

@@ -4,12 +4,10 @@ const VerbalSection = ({ sectionTitle = "||", sectionDescription = "||" }) => {
   return (
     <div className="inline-flex flex-col justify-start items-start gap-8">
       <div className="inline-flex justify-end items-center gap-6">
-        <div className="text-right justify-center text-text text-3xl font-bold">
-          {sectionTitle || "القسم اللفظي"}
-        </div>
+        <div className="text-right justify-center text-text text-3xl font-bold" dangerouslySetInnerHTML={{ __html: sectionTitle }} />
+        
       </div>
-      <div className="flex-1 text-right justify-center text-text-alt text-xl font-normal leading-10">
-        {sectionDescription || (
+      <div className="flex-1 text-right justify-center text-text-alt text-xl font-normal leading-10" dangerouslySetInnerHTML={{ __html: sectionDescription || (
           <div className=" flex-1 text-right justify-center text-text-alt text-xl font-normal  leading-10">
             القسم اللفظي
             <br />
@@ -29,8 +27,7 @@ const VerbalSection = ({ sectionTitle = "||", sectionDescription = "||" }) => {
             أسئلة المعاني والمفردات: تطلب من الطالب تحديد معنى كلمة أو جملة في
             سياقها الصحيح.
           </div>
-        )}
-      </div>
+        ) }}/>
     </div>
   );
 };

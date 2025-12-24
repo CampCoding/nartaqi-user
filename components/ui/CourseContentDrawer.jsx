@@ -180,7 +180,7 @@ export const RegLectureDrawer = ({
   const [savingMap, setSavingMap] = useState({});
 
   const { makeStudentView, loading: markingView } = useMakeStudentView(token, {
-    onSuccess: () => toast.success("تم تسجيل المشاهدة ✅"),
+    onSuccess: () => null,
     onError: (msg) => toast.error(msg || "حصل خطأ أثناء تسجيل المشاهدة"),
   });
 
@@ -334,35 +334,42 @@ export const RegLectureDrawer = ({
 
   const buildVideoQuery = (item) => {
     const query = { ...mergedParams, video: item.id };
-  
+
     // ✅ جمع كل الروابط المحتملة (video/live)
-    const vimeoSource = item?.vimeo_link || item?.link || item?.video_url || item?.url;
-    const youtubeSource = item?.youtube_link || item?.link || item?.video_url || item?.url;
-  
+    const vimeoSource =
+      item?.vimeo_link || item?.link || item?.video_url || item?.url;
+    const youtubeSource =
+      item?.youtube_link || item?.link || item?.video_url || item?.url;
+
     // ✅ حاول Vimeo أولاً
     const vimeoId = extractVimeoId(vimeoSource);
     if (vimeoId) {
       query.vimeo_id = encodeId(vimeoId);
       return query;
     }
-  
+
     // ✅ ثم YouTube
     const youtubeId = extractYoutubeId(youtubeSource);
     if (youtubeId) {
       query.youtube_id = encodeId(youtubeId);
       return query;
     }
-  
+
     // ✅ fallback: لو الرابط موجود بس مش معروف هل vimeo/youtube
     // (لو player عندك بيفهم vimeo_id كـ url كمان)
-    const raw = item?.vimeo_link || item?.youtube_link || item?.link || item?.video_url || item?.url;
+    const raw =
+      item?.vimeo_link ||
+      item?.youtube_link ||
+      item?.link ||
+      item?.video_url ||
+      item?.url;
     if (raw) {
       // إذا الرابط فيه كلمة vimeo استخدمه كـ vimeo_id
       if (String(raw).toLowerCase().includes("vimeo")) {
         query.vimeo_id = encodeId(raw);
         return query;
       }
-  
+
       // إذا الرابط فيه youtube/youtu.be استخدمه كـ youtube_id
       if (
         String(raw).toLowerCase().includes("youtube") ||
@@ -371,14 +378,13 @@ export const RegLectureDrawer = ({
         query.youtube_id = encodeId(raw);
         return query;
       }
-  
+
       // آخر حل: اعتبره vimeo
       query.vimeo_id = encodeId(raw);
     }
-  
+
     return query;
   };
-  
 
   const allContent = [
     ...(lesson.videos || []).map((video) => ({ ...video, type: "video" })),
@@ -708,18 +714,18 @@ export const ExerciseDropDown = ({
       alert("يجب إكمال الدرس أولاً للتحميل 🔒");
       return;
     }
-  
+
     try {
       const res = await fetch(fileUrl, {
         headers: {
           Authorization: `Bearer ${token}`, // ✅ لازم token من props/state
         },
       });
-  
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  
+
       const blob = await res.blob();
-  
+
       const a = document.createElement("a");
       const url = window.URL.createObjectURL(blob);
       a.href = url;
@@ -734,7 +740,6 @@ export const ExerciseDropDown = ({
       alert("تعذر تحميل الملف. قد يكون الرابط يحتاج صلاحيات أو CORS.");
     }
   };
-  
 
   return (
     <>
@@ -785,20 +790,14 @@ export const ExerciseDropDown = ({
               <div key={exam?.id} className="flex flex-col">
                 {/* Exam Title Row */}
                 {exam && (
-                  <div className="flex w-full flex-row items-center justify-between border-b-[2px] border-solid last:border-none pt-4 pb-5 bg-white">
+                  <div className="flex w-full flex-row justify-between  items-center  border-b-[2px] border-solid last:border-none pt-4 pb-5 bg-white">
                     {(() => {
                       const Tag = isDone && isRegistered ? Link : "div";
                       return (
-                        <Tag
-                          href={
-                            isDone
-                              ? `/course/${id}/lesson/${lesson.id}/exam-details/${exam?.id}`
-                              : undefined
-                          }
-                          onClick={() => console.log("lesson", lesson)}
-                          className="inline-flex items-center gap-5 sm:gap-7"
+                        <div
+                          className="inline-flex items-center gap-5 sm:gap-7 w-full justify-between"
                         >
-                          <div className="inline-flex items-center gap-3 sm:gap-5 bg-white hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded">
+                          <div className="inline-flex items-center gap-3 sm:gap-5 bg-white  transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded">
                             <div
                               className="relative w-7 h-7 sm:w-8 sm:h-8 aspect-[1]"
                               aria-hidden="true"
@@ -809,13 +808,27 @@ export const ExerciseDropDown = ({
                               {exam.title || "أسئلة الاختبار"}
                             </span>
                           </div>
+                          <Link
+                            href={
+                              isDone
+                                ? `/course/${id}/lesson/${lesson.id}/exam-details/${exam?.id}`
+                                : undefined
+                            }
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-primary rounded-full hover:opacity-90 transition-opacity"
+                          >
+                            <FileIcon className="w-5 h-5 fill-white" />
+
+                            <span className="text-white font-medium text-sm md:text-base">
+                              بدء الاختبار
+                            </span>
+                          </Link>
 
                           {!isDone && (
                             <div className="relative w-7 h-7 sm:w-8 sm:h-8 aspect-[1]">
                               <LockIcon2 className="fill-secondary w-6 h-6" />
                             </div>
                           )}
-                        </Tag>
+                        </div>
                       );
                     })()}
                   </div>
@@ -873,8 +886,7 @@ export const ExerciseDropDown = ({
                                   className="inline-flex items-center gap-2 px-4 py-2 bg-primary rounded-full hover:opacity-90 transition-opacity"
                                 >
                                   <svg
-                                    className="w-4.5 h-4.5 text-white"
-                                    fill="currentColor"
+                                    className="w-5 h-5 fill-white"
                                     viewBox="0 0 20 20"
                                   >
                                     <path
