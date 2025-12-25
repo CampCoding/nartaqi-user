@@ -156,7 +156,7 @@ const CourseCard = ({
   return (
     <Fragment>
       <div
-        className={`${width} block rounded-[25px] sm:rounded-[30px] p-[2px] bg-gradient-to-b from-[#3B82F6] to-[#F97316] mx-auto`}
+        className={`${width} h-full block rounded-[25px] sm:rounded-[30px] p-[2px] bg-gradient-to-b from-[#3B82F6] to-[#F97316] mx-auto`}
       >
         <div className="bg-white pb-6 sm:pb-8 h-full rounded-[23px] sm:rounded-[28px] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.25)] flex flex-col justify-start items-start gap-2">
           {/* Cover */}
@@ -204,7 +204,7 @@ const CourseCard = ({
           {/* Title + Price */}
           <div className="self-stretch px-2 sm:px-3 flex flex-col justify-start items-start gap-1">
             <div className="self-stretch text-right text-text text-sm sm:text-base font-bold">
-              <div className="flex justify-between items-center gap-3">
+              <div className="flex justify-between items-center gap-3 min-h-[32px]">
                 <span className="line-clamp-1">{payload?.name}</span>
 
                 {!isFree && (
@@ -215,7 +215,7 @@ const CourseCard = ({
               </div>
             </div>
 
-            <div className="self-stretch text-right text-text-alt text-xs sm:text-sm font-normal leading-relaxed line-clamp-2">
+            <div className="self-stretch text-right text-text-alt text-xs sm:text-sm font-normal leading-relaxed line-clamp-2 h-[45px]">
               {payload?.description}
             </div>
           </div>
