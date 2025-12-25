@@ -33,10 +33,8 @@ export default function useHeaderCoursesItems(studentId) {
 
         const url = `${base}/user/categories/get_limit_CourseCategoryParts`;
 
-        const res = await axios.post(
+        const res = await axios.get(
           url,
-          { student_id: String(studentId ?? "") },
-          { signal: controller.signal }
         );
 
         const list =

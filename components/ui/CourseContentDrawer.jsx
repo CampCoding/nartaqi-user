@@ -27,7 +27,7 @@ import { InfoIcon } from "./../../public/svgs";
 import { Modal } from "antd";
 
 // ==================== ENCODING/DECODING HELPERS ====================
-const encodeId = (value) => {
+export const encodeId = (value) => {
   if (!value) return null;
   try {
     return encodeURIComponent(btoa(String(value)));
@@ -37,14 +37,14 @@ const encodeId = (value) => {
   }
 };
 
-const extractVimeoId = (url) => {
+export const extractVimeoId = (url) => {
   if (!url) return null;
   if (/^\d+$/.test(url)) return url;
   const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   return match ? match[1] : null;
 };
 
-const extractYoutubeId = (url) => {
+export  const extractYoutubeId = (url) => {
   if (!url) return null;
   if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
   const match = url.match(

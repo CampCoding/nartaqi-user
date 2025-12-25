@@ -1,4 +1,7 @@
+// Header.jsx (full file)
+
 "use client";
+
 import { usePathname } from "next/navigation";
 import { headerIcons } from "../../public/svgs";
 import SearchBanner from "./SearchBanner";
@@ -12,6 +15,8 @@ import { AnimatePresence } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { getUserCart } from "../utils/Store/Slices/cartSlice";
 import useHeaderCoursesItems from "./Hooks/useHeaderCategoryParts";
+import useHeaderFreeVideosItems from "./Hooks/useHeaderFreeVideosItems";
+
 export default function Header() {
   const [openSearch, setOpenSearch] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -19,32 +24,84 @@ export default function Header() {
   const dispatch = useDispatch();
 
   // Auth State
-  const { user  ,token} = useSelector((state) => state.auth);
+  const { user, token } = useSelector((state) => state.auth);
 
   // ✅ API items for "الدورات"
   const { items: apiCoursesItems, loading: coursesMenuLoading } =
     useHeaderCoursesItems(user?.id);
 
-    console.log("coursesMenuLoading", coursesMenuLoading)
-  
-  // ✅ build headerData exactly like old, but replace only courses.items
+  // ✅ API items for "الشروحات المجانية"
+  const { items: apiFreeItems, loading: freeMenuLoading } =
+    useHeaderFreeVideosItems();
+
+  // ✅ build headerData exactly like old, but replace only courses.items + free.items
   const finalHeaderData = useMemo(() => {
     return headerData.map((g) => {
-      if (g.key !== "courses") return g;
-  
-      // نفس الجروب القديم (title/className/key) لكن items من API
-      return {
-        ...g,
-        items: coursesMenuLoading
-          ? [{ id: "loading", title: "جاري التحميل...", count: null, link: "#" }]
-          : apiCoursesItems.length
-          ? apiCoursesItems
-          : [{ id: "empty", title: "لا توجد أقسام", count: 0, link: "/courses" }],
-      };
+      // 1) Replace courses items
+      if (g.key === "courses") {
+        return {
+          ...g,
+          items: coursesMenuLoading
+            ? [
+                {
+                  id: "loading-courses",
+                  title: "جاري التحميل...",
+                  count: null,
+                  link: "#",
+                },
+              ]
+            : apiCoursesItems.length
+            ? apiCoursesItems
+            : [
+                {
+                  id: "empty-courses",
+                  title: "لا توجد أقسام",
+                  count: 0,
+                  link: "/courses",
+                },
+              ],
+        };
+      }
+
+      // 2) Replace free items
+      if (g.key === "free") {
+        const moreItem = {
+          id: "more",
+          title: "عرض المزيد ....",
+          link: "/free-courses",
+        };
+
+        return {
+          ...g,
+          items: freeMenuLoading
+            ? [
+                {
+                  id: "loading-free",
+                  title: "جاري التحميل...",
+                  count: null,
+                  link: "#",
+                },
+              ]
+            : apiFreeItems.length
+            ? [...apiFreeItems, moreItem]
+            : [
+                {
+                  id: "empty-free",
+                  title: "لا توجد أقسام",
+                  count: 0,
+                  link: "/free-courses",
+                },
+                moreItem,
+              ],
+        };
+      }
+
+      return g;
     });
-  }, [apiCoursesItems, coursesMenuLoading]);
+  }, [apiCoursesItems, coursesMenuLoading, apiFreeItems, freeMenuLoading]);
+
   // Cart State
-  const { items, totalItems, isLoading } = useSelector((state) => state.cart);
+  const { totalItems, isLoading } = useSelector((state) => state.cart);
 
   // Fetch cart when user is logged in
   useEffect(() => {
@@ -123,9 +180,6 @@ export default function Header() {
             {token && (
               <Link href="/notifications" className="relative">
                 <headerIcons.Notification className="text-text stroke-primary" />
-                {/* <div className="absolute w-6 h-6 bg-red-700 text-white text-base font-bold flex items-center justify-center top-[-5px] right-[5px] translate-x-1/2 rounded-full">
-                  5
-                </div> */}
               </Link>
             )}
 
@@ -154,6 +208,7 @@ export default function Header() {
           )}
         </div>
 
+        {/* Mobile Actions */}
         <div className="flex lg:hidden items-center gap-x-2">
           <button onClick={() => setOpenSearch(true)}>
             <headerIcons.Search className="text-text stroke-primary !w-10 !h-10" />
@@ -167,9 +222,6 @@ export default function Header() {
           {token && (
             <Link href="/notifications" className="relative">
               <headerIcons.Notification className="text-text stroke-primary !w-10 !h-10" />
-              <div className="absolute w-4 h-4 bg-red-700 text-white text-xs font-bold flex items-center justify-center top-[-5px] right-[5px] translate-x-1/2 rounded-full">
-                5
-              </div>
             </Link>
           )}
 
@@ -313,7 +365,7 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
   );
 };
 
-// Mobile SubMenu Component (unchanged)
+// Mobile SubMenu Component
 const MobileSubMenu = ({ items, onClose }) => {
   const [expandedSubItem, setExpandedSubItem] = useState(null);
 
@@ -324,7 +376,7 @@ const MobileSubMenu = ({ items, onClose }) => {
 
         return (
           <div
-            key={item.key || index}
+            key={item.key || item.id || index}
             className="border-b border-gray-200 last:border-0"
           >
             {hasSubItems ? (
@@ -386,7 +438,7 @@ const MobileSubMenu = ({ items, onClose }) => {
   );
 };
 
-// Desktop DropDown Components (unchanged)
+// Desktop DropDown Components
 export const DropDownItems = ({ items }) => {
   if (!Array.isArray(items) || items.length === 0) return null;
 
@@ -470,7 +522,7 @@ export const DropDownItems = ({ items }) => {
             zIndex={1000}
           >
             <div onClick={() => setOpenSub(rowId)}>
-              {href ? (
+              {href && href !== "#" ? (
                 <Link href={href} target={target} className="block">
                   {rowContent}
                 </Link>
@@ -494,67 +546,23 @@ const SubMenu = ({ course, subItems }) => {
           title: s.title,
         }))
       : null;
+
   if (!links) return null;
 
   return (
     <div className="bg-white border rounded-2xl shadow-md p-4 min-w-[220px] h-[400px] overflow-y-auto">
       <ul className="flex flex-col gap-3">
-        {links.map((l, index) => {
-          const isLast = index === links.length - 1;
-          const isFirst = index === 0;
-          const href = l.link || l.href;
-
-          const rowContent = (
-            <div
-              className={` group flex cursor-pointer  w-[271px] justify-between px-0 py-4 flex-[0_0_auto] ${
-                isFirst ? "mt-[-1.00px]" : ""
-              } ${
-                !isLast
-                  ? "ml-[-1.00px] mr-[-1.00px] bg-white border-b-2 [border-bottom-style:solid] border-variable-collection-stroke"
-                  : "w-[269px] bg-white rounded-[0px_0px_30px_30px]"
-              } items-center relative cursor-pointer`}
-              role="menuitem"
-              aria-haspopup={"menu"}
-            >
-              <div
-                className={`  hover:text-primary ${
-                  isLast
-                    ? "flex h-6 items-center relative flex-1 grow"
-                    : "inline-flex h-6 items-center relative flex-[0_0_auto]"
-                }`}
-              >
-                {isLast ? (
-                  <p className="flex-1   group-hover:text-primary  font-cairo mt-[-12.00px] mb-[-12.00px] relative flex items-center justify-center font-medium text-text text-base leading-6 [direction:rtl]">
-                    {l.title}
-                  </p>
-                ) : (
-                  <h3 className="self-stretch  group-hover:text-primary font-cairo w-fit text-left whitespace-nowrap relative flex items-center justify-center font-medium text-text text-base leading-6 [direction:rtl]">
-                    {l.title}
-                  </h3>
-                )}
-              </div>
-
-              <div className="inline-flex gap-2 flex-[0_0_auto] items-center relative">
-                <span
-                  className="relative w-4 h-4  aspect-[1]"
-                  aria-hidden="true"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </span>
-              </div>
-            </div>
-          );
-
+        {links.map((l) => {
+          const href = l.href || "#";
           return (
-            <div key={l.key} className="hover:!text-primary">
-              {href ? (
-                <Link href={href} className="block ">
-                  {rowContent}
-                </Link>
-              ) : (
-                rowContent
-              )}
-            </div>
+            <li key={l.key}>
+              <Link
+                href={href}
+                className="block py-2 text-sm text-text hover:text-primary"
+              >
+                {l.title}
+              </Link>
+            </li>
           );
         })}
       </ul>

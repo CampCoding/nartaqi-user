@@ -4,35 +4,48 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 /**
- * useGetFreeVideos
- * Endpoint: /user/categories/getFreeVideos
+ * useGetFreeVideos (UPDATED)
+ * Endpoint: POST /user/categories/getFreeVideos
  *
- * Params:
- * - apiParams: string => e.g. "search=...&sort=...&category=..."
+ * Body:
+ *  - course_category_id: number|string (required)
  *
- * Returns same shape as your existing hooks:
+ * Optional:
+ *  - apiParams: string => "search=...&sort=..." (if your backend supports query string)
+ *
+ * Returns:
  * { data, loading, refetch, refetching, fetchNextPage, hasNextPage, isFetchingNextPage }
  */
-export const useGetFreeVideos = ({ apiParams = "" } = {}) => {
+export const useGetFreeVideos = ({
+  course_category_id,
+  apiParams = "",
+} = {}) => {
   const fetcher = async ({ pageParam = 1 }) => {
     const base = "https://camp-coding.site/nartaqi/public/api";
     const query = apiParams ? `&${apiParams}` : "";
     const url = `${base}/user/categories/getFreeVideos?page=${pageParam}${query}`;
 
-    // لو endpoint عندك POST بدل GET:
-    // return axios.post(url, {}, { headers: { Authorization: `Bearer ${token}` } });
+    // ✅ POST body as per new API
+    const body = {
+      course_category_id: course_category_id ? String(course_category_id) : "",
+    };
 
-    return axios.get(url);
+    return axios.post(url, body);
   };
 
   const query = useInfiniteQuery({
-    queryKey: ["free-videos", apiParams],
+    queryKey: ["free-videos", course_category_id, apiParams],
+    enabled: Boolean(course_category_id), // ✅ don't call without category
     queryFn: fetcher,
     initialPageParam: 1,
-    getNextPageParam: (lastPage) => {
+
+    // ✅ Updated pagination for new response shape:
+    // response: { statusCode, status, message: [ ...items ] }
+    // (No pagination info provided) -> we assume single page unless your API adds meta later.
+    getNextPageParam: (lastPage, allPages) => {
       const res = lastPage?.data;
 
-      // 1) لو API بيرجع current_page / last_page داخل message
+      // If later the API adds meta:
       const current =
         res?.message?.current_page ??
         res?.message?.meta?.current_page ??
@@ -47,14 +60,16 @@ export const useGetFreeVideos = ({ apiParams = "" } = {}) => {
         return current < last ? current + 1 : undefined;
       }
 
-      // 2) لو بيرجع next_page_url (Laravel style)
+      // If it adds next_page_url:
       const nextUrl =
-        res?.message?.next_page_url ??
-        res?.next_page_url ??
-        res?.links?.next;
+        res?.message?.next_page_url ?? res?.next_page_url ?? res?.links?.next;
 
-      return nextUrl ? (current ? current + 1 : undefined) : undefined;
+      if (nextUrl) return allPages.length + 1;
+
+      // ✅ Current API returns array only => no next page
+      return undefined;
     },
+
     staleTime: 30_000,
   });
 

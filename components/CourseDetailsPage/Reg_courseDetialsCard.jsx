@@ -252,8 +252,26 @@ const RegCourseDetailsCard = ({
               </div>
             </div>
           </div>
+          
         </div>
+        <Link
+          href={`/course-preview/${roundId}`}
+          className={[
+              "flex w-full justify-center items-center gap-3",
+              "px-5 sm:px-6 py-3 sm:py-3.5",
+              "rounded-[14px] sm:rounded-[16px] lg:rounded-[18px]",
+                "bg-primary hover:opacity-95",
+              "transition-opacity",
+              "hover:scale-105 !transition-all hover:shadow-2xl"
+            ].join(" ")}
+          >
+            <span className="font-bold text-white text-sm sm:text-[15px] text-center">
+               الشروحات المجانية 
+            </span>
+          </Link>
       </div>
+
+
 
       {/* Certificate CTA */}
       {round.have_certificate != 0 && (

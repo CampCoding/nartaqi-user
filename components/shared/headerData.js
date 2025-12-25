@@ -15,23 +15,7 @@ const headerData = [
     className: "text-text text-base leading-6 whitespace-nowrap",
     title: "الشروحات المجانية",
     items: [
-      {
-        id: 1,
-        title: "القدرات العامة",
-      },
-      {
-        id: 2,
-        title: "التحصيلي",
-      },
-      {
-        id: 3,
-        title: "قدرات الجامعيين",
-      },
-      {
-        id: 4,
-        title: "عرض المزيد ....",
-        link: "/free-courses",
-      },
+     
     ],
   },
   // {

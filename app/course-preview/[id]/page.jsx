@@ -4,17 +4,17 @@
 // ✅ Preview mode: non-registered users ONLY see/play freeVideos list
 // ✅ Registered users see/play all course videos (sorted with free first)
 
+// ✅ FIX: Your "loading is always false" was because you logged AFTER:
+//    if (loading) return <LoadingPage />
+//    so when loading === true, the component returns early and never logs.
+// ✅ Added an effect logger + moved render logger BEFORE the early return.
+
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import {
-  useRouter,
-  useSearchParams,
-  usePathname,
-  useParams,
-} from "next/navigation";
+import { useRouter, useSearchParams, usePathname, useParams } from "next/navigation";
 
 import CourseTitle from "../../../components/CourseDetailsPage/CourseTitle";
 import CourseDetailsContent from "../../../components/CourseDetailsPage/CourseDetailsContent";
@@ -122,12 +122,14 @@ const CoursePreviewPage = () => {
   const fetchCourseData = useCallback(async () => {
     if (!roundId) return;
 
+    // cancel previous request
     if (abortRef.current) abortRef.current.abort();
+
     const controller = new AbortController();
     abortRef.current = controller;
 
     try {
-      setLoading(true);
+      setLoading(true); // ✅ clear
       setError(null);
 
       const payloadBundle = {
@@ -155,14 +157,14 @@ const CoursePreviewPage = () => {
       const bundleData = bundleRes?.data?.message;
 
       // ✅ free videos is data.message (array)
-      const freeList = Array.isArray(freeRes?.data?.message)
-        ? freeRes.data.message
-        : [];
+      const freeList = Array.isArray(freeRes?.data?.message) ? freeRes.data.message : [];
 
       setCourseData(bundleData || null);
       setFreeVideos(freeList);
     } catch (err) {
+      // ignore abort/cancel
       if (err?.code === "ERR_CANCELED" || err?.name === "CanceledError") return;
+
       console.error("Error fetching course data:", err);
 
       if (!mountedRef.current) return;
@@ -185,6 +187,11 @@ const CoursePreviewPage = () => {
       if (abortRef.current) abortRef.current.abort();
     };
   }, [fetchCourseData]);
+
+  // ✅ FIX LOGGER: this will show true -> false transitions
+  useEffect(() => {
+    console.log("[CoursePreviewPage] loading changed:", loading);
+  }, [loading]);
 
   const isRegistered = useMemo(() => {
     return !!(courseData?.own || courseData?.is_registered);
@@ -295,6 +302,9 @@ const CoursePreviewPage = () => {
     if (targetVideo) handleVideoSelect(targetVideo);
   }, [playableVideos, handleVideoSelect]);
 
+  // ✅ IMPORTANT: log BEFORE early return
+  console.log("[CoursePreviewPage] render loading:", loading);
+
   if (loading) return <LoadingPage />;
 
   if (error || !courseData) {
@@ -304,6 +314,7 @@ const CoursePreviewPage = () => {
           <p className="text-red-600 text-lg font-bold">
             {error || "لم يتم العثور على الدورة"}
           </p>
+
           <button
             type="button"
             onClick={fetchCourseData}
@@ -322,10 +333,7 @@ const CoursePreviewPage = () => {
       {!isLgUp && (
         <div className="space-y-4">
           {!isWatching && (
-            <MobileCoursePreview
-              courseData={courseData}
-              onClick={handleStartWatching}
-            />
+            <MobileCoursePreview courseData={courseData} onClick={handleStartWatching} />
           )}
 
           {isWatching && (
@@ -357,8 +365,7 @@ const CoursePreviewPage = () => {
               { title: "الرئيسية", link: "/" },
               { title: "الدورات", link: "/courses" },
               {
-                title:
-                  courseData?.round?.course_categories?.name || "غير محدد",
+                title: courseData?.round?.course_categories?.name || "غير محدد",
                 link: `/courses/category/${courseData?.round?.course_category_id}`,
               },
               { title: courseData?.round?.name || "غير محدد", link: "#" },
@@ -375,16 +382,12 @@ const CoursePreviewPage = () => {
                   tabIndex={0}
                   aria-label="تشغيل أول فيديو"
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ")
-                      handleStartWatching();
+                    if (e.key === "Enter" || e.key === " ") handleStartWatching();
                   }}
                 >
                   <img
                     loading="lazy"
-                    src={
-                      courseData?.round?.image_url ||
-                      "/images/Frame 1000004932.png"
-                    }
+                    src={courseData?.round?.image_url || "/images/Frame 1000004932.png"}
                     className="w-full h-full object-cover object-top"
                     alt={courseData?.round?.name || "صورة الدورة"}
                   />
@@ -440,15 +443,7 @@ const CoursePreviewPage = () => {
 export default CoursePreviewPage;
 
 // ==================== VIDEO ITEM ====================
-const VideoItem = ({
-  idx,
-  title,
-  thumb,
-  duration,
-  isActive,
-  onClick,
-  canPlay,
-}) => {
+const VideoItem = ({ idx, title, thumb, duration, isActive, onClick, canPlay }) => {
   const formatDuration = (time) => {
     if (!time) return "غير محدد";
 
@@ -504,9 +499,7 @@ const VideoItem = ({
             isActive ? "ring-2 ring-secondary ring-offset-2" : ""
           }`}
           style={{
-            backgroundImage: thumb
-              ? `url('${thumb}')`
-              : "url('/images/Frame 1000004932.png')",
+            backgroundImage: thumb ? `url('${thumb}')` : "url('/images/Frame 1000004932.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -522,11 +515,7 @@ const VideoItem = ({
 
           {!canPlay && (
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
@@ -550,13 +539,7 @@ const VideoItem = ({
 };
 
 // ==================== VIDEOS LIST ====================
-const VideosList = ({
-  courseData,
-  videos,
-  currentVideo,
-  onVideoSelect,
-  isRegistered,
-}) => {
+const VideosList = ({ courseData, videos, currentVideo, onVideoSelect, isRegistered }) => {
   const list = Array.isArray(videos) ? videos : [];
 
   const teacherName =
@@ -597,6 +580,7 @@ const VideosList = ({
             // In preview mode list is free only => canPlay true
             // In registered mode list is all => canPlay true
             const canPlay = true;
+
             return (
               <VideoItem
                 key={video.id || i}

@@ -142,18 +142,16 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
         </div>
       )}
 
-      {/* الأزرار */}
-      {!isRegistered && (
         <div className="self-stretch w-full flex flex-col gap-5 mt-10 lg:flex-row lg:justify-end lg:!mt-14 lg:items-start lg:gap-12">
           {round.free === "1" && (
-            <div className="flex-1 cursor-pointer hover:shadow-2xl active:scale-95 transition-all select-none px-7 py-5 lg:px-12 lg:py-6 bg-primary rounded-[24px] flex justify-center items-center gap-3">
+            <a href={round.round_book_url} target="_blank" className="flex-1 cursor-pointer hover:shadow-2xl active:scale-95 transition-all select-none px-7 py-5 lg:px-12 lg:py-6 bg-primary rounded-[24px] flex justify-center items-center gap-3">
               <div className="w-7 h-7 relative overflow-hidden">
                 <FileIcon />
               </div>
               <div className="text-right justify-center text-white text-base md:text-lg font-medium">
                 المحتوي المجاني
               </div>
-            </div>
+            </a>
           )}
 
           <Link
@@ -168,7 +166,7 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
             </div>
           </Link>
         </div>
-      )}
+      
     </div>
   );
 };

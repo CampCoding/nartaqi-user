@@ -154,7 +154,7 @@ const Reg_courseDetails = ({ courseData }) => {
   return (
     <>
       {/* ✅ Mount modal here (ممكن كمان تحطه مرة واحدة في layout) */}
-      <VideoPlayerModal onClose={handleCloseVideoModal} />
+      {/* <VideoPlayerModal onClose={handleCloseVideoModal} /> */}
 
       {/* ===================== MOBILE ===================== */}
       {!isLgUp && (

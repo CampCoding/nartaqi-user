@@ -435,6 +435,15 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
             {isEnrollLoading ? "جاري الاشتراك..." : "اشترك الأن"}
           </span>
         </button>
+        <Link
+          href={`/course-preview/${roundId}`}
+          className={`w-full px-3.5 mt-3 bg-primary py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group
+           `}
+          >
+          <span className="text-center justify-center text-slate-200 text-xs sm:text-[13px] font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
+           الشروحات المجانية 
+            </span>
+          </Link>
       </div>
 
       <style jsx>{`
