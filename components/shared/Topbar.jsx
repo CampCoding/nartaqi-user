@@ -83,7 +83,7 @@ export default function Header() {
                 },
               ]
             : apiFreeItems.length
-            ? [...apiFreeItems, moreItem]
+            ? [...apiFreeItems]
             : [
                 {
                   id: "empty-free",
