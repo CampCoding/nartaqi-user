@@ -290,9 +290,9 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
 
       {/* Price + Actions */}
       <div className="pt-3 sm:pt-4 pb-8 sm:pb-10">
-        <div className="justify-center text-text-alt line-through decoration-red-600 text-sm sm:text-base font-bold">
+        {/* <div className="justify-center text-text-alt line-through decoration-red-600 text-sm sm:text-base font-bold">
           120 ر.س
-        </div>
+        </div> */}
 
         <div className="self-stretch inline-flex justify-end items-end gap-3 sm:gap-4 mt-1">
           <div className="justify-center text-primary text-xl sm:text-2xl font-bold">
