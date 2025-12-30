@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   selectExamScore,
   selectExamPercentage,
+  closeExam,
 } from "../../components/utils/Store/Slices/examSlice";
 
 export const FixedResultHero = ({ open, setOpen, id , lessonId  , courseId }) => {
   // Get score from Redux
   const score = useSelector(selectExamScore);
   const percentage = useSelector(selectExamPercentage);
+  const dispatch  = useDispatch()
 
   useEffect(() => {
     if (open) {
@@ -102,23 +104,20 @@ export const FixedResultHero = ({ open, setOpen, id , lessonId  , courseId }) =>
             </p>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <div className=" w-full">
               <Link
                 href={`/course/${courseId}/lesson/${lessonId}/exam-details/${id}`}
-                onClick={() => setOpen(false)}
-                className="w-full sm:w-auto px-8 sm:px-10 lg:px-12 py-3 sm:py-4 bg-gradient-to-r from-primary to-secondary hover:scale-105 active:scale-95 transition-transform rounded-[15px] sm:rounded-[20px] flex justify-center items-center shadow-lg"
+                onClick={() => {
+                  setOpen(false)
+                  dispatch(closeExam())
+                }}
+                className="!w-full px-8 sm:px-10 lg:px-12 py-3 sm:py-4 bg-gradient-to-r from-primary to-secondary hover:scale-105 active:scale-95 transition-transform rounded-[15px] sm:rounded-[20px] flex justify-center items-center shadow-lg"
               >
                 <span className="text-white text-sm sm:text-base font-bold">
                   عرض التفاصيل
                 </span>
               </Link>
 
-              <button
-                onClick={() => setOpen(false)}
-                className="w-full sm:w-auto px-8 sm:px-10 lg:px-12 py-3 sm:py-4 bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-700 hover:border-primary hover:text-primary transition-all rounded-[15px] sm:rounded-[20px] flex justify-center items-center"
-              >
-                <span className="text-sm sm:text-base font-bold">إغلاق</span>
-              </button>
             </div>
           </section>
 
@@ -132,27 +131,7 @@ export const FixedResultHero = ({ open, setOpen, id , lessonId  , courseId }) =>
             />
           </div>
         </div>
-
-        {/* Close Button - Desktop Only */}
-        <button
-          onClick={() => setOpen(false)}
-          className="hidden sm:flex absolute top-4 right-4 lg:top-6 lg:right-6 w-10 h-10 items-center justify-center bg-white hover:bg-gray-100 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95"
-          aria-label="Close modal"
-        >
-          <svg
-            className="w-6 h-6 text-gray-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+        
       </div>
     </div>
   );

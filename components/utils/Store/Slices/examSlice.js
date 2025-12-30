@@ -215,6 +215,9 @@ const examSlice = createSlice({
       state.isSubmitted = true;
       state.endTime = new Date().toISOString();
     },
+    closeExam: (state) => {
+      state.isSubmitted = false;
+    },
 
     setExamResults: (state, action) => {
       const { score, percentage, resultData } = action.payload;
@@ -240,6 +243,7 @@ export const {
   submitExam,
   setExamResults,
   resetExam,
+  closeExam
 } = examSlice.actions;
 
 export default examSlice.reducer;

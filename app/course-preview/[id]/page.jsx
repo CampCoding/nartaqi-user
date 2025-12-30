@@ -388,7 +388,7 @@ const CoursePreviewPage = () => {
                   <img
                     loading="lazy"
                     src={courseData?.round?.image_url || "/images/Frame 1000004932.png"}
-                    className="w-full h-full object-cover object-top"
+                    className="w-full h-full object-cover object-center"
                     alt={courseData?.round?.name || "صورة الدورة"}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/30 to-transparent pointer-events-none z-10" />

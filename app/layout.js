@@ -48,9 +48,10 @@ export default function RootLayout({ children }) {
                 className: "toast-card",
                 style: {
                   pointerEvents: "auto",
-                  width: "min(640px, 100%)",
-                  padding: 0, // we handle padding in CSS
+                  width: "min(420px, 100%)",
+                  padding: 0,
                 },
+                
                 success: { className: "toast-card toast-success" },
                 error: { className: "toast-card toast-error" },
                 loading: { className: "toast-card toast-loading" },

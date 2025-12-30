@@ -108,7 +108,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
               <TestRow
                 key={examData.exam.id}
                 examData={examData}
-                isRegistered={own}
+                isRegistered={own || isFree}
               />
             ))
           ) : (

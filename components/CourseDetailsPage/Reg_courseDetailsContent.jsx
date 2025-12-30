@@ -83,7 +83,7 @@ function setNormalizedScrollLeft(el, dir, rtlType, value) {
 }
 /** ----------------------------------------------- */
 
-const RegCourseDetailsContent = ({ courseData, onTabsChange = () => {} }) => {
+const RegCourseDetailsContent = ({ courseData, onTabsChange = () => {} , open = false }) => {
   const [activeTab, setActiveTab] = useState("content");
 
   const tabs = useMemo(
@@ -302,11 +302,11 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => {} }) => {
       {/* Content */}
       <div className="mb-12 md:mb-16">
         {activeTab === "overview" && (
-          <CourseBriefOverview courseData={courseData} isRegistered />
+          <CourseBriefOverview courseData={courseData} isRegistered={open} />
         )}
 
         {activeTab === "content" && (
-          <CourseContent courseData={courseData} isRegistered />
+          <CourseContent courseData={courseData} isRegistered={open} />
         )}
 
         {activeTab === "features" && <CourseAdvantages courseData={courseData} />}

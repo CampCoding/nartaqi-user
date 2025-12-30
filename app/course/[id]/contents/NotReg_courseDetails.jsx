@@ -41,11 +41,11 @@ const NotReg_courseDetails = ({ courseData, onSubscribe }) => {
       {/* ===================== DESKTOP ===================== */}
       <div className="hidden lg:block">
         <div className="w-full h-[560px] xl:h-[611px] relative">
-        <div className="absolute inset-0 z-30  bg-gradient-to-b   from-transparent to-black/90" />{" "}
+        <div className="absolute inset-0 z-30  bg-gradient-to-b   from-transparent to-black/90"/>{" "}
         <img
             loading="lazy"
             src={courseData.round.image_url}
-            className="w-full h-full object-cover object-top"
+            className="w-full h-full object-cover object-center"
             alt={courseData.round.name}
           />
         </div>

@@ -22,7 +22,7 @@ import {
   closeVideoModal,
 } from "../../../../components/utils/Store/Slices/videoModalSlice";
 
-const Reg_courseDetails = ({ courseData }) => {
+const Reg_courseDetails = ({ courseData , open }) => {
   const [selectedTab, setSelectedTab] = React.useState("sourses");
   const [openShareDrawer, setOpenShareDrawer] = React.useState(false);
   const [isFavorited, setIsFavorited] = React.useState(courseData.fav);
@@ -193,7 +193,7 @@ const Reg_courseDetails = ({ courseData }) => {
               <img
                 loading="lazy"
                 src={courseData.round.image_url}
-                className="w-full h-full object-cover object-top"
+                className="w-full h-full object-cover object-center"
                 alt={courseData.round.name}
               />
           </div>
@@ -203,6 +203,7 @@ const Reg_courseDetails = ({ courseData }) => {
               {/* Left content */}
               <div className="max-w-[762px] w-full">
                 <RegCourseDetailsContent
+                  open={open}
                   courseData={courseData}
                   onTabsChange={(e) => setSelectedTab(e)}
                 />

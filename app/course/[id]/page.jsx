@@ -12,7 +12,6 @@ import LoadingPage from "@/components/shared/Loading";
 
 const CourseDetailsPage = () => {
   const params = useParams();
-
   // ✅ handle string | string[]
   const roundId = useMemo(() => {
     const id = params?.id;
@@ -136,9 +135,9 @@ const CourseDetailsPage = () => {
       />
 
       {isRegistered || isFree ? (
-        <Reg_courseDetails courseData={courseData} />
+        <Reg_courseDetails open={isRegistered || isFree} courseData={courseData} />
       ) : (
-        <NotReg_courseDetails courseData={courseData} onSubscribe={fetchCourseData} />
+        <NotReg_courseDetails courseData={courseData} onSubscribe={fetchCourseData} /> 
       )}
     </div>
   );

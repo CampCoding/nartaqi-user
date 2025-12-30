@@ -271,12 +271,11 @@ const MockTest = () => {
   }, [isStarted, isInReview, isSubmitted, dispatch]);
 
   // Auto submit when time runs out
-  useEffect(() => {
-    if (timeRemaining <= 0 && isStarted && !isSubmitted) {
-      handleSubmitExam();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeRemaining, isStarted, isSubmitted]);
+  // useEffect(() => {
+  //   if (timeRemaining <= 0 && isStarted && !isSubmitted) {
+  //     handleSubmitExam();
+  //   }
+  // }, [timeRemaining, isStarted, isSubmitted]);
 
   // Save state to localStorage
   useEffect(() => {
@@ -519,7 +518,7 @@ const MockTest = () => {
         setIsStart={handleStartExam}
         onPrevious={handlePreviousBlock}
         onNext={handleNextBlock}
-        onSubmit={handleSubmitExam}
+        // onSubmit={handleSubmitExam}
         canGoPrevious={currentBlockIndex > 0}
         canGoNext={true}
         isLastQuestion={isLastBlockInSection}
@@ -545,7 +544,7 @@ const MockTest = () => {
         cancelText="إلغاء"
       />
 
-      <SuccessPopup
+      {/* <SuccessPopup
         isOpen={isSuccessOpen}
         onClose={() => {
           setIsSuccessOpen(false);
@@ -554,7 +553,7 @@ const MockTest = () => {
         title="تم إرسال الاختبار بنجاح!"
         message={`نتيجتك: ${examScore} (${examPercentage}%)`}
         buttonText="العودة للصفحة الرئيسية"
-      />
+      /> */}
     </div>
   );
 };

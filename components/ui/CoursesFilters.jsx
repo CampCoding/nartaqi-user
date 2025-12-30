@@ -159,7 +159,7 @@ const CoursesFilters = ({ onFiltersChange, filters, isFree = false }) => {
     <>
       {/* DESKTOP */}
       <div className="hidden md:flex gap-4">
-        <div className="flex flex-wrap flex-1 gap-4">
+        <div className=" grid grid-cols-4 gap-4 lg:flex lg:flex-wrap lg:flex-1 lg:gap-4">
           {/* SEARCH */}
           <div className="flex-1 p-6 bg-zinc-800 rounded-[20px] flex items-center">
             <input

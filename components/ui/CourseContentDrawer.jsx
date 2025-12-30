@@ -509,7 +509,7 @@ export const RegLectureDrawer = ({
           className="flex flex-col items-start self-stretch w-full gap-4 sm:gap-6 p-5 sm:p-6 md:p-7 !pt-0"
         >
           {/* Videos and Live Sessions */}
-          {allContent.map((item) => {
+          { !allContent || allContent.length == 0 ? <span className="text-gray-500 text-xl"> لا يوجد بيانات </span> : allContent.map((item) => {
             const key = `video-${item.id}`;
             const isSaving = !!savingMap[key];
 
@@ -780,7 +780,9 @@ export const ExerciseDropDown = ({
 
       {isExpanded && (
         <div id={sectionId} className="w-full">
-          {examAllData.map((examData) => {
+          { 
+          !examAllData || examAllData.length == 0 ? <span className="text-gray-500 text-xl"> لا يوجد بيانات </span> :
+          examAllData.map((examData) => {
             const exam = examData?.exam;
             const examVideos = examData.videos || [];
             const examPdfs = examData.exam_pdfs || [];
