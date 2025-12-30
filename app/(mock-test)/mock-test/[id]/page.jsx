@@ -544,7 +544,7 @@ const MockTest = () => {
         cancelText="إلغاء"
       />
 
-      {/* <SuccessPopup
+      <SuccessPopup
         isOpen={isSuccessOpen}
         onClose={() => {
           setIsSuccessOpen(false);
@@ -553,7 +553,7 @@ const MockTest = () => {
         title="تم إرسال الاختبار بنجاح!"
         message={`نتيجتك: ${examScore} (${examPercentage}%)`}
         buttonText="العودة للصفحة الرئيسية"
-      /> */}
+      />
     </div>
   );
 };
