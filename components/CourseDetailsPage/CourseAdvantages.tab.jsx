@@ -8,9 +8,10 @@ import {
   CourseFeaturesCertificateIcon,
 } from "../../public/svgs";
 
+const FALLBACK_IMG = "/images/logo.svg"; // ضع الصورة هنا داخل public
+
 const CourseFeatures = ({ courseData }) => {
-  const { features } = courseData;
-  console.log(courseData);
+  const { features } = courseData || {};
 
   const defaultIcons = [
     <CourseFeatureSkills />,
@@ -28,7 +29,7 @@ const CourseFeatures = ({ courseData }) => {
       {features && features.length > 0 ? (
         features.map((feature, index) => (
           <div
-            key={feature.id}
+            key={feature?.id ?? index}
             className="self-stretch flex flex-col justify-start items-start gap-2 md:gap-2.5"
           >
             <div className="inline-flex justify-start items-center gap-4 lg:gap-5">
@@ -37,18 +38,23 @@ const CourseFeatures = ({ courseData }) => {
 
               <img
                 loading="lazy"
-                src={feature.image_url}
-                alt={feature.title}
+                src={feature?.image_url || FALLBACK_IMG}
+                alt={feature?.title || "ميزة"}
                 className="w-14 h-14 md:w-16 md:h-16 rounded-full object-contain"
+                onError={(e) => {
+                  // امنع loop لو الـfallback نفسه فشل
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = FALLBACK_IMG;
+                }}
               />
 
               <div className="text-right justify-center text-text text-xl md:text-2xl font-bold leading-snug">
-                {feature.title || "غير محدد"}
+                {feature?.title || "غير محدد"}
               </div>
             </div>
 
             <div className="text-right justify-center text-stone-600 text-base md:text-lg font-medium leading-relaxed md:leading-loose">
-              {feature.description || "لا يوجد وصف"}
+              {feature?.description || "لا يوجد وصف"}
             </div>
           </div>
         ))

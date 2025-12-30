@@ -184,6 +184,10 @@ const MockTest = () => {
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+
+
+  
+
   // Fetch exam data
   const fetchMockTestData = useCallback(async () => {
     setIsLoading(true);

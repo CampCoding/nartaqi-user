@@ -9,11 +9,13 @@ import {
   closeExam,
 } from "../../components/utils/Store/Slices/examSlice";
 
-export const FixedResultHero = ({ open, setOpen, id , lessonId  , courseId }) => {
+export const FixedResultHero = ({ open, setOpen, id, lessonId, courseId }) => {
   // Get score from Redux
   const score = useSelector(selectExamScore);
   const percentage = useSelector(selectExamPercentage);
-  const dispatch  = useDispatch()
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+  console.log("user", user);
 
   useEffect(() => {
     if (open) {
@@ -31,12 +33,22 @@ export const FixedResultHero = ({ open, setOpen, id , lessonId  , courseId }) =>
 
   // Determine if passed (you can adjust this threshold)
   const passed = percentage >= 50;
+
   const resultImage = passed
-    ? "/images/good-exam-result.png"
-    : "/images/bad-exam-result.png";
+    ? user.gender == "male"
+      ? "/images/good-exam-result.png"
+      : "/images/good-exam-result-girl.png"
+    : user.gender == "male"
+    ? "/images/bad-exam-result.png"
+    : "/images/bad-exam-result-girl.png";
+
   const resultMessage = passed
-    ? "تهانينا لقد نجحت في الاختبار"
-    : "للأسف لم تنجح في الاختبار";
+    ? user.gender == "male"
+      ? "تهانينا لقد نجحت في الاختبار"
+      : "تهانينا لقد نجحت في الاختبار"
+    : user.gender == "male"
+    ? "للأسف لم تحقق درجة النجاح المطلوبة في هذا الاختبار"
+    : "للأسف لم تحقق درجة النجاح المطلوبة في هذا الاختبار";
 
   return (
     <div
@@ -98,7 +110,7 @@ export const FixedResultHero = ({ open, setOpen, id , lessonId  , courseId }) =>
                 </div>
               )}
             </header>
-              
+
             <p className="font-medium text-variable-collection-text text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-center px-2 leading-relaxed">
               {resultMessage}
             </p>
@@ -108,8 +120,8 @@ export const FixedResultHero = ({ open, setOpen, id , lessonId  , courseId }) =>
               <Link
                 href={`/course/${courseId}/lesson/${lessonId}/exam-details/${id}`}
                 onClick={() => {
-                  setOpen(false)
-                  dispatch(closeExam())
+                  setOpen(false);
+                  dispatch(closeExam());
                 }}
                 className="!w-full px-8 sm:px-10 lg:px-12 py-3 sm:py-4 bg-gradient-to-r from-primary to-secondary hover:scale-105 active:scale-95 transition-transform rounded-[15px] sm:rounded-[20px] flex justify-center items-center shadow-lg"
               >
@@ -117,7 +129,6 @@ export const FixedResultHero = ({ open, setOpen, id , lessonId  , courseId }) =>
                   عرض التفاصيل
                 </span>
               </Link>
-
             </div>
           </section>
 
@@ -131,7 +142,6 @@ export const FixedResultHero = ({ open, setOpen, id , lessonId  , courseId }) =>
             />
           </div>
         </div>
-        
       </div>
     </div>
   );
