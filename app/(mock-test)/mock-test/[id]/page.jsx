@@ -352,18 +352,11 @@ const MockTest = () => {
   };
 
   const handlePreviousBlock = () => {
-    // If at first block of current section, go to previous section's last block
+    // Only allow navigation within current section - do not go to previous sections
     if (currentBlockIndex > 0) {
       dispatch(setCurrentBlockIndex(currentBlockIndex - 1));
-    } else if (currentSectionIndex > 0) {
-      // Go to previous section
-      const previousSection = sections[currentSectionIndex - 1];
-      if (previousSection && previousSection.blocks.length > 0) {
-        const lastBlockIndex = previousSection.blocks.length - 1;
-        dispatch(setCurrentSectionIndex(currentSectionIndex - 1));
-        dispatch(setCurrentBlockIndex(lastBlockIndex));
-      }
     }
+    // Removed logic to go to previous section - users cannot navigate back to previous sections
   };
 
   const handleConfirmSectionEnd = () => {
@@ -462,6 +455,7 @@ const MockTest = () => {
       {isInReview ? (
         <MockTestReview
           sections={sections}
+          currentSectionIndex={currentSectionIndex}
           answers={answeredMap}
           setIsInReview={setIsInReview}
           markedForReview={
@@ -472,9 +466,25 @@ const MockTest = () => {
             )
           }
           onNavigateToQuestion={(sectionIdx, blockIdx) => {
-            dispatch(setCurrentSectionIndex(sectionIdx));
-            dispatch(setCurrentBlockIndex(blockIdx));
-            setIsInReview(false);
+            // Allow navigation to current section or previous sections only (not next sections)
+            if (sectionIdx <= currentSectionIndex && sections && sectionIdx >= 0 && sectionIdx < sections.length) {
+              const targetSection = sections[sectionIdx];
+              if (targetSection && targetSection.blocks && targetSection.blocks.length > 0) {
+                // Validate block index
+                const validBlockIdx = Math.max(0, Math.min(blockIdx, targetSection.blocks.length - 1));
+                // If navigating to a different section, set both section and block
+                if (sectionIdx !== currentSectionIndex) {
+                  dispatch(setCurrentSectionIndex(sectionIdx));
+                  dispatch(setCurrentBlockIndex(validBlockIdx));
+                } else {
+                  // Same section, just update block index
+                  dispatch(setCurrentBlockIndex(validBlockIdx));
+                }
+                // Exit review mode after navigation
+                setIsInReview(false);
+              }
+            }
+            // Do not navigate if trying to go to a next section
           }}
           onBackToTest={() => setIsInReview(false)}
           activeFilter={activeFilter}
@@ -543,7 +553,7 @@ const MockTest = () => {
         onPrevious={handlePreviousBlock}
         onNext={handleNextBlock}
         // onSubmit={handleSubmitExam}
-        canGoPrevious={currentBlockIndex > 0 || canGoToPreviousSection}
+        canGoPrevious={currentBlockIndex > 0}
         canGoNext={true}
         isLastQuestion={isLastBlockInSection}
         isLastSection={isLastSection}

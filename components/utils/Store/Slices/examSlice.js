@@ -5,19 +5,30 @@ const initialState = {
   examId: null,
   studentId: null,
   examData: null,
+  examInfo: null, // Store exam_info from API
 
-  // Questions (transformed)
+  // Sections and Blocks structure
+  sections: [],
+
+  // Questions (transformed) - kept for backward compatibility
   questions: [],
 
-  // User progress
+  // User progress - section-based
+  currentSectionIndex: 0,
+  currentBlockIndex: 0,
+  // Legacy: currentIndex for backward compatibility
   currentIndex: 0,
+
+  // Time
+  totalTimeInSeconds: 0,
+  timeRemaining: 0,
 
   // Answers in API format
   answers: [], // Array of { question_id, type, student_answer, correct_answer, is_correct }
 
   // Helper maps for UI
   answeredMap: {}, // { [questionId]: optionId } - for UI only (keeps ID for selection state)
-  flaggedMap: {}, // { [index]: true/false }
+  flaggedMap: {}, // { [questionId]: true/false }
 
   // State
   isStarted: false,
@@ -37,6 +48,21 @@ const stripHtml = (html) => {
   return html.replace(/<[^>]*>/g, "").trim();
 };
 
+// Helper to parse time string "HH:MM:SS" to seconds
+const parseTimeToSeconds = (timeStr) => {
+  if (!timeStr) return 0;
+  const parts = timeStr.split(":");
+  if (parts.length === 3) {
+    const [hours, minutes, seconds] = parts.map(Number);
+    return hours * 3600 + minutes * 60 + (seconds || 0);
+  }
+  if (parts.length === 2) {
+    const [minutes, seconds] = parts.map(Number);
+    return minutes * 60 + (seconds || 0);
+  }
+  return 0;
+};
+
 const examSlice = createSlice({
   name: "exam",
   initialState,
@@ -49,6 +75,151 @@ const examSlice = createSlice({
       state.examId = action.payload;
     },
 
+    initializeExam: (state, action) => {
+      const { sections: apiSections, examInfo } = action.payload;
+      
+      state.examInfo = examInfo || null;
+      
+      // Initialize timer from exam_info.time
+      if (examInfo?.time) {
+        state.totalTimeInSeconds = parseTimeToSeconds(examInfo.time);
+        state.timeRemaining = state.totalTimeInSeconds;
+      }
+
+      const transformedSections = [];
+      const allQuestions = [];
+      let questionCounter = 0;
+
+      apiSections.forEach((section) => {
+        const sectionTitle = stripHtml(section.title) || "||";
+        const sectionDescription = stripHtml(section.description) || "||";
+        const blocks = [];
+
+        // Process paragraphs
+        section.paragraphs?.forEach((paraObj) => {
+          const passage = stripHtml(paraObj.paragraph.paragraph_content);
+          const paragraphQuestions = [];
+
+          paraObj.questions?.forEach((q) => {
+            if (!q.options || q.options.length === 0) return;
+
+            const correctOption = q.options.find((o) => o.is_correct === 1);
+            const formattedOptions = q.options.map((opt) => ({
+              id: opt.id,
+              text: stripHtml(opt.option_text),
+              textHtml: opt.option_text,
+              isCorrect: opt.is_correct === 1,
+            }));
+
+            const questionData = {
+              id: q.id,
+              text: stripHtml(q.question_text),
+              textHtml: q.question_text,
+              options: formattedOptions,
+              correctAnswer: correctOption?.id || null,
+              correctAnswerText: stripHtml(correctOption?.option_text) || null,
+              explanation: stripHtml(correctOption?.question_explanation) || "لا يوجد تفسير متاح.",
+              instructions: q.instructions || "",
+              type: "paragraph",
+              sectionId: section.id,
+              sectionTitle: sectionTitle,
+              globalIndex: questionCounter++,
+            };
+
+            paragraphQuestions.push(questionData);
+            allQuestions.push(questionData);
+          });
+
+          if (paragraphQuestions.length > 0) {
+            blocks.push({
+              type: "paragraph",
+              passage: passage,
+              questions: paragraphQuestions,
+            });
+          }
+        });
+
+        // Process MCQ questions
+        section.mcq?.forEach((q) => {
+          if (!q.options || q.options.length === 0) return;
+
+          const correctOption = q.options.find((o) => o.is_correct === 1);
+          const formattedOptions = q.options.map((opt) => ({
+            id: opt.id,
+            text: stripHtml(opt.option_text),
+            textHtml: opt.option_text,
+            isCorrect: opt.is_correct === 1,
+          }));
+
+          const questionData = {
+            id: q.id,
+            text: stripHtml(q.question_text),
+            textHtml: q.question_text,
+            options: formattedOptions,
+            correctAnswer: correctOption?.id || null,
+            correctAnswerText: stripHtml(correctOption?.option_text) || null,
+            explanation: stripHtml(correctOption?.question_explanation) || "لا يوجد تفسير متاح.",
+            instructions: q.instructions || "",
+            type: "mcq",
+            sectionId: section.id,
+            sectionTitle: sectionTitle,
+            globalIndex: questionCounter++,
+          };
+
+          blocks.push({
+            type: "mcq",
+            passage: null,
+            questions: [questionData],
+          });
+
+          allQuestions.push(questionData);
+        });
+
+        // Process Boolean questions
+        section.boolean?.forEach((q) => {
+          const questionData = {
+            id: q.id,
+            text: stripHtml(q.question_text),
+            textHtml: q.question_text,
+            options: [
+              { id: "true", text: "صح", isCorrect: q.correct_answer === "true" },
+              { id: "false", text: "خطأ", isCorrect: q.correct_answer === "false" },
+            ],
+            correctAnswer: q.correct_answer,
+            correctAnswerText: q.correct_answer === "true" ? "صح" : "خطأ",
+            explanation: "لا يوجد تفسير متاح.",
+            instructions: q.instructions || "",
+            type: "boolean",
+            sectionId: section.id,
+            sectionTitle: sectionTitle,
+            globalIndex: questionCounter++,
+          };
+
+          blocks.push({
+            type: "boolean",
+            passage: null,
+            questions: [questionData],
+          });
+
+          allQuestions.push(questionData);
+        });
+
+        if (blocks.length > 0) {
+          transformedSections.push({
+            id: section.id,
+            title: sectionTitle,
+            description: sectionDescription,
+            blocks: blocks,
+          });
+        }
+      });
+
+      state.sections = transformedSections;
+      state.questions = allQuestions; // Keep for backward compatibility
+      state.examData = apiSections; // Keep for backward compatibility
+    },
+
+    // Legacy setExamData - redirects to initializeExam
     setExamData: (state, action) => {
       const data = action.payload;
       state.examData = data;
@@ -59,7 +230,6 @@ const examSlice = createSlice({
         data.forEach((section) => {
           // MCQ questions
           section.mcq?.forEach((question) => {
-            // ✅ Find correct option
             const correctOption = question.options?.find(
               (opt) => opt.is_correct === 1
             );
@@ -82,9 +252,7 @@ const examSlice = createSlice({
                   explanation: stripHtml(opt.question_explanation),
                   explanationHtml: opt.question_explanation,
                 })) || [],
-              // ✅ Store correct answer ID for UI comparison
               correctAnswerId: correctOption?.id || null,
-              // ✅ Store correct answer TEXT for API submission
               correctAnswerText: stripHtml(correctOption?.option_text) || null,
             });
           });
@@ -124,10 +292,66 @@ const examSlice = createSlice({
       state.questions = allQuestions;
     },
 
+    // Section navigation
+    setCurrentSectionIndex: (state, action) => {
+      state.currentSectionIndex = action.payload;
+      state.currentBlockIndex = 0;
+      // Update currentIndex for backward compatibility
+      const currentBlock = state.sections[action.payload]?.blocks[0];
+      if (currentBlock) {
+        const firstQuestion = currentBlock.questions[0];
+        const questionIndex = state.questions.findIndex(q => q.id === firstQuestion?.id);
+        if (questionIndex >= 0) state.currentIndex = questionIndex;
+      }
+    },
+
+    setCurrentBlockIndex: (state, action) => {
+      state.currentBlockIndex = action.payload;
+      // Update currentIndex for backward compatibility
+      const currentSection = state.sections[state.currentSectionIndex];
+      const currentBlock = currentSection?.blocks[action.payload];
+      if (currentBlock) {
+        const firstQuestion = currentBlock.questions[0];
+        const questionIndex = state.questions.findIndex(q => q.id === firstQuestion?.id);
+        if (questionIndex >= 0) state.currentIndex = questionIndex;
+      }
+    },
+
+    // Timer
+    decrementTime: (state) => {
+      if (state.timeRemaining > 0) {
+        state.timeRemaining -= 1;
+      }
+    },
+
+    setTimeRemaining: (state, action) => {
+      state.timeRemaining = action.payload;
+    },
+
+    // Legacy navigation methods
     setCurrentIndex: (state, action) => {
       const index = action.payload;
       if (index >= 0 && index < state.questions.length) {
         state.currentIndex = index;
+        // Update section/block indices
+        const question = state.questions[index];
+        if (question) {
+          let questionCounter = 0;
+          for (let sIdx = 0; sIdx < state.sections.length; sIdx++) {
+            const section = state.sections[sIdx];
+            for (let bIdx = 0; bIdx < section.blocks.length; bIdx++) {
+              const block = section.blocks[bIdx];
+              for (let qIdx = 0; qIdx < block.questions.length; qIdx++) {
+                if (questionCounter === index) {
+                  state.currentSectionIndex = sIdx;
+                  state.currentBlockIndex = bIdx;
+                  return;
+                }
+                questionCounter++;
+              }
+            }
+          }
+        }
       }
     },
 
@@ -161,36 +385,33 @@ const examSlice = createSlice({
       let correctAnswerText = null;
       let isCorrect = false;
 
-      if (question.type === "mcq") {
-        // ✅ Find selected option and get its TEXT
-        const selectedOption = question.options.find(
+      if (question.type === "mcq" || question.type === "paragraph") {
+        // Find selected option - support both old (options with label) and new (options with text) format
+        const selectedOption = question.options?.find(
           (opt) => opt.id === answer
         );
-        studentAnswerText = selectedOption ? selectedOption.label : null;
+        studentAnswerText = selectedOption ? (selectedOption.text || selectedOption.label) : null;
 
-        // ✅ Get correct answer TEXT
+        // Get correct answer TEXT
         correctAnswerText = question.correctAnswerText;
 
-        // ✅ Check if correct by comparing IDs
-        isCorrect = answer === question.correctAnswerId;
+        // Check if correct by comparing IDs
+        isCorrect = answer === question.correctAnswer;
       } else if (question.type === "boolean") {
-        // ✅ Convert boolean to string "true" or "false"
         studentAnswerText = String(answer);
         correctAnswerText = String(question.correctAnswer);
         isCorrect = answer === question.correctAnswer;
-      } else if (question.type === "paragraph" || question.type === "text") {
-        // ✅ Already a string
+      } else if (question.type === "text") {
         studentAnswerText = answer;
         correctAnswerText = question.correctAnswer || "";
-        // For paragraph, server will validate
         isCorrect = false;
       }
 
       const answerObject = {
         question_id: questionId,
         type: question.type,
-        student_answer: studentAnswerText, // ✅ Now sending TEXT
-        correct_answer: correctAnswerText, // ✅ Now sending TEXT
+        student_answer: studentAnswerText,
+        correct_answer: correctAnswerText,
         is_correct: isCorrect,
       };
 
@@ -202,8 +423,18 @@ const examSlice = createSlice({
     },
 
     toggleFlag: (state, action) => {
-      const index = action.payload;
-      state.flaggedMap[index] = !state.flaggedMap[index];
+      const questionId = action.payload;
+      state.flaggedMap[questionId] = !state.flaggedMap[questionId];
+    },
+
+    toggleBlockFlag: (state, action) => {
+      const questionIds = action.payload;
+      const firstId = questionIds[0];
+      const isCurrentlyFlagged = state.flaggedMap[firstId];
+
+      questionIds.forEach((qId) => {
+        state.flaggedMap[qId] = !isCurrentlyFlagged;
+      });
     },
 
     startExam: (state) => {
@@ -233,12 +464,18 @@ const examSlice = createSlice({
 export const {
   setStudentId,
   setExamId,
+  initializeExam,
   setExamData,
+  setCurrentSectionIndex,
+  setCurrentBlockIndex,
+  decrementTime,
+  setTimeRemaining,
   setCurrentIndex,
   nextQuestion,
   prevQuestion,
   setAnswer,
   toggleFlag,
+  toggleBlockFlag,
   startExam,
   submitExam,
   setExamResults,
@@ -252,10 +489,25 @@ export default examSlice.reducer;
 export const selectExam = (state) => state.exam;
 export const selectStudentId = (state) => state.exam.studentId;
 export const selectExamId = (state) => state.exam.examId;
+export const selectExamInfo = (state) => state.exam.examInfo;
+export const selectSections = (state) => state.exam.sections;
 export const selectQuestions = (state) => state.exam.questions;
+export const selectCurrentSectionIndex = (state) => state.exam.currentSectionIndex;
+export const selectCurrentBlockIndex = (state) => state.exam.currentBlockIndex;
 export const selectCurrentIndex = (state) => state.exam.currentIndex;
+export const selectCurrentSection = (state) => {
+  const { sections, currentSectionIndex } = state.exam;
+  return sections[currentSectionIndex] || null;
+};
+export const selectCurrentBlock = (state) => {
+  const { sections, currentSectionIndex, currentBlockIndex } = state.exam;
+  const section = sections[currentSectionIndex];
+  return section?.blocks[currentBlockIndex] || null;
+};
 export const selectCurrentQuestion = (state) =>
   state.exam.questions[state.exam.currentIndex] || null;
+export const selectTimeRemaining = (state) => state.exam.timeRemaining;
+export const selectTotalTime = (state) => state.exam.totalTimeInSeconds;
 export const selectAnsweredMap = (state) => state.exam.answeredMap;
 export const selectFlaggedMap = (state) => state.exam.flaggedMap;
 export const selectIsStarted = (state) => state.exam.isStarted;

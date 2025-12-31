@@ -282,16 +282,52 @@ const mockExamSlice = createSlice({
 
     setCurrentSectionIndex: (state, action) => {
       const newSectionIndex = action.payload;
+      // Validate section index - prevent navigation to invalid sections
+      if (newSectionIndex < 0 || !state.sections || newSectionIndex >= state.sections.length) {
+        return; // Don't update if invalid
+      }
+      
       // When changing sections, update timeRemaining to the new section's timer
       // Only if we're using per-section timers (not exam_info.time)
       if (!state.examInfo?.time && state.sectionTimers && state.sectionTimers[newSectionIndex] !== undefined) {
         state.timeRemaining = state.sectionTimers[newSectionIndex];
       }
       state.currentSectionIndex = newSectionIndex;
+      
+      // Validate and adjust block index for the new section
+      const newSection = state.sections[newSectionIndex];
+      if (newSection && newSection.blocks && newSection.blocks.length > 0) {
+        // If current block index is out of bounds for new section, keep it at current or reset to 0
+        // Don't automatically reset - let setCurrentBlockIndex handle explicit changes
+        if (state.currentBlockIndex >= newSection.blocks.length) {
+          state.currentBlockIndex = 0;
+        }
+      } else {
+        state.currentBlockIndex = 0;
+      }
     },
 
     setCurrentBlockIndex: (state, action) => {
-      state.currentBlockIndex = action.payload;
+      const newBlockIndex = action.payload;
+      // Validate section index first
+      if (state.currentSectionIndex < 0 || state.currentSectionIndex >= state.sections.length) {
+        return; // Don't update if section is invalid
+      }
+      
+      // Validate block index against current section
+      const currentSection = state.sections[state.currentSectionIndex];
+      if (currentSection && currentSection.blocks && currentSection.blocks.length > 0) {
+        // Ensure block index is within bounds
+        if (newBlockIndex >= 0 && newBlockIndex < currentSection.blocks.length) {
+          state.currentBlockIndex = newBlockIndex;
+        } else {
+          // Out of bounds, set to last valid block or 0
+          state.currentBlockIndex = Math.max(0, Math.min(newBlockIndex, currentSection.blocks.length - 1));
+        }
+      } else if (newBlockIndex === 0) {
+        // Allow setting to 0 even if section has no blocks (will show empty state)
+        state.currentBlockIndex = 0;
+      }
     },
 
     nextBlock: (state) => {

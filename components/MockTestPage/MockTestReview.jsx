@@ -3,6 +3,7 @@ import { InfoIcon } from "./../../public/svgs";
 
 const MockTestReview = ({
   sections,
+  currentSectionIndex = 0,
   answers,
   markedForReview,
   onNavigateToQuestion,
@@ -15,13 +16,38 @@ const MockTestReview = ({
   const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [isConfirmSubmit, setIsConfirmSubmit] = useState(false);
 
-  // Calculate totals
+  // Get current section
+  const currentSection = sections && sections[currentSectionIndex] ? sections[currentSectionIndex] : null;
+
+  // Calculate totals for current section only
+  const totalQuestionsInSection = currentSection
+    ? currentSection.blocks.reduce((bSum, block) => bSum + block.questions.length, 0)
+    : 0;
+
+  // Calculate totals for all sections (for display)
   const totalQuestions = sections.reduce(
     (sum, section) =>
       sum +
       section.blocks.reduce((bSum, block) => bSum + block.questions.length, 0),
     0
   );
+
+  // Count completed and flagged questions in current section only
+  const completedQuestionsInSection = currentSection
+    ? currentSection.blocks.reduce((count, block) => {
+        return count + block.questions.filter(q => answers[q.id] !== undefined).length;
+      }, 0)
+    : 0;
+
+  const flaggedQuestionsInSection = currentSection
+    ? currentSection.blocks.reduce((count, block) => {
+        return count + block.questions.filter(q => 
+          markedForReview.has(String(q.id)) || markedForReview.has(q.id)
+        ).length;
+      }, 0)
+    : 0;
+
+  const incompleteQuestionsInSection = totalQuestionsInSection - completedQuestionsInSection;
 
   const completedQuestions = Object.keys(answers).length;
   const flaggedQuestions = markedForReview.size;
@@ -31,6 +57,7 @@ const MockTestReview = ({
     let questions = [];
     let questionNumber = 1;
 
+    // Process questions from ALL sections
     sections.forEach((section, sectionIndex) => {
       section.blocks.forEach((block, blockIndex) => {
         block.questions.forEach((question) => {
@@ -69,7 +96,8 @@ const MockTestReview = ({
   }, [sections, answers, markedForReview, activeFilter]);
 
   const handleQuestionClick = (question) => {
-    if (onNavigateToQuestion) {
+    // Allow navigation to current section or previous sections only (not next sections)
+    if (onNavigateToQuestion && question.sectionIndex <= currentSectionIndex) {
       onNavigateToQuestion(question.sectionIndex, question.blockIndex);
     }
   };
@@ -167,15 +195,53 @@ const MockTestReview = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-2 border-[#E4E4E7] rounded-[30px] overflow-hidden">
-          {filteredQuestions.map((question) => (
-            <Review
-              key={question.id}
-              question={question}
-              onClick={() => handleQuestionClick(question)}
-            />
-          ))}
-        </div>
+        {/* Group questions by section */}
+        {sections.map((section, sectionIdx) => {
+          const sectionQuestions = filteredQuestions.filter(
+            (q) => q.sectionIndex === sectionIdx
+          );
+          
+          if (sectionQuestions.length === 0) return null;
+
+          const isCurrentSection = sectionIdx === currentSectionIndex;
+          const isPreviousSection = sectionIdx < currentSectionIndex;
+          const isNextSection = sectionIdx > currentSectionIndex;
+          const canNavigate = isCurrentSection || isPreviousSection;
+
+          return (
+            <div key={sectionIdx} className="mb-8">
+              <div className="mb-4 px-4 py-2 bg-primary-light rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div
+                    className="text-right text-primary text-xl font-semibold"
+                    dangerouslySetInnerHTML={{
+                      __html: section.title
+                        ? section.title.replaceAll(/&nbsp;/ig, " ")
+                        : `القسم ${sectionIdx + 1}`,
+                    }}
+                  />
+                  <div className="text-sm text-gray-600">
+                    {isNextSection
+                      ? "غير متاح"
+                      : isCurrentSection
+                      ? "القسم الحالي"
+                      : "متاح"}
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-2 border-[#E4E4E7] rounded-[30px] overflow-hidden">
+                {sectionQuestions.map((question) => (
+                  <Review
+                    key={question.id}
+                    question={question}
+                    onClick={() => handleQuestionClick(question)}
+                    isDisabled={!canNavigate}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
 
         {/* Submit Button */}
         <div className="flex justify-center mt-8">
@@ -283,11 +349,15 @@ const MockTestReview = ({
 
 export default MockTestReview;
 
-export const Review = ({ question, onClick }) => {
+export const Review = ({ question, onClick, isDisabled = false }) => {
   return (
     <div
-      className="flex items-center justify-between border border-[#E4E4E7] !px-4 !py-6 cursor-pointer hover:bg-gray-50 transition-colors"
-      onClick={onClick}
+      className={`flex items-center justify-between border border-[#E4E4E7] !px-4 !py-6 transition-colors ${
+        isDisabled 
+          ? "opacity-50 cursor-not-allowed bg-gray-100" 
+          : "cursor-pointer hover:bg-gray-50"
+      }`}
+      onClick={isDisabled ? undefined : onClick}
     >
       <div className="flex items-center justify-start gap-2 relative">
         {question.isFlagged ? <FilledFlagIcon /> : <OutlinedFlagIcon />}

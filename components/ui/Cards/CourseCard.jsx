@@ -5,6 +5,7 @@ import {
   CourseCalenderIcon,
   FileTextIcon,
   RatingStarIcon,
+  SeatsIcon,
   ShareIcon,
 } from "../../../public/svgs";
 import Link from "next/link";
@@ -38,7 +39,7 @@ const CourseCard = ({
   const dispatch = useDispatch();
   const width = freeWidth ? "w-full" : "w-full lg:max-w-[351px]";
 
-  console.log("payload" , payload)
+  console.log("payload", payload);
 
   // ✅ normalize values coming from backend
   const roundId = payload?.id;
@@ -224,8 +225,8 @@ const CourseCard = ({
 
           {/* Details */}
           <div className="self-stretch p-2 sm:p-3 flex flex-col gap-3">
-            <div className="self-stretch inline-flex justify-between items-center gap-2">
-              <div className="px-2 sm:px-2.5 py-2 sm:py-3 bg-primary-bg rounded-[8px] sm:rounded-[10px] flex justify-center items-center gap-2.5 flex-1 min-w-0">
+            <div className=" inline-flex justify-between items-center gap-2">
+              <div className=" !w-fit px-2 sm:px-5 py-2 sm:py-3 bg-primary-bg rounded-[8px] sm:rounded-[10px] flex justify-center items-center gap-2.5  ">
                 <div className="text-text text-[10px] sm:text-xs font-medium truncate">
                   {payload?.course?.name || "—"}
                 </div>
@@ -241,8 +242,8 @@ const CourseCard = ({
             <div className="self-stretch inline-flex justify-between items-center gap-2">
               {/* Lessons count (fallback) */}
               <div className="flex justify-start items-center gap-[5px] flex-1 min-w-0">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0">
-                  <FileTextIcon className="stroke-primary" />
+              <div className="w-5 h-5 flex  items-center justify-center sm:w-6 sm:h-6 flex-shrink-0">
+              <FileTextIcon className="stroke-primary w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div className="text-text text-[10px] sm:text-xs font-medium truncate">
                   الدروس :{" "}
@@ -251,9 +252,12 @@ const CourseCard = ({
               </div>
 
               {/* Seats */}
-              <div className="flex justify-start items-center gap-[5px] flex-shrink-0">
+              <div className="flex justify-center items-center gap-[5px] flex-shrink-0">
+                <div className="w-5 h-5 flex  items-center justify-center sm:w-6 sm:h-6 flex-shrink-0">
+                  <SeatsIcon className="stroke-primary w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
                 <div className="text-text text-[10px] sm:text-xs font-medium">
-                  المقاعد المتبقية: {payload?.capacity ?? "—"}
+                  المقاعد المتبقية: {payload?.capacity - payload?.students_count}
                 </div>
               </div>
             </div>
@@ -273,7 +277,7 @@ const CourseCard = ({
                   </div>
                 </div>
                 <div className="text-text text-[9px] sm:text-[10px] font-medium">
-                  ({toNum(payload?.totalRates, 0)})
+                  ({toNum(payload?.ratings_count, 0)})
                 </div>
               </div>
 
@@ -287,7 +291,7 @@ const CourseCard = ({
                     {(payload?.teachers || []).map((instructor) => (
                       <Tooltip title={instructor?.name} key={instructor?.id}>
                         <Avatar
-                        className="bg-white"
+                          className="bg-white"
                           src={instructor?.image_url}
                           alt={instructor?.name}
                         />
@@ -426,7 +430,6 @@ const FavIcon = ({
   );
 };
 
-
 // "use client";
 
 // import React, { Fragment, useEffect, useMemo, useState } from "react";
@@ -520,7 +523,6 @@ const FavIcon = ({
 //   const categoryName = payload?.course_categories?.name || "—";
 
 //   const teachers = Array.isArray(payload?.teachers) ? payload.teachers : [];
-
 
 //   const handleAddToFavorite = async (id) => {
 //     if (!id) return;

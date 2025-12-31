@@ -6,26 +6,33 @@ export const Timer = ({
   currentQuestionIndex = 0,
   totalQuestions = 1,
   initialSeconds = 0,
+  timeRemaining,
+  formattedTime,
   onTimeUp,
   isStarted,
   setIsStarted,
   examData
 }) => {
+  // Use formattedTime from props if available (controlled by parent), otherwise use local state
   const [remainingSeconds, setRemainingSeconds] = useState(initialSeconds);
   const hasFiredRef = useRef(false);
   const intervalRef = useRef(null);
 
-  // Reset when initialSeconds changes (and allow time-up to fire again)
-  useEffect(() => {
-    setRemainingSeconds(initialSeconds);
-    hasFiredRef.current = false;
-    // optional: if you want auto-start on reset, uncomment:
-    // setIsStarted?.(true);
-  }, [initialSeconds, setIsStarted]);
+  // If formattedTime is provided, use it (parent controls timer)
+  const useParentTimer = formattedTime !== undefined && timeRemaining !== undefined;
 
-  // Ticking logic (runs only while started and time > 0)
+  // Reset when initialSeconds changes (only if not using parent timer)
   useEffect(() => {
-    // stop if not started or already at 0
+    if (!useParentTimer) {
+      setRemainingSeconds(initialSeconds);
+      hasFiredRef.current = false;
+    }
+  }, [initialSeconds, useParentTimer]);
+
+  // Ticking logic (only if not using parent timer)
+  useEffect(() => {
+    if (useParentTimer) return; // Parent handles timer
+    
     if (!isStarted || remainingSeconds <= 0) {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -44,13 +51,13 @@ export const Timer = ({
         intervalRef.current = null;
       }
     };
-  }, [isStarted, remainingSeconds]);
+  }, [isStarted, remainingSeconds, useParentTimer]);
 
   // Fire onTimeUp exactly once when we hit 0
   useEffect(() => {
-    if (remainingSeconds === 0 && !hasFiredRef.current) {
+    const currentTime = useParentTimer ? timeRemaining : remainingSeconds;
+    if (currentTime === 0 && !hasFiredRef.current && isStarted) {
       hasFiredRef.current = true;
-      // stop ticking (if any) and mark as not started (optional)
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -58,9 +65,12 @@ export const Timer = ({
       setIsStarted?.(false);
       onTimeUp?.();
     }
-  }, [remainingSeconds, onTimeUp, setIsStarted]);
+  }, [timeRemaining, remainingSeconds, onTimeUp, setIsStarted, isStarted, useParentTimer]);
 
   const timeLabel = useMemo(() => {
+    if (useParentTimer && formattedTime) {
+      return formattedTime;
+    }
     const m = Math.floor(remainingSeconds / 60)
       .toString()
       .padStart(2, "0");
@@ -68,13 +78,13 @@ export const Timer = ({
       .toString()
       .padStart(2, "0");
     return `${m}:${s}`;
-  }, [remainingSeconds]);
+  }, [remainingSeconds, formattedTime, useParentTimer]);
 
   return (
     <div className="flex flex-col  md:items-center gap-4 md:flex-row justify-between w-full mb-12 sm:mb-16 lg:mb-20">
       <div className="flex flex-col  order-2 md:order-1 justify-center items-start gap-6 sm:gap-8 lg:gap-10">
         <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-text text-right sm:text-right">
-            {examData.exam_info.title}
+            {examData?.exam_info?.title || "الاختبار"}
         </div>
         {isStarted && (
           <div className="text-text-alt text-xl sm:text-2xl lg:text-3xl font-medium text-center sm:text-right">

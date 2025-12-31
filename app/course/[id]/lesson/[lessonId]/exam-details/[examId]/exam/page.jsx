@@ -13,9 +13,19 @@ import {
   resetExam,
   setStudentId,
   setExamId,
+  initializeExam,
+  decrementTime,
+  setCurrentSectionIndex,
+  setCurrentBlockIndex,
   selectQuestions,
+  selectSections,
+  selectCurrentSection,
+  selectCurrentBlock,
+  selectCurrentSectionIndex,
+  selectCurrentBlockIndex,
   selectCurrentIndex,
   selectAnsweredMap,
+  selectTimeRemaining,
   selectIsStarted,
   selectIsSubmitted,
   selectSubmissionData,
@@ -32,20 +42,23 @@ const ExamPage = () => {
 
   // Local state for loading/error
   const [examData, setExamData] = useState(null);
-
-  console.log("examData" , examData)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [initialSeconds, setInitialSeconds] = useState(3600);
   const [submitting, setSubmitting] = useState(false);
 
   // Redux state
+  const sections = useSelector(selectSections);
   const questions = useSelector(selectQuestions);
+  const currentSection = useSelector(selectCurrentSection);
+  const currentBlock = useSelector(selectCurrentBlock);
+  const currentSectionIndex = useSelector(selectCurrentSectionIndex);
+  const currentBlockIndex = useSelector(selectCurrentBlockIndex);
   const currentIndex = useSelector(selectCurrentIndex);
   const answeredMap = useSelector(selectAnsweredMap);
+  const timeRemaining = useSelector(selectTimeRemaining);
   const isStarted = useSelector(selectIsStarted);
   const isSubmitted = useSelector(selectIsSubmitted);
-  const [openResult , setOpenResult] = useState(false)
+  const [openResult, setOpenResult] = useState(false);
 
   useEffect(() => {
     if (isSubmitted) {
@@ -95,12 +108,13 @@ const ExamPage = () => {
           const data = response.data.message;
           setExamData(data);
 
-          // Calculate initial seconds
-          if (data && data.length > 0 && data[0].time_if_free) {
-            const timeString = data[0].time_if_free;
-            const [hours, minutes, seconds] = timeString.split(":").map(Number);
-            setInitialSeconds(hours * 3600 + minutes * 60 + (seconds || 0));
-          }
+          // Initialize exam with sections and exam_info
+          dispatch(
+            initializeExam({
+              sections: data.sections,
+              examInfo: data.exam_info,
+            })
+          );
         } else {
           setError("Failed to load exam data");
         }
@@ -117,11 +131,23 @@ const ExamPage = () => {
     }
   }, [token, examId]);
 
+  // Timer effect
+  useEffect(() => {
+    if (!isStarted || isSubmitted) return;
+
+    const timer = setInterval(() => {
+      dispatch(decrementTime());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isStarted, isSubmitted, dispatch]);
+
   // Handle time up
   const handleTimeUp = useCallback(() => {
-    console.log("Time is up");
-    handleSubmitTheExam();
-  }, []);
+    if (timeRemaining <= 0 && isStarted && !isSubmitted) {
+      handleSubmitTheExam();
+    }
+  }, [timeRemaining, isStarted, isSubmitted]);
 
   // Calculate score from answers
   const calculateScore = () => {
@@ -251,19 +277,36 @@ const ExamPage = () => {
     );
   }
 
+  const formatTime = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+
+    if (h > 0) {
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
+
   return (
     <Container className="flex flex-col py-[48px]">
       <Timer
         examData={examData}
         currentQuestionIndex={currentIndex}
         totalQuestions={questions.length}
-        initialSeconds={initialSeconds}
+        timeRemaining={timeRemaining}
+        formattedTime={formatTime(timeRemaining)}
         onTimeUp={handleTimeUp}
         isStarted={isStarted}
         setIsStarted={handleSetIsStarted}
       />
       <ExamContent
         examData={examData?.sections}
+        sections={sections}
+        currentSection={currentSection}
+        currentBlock={currentBlock}
+        currentSectionIndex={currentSectionIndex}
+        currentBlockIndex={currentBlockIndex}
         onSubmitExam={handleSubmitTheExam}
         submitting={submitting}
       />
