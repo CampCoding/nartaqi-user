@@ -445,8 +445,9 @@ export const DropDownItems = ({ items }) => {
   const [openSub, setOpenSub] = useState(null);
 
   return (
+    
     <nav
-      className="flex rounded-3xl flex-col items-start pt-2 pb-6 px-4 relative bg-white border-2 [border-top-style:solid]  border-variable-collection-stroke"
+      className="flex max-h-[500px] overflow-auto custom-scroll rounded-3xl flex-col items-start pt-2 pb-6 px-4 relative bg-white border-2 [border-top-style:solid]  border-variable-collection-stroke"
       role="navigation"
       aria-title="Course categories"
       onMouseLeave={() => setOpenSub(null)}

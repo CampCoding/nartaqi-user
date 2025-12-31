@@ -130,7 +130,7 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
       {isOpen &&
         (isRegistered ? (
           <div className="w-full flex flex-col gap-4 md:gap-5 px-5 md:px-7 pb-5 md:pb-7">
-            {content.lessons.map((lesson) => (
+            { !content.lessons || content.lessons.length == 0 ? <span className="text-gray-500 text-xl"> لا يوجد بيانات </span> :   content.lessons.map((lesson) => (
               <RegLectureDrawer
                 key={lesson.id}
                 lesson={lesson}

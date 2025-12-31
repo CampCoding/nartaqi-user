@@ -32,11 +32,11 @@ export default function useMoreLatestRounds(studentId, perPage = 3) {
         else setFetching(true);
 
         const res = await axios.post(ENDPOINT, {
-          student_id: String(studentId),
+          // student_id: String(studentId),
 
           // ✅ لو الـ API بيدعم pagination
-          page: targetPage,
-          per_page: perPage,
+          // page: targetPage,
+          // per_page: perPage,
         },
         { headers: { Authorization: `Bearer ${token}` } }
 

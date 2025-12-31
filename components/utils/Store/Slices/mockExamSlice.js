@@ -4,6 +4,7 @@ const initialState = {
   // Exam info
   examId: null,
   studentId: null,
+  examInfo: null, // Store full exam_info from API
 
   // Sections and Blocks structure
   sections: [],
@@ -15,6 +16,9 @@ const initialState = {
   // Time
   totalTimeInSeconds: 0,
   timeRemaining: 0,
+  // Per-section timers: { [sectionIndex]: seconds }
+  sectionTimers: {},
+  sectionTimeLimits: {}, // { [sectionIndex]: totalSeconds }
 
   // Answers
   answeredMap: {}, // { [questionId]: optionId } - keeps ID for UI
@@ -72,21 +76,31 @@ const mockExamSlice = createSlice({
   reducers: {
     // Initialize exam with API data
     initializeExam: (state, action) => {
-      const { examId, studentId, sections: apiSections } = action.payload;
+      const { examId, studentId, sections: apiSections, examInfo } = action.payload;
 
       state.examId = examId;
       state.studentId = studentId;
+      state.examInfo = examInfo || null;
 
       const transformedSections = [];
       const allQuestions = [];
       let calculatedTotalTime = 0;
       let questionCounter = 0;
+      
+      // Initialize section timers and limits objects
+      state.sectionTimeLimits = {};
+      state.sectionTimers = {};
 
-      apiSections.forEach((section) => {
+      apiSections.forEach((section, sectionIndex) => {
         const sectionTitle = stripHtml(section.title) || "||";
         const sectionDescription = stripHtml(section.description) || "||";
+        const sectionTimeLimit = parseTimeToSeconds(section.time_if_free);
 
-        calculatedTotalTime += parseTimeToSeconds(section.time_if_free);
+        calculatedTotalTime += sectionTimeLimit;
+        
+        // Store section time limit and initialize timer
+        state.sectionTimeLimits[sectionIndex] = sectionTimeLimit;
+        state.sectionTimers[sectionIndex] = sectionTimeLimit;
 
         const blocks = [];
 
@@ -219,8 +233,19 @@ const mockExamSlice = createSlice({
 
       state.sections = transformedSections;
       state.allQuestions = allQuestions;
-      state.totalTimeInSeconds = calculatedTotalTime;
-      state.timeRemaining = calculatedTotalTime;
+      
+      // Use exam_info.time if available, otherwise use calculated time from sections
+      let examTimeSeconds = 0;
+      if (examInfo?.time) {
+        examTimeSeconds = parseTimeToSeconds(examInfo.time);
+        state.totalTimeInSeconds = examTimeSeconds;
+        state.timeRemaining = examTimeSeconds;
+      } else {
+        state.totalTimeInSeconds = calculatedTotalTime;
+        // Initialize timeRemaining with first section's timer
+        state.timeRemaining = state.sectionTimers[0] || calculatedTotalTime;
+      }
+      
       state.totalQuestions = allQuestions.length;
     },
 
@@ -233,8 +258,21 @@ const mockExamSlice = createSlice({
     },
 
     decrementTime: (state) => {
-      if (state.timeRemaining > 0) {
-        state.timeRemaining -= 1;
+      // If exam_info.time is used, decrement the overall timer
+      // Otherwise, use per-section timers
+      if (state.examInfo?.time) {
+        if (state.timeRemaining > 0) {
+          state.timeRemaining -= 1;
+        }
+      } else {
+        // Decrement current section's timer
+        const currentSectionIndex = state.currentSectionIndex;
+        if (state.sectionTimers[currentSectionIndex] > 0) {
+          state.sectionTimers[currentSectionIndex] -= 1;
+          state.timeRemaining = state.sectionTimers[currentSectionIndex];
+        } else if (state.timeRemaining > 0) {
+          state.timeRemaining -= 1;
+        }
       }
     },
 
@@ -243,7 +281,13 @@ const mockExamSlice = createSlice({
     },
 
     setCurrentSectionIndex: (state, action) => {
-      state.currentSectionIndex = action.payload;
+      const newSectionIndex = action.payload;
+      // When changing sections, update timeRemaining to the new section's timer
+      // Only if we're using per-section timers (not exam_info.time)
+      if (!state.examInfo?.time && state.sectionTimers && state.sectionTimers[newSectionIndex] !== undefined) {
+        state.timeRemaining = state.sectionTimers[newSectionIndex];
+      }
+      state.currentSectionIndex = newSectionIndex;
     },
 
     setCurrentBlockIndex: (state, action) => {
@@ -315,8 +359,26 @@ const mockExamSlice = createSlice({
       const savedState = action.payload;
       state.currentSectionIndex = savedState.currentSectionIndex || 0;
       state.currentBlockIndex = savedState.currentBlockIndex || 0;
-      state.timeRemaining =
-        savedState.timeRemaining || state.totalTimeInSeconds;
+      
+      // Restore section timers if available
+      if (savedState.sectionTimers) {
+        state.sectionTimers = savedState.sectionTimers;
+      }
+      
+      // Restore time remaining
+      // If using exam_info.time, use saved timeRemaining directly
+      // Otherwise, use section-specific timer
+      if (state.examInfo?.time) {
+        state.timeRemaining = savedState.timeRemaining || state.totalTimeInSeconds;
+      } else {
+        const sectionIndex = savedState.currentSectionIndex || 0;
+        if (state.sectionTimers && state.sectionTimers[sectionIndex] !== undefined) {
+          state.timeRemaining = state.sectionTimers[sectionIndex];
+        } else {
+          state.timeRemaining = savedState.timeRemaining || state.totalTimeInSeconds;
+        }
+      }
+      
       state.answeredMap = savedState.answeredMap || {};
       state.flaggedMap = savedState.flaggedMap || {};
       state.isStarted = savedState.isStarted || false;
@@ -354,6 +416,7 @@ export const selectMockExam = (state) => state.mockExam;
 // Basic info
 export const selectExamId = (state) => state.mockExam.examId;
 export const selectStudentId = (state) => state.mockExam.studentId;
+export const selectExamInfo = (state) => state.mockExam.examInfo;
 
 // Sections and blocks
 export const selectSections = (state) => state.mockExam.sections;
@@ -457,6 +520,14 @@ export const selectIsLastSection = (state) => {
   );
 };
 
+export const selectIsFirstSection = (state) => {
+  return state.mockExam.currentSectionIndex === 0;
+};
+
+export const selectCanGoToPreviousSection = (state) => {
+  return state.mockExam.currentSectionIndex > 0;
+};
+
 // ✅ UPDATED: Format answers for API submission - NOW SENDS TEXT INSTEAD OF ID
 export const selectFormattedAnswersForAPI = (state) => {
   const { allQuestions, answeredMap } = state.mockExam;
@@ -511,6 +582,7 @@ export const selectStateForSave = (state) => {
     currentSectionIndex,
     currentBlockIndex,
     timeRemaining,
+    sectionTimers,
     answeredMap,
     flaggedMap,
     isStarted,
@@ -521,6 +593,7 @@ export const selectStateForSave = (state) => {
     currentSectionIndex,
     currentBlockIndex,
     timeRemaining,
+    sectionTimers,
     answeredMap,
     flaggedMap,
     isStarted,

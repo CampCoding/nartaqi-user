@@ -31,10 +31,9 @@ const MockExamQuestion = ({
       {block.passage && (
         <div className="mb-6">
           <p
-            className={`flex items-center justify-center font-medium text-zinc-500 ${textSizeClass} tracking-[0] leading-[normal] [direction:rtl]`}
-          >
-            &quot;{block.passage}&quot;
-          </p>
+            className={`flex items-center  font-medium text-zinc-500 ${textSizeClass} tracking-[0] leading-[normal] [direction:rtl]`}
+            dangerouslySetInnerHTML={{ __html: block?.passage?.replaceAll(/&nbsp;/ig , " ") }}
+          />
         </div>
       )}
 

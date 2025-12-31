@@ -145,9 +145,12 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
   }, [token, roundId, toggleFavorite, goLogin]);
 
   const handleSubscribe = useCallback(async () => {
+
     if (!token) return goLogin();
     if (!roundId) return console.error("Round ID is undefined!");
     if (!studentId) return console.error("Student ID is undefined!");
+    if (isFull) return console.error("هذه الدورة ممتلئة");
+
 
     setIsEnrollLoading(true);
     try {
@@ -422,8 +425,9 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
         <button
           type="button"
           onClick={handleSubscribe}
-          disabled={isEnrollLoading}
-          className={`w-full px-3.5 py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group
+          disabled={isEnrollLoading || round.capacity - round?.students_count <= 0}
+          // disabled={true}
+          className={` ${ "disabled:!bg-gray-300 disabled:!cursor-not-allowed" }  w-full px-3.5 py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group
             ${
               isEnrollLoading
                 ? "bg-gray-300 cursor-wait"

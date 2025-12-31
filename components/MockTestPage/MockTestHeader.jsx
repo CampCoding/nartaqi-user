@@ -57,7 +57,7 @@ export const MockExamHeader = ({
   const Controls = () => (
     <div className="flex items-center md:gap-10">
       {/* Timer */}
-      {/* <div
+      <div
         className="inline-flex items-center gap-2 px-0 py-2 sm:py-3"
         role="timer"
         aria-label="Time remaining"
@@ -66,7 +66,7 @@ export const MockExamHeader = ({
         <span className="text-white text-sm sm:text-base leading-[2.25rem] sm:leading-[50px] tracking-[0]">
           {examData.timeRemaining}
         </span>
-      </div> */}
+      </div>
 
       {!isInReview && (
         <>

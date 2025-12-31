@@ -55,8 +55,8 @@ const CourseTitle = ({
                   {" "}
                   {/* Ensures slide fits content */}
                   <div className="flex items-center">
-                    <Link
-                      href={crumb.link ? crumb.link : "#"}
+                    <div
+                      // href={crumb.link ? crumb.link : "#"}
                       // 5. Responsive font size for breadcrumbs
                       className={`whitespace-nowrap justify-center text-sm md:text-lg leading-normal ${
                         idx === 0
@@ -65,7 +65,7 @@ const CourseTitle = ({
                       }`}
                     >
                       {crumb.title}
-                    </Link>
+                    </div>
                     {idx < breadcrumbs.length - 1 && (
                       <ArrowIcon className="rotate-180" />
                     )}

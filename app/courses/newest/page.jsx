@@ -48,6 +48,7 @@ console.log("user" , user)
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-[32px] lg:gap-[42px]">
           {rounds?.map((course) => {
             const payload = {
+              ...course,
               id: course?.id,
               name: course?.name,
               description: course?.description,
@@ -62,10 +63,7 @@ console.log("user" , user)
               totalRates: course?.ratings_count,
               capacity: course?.capacity,
               course: { name: course?.category_parts_name },
-              teacher: course?.teachers?.map((t) => ({
-                name: t?.name,
-                image_url: t?.image_url,
-              })),
+             
             };
 
             return (

@@ -38,6 +38,7 @@ import {
   selectIsCurrentBlockMarked,
   selectIsLastBlockInSection,
   selectIsLastSection,
+  selectCanGoToPreviousSection,
   selectFormattedAnswersForAPI,
   selectStateForSave,
   selectScore,
@@ -167,6 +168,7 @@ const MockTest = () => {
   const isCurrentBlockMarked = useSelector(selectIsCurrentBlockMarked);
   const isLastBlockInSection = useSelector(selectIsLastBlockInSection);
   const isLastSection = useSelector(selectIsLastSection);
+  const canGoToPreviousSection = useSelector(selectCanGoToPreviousSection);
   const formattedAnswers = useSelector(selectFormattedAnswersForAPI);
   const stateForSave = useSelector(selectStateForSave);
   const examScore = useSelector(selectScore);
@@ -222,6 +224,7 @@ const MockTest = () => {
             examId: id,
             studentId: user?.user?.id,
             sections: response.data.message.sections,
+            examInfo: response.data.message.exam_info,
           })
         );
 
@@ -263,7 +266,7 @@ const MockTest = () => {
     }
   }, [id, fetchMockTestData, dispatch]);
 
-  // Timer effect
+  // Timer effect - updates when section changes
   useEffect(() => {
     if (!isStarted || isInReview || isSubmitted) return;
 
@@ -272,7 +275,7 @@ const MockTest = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isStarted, isInReview, isSubmitted, dispatch]);
+  }, [isStarted, isInReview, isSubmitted, currentSectionIndex, dispatch]);
 
   // Auto submit when time runs out
   // useEffect(() => {
@@ -349,8 +352,17 @@ const MockTest = () => {
   };
 
   const handlePreviousBlock = () => {
+    // If at first block of current section, go to previous section's last block
     if (currentBlockIndex > 0) {
       dispatch(setCurrentBlockIndex(currentBlockIndex - 1));
+    } else if (currentSectionIndex > 0) {
+      // Go to previous section
+      const previousSection = sections[currentSectionIndex - 1];
+      if (previousSection && previousSection.blocks.length > 0) {
+        const lastBlockIndex = previousSection.blocks.length - 1;
+        dispatch(setCurrentSectionIndex(currentSectionIndex - 1));
+        dispatch(setCurrentBlockIndex(lastBlockIndex));
+      }
     }
   };
 
@@ -505,10 +517,18 @@ const MockTest = () => {
                 } leading-relaxed`}
               >
                 <h3
-                  className="font-bold text-xl mb-4"
-                  dangerouslySetInnerHTML={{ __html: currentSection.title }}
+                  className={`  ${
+                    fontSize === "small"
+                      ? "text-lg"
+                      : fontSize === "large"
+                      ? "text-xl"
+                      : fontSize === "xlarge"
+                      ? "text-2xl"
+                      : "text-lg"
+                  } font-bold  w-full grid grid-cols-1 mb-4 !whitespace-normal`}
+                  dangerouslySetInnerHTML={{ __html: currentSection.title.replaceAll(/&nbsp;/ig, " ") }}
                 />
-                <p className="font-medium">{currentSection.description}</p>
+                <p className="font-medium">{currentSection.description.replaceAll(/&nbsp;/ig, " ")}</p>
               </div>
             )}
           </div>
@@ -523,7 +543,7 @@ const MockTest = () => {
         onPrevious={handlePreviousBlock}
         onNext={handleNextBlock}
         // onSubmit={handleSubmitExam}
-        canGoPrevious={currentBlockIndex > 0}
+        canGoPrevious={currentBlockIndex > 0 || canGoToPreviousSection}
         canGoNext={true}
         isLastQuestion={isLastBlockInSection}
         isLastSection={isLastSection}

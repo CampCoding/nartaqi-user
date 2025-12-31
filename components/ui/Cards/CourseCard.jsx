@@ -38,6 +38,8 @@ const CourseCard = ({
   const dispatch = useDispatch();
   const width = freeWidth ? "w-full" : "w-full lg:max-w-[351px]";
 
+  console.log("payload" , payload)
+
   // ✅ normalize values coming from backend
   const roundId = payload?.id;
   const isFree = useMemo(() => String(payload?.free) !== "0", [payload?.free]);
@@ -231,7 +233,7 @@ const CourseCard = ({
 
               <div className="px-4 sm:px-9 py-2 bg-[#3b82f640] rounded-[8px] sm:rounded-[10px] outline outline-1 outline-offset-[-1px] outline-[#CEDFFC] flex justify-center items-center flex-shrink-0">
                 <div className="text-alt text-[10px] sm:text-xs font-medium">
-                  {type === "0" ? "طلاب" : "معلمين"}
+                  {payload.gender == "femail" ? "إناث" : "ذكور"}
                 </div>
               </div>
             </div>
@@ -277,14 +279,15 @@ const CourseCard = ({
 
               {/* Teachers */}
               <div className="flex flex-col gap-2 justify-center items-center">
-                <div className="flex place-self-start">
+                {/* <div className="flex place-self-start">
                   <span className="text-[13px]">المدرسين</span>
-                </div>
+                </div> */}
                 <div className="flex justify-start items-center gap-[5px]">
                   <Avatar.Group maxCount={4} size="small">
                     {(payload?.teachers || []).map((instructor) => (
                       <Tooltip title={instructor?.name} key={instructor?.id}>
                         <Avatar
+                        className="bg-white"
                           src={instructor?.image_url}
                           alt={instructor?.name}
                         />
