@@ -123,6 +123,9 @@ const ExamDetails = ({ params }) => {
     );
   }
 
+  console.log("examData" , examData)
+
+
   return (
     <div>
       <PagesBanner
@@ -131,9 +134,8 @@ const ExamDetails = ({ params }) => {
         title={"تفاصيل الأختبار"}
         breadcrumb={[
           { title: "الرئيسية", link: "/" },
-          { title: "إتقان التدريس الفعال - معلمين", link: "#" },
           { title: "اختبارات", link: "#" },
-          { title: "تفاصيل الأختبار", link: "#" },
+          { title: examData?.exam_info.title, link: "#" },
         ]}
       />
 

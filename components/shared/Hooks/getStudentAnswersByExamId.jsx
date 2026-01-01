@@ -1,12 +1,16 @@
+"use client";
+
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 
-const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/getStudentAnswersByExamId`; // عدّل لو عندك baseURL
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/getStudentAnswersByExamId`;
 
 const useGetStudentExamAnswers = ({ studentId, examId }) => {
-  const [data, setData] = useState(null); // message
+  const [data, setData] = useState(null); // full payload (message or fallback)
   const [sections, setSections] = useState([]);
   const [isSolved, setIsSolved] = useState(false);
+  const [lastStudentScore, setLastStudentScore] = useState(null);
+  const [examInfo, setExamInfo] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -39,11 +43,33 @@ const useGetStudentExamAnswers = ({ studentId, examId }) => {
         }
       );
 
-      const message = res?.data?.message;
+      // ✅ مرونة في قراءة الرد
+      // بعض الـ APIs بتحط الداتا في message، وبعضها في data مباشرة
+      const payload = res?.data?.message ?? res?.data ?? null;
 
-      setData(message);
-      setSections(message?.sections || []);
-      setIsSolved(message?.is_solved ?? false);
+      setData(payload);
+
+      // ✅ sections
+      const payloadSections = payload?.sections ?? [];
+      setSections(Array.isArray(payloadSections) ? payloadSections : []);
+
+      // ✅ is_solved ممكن تكون في payload أو في res.data مباشرة
+      const solved =
+        payload?.is_solved ??
+        res?.data?.is_solved ??
+        false;
+
+      setIsSolved(!!solved);
+
+      // ✅ lastStudentScore
+      setLastStudentScore(
+        payload?.lastStudentScore ??
+          res?.data?.lastStudentScore ??
+          null
+      );
+
+      // ✅ exam_info لو موجود
+      setExamInfo(payload?.exam_info ?? payload?.examInfo ?? null);
     } catch (err) {
       console.error("getStudentAnswers error:", err);
       setError(
@@ -54,15 +80,16 @@ const useGetStudentExamAnswers = ({ studentId, examId }) => {
     }
   }, [studentId, examId]);
 
-  // auto fetch
   useEffect(() => {
     fetchAnswers();
   }, [fetchAnswers]);
 
   return {
-    data, // full message
-    sections, // sections مباشرة
-    isSolved, // هل الامتحان محلول
+    data, // full payload
+    sections,
+    isSolved,
+    lastStudentScore, // ✅ جديد
+    examInfo, // ✅ جديد
     loading,
     error,
     refetch: fetchAnswers,

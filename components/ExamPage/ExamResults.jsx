@@ -50,14 +50,18 @@ const normalize = (v) => stripHtml(String(v ?? "")).toLowerCase().trim();
 
 /**
  * ✅ يحول response.sections إلى شكل يناسب UI
- * مهم: API بيرجع student_answer كنص (option_text) مش option_id
- * فبنطابقه على options ونجيب option.id عشان المقارنات تشتغل
+ * - يدعم section.mcq
+ * - ويدعم section.paragraphs[].questions[]
+ * - student_answer جاية كنص => بنحوّله لـ option.id
  */
 const toAnsweredQuestions = (sections = []) => {
   const out = [];
   let idx = 1;
 
   sections.forEach((section) => {
+    const sectionTitle = stripHtml(section?.title);
+
+    // 1) MCQ direct
     (section?.mcq || []).forEach((q) => {
       const options = (q?.options || []).map((opt) => ({
         id: Number(opt.id),
@@ -66,22 +70,24 @@ const toAnsweredQuestions = (sections = []) => {
         explanation: stripHtml(opt.question_explanation || ""),
       }));
 
-      // ✅ correct option id (اعتمد على correct_option_id لو موجود)
       const correctId =
         q?.correct_option_id != null
           ? Number(q.correct_option_id)
           : options.find((o) => o.isCorrect)?.id ?? null;
 
-      // ✅ student_answer جاي كنص => حوله لـ option.id
       const studentAnswerText = normalize(q?.student_answer);
-
       const studentAnswerId =
         options.find((o) => normalize(o.text) === studentAnswerText)?.id ?? null;
 
       out.push({
+        id: q?.id,
+        sectionTitle,
+        passage: null,
         title: `السؤال ${idx++}`,
         question: stripHtml(q?.question_text),
-        answer: studentAnswerId, // ✅ الآن ID صحيح
+        answer: studentAnswerId,
+        correctId,
+        isSolved: !!q?.is_solved,
         explanation:
           options.find((o) => o.id === correctId)?.explanation || "لا يوجد شرح",
         answers: options.map((o) => ({
@@ -89,6 +95,47 @@ const toAnsweredQuestions = (sections = []) => {
           text: o.text,
           isCorrect: o.isCorrect,
         })),
+      });
+    });
+
+    // 2) Paragraphs
+    (section?.paragraphs || []).forEach((p) => {
+      const passage = stripHtml(p?.paragraph?.paragraph_content);
+
+      (p?.questions || []).forEach((q) => {
+        const options = (q?.options || []).map((opt) => ({
+          id: Number(opt.id),
+          text: stripHtml(opt.option_text),
+          isCorrect: !!opt.is_correct,
+          explanation: stripHtml(opt.question_explanation || ""),
+        }));
+
+        const correctId =
+          q?.correct_option_id != null
+            ? Number(q.correct_option_id)
+            : options.find((o) => o.isCorrect)?.id ?? null;
+
+        const studentAnswerText = normalize(q?.student_answer);
+        const studentAnswerId =
+          options.find((o) => normalize(o.text) === studentAnswerText)?.id ?? null;
+
+        out.push({
+          id: q?.id,
+          sectionTitle,
+          passage,
+          title: `السؤال ${idx++}`,
+          question: stripHtml(q?.question_text),
+          answer: studentAnswerId,
+          correctId,
+          isSolved: !!q?.is_solved,
+          explanation:
+            options.find((o) => o.id === correctId)?.explanation || "لا يوجد شرح",
+          answers: options.map((o) => ({
+            id: o.id,
+            text: o.text,
+            isCorrect: o.isCorrect,
+          })),
+        });
       });
     });
   });
@@ -105,21 +152,33 @@ const ExamResults = ({ show, setShow, examId }) => {
   const { user } = useSelector((state) => state.auth);
   const studentId = user?.id;
 
-  const { sections, isSolved, loading, error, refetch } =
-    useGetStudentExamAnswers({
-      studentId,
-      examId,
-    });
+  const { sections, isSolved, lastStudentScore, examInfo, loading, error, refetch } =
+  useGetStudentExamAnswers({ studentId, examId });
 
   const answeredQuestions = useMemo(() => {
     return toAnsweredQuestions(sections);
   }, [sections]);
 
+  const summary = useMemo(() => {
+    const total = answeredQuestions.length;
+    const correct = answeredQuestions.filter(
+      (q) => q.answer != null && q.answer === q.correctId
+    ).length;
+    const wrong = answeredQuestions.filter(
+      (q) => q.answer != null && q.answer !== q.correctId
+    ).length;
+    const unanswered = answeredQuestions.filter((q) => q.answer == null).length;
+
+    const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+    return { total, correct, wrong, unanswered, percentage };
+  }, [answeredQuestions]);
+
   const filteredQuestions = useMemo(() => {
     return answeredQuestions.filter((q) => {
-      const correctId = q.answers.find((a) => a.isCorrect)?.id ?? null;
-      if (activeTab === "correct") return q.answer != null && q.answer === correctId;
-      if (activeTab === "wrong") return q.answer != null && q.answer !== correctId;
+      if (activeTab === "correct")
+        return q.answer != null && q.answer === q.correctId;
+      if (activeTab === "wrong") return q.answer != null && q.answer !== q.correctId;
       return true;
     });
   }, [answeredQuestions, activeTab]);
@@ -128,13 +187,60 @@ const ExamResults = ({ show, setShow, examId }) => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-[64px] py-4 sm:py-6 md:py-8">
+      {/* ✅ Summary Card */}
+      {/* <div className="mb-6 bg-white rounded-2xl border p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 className="font-bold text-lg sm:text-xl text-text">ملخص النتيجة</h2>
+            <p className="text-sm text-text-alt mt-1">
+              حالة الامتحان: {isSolved ? "تم الحل" : "لم يتم الحل بعد"}
+            </p>
+          </div>
+
+          <div className="text-sm font-bold">
+            <span className="px-3 py-2 rounded-xl bg-[#ebf3fe]">
+              Score: {lastStudentScore?.score ?? "-"}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          <div className="rounded-xl bg-[#ebf3fe] p-3">
+            <div className="text-xs text-text-alt">إجمالي الأسئلة</div>
+            <div className="text-lg font-bold">{summary.total}</div>
+          </div>
+          <div className="rounded-xl bg-[#c9ffca] p-3">
+            <div className="text-xs text-[#24ab28]">الصحيحة</div>
+            <div className="text-lg font-bold text-[#24ab28]">{summary.correct}</div>
+          </div>
+          <div className="rounded-xl bg-[#FFC4C4] p-3">
+            <div className="text-xs text-red-700">الخاطئة</div>
+            <div className="text-lg font-bold text-red-700">{summary.wrong}</div>
+          </div>
+          <div className="rounded-xl bg-gray-50 p-3">
+            <div className="text-xs text-text-alt">غير مُجابة</div>
+            <div className="text-lg font-bold">{summary.unanswered}</div>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <div className="text-sm text-text-alt mb-2">النسبة</div>
+          <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary"
+              style={{ width: `${summary.percentage}%` }}
+            />
+          </div>
+          <div className="mt-2 text-sm font-bold">{summary.percentage}%</div>
+        </div>
+      </div> */}
+
+      {/* Tabs */}
       <Nanigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Loading */}
       {loading && (
-        <div className="mt-6 text-center text-text-alt">
-          جاري تحميل النتائج...
-        </div>
+        <div className="mt-6 text-center text-text-alt">جاري تحميل النتائج...</div>
       )}
 
       {/* Error */}
@@ -152,9 +258,7 @@ const ExamResults = ({ show, setShow, examId }) => {
 
       {/* Not solved */}
       {!loading && !error && !isSolved && (
-        <div className="mt-6 text-center text-text-alt">
-          الامتحان لم يتم حله بعد.
-        </div>
+        <div className="mt-6 text-center text-text-alt">الامتحان لم يتم حله بعد.</div>
       )}
 
       {/* Data */}
@@ -164,7 +268,7 @@ const ExamResults = ({ show, setShow, examId }) => {
             <p className="text-center text-text-alt">لا توجد أسئلة.</p>
           ) : (
             filteredQuestions.map((q, i) => (
-              <AnsweredQuestion key={`${q.title}-${i}`} questionData={q} />
+              <AnsweredQuestion key={`${q.id}-${i}`} questionData={q} />
             ))
           )}
         </div>
@@ -188,15 +292,24 @@ export default ExamResults;
 // AnsweredQuestion Card
 // =====================
 export const AnsweredQuestion = ({ questionData }) => {
-  const correctId = questionData.answers.find((a) => a.isCorrect)?.id;
+  const correctId = questionData.correctId;
 
   return (
     <main className="flex flex-col items-start gap-6 sm:gap-8 md:gap-14 px-4 sm:px-8 md:px-12 lg:px-20 py-6 sm:py-7 md:py-8 bg-white rounded-[20px] sm:rounded-[30px] md:rounded-[40px] border-2 md:border-[3px] border-solid border-variable-collection-stroke">
       {/* Header */}
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-3 sm:gap-4">
-        <h1 className="font-bold text-secondary text-lg sm:text-xl md:text-2xl">
-          {questionData.title}
-        </h1>
+        <div className="flex flex-col gap-2">
+          <h1 className="font-bold text-secondary text-lg sm:text-xl md:text-2xl">
+            {questionData.title}
+          </h1>
+
+          {/* ✅ Section title */}
+          {questionData.sectionTitle ? (
+            <div className="text-sm text-text-alt">
+              <span className="font-bold">القسم:</span> {questionData.sectionTitle}
+            </div>
+          ) : null}
+        </div>
 
         <div
           className={`inline-flex items-center justify-center gap-2 px-6 sm:px-8 md:px-12 py-2 sm:py-3 md:py-4 rounded-[10px] sm:rounded-[15px] text-sm sm:text-base whitespace-nowrap ${
@@ -208,6 +321,14 @@ export const AnsweredQuestion = ({ questionData }) => {
           {questionData.answer === correctId ? "صحيح" : "خطأ"}
         </div>
       </header>
+
+      {/* ✅ Passage */}
+      {questionData.passage ? (
+        <div className="w-full p-4 bg-gray-50 rounded-xl border text-sm leading-relaxed">
+          <div className="font-bold mb-2">الفقرة:</div>
+          <p>{questionData.passage}</p>
+        </div>
+      ) : null}
 
       {/* Question */}
       <section className="flex flex-col items-start gap-4 sm:gap-5 md:gap-6 w-full">
@@ -285,7 +406,14 @@ export const AnsweredQuestion = ({ questionData }) => {
 // Icons (كما هي عندك)
 // =====================
 const CheckIcon = (props) => (
-  <svg width="100%" height="100%" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="100%"
+    height="100%"
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
     <g clipPath="url(#clip0_143_4488)">
       <path
         opacity={0.972}
@@ -311,12 +439,19 @@ const CheckIcon = (props) => (
 );
 
 const RoundedX = (props) => (
-  <svg width="100%" height="100%" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="100%"
+    height="100%"
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
     <path
       opacity={0.964}
       fillRule="evenodd"
       clipRule="evenodd"
-      d="M14.6565 1.96935C20.692 1.69979 25.244 4.13729 28.3128 9.28185C30.0786 12.6745 30.4536 16.2162 29.4378 19.9069C27.8857 24.7089 24.7086 27.886 19.9065 29.4381C15.0999 30.6936 10.7665 29.7769 6.90652 26.6881C3.0286 23.2017 1.43485 18.858 2.12527 13.6569C3.11964 8.64266 5.94255 5.09055 10.594 3.0006C11.9112 2.47718 13.2653 2.13343 14.6565 1.96935ZM15.9065 3.96935C20.7118 4.17781 24.2847 6.36529 26.6253 10.5319C28.1454 13.711 28.312 16.961 27.1253 20.2819C25.4655 24.2121 22.5592 26.6809 18.4065 27.6881C14.0724 28.4308 10.3536 27.2537 7.25027 24.1569C4.03179 20.4729 3.21929 16.3062 4.81277 11.6569C6.47258 7.7266 9.37883 5.25783 13.5315 4.2506C14.3266 4.10427 15.1183 4.01052 15.9065 3.96935Z"
+      d="M14.6565 1.96935C20.692 1.69979 25.244 4.13729 28.3128 9.28185C30.0786 12.6745 30.4536 16.2162 29.4378 19.9069C27.8857 24.7089 24.7086 27.886 19.9065 29.4381C15.0999 30.6936 10.7665 29.7769 6.90652 26.6881C3.0286 23.2017 1.43485 18.858 2.12527 13.6569C3.11964 8.64266 5.94255 5.09055 10.594 3.0006C11.9112 2.47718 13.2653 2.13343 14.6565 1.96935Z"
       fill="#BE1A1A"
     />
     <path
@@ -330,7 +465,14 @@ const RoundedX = (props) => (
 );
 
 const CorrectRadio = (props) => (
-  <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="100%"
+    height="100%"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
     <path
       d="M20 12C20 9.87827 19.1571 7.84344 17.6569 6.34315C16.1566 4.84285 14.1217 4 12 4C9.87827 4 7.84344 4.84285 6.34315 6.34315C4.84285 7.84344 4 9.87827 4 12C4 14.1217 4.84285 16.1566 6.34315 17.6569C7.84344 19.1571 9.87827 20 12 20C14.1217 20 16.1566 19.1571 17.6569 17.6569C19.1571 16.1566 20 14.1217 20 12ZM22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12Z"
       fill="#24AC29"
@@ -343,7 +485,14 @@ const CorrectRadio = (props) => (
 );
 
 const WrongRadio = (props) => (
-  <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="100%"
+    height="100%"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
     <path
       d="M20 12C20 9.87827 19.1571 7.84344 17.6569 6.34315C16.1566 4.84285 14.1217 4 12 4C9.87827 4 7.84344 4.84285 6.34315 6.34315C4.84285 7.84344 4 9.87827 4 12C4 14.1217 4.84285 16.1566 6.34315 17.6569C7.84344 19.1571 9.87827 20 12 20C14.1217 20 16.1566 19.1571 17.6569 17.6569C19.1571 16.1566 20 14.1217 20 12ZM22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12Z"
       fill="#BE1A1A"
@@ -356,7 +505,14 @@ const WrongRadio = (props) => (
 );
 
 const NotSelectedIcon = (props) => (
-  <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+  <svg
+    width="100%"
+    height="100%"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
     <path
       d="M20 12C20 9.87827 19.1571 7.84344 17.6569 6.34315C16.1566 4.84285 14.1217 4 12 4C9.87827 4 7.84344 4.84285 6.34315 6.34315C4.84285 7.84344 4 9.87827 4 12C4 14.1217 4.84285 16.1566 6.34315 17.6569C7.84344 19.1571 9.87827 20 12 20C14.1217 20 16.1566 19.1571 17.6569 17.6569C19.1571 16.1566 20 14.1217 20 12ZM22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12Z"
       fill="#71717A"

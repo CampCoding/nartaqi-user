@@ -29,7 +29,7 @@ export const McqQuestion = ({
 
       {/* Question Text - supports HTML */}
       {questionHtml ? (
-        <div
+        <div onClick={()=> console.log(options)}
           className="self-stretch text-right justify-center text-text text-lg md:text-xl font-bold leading-[50px]"
           dangerouslySetInnerHTML={{ __html: questionHtml }}
         />
@@ -82,11 +82,11 @@ export const McqQuestion = ({
               </span>
 
               {/* Option Text - supports HTML */}
-              {option.labelHtml ? (
+              {option.textHtml ? (
                 <span
                   dir="rtl"
                   className="text-sm md:text-base leading-[40px] text-right flex-1"
-                  dangerouslySetInnerHTML={{ __html: option.labelHtml }}
+                  dangerouslySetInnerHTML={{ __html: option.textHtml }}
                 />
               ) : (
                 <span
