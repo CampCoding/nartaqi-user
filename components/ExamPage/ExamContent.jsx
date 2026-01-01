@@ -134,7 +134,7 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
         <div className="w-full lg:flex-1">
           {isStarted && currentQuestion ? (
             <>
-              {currentSection && (
+              {/* {currentSection && (
                 <div className="mb-4">
                   <h3
                     className="text-lg font-bold text-text mb-2"
@@ -143,11 +143,11 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
                     }}
                   />
                 </div>
-              )}
+              )} */}
 
-              <div className="mb-4 text-sm text-text-alt">
+              {/* <div className="mb-4 text-sm text-text-alt">
                 السؤال {currentIndex + 1} من {questions.length}
-              </div>
+              </div> */}
 
               {currentBlock?.type === "paragraph" && currentBlock.passage && (
                 <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200 max-h-[300px] overflow-y-auto">
@@ -160,11 +160,11 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
                 </div>
               )}
 
-              {currentQuestion.instructions && (
+              {/* {currentQuestion.instructions && (
                 <div className="mb-4 p-3 bg-blue-50 rounded-lg text-blue-800 text-sm">
                   {currentQuestion.instructions}
                 </div>
-              )}
+              )} */}
 
               {currentBlock?.type === "paragraph" &&
                 currentBlock.questions.length > 1 && (

@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { selectCurrentSection } from "../utils/Store/Slices/examSlice";
+import { useSelector } from "react-redux";
 
 export const Timer = ({
   currentQuestionIndex = 0,
@@ -11,7 +13,7 @@ export const Timer = ({
   onTimeUp,
   isStarted,
   setIsStarted,
-  examData
+  examData,
 }) => {
   // Use formattedTime from props if available (controlled by parent), otherwise use local state
   const [remainingSeconds, setRemainingSeconds] = useState(initialSeconds);
@@ -19,7 +21,8 @@ export const Timer = ({
   const intervalRef = useRef(null);
 
   // If formattedTime is provided, use it (parent controls timer)
-  const useParentTimer = formattedTime !== undefined && timeRemaining !== undefined;
+  const useParentTimer =
+    formattedTime !== undefined && timeRemaining !== undefined;
 
   // Reset when initialSeconds changes (only if not using parent timer)
   useEffect(() => {
@@ -32,7 +35,7 @@ export const Timer = ({
   // Ticking logic (only if not using parent timer)
   useEffect(() => {
     if (useParentTimer) return; // Parent handles timer
-    
+
     if (!isStarted || remainingSeconds <= 0) {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -65,7 +68,14 @@ export const Timer = ({
       setIsStarted?.(false);
       onTimeUp?.();
     }
-  }, [timeRemaining, remainingSeconds, onTimeUp, setIsStarted, isStarted, useParentTimer]);
+  }, [
+    timeRemaining,
+    remainingSeconds,
+    onTimeUp,
+    setIsStarted,
+    isStarted,
+    useParentTimer,
+  ]);
 
   const timeLabel = useMemo(() => {
     if (useParentTimer && formattedTime) {
@@ -79,15 +89,28 @@ export const Timer = ({
       .padStart(2, "0");
     return `${m}:${s}`;
   }, [remainingSeconds, formattedTime, useParentTimer]);
+  const currentSection = useSelector(selectCurrentSection);
 
   return (
     <div className="flex flex-col  md:items-center gap-4 md:flex-row justify-between w-full mb-12 sm:mb-16 lg:mb-20">
-      <div className="flex flex-col  order-2 md:order-1 justify-center items-start gap-6 sm:gap-8 lg:gap-10">
-        <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-text text-right sm:text-right">
+      <div className="flex flex-col  order-2 md:order-1 justify-center items-start gap-6  ">
+        {/* <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-text text-right sm:text-right">
             {examData?.exam_info?.title || "الاختبار"}
-        </div>
+        </div> */}
+        {isStarted ? (
+          <h3
+            className="text-xl sm:text-2xl lg:text-3xl font-bold text-text text-right sm:text-right"
+            dangerouslySetInnerHTML={{
+              __html: currentSection.title?.replace(/&nbsp;/gi, " ") || "",
+            }}
+          />
+        ) : (
+          <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-text text-right sm:text-right">
+            {examData?.exam_info?.title || "الاختبار"}
+          </div>
+        )}
         {isStarted && (
-          <div className="text-text-alt text-xl sm:text-2xl lg:text-3xl font-medium text-center sm:text-right">
+          <div className="text-text-alt text-base sm:text-lg lg:text-xl font-medium text-center sm:text-right">
             {`السؤال ${currentQuestionIndex + 1} من ${totalQuestions}`}
           </div>
         )}
