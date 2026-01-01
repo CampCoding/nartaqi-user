@@ -166,12 +166,12 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
                 </div>
               )} */}
 
-              {currentBlock?.type === "paragraph" &&
+              {/* {currentBlock?.type === "paragraph" &&
                 currentBlock.questions.length > 1 && (
                   <div className="mb-4 text-xs text-gray-500">
                     سؤال {currentQuestionInBlockIndex + 1} من {currentBlock.questions.length} في هذه الفقرة
                   </div>
-                )}
+                )} */}
 
               {renderQuestion()}
             </>
