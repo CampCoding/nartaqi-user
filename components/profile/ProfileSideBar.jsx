@@ -37,12 +37,12 @@ export const ProfileSideBar = () => {
       label: "دوراتي",
       icon: OpenBook, // ✅
     },
-    {
-      id: "badges",
-      path: "/my-badges",
-      label: "شاراتي",
-      icon: Badge,
-    },
+    // {
+    //   id: "badges",
+    //   path: "/my-badges",
+    //   label: "شاراتي",
+    //   icon: Badge,
+    // },
     {
       id: "certificates",
       path: "/my-certificates",
