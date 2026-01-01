@@ -23,13 +23,13 @@ export const CoursRateCard = ({ rating }) => {
   };
 
   return (
-    <div className="flex flex-col items-start gap-6 px-6 sm:px-8 md:px-12 py-6 sm:py-8 relative bg-white rounded-[30px] border-[3px] border-solid border-variable-collection-stroke">
+    <div className="flex flex-col   w-full items-start gap-6 px-6 sm:px-8 md:px-12 py-6 sm:py-8 relative bg-white rounded-[30px] border-[3px] border-solid border-variable-collection-stroke">
       <div className="flex items-start justify-start gap-4 relative self-stretch w-full flex-[0_0_auto]">
         <div
           className="relative w-12 h-12 rounded-3xl bg-cover bg-center bg-no-repeat flex-shrink-0"
           style={{
             backgroundImage: `url(${
-              rating.student?.image || "/images/default-avatar.png"
+              rating.student?.image_url || "/images/default-avatar.png"
             })`,
           }}
         />

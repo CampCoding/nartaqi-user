@@ -238,34 +238,51 @@ const Courses = ({ rounds = [] }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 lg:gap-x-[48px] gap-y-6 lg:gap-y-[28px] mt-6">
-        {rounds.map((course) => {
+      {rounds.map((item) => {
           const payload = {
-            ...course,
-            id: course?.id,
-            name: course?.name,
-            description: course?.description,
-            image_url: course?.image_url || course?.image || "",
-            start_date: course?.start_date,
-            free: course?.free,
-            price: course?.price,
-            enrolled: course?.own,
-            favorite: course?.fav,
-            roundBook: course?.round_book,
-            roundBookUrl: course?.round_book_url,
-            roundRoadMapBook: course?.round_road_map_book,
-            roundRoadMapBookUrl: course?.round_road_map_book_url,
-            rating: course?.average_rating,
-            totalRates: course?.ratings_count,
-            capacity: course?.capacity,
-            teachers: course?.teachers,
-            course: { name: course?.category_parts_name },
-            teacher: (course?.teachers || []).map((t) => ({
-              name: t?.name,
-              image_url: t?.image_url || t?.image,
-            })),
+            ...item,
+            id: item.id,
+
+            name: item.name,
+            goal: item.description,
+            description: item.description,
+            image_url: item.image_url,
+            start_date: item.start_date,
+            end_date: item.end_date,
+            free: item.free,
+            price: item.price,
+            for: item.for,
+            gender: item.gender,
+            active: item.active,
+            course_category_id: item.course_category_id,
+            remainingSets: +item.capacity - +item.students_count,
+            // Transform course_categories to course
+            course: {
+              name: item.course_categories?.name || "غير محدد",
+              id: item.course_categories?.id,
+              description: item.course_categories?.description,
+              image_url: item.course_categories?.image_url,
+            },
+            // Teacher data (already in correct format)
+            teacher: Array.isArray(item.teacher)
+              ? item.teacher.map((teacher) => ({
+                  name: teacher.name,
+                  image_url: teacher.image_url,
+                }))
+              : item.teacher && typeof item.teacher === "object"
+              ? [
+                  {
+                    name: item.teacher.name,
+                    image_url: item.teacher.image_url,
+                  },
+                ]
+              : [],
+            is_favorite: item?.fav || false,
+            enrolled: item.enrolled || false,
+            teachers: item.teachers,
           };
 
-          return <CourseCard key={course?.id} freeWidth payload={payload} />;
+          return <CourseCard key={item?.id} freeWidth payload={payload} />;
         })}
       </div>
     </div>

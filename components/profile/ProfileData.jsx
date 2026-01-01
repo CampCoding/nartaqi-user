@@ -125,7 +125,7 @@ const ProfileData = () => {
             className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-cover bg-center"
             style={{
               backgroundImage: `url(${
-                preview || user?.message?.image || "/images/Image-12422.png"
+                preview || user?.message?.image_url || "/images/Image-12422.png"
               })`,
             }}
           />
