@@ -151,7 +151,7 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
                 key={lesson.id}
                 lesson={lesson}
                 isDone={true}
-                own={own}
+                own={own }
                 // ✅ كان غلط: isRegistered={!isRegistered}
                 isRegistered={isRegistered}
                 token={token}
@@ -264,7 +264,7 @@ export const RegLectureDrawer = ({
     { style = "long", roundToMinute = false } = {}
   ) => {
     if (input === null || input === undefined || input === "" || input === 0) {
-      return "غير محدد";
+      return "";
     }
 
     let totalSeconds = 0;
@@ -606,6 +606,8 @@ export const RegLectureDrawer = ({
                         <time className="font-medium text-text text-sm md:text-base leading-normal">
                           {formatTime(item.time)}
                         </time>
+                        {
+                          isRegistered &&
                         <label className="inline-flex items-center gap-2 cursor-pointer select-none">
                           <CheckboxButton
                             id={key}
@@ -615,6 +617,7 @@ export const RegLectureDrawer = ({
                             disabled={!isRegistered || isSaving}
                           />
                         </label>
+                        }
                       </div>
                     )}
                   </div>

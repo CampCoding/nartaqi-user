@@ -154,19 +154,15 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
             </a>
           )}
 
-<Link
+          <Link
             href={
-            `/course/${courseData?.round?.id}`
+              pathname.startsWith("/course-preview") ? `/course/${round.id}` : `/course-preview/${round.id}`
             }
             className="flex-1 cursor-pointer px-7 py-5 hover:shadow-2xl active:scale-95 transition-all select-none lg:px-12 lg:py-6 bg-secondary rounded-[24px] flex justify-center items-center gap-3"
           >
             {!pathname.startsWith("/course-preview") && <VideoCameraIcon />}
-
-            <div
-              // href={`/course/${courseData?.round}`}
-              className="text-right justify-center text-white text-base md:text-lg font-medium"
-            >
-              {"الرجوع لمحتوى الدورة"}
+            <div className="text-right justify-center text-white text-base md:text-lg font-medium">
+              {pathname.startsWith("/course-preview") ? " الرجوع للدورة" : "الشروحات المجانية"}
             </div>
           </Link>
         </div>

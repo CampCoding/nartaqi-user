@@ -118,10 +118,8 @@ const ExamResults = ({ show, setShow, examId }) => {
   const filteredQuestions = useMemo(() => {
     return answeredQuestions.filter((q) => {
       const correctId = q.answers.find((a) => a.isCorrect)?.id ?? null;
-
       if (activeTab === "correct") return q.answer != null && q.answer === correctId;
       if (activeTab === "wrong") return q.answer != null && q.answer !== correctId;
-
       return true;
     });
   }, [answeredQuestions, activeTab]);
