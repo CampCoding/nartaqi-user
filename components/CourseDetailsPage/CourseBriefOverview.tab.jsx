@@ -149,7 +149,7 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
                 <FileIcon />
               </div>
               <div className="text-right justify-center text-white text-base md:text-lg font-medium">
-                المحتوي المجاني
+                كتاب الدورة 
               </div>
             </a>
           )}
