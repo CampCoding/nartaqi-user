@@ -10,7 +10,8 @@ import { MyCompletedCourseCard } from "@/components/ui/Cards/MyCompletedCourseCa
 import useUserCourses from "../../../components/shared/Hooks/useGetMyCourses";
 
 const MyCourses = () => {
-  const token = useSelector((state) => state.auth?.token);
+  const {token , user} = useSelector((state) => state.auth);
+  const studentId  = user?.id
 
   const { rounds, totalAchievementRate, loading, error, refetch } =
     useUserCourses(token);
@@ -126,7 +127,7 @@ const MyCourses = () => {
             style={{ justifyItems: "center" }}
           >
             {completedCourses.map((course) => (
-              <MyCompletedCourseCard key={course.id} course={course} />
+              <MyCompletedCourseCard key={course.id} course={course} studentId={studentId} token={token} />
             ))}
           </div>
         )}

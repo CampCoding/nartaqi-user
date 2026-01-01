@@ -4,6 +4,10 @@ import React, { useState } from "react";
 import CourseRateModal from "@/components/CourseRateModal"; // عدّل المسار
 
 export const MyCompletedCourseCard = ({ course, studentId, token }) => {
+
+  console.log(  "studentIdAndToken" ,  studentId , token)
+
+
   const courseData = {
     title: course?.name || "دورة تدريبية",
     imageUrl: course?.image_url || "/images/teacher-course-banner.png",
@@ -91,7 +95,7 @@ const Buttons = ({ course, studentId, token }) => {
       <CourseRateModal
         open={openRate}
         onClose={() => setOpenRate(false)}
-        roundId={course.roundId}
+        roundId={course.id}
         studentId={studentId}
         token={token}
       />

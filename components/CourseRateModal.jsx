@@ -1,20 +1,10 @@
 // components/CourseRateModal.js
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { Rate } from "antd";
-
-// replace with your real hook
-const useMakeRoundRate = ({ token }) => {
-  return {
-    submitRate: async (data) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Submitting rate:", data);
-    },
-    loading: false,
-  };
-};
+import { useMakeRoundRate } from "./shared/Hooks/userMakeRoundRate";
 
 export default function CourseRateModal({
   open,
@@ -23,16 +13,29 @@ export default function CourseRateModal({
   studentId,
   token,
 }) {
-  const { submitRate, loading } = useMakeRoundRate({ token });
+  // ✅ استخدام الهوك الحقيقي
+  const { submitRate, loading, error } = useMakeRoundRate({ token });
+
+  console.log("roundId",  roundId)
 
   const [rate, setRate] = useState(3);
   const [hoverValue, setHoverValue] = useState(undefined);
   const [comment, setComment] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  // (اختياري) رسالة خطأ داخل المودال
+  const [localError, setLocalError] = useState("");
+
+  useEffect(() => {
+    if (error) setLocalError(error);
+  }, [error]);
+
   const canSubmit = useMemo(() => {
     return !!roundId && !!studentId && rate >= 0.5 && rate <= 5 && !loading;
   }, [roundId, studentId, rate, loading]);
+
+
+  console.log("canSubmit" , canSubmit)
 
   if (!open) return null;
 
@@ -46,7 +49,22 @@ export default function CourseRateModal({
 
   const displayRate = hoverValue ?? rate;
 
+  const resetForm = () => {
+    setComment("");
+    setRate(3);
+    setHoverValue(undefined);
+    setIsSubmitted(false);
+    setLocalError("");
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose?.();
+  };
+
   const handleSubmit = async () => {
+    setLocalError("");
+
     try {
       await submitRate({
         round_id: Number(roundId),
@@ -56,15 +74,12 @@ export default function CourseRateModal({
       });
 
       setIsSubmitted(true);
+
       setTimeout(() => {
-        onClose?.();
-        setComment("");
-        setRate(3);
-        setHoverValue(undefined);
-        setIsSubmitted(false);
+        handleClose();
       }, 1200);
     } catch (e) {
-      console.error(e?.message || "فشل إرسال التقييم");
+      setLocalError(e?.message || "فشل إرسال التقييم");
     }
   };
 
@@ -73,7 +88,7 @@ export default function CourseRateModal({
       {/* Overlay */}
       <button
         aria-label="close"
-        onClick={onClose}
+        onClick={handleClose}
         className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
       />
 
@@ -84,7 +99,7 @@ export default function CourseRateModal({
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
             <h3 className="font-bold text-xl text-gray-800">تقييم الدورة</h3>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="h-10 w-10 rounded-full hover:bg-white/80 transition-colors flex items-center justify-center group"
               aria-label="close modal"
             >
@@ -94,6 +109,13 @@ export default function CourseRateModal({
 
           {/* Content */}
           <div className="p-6 space-y-6">
+            {/* Error */}
+            {localError ? (
+              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {localError}
+              </div>
+            ) : null}
+
             {/* Rating Section */}
             <div className="space-y-4">
               <div className="text-center">
@@ -112,7 +134,7 @@ export default function CourseRateModal({
                   value={rate}
                   onChange={(v) => setRate(v)}
                   onHoverChange={(v) => setHoverValue(v)}
-                  className="[direction:ltr] text-4xl" // نجوم كبيرة + LTR عشان ترتيب النجوم
+                  className="[direction:ltr] text-4xl"
                 />
               </div>
 
@@ -141,7 +163,9 @@ export default function CourseRateModal({
                 placeholder="شاركنا رأيك في الدورة... ما الذي أعجبك؟ وما الذي يمكن تحسينه؟"
               />
               <div className="flex justify-end">
-                <span className="text-xs text-gray-400">{comment.length}/500</span>
+                <span className="text-xs text-gray-400">
+                  {comment.length}/500
+                </span>
               </div>
             </div>
 
@@ -183,19 +207,19 @@ export default function CourseRateModal({
                       r="10"
                       stroke="currentColor"
                       strokeWidth="4"
-                    ></circle>
+                    />
                     <path
                       className="opacity-75"
                       fill="currentColor"
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
+                    />
                   </svg>
                   جاري الإرسال...
                 </span>
               ) : (
                 "إرسال التقييم"
               )}
-              <div className="absolute inset-0 -z-10 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+              <div className="absolute inset-0 -z-10 bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-20 transition-opacity" />
             </button>
           </div>
         </div>

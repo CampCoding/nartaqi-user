@@ -47,7 +47,7 @@ export const useGetCourseRounds = (payload) => {
 
   const fetchPage = useCallback(
     async (targetPage, { append } = { append: false }) => {
-      try {
+      try { 
         if (append) setFetching(true);
         else setLoading(true);
 
