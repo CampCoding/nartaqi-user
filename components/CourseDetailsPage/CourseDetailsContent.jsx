@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import CourseBriefOverview from "./CourseBriefOverview.tab";
@@ -86,17 +92,25 @@ function setNormalizedScrollLeft(el, normalized) {
   else el.scrollLeft = value; // positive-ascending
 }
 
-const CourseDetailsContent = ({ courseData }) => {
+const CourseDetailsContent = ({ courseData, inFreeVideos }) => {
   const [activeTab, setActiveTab] = useState("content");
 
   const tabs = useMemo(
-    () => [
-      { label: "نبذة مختصرة", value: "overview" },
-      { label: "محتوى الدورة", value: "content" },
-      { label: "مميزات الدورة", value: "features" },
-      { label: "الشروط والأحكام", value: "terms" },
-      { label: "تقييمات", value: "reviews" },
-    ],
+    () =>
+      inFreeVideos
+        ? [
+            { label: "نبذة مختصرة", value: "overview" },
+            { label: "مميزات الدورة", value: "features" },
+            { label: "الشروط والأحكام", value: "terms" },
+            { label: "تقييمات", value: "reviews" },
+          ]
+        : [
+            { label: "نبذة مختصرة", value: "overview" },
+            { label: "محتوى الدورة", value: "content" },
+            { label: "مميزات الدورة", value: "features" },
+            { label: "الشروط والأحكام", value: "terms" },
+            { label: "تقييمات", value: "reviews" },
+          ],
     []
   );
 
@@ -131,10 +145,8 @@ const CourseDetailsContent = ({ courseData }) => {
     // ✅ Determine hidden sides based on visual direction
     // LTR: left hidden when n > 0, right hidden when n < max
     // RTL: at start you're at the right side visually; hidden to the left when n < max
-    const hasHiddenLeft =
-      dir === "rtl" ? n < max - threshold : n > threshold;
-    const hasHiddenRight =
-      dir === "rtl" ? n > threshold : n < max - threshold;
+    const hasHiddenLeft = dir === "rtl" ? n < max - threshold : n > threshold;
+    const hasHiddenRight = dir === "rtl" ? n > threshold : n < max - threshold;
 
     setCanScrollLeft(overflowing && hasHiddenLeft);
     setCanScrollRight(overflowing && hasHiddenRight);
@@ -203,7 +215,11 @@ const CourseDetailsContent = ({ courseData }) => {
       if (!el) return;
       const btn = el.querySelector(`[data-tab="${tabValue}"]`);
       if (btn?.scrollIntoView) {
-        btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        btn.scrollIntoView({
+          behavior: "smooth",
+          inline: "center",
+          block: "nearest",
+        });
       }
     });
   };
@@ -307,7 +323,7 @@ const CourseDetailsContent = ({ courseData }) => {
           >
             {tabs.map((tab) => {
               const isActive = activeTab === tab.value;
-                
+
               return (
                 <button
                   key={tab.value}

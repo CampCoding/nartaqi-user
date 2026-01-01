@@ -351,7 +351,7 @@ const CoursePreviewPage = () => {
           />
 
           <Container>
-            <CourseDetailsContent courseData={courseData} />
+            <CourseDetailsContent courseData={courseData} inFreeVideos />
           </Container>
         </div>
       )}
@@ -422,7 +422,7 @@ const CoursePreviewPage = () => {
               )}
 
               <div className="grid grid-cols-1 my-8 mb-[139px]">
-                <CourseDetailsContent courseData={courseData} />
+                <CourseDetailsContent courseData={courseData} inFreeVideos />
               </div>
             </div>
 
