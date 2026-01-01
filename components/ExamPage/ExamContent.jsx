@@ -163,7 +163,7 @@ const ExamContent = ({ examData, sections, currentSection, currentBlock, current
               {/* Passage for paragraph questions */}
               {activeCurrentBlock?.type === "paragraph" && activeCurrentBlock.passage && (
                 <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                  <div dangerouslySetInnerHTML={{ __html: activeCurrentBlock.passage }} />
+                  <div dangerouslySetInnerHTML={{ __html: activeCurrentBlock.passage.replaceAll(/&nbsp;/ig, " ") }} />
                 </div>
               )}
 
