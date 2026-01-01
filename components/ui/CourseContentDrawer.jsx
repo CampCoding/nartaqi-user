@@ -872,9 +872,9 @@ export const ExerciseDropDown = ({
                               </h2>
                             )}
 
-                            <span className="text-xs md:text-sm px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                            {/* <span className="text-xs md:text-sm px-2.5 py-1 rounded-full bg-primary/10 text-primary">
                               شرح
-                            </span>
+                            </span> */}
                           </div>
 
                           <div className="inline-flex items-center gap-2 flex-shrink-0">
@@ -925,7 +925,7 @@ export const ExerciseDropDown = ({
                         <span className="font-medium text-text text-base md:text-lg leading-normal">
                           {pdf.title}
                         </span>
-                        <span
+                        {/* <span
                           className={`text-xs md:text-sm px-2.5 py-1 rounded-full ${
                             pdf.type === "question"
                               ? "bg-blue-100 text-blue-600"
@@ -933,7 +933,7 @@ export const ExerciseDropDown = ({
                           }`}
                         >
                           {pdf.type === "question" ? "أسئلة" : "إجابات"}
-                        </span>
+                        </span> */}
                       </div>
 
                       {isRegistered && (
