@@ -145,6 +145,7 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
   }, [token, roundId, toggleFavorite, goLogin]);
 
   const handleSubscribe = useCallback(async () => {
+    const isFull = +round.capacity - +round.students_count == 0;
 
     if (!token) return goLogin();
     if (!roundId) return console.error("Round ID is undefined!");
