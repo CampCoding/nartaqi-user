@@ -10,6 +10,8 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+const FALLBACK_TEACHER_IMG = "/images/teacher-placeholder.png";
+
 const CourseBriefOverview = ({ isRegistered, courseData }) => {
   const pathname = usePathname();
   const { round, roundRate } = courseData;
@@ -26,15 +28,24 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
 
   const teacherRating = calculateTeacherRating();
 
+  // ✅ Handle teacher image error
+  const handleTeacherImgError = (e) => {
+    // prevent infinite loop if fallback also fails
+    if (e?.currentTarget?.src !== FALLBACK_TEACHER_IMG) {
+      e.currentTarget.src = FALLBACK_TEACHER_IMG;
+    }
+  };
+
   return (
     <div className="grid-cols-1 space-y-10 md:space-y-12">
       {/* عرض محتوى الدورة من goal (HTML) */}
       {round.goal ? (
         <div
           className="course-goal-content"
-          dangerouslySetInnerHTML={{ __html: round?.goal?.replaceAll(/&nbsp;/ig , " ") }}
+          dangerouslySetInnerHTML={{
+            __html: round?.goal?.replaceAll(/&nbsp;/gi, " "),
+          }}
         />
-          
       ) : (
         <>
           <div className="self-stretch inline-flex flex-col justify-start items-end gap-2">
@@ -70,9 +81,11 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
                   <img
                     loading="lazy"
                     className="w-12 h-12 md:w-14 md:h-14 relative rounded-full object-cover"
-                    src={teacher.image_url || "https://placehold.co/45x45"}
-                    alt={teacher.name}
+                    src={teacher?.image_url || FALLBACK_TEACHER_IMG}
+                    onError={handleTeacherImgError}
+                    alt={teacher?.name || "teacher"}
                   />
+
                   <div className="inline-flex flex-col justify-start items-start gap-0.5">
                     <div className="justify-center text-text text-lg md:text-xl font-semibold leading-snug">
                       {teacher.name || "غير محدد"}
@@ -142,31 +155,38 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
         </div>
       )}
 
-        <div className="self-stretch w-full flex flex-col gap-5 mt-10 lg:flex-row lg:justify-end lg:!mt-14 lg:items-start lg:gap-12">
-          { (
-            <a href={round.round_book_url} target="_blank" className="flex-1 cursor-pointer hover:shadow-2xl active:scale-95 transition-all select-none px-7 py-5 lg:px-12 lg:py-6 bg-primary rounded-[24px] flex justify-center items-center gap-3">
-              <div className="w-7 h-7 relative overflow-hidden">
-                <FileIcon />
-              </div>
-              <div className="text-right justify-center text-white text-base md:text-lg font-medium">
-                كتاب الدورة 
-              </div>
-            </a>
-          )}
-
-          <Link
-            href={
-              pathname.startsWith("/course-preview") ? `/course/${round.id}` : `/course-preview/${round.id}`
-            }
-            className="flex-1 cursor-pointer px-7 py-5 hover:shadow-2xl active:scale-95 transition-all select-none lg:px-12 lg:py-6 bg-secondary rounded-[24px] flex justify-center items-center gap-3"
+      <div className="self-stretch w-full flex flex-col gap-5 mt-10 lg:flex-row lg:justify-end lg:!mt-14 lg:items-start lg:gap-12">
+        {
+          <a
+            href={round.round_book_url}
+            target="_blank"
+            className="flex-1 cursor-pointer hover:shadow-2xl active:scale-95 transition-all select-none px-7 py-5 lg:px-12 lg:py-6 bg-primary rounded-[24px] flex justify-center items-center gap-3"
           >
-            {!pathname.startsWith("/course-preview") && <VideoCameraIcon />}
-            <div className="text-right justify-center text-white text-base md:text-lg font-medium">
-              {pathname.startsWith("/course-preview") ? " الرجوع للدورة" : "الشروحات المجانية"}
+            <div className="w-7 h-7 relative overflow-hidden">
+              <FileIcon />
             </div>
-          </Link>
-        </div>
-      
+            <div className="text-right justify-center text-white text-base md:text-lg font-medium">
+              كتاب الدورة
+            </div>
+          </a>
+        }
+
+        <Link
+          href={
+            pathname.startsWith("/course-preview")
+              ? `/course/${round.id}`
+              : `/course-preview/${round.id}`
+          }
+          className="flex-1 cursor-pointer px-7 py-5 hover:shadow-2xl active:scale-95 transition-all select-none lg:px-12 lg:py-6 bg-secondary rounded-[24px] flex justify-center items-center gap-3"
+        >
+          {!pathname.startsWith("/course-preview") && <VideoCameraIcon />}
+          <div className="text-right justify-center text-white text-base md:text-lg font-medium">
+            {pathname.startsWith("/course-preview")
+              ? " الرجوع للدورة"
+              : "الشروحات المجانية"}
+          </div>
+        </Link>
+      </div>
     </div>
   );
 };

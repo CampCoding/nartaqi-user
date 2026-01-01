@@ -95,6 +95,12 @@ function setNormalizedScrollLeft(el, normalized) {
 const CourseDetailsContent = ({ courseData, inFreeVideos }) => {
   const [activeTab, setActiveTab] = useState("content");
 
+
+  useEffect(()=>{ 
+    if(inFreeVideos)
+    setActiveTab("overview")
+  },[inFreeVideos])
+
   const tabs = useMemo(
     () =>
       inFreeVideos
