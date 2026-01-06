@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import RegCourseDetailsCard from "../../../../components/CourseDetailsPage/Reg_courseDetialsCard";
 import RegCourseDetailsContent from "../../../../components/CourseDetailsPage/Reg_courseDetailsContent";
@@ -20,12 +20,15 @@ import useIsLgUp from "../../../../hooks/useLgUp";
 import {
   openVideoModal,
   closeVideoModal,
+  openVideo,
 } from "../../../../components/utils/Store/Slices/videoModalSlice";
+import VideoPlayer from "../../../../components/ui/Video";
 
-const Reg_courseDetails = ({ courseData , open }) => {
+const Reg_courseDetails = ({ courseData, open }) => {
   const [selectedTab, setSelectedTab] = React.useState("sourses");
   const [openShareDrawer, setOpenShareDrawer] = React.useState(false);
   const [isFavorited, setIsFavorited] = React.useState(courseData.fav);
+  const { data } = useSelector((s) => s.videoModal);
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -131,7 +134,7 @@ const Reg_courseDetails = ({ courseData , open }) => {
       "مشاهدة الفيديو";
 
     dispatch(
-      openVideoModal({
+      openVideo({
         title,
         // NOTE:
         // لو بتمرر encoded من URL خليه كما هو
@@ -150,6 +153,11 @@ const Reg_courseDetails = ({ courseData , open }) => {
     findVideoById,
     courseData?.round?.name,
   ]);
+
+  const title = data?.title || "مشاهدة الفيديو";
+  const vimeoId = data?.vimeoId || "";
+  const youtubeId = data?.youtubeId || "";
+  const autoplay = data?.autoplay ?? true;
 
   return (
     <>
@@ -188,7 +196,8 @@ const Reg_courseDetails = ({ courseData , open }) => {
       {/* ===================== DESKTOP ===================== */}
       {isLgUp && (
         <div className="hidden lg:block">
-          <div className="w-full h-[560px] xl:h-[611px] relative ">
+          {!watch ? (
+            <div className="w-full h-[560px] xl:h-[611px] relative ">
               <div className="absolute inset-0 z-30  bg-gradient-to-b   from-transparent to-black/90" />{" "}
               <img
                 loading="lazy"
@@ -196,7 +205,15 @@ const Reg_courseDetails = ({ courseData , open }) => {
                 className="w-full h-full object-cover object-center"
                 alt={courseData.round.name}
               />
-          </div>
+            </div>
+          ) : (
+            <VideoPlayer
+              vimeo_id={vimeoId}
+              youtube_id={youtubeId}
+              defaultPlay={autoplay}
+              rootClassName="w-full"
+            />
+          )}
 
           <Container className="mt-10 xl:mt-12 relative z-30">
             <div className="flex gap-8 xl:gap-6 justify-between items-start">
@@ -213,7 +230,7 @@ const Reg_courseDetails = ({ courseData , open }) => {
               <div
                 className={cx(
                   "space-y-12 xl:space-y-14",
-                  "translate-y-[-441px]"
+                  watch ? "" : " translate-y-[-441px]"
                 )}
               >
                 <RegCourseDetailsCard

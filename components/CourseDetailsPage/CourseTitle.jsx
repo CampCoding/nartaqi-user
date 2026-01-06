@@ -35,10 +35,10 @@ const CourseTitle = ({
 }) => {
   return (
     // 2. Responsive padding and margin for the main container
-    <div className="container mx-auto px-4 my-8 lg:px-[64px] lg:my-[48px] flex items-center justify-center">
+    <div className="container mx-auto px-4 my-8 lg:px-[64px] lg:mt-[18px] lg:mb-[48px] flex items-center justify-center">
       <div className="inline-flex flex-col justify-start items-center gap-4">
         {/* 3. Responsive font size for the title */}
-        <div className="text-center justify-center text-tertiary text-2xl md:text-[35px] font-bold leading-tight md:leading-loose">
+        <div className="text-center justify-center text-tertiary text-2xl md:text-[30px] font-bold leading-tight md:leading-loose">
           {title || "إتقان التدريس الفعال - معلمين"}
         </div>
 

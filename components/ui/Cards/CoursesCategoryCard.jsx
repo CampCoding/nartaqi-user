@@ -40,8 +40,8 @@ const CoursesCategoryCard = ({
     >
       <div className="flex absolute bottom-0 items-center justify-between px-[20px] w-full top-[290px]">
         <div className="flex flex-col items-start gap-1 relative">
-          <div className="relative w-fit mt-[-0.58px] font-semibold text-bg text-base text-right leading-[19.2px]">
-            {data?.title}
+          <div className="relative w-[200px] truncate mt-[-0.58px]  font-semibold text-bg text-base text-right leading-[19.2px]">
+            {data?.title} 
           </div>
 
           <div className="relative w-fit font-semibold text-[#fdd4b7] text-sm text-left leading-[21px] whitespace-nowrap">

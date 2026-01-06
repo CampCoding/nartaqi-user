@@ -104,10 +104,9 @@ const mockExamSlice = createSlice({
 
         const blocks = [];
 
-        // Process paragraphs
+        // Process paragraphs - create one block per question to show one question at a time
         section.paragraphs?.forEach((paraObj) => {
           const passage = stripHtml(paraObj.paragraph.paragraph_content);
-          const paragraphQuestions = [];
 
           paraObj.questions?.forEach((q) => {
             if (!q.options || q.options.length === 0) return;
@@ -135,17 +134,15 @@ const mockExamSlice = createSlice({
               globalIndex: questionCounter++,
             };
 
-            paragraphQuestions.push(questionData);
-            allQuestions.push(questionData);
-          });
-
-          if (paragraphQuestions.length > 0) {
+            // Create one block per question, but all share the same passage
             blocks.push({
               type: "paragraph",
-              passage: passage,
-              questions: paragraphQuestions,
+              passage: passage, // Same passage for all questions from this paragraph
+              questions: [questionData], // Only one question per block
             });
-          }
+
+            allQuestions.push(questionData);
+          });
         });
 
         // Process MCQ questions
@@ -171,12 +168,12 @@ const mockExamSlice = createSlice({
               stripHtml(correctOption?.question_explanation) ||
               "لا يوجد تفسير متاح.",
             instructions: q.instructions || "",
-            type: "mcq",
+            type: q.question_type || "mcq",
             globalIndex: questionCounter++,
           };
 
           blocks.push({
-            type: "mcq",
+            type: q.question_type || "mcq",
             passage: null,
             questions: [questionData],
           });
@@ -580,9 +577,16 @@ export const selectFormattedAnswersForAPI = (state) => {
 
       // ✅ Get student answer text
       const studentAnswerText = selectedOption?.text || null;
+      
+      // ✅ Get student answer ID
+      const studentAnswerId = selectedOption?.id || null;
+
 
       // ✅ Get correct answer text
       const correctAnswerText = question.correctAnswerText;
+      // ✅ Get correct answer ID
+      const correctAnswerId = question.correctAnswer;
+
 
       // ✅ Check if correct
       const isCorrect = userAnswerId === question.correctAnswer;
@@ -590,8 +594,8 @@ export const selectFormattedAnswersForAPI = (state) => {
       formattedAnswers.push({
         question_id: question.id,
         type: question.type,
-        student_answer: studentAnswerText, // ✅ Now TEXT instead of ID
-        correct_answer: correctAnswerText, // ✅ Now TEXT instead of ID
+        student_answer: studentAnswerId, // ✅ Now TEXT instead of ID
+        correct_answer: correctAnswerId, // ✅ Now TEXT instead of ID
         is_correct: isCorrect,
       });
     }

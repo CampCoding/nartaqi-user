@@ -84,7 +84,6 @@ export default function VideoPlayerModal() {
   const vimeoId = data?.vimeoId || "";
   const youtubeId = data?.youtubeId || "";
   const autoplay = data?.autoplay ?? true;
-  console.log("videoPlayerData" , data)
 
   return createPortal(
     <div

@@ -320,7 +320,7 @@ const CourseDetailsContent = ({ courseData, inFreeVideos }) => {
           <div
             ref={scrollerRef}
             className={[
-              "flex w-full items-center gap-2 overflow-x-auto hidden-scroll px-1",
+              "flex w-full items-center gap-2 overflow-x-auto justify-between hidden-scroll px-1",
               "scroll-smooth",
               isOverflowing ? "pr-10 pl-10" : "",
             ].join(" ")}

@@ -334,8 +334,8 @@ const MockTestReview = ({
                   setIsConfirmSubmit(false);
                   onSubmitExam();
                 }}
-                disabled={isSubmitting}
-                className="flex-1 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 disabled:opacity-50"
+                disabled={isSubmitting || incompleteQuestions > 0}
+                className="flex-1 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 تأكيد الإرسال
               </button>

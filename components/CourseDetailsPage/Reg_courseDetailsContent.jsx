@@ -241,7 +241,7 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => {} , open = 
           <div
             ref={scrollerRef}
             className={[
-              "inline-flex w-full items-center gap-2 overflow-x-auto hidden-scroll overflow-y-hidden px-1",
+              "inline-flex w-full items-center justify-between gap-2 overflow-x-auto hidden-scroll overflow-y-hidden px-1",
               "scroll-smooth snap-x snap-mandatory",
               isOverflowing ? "pr-10 pl-10" : "",
             ].join(" ")}

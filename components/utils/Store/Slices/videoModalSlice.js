@@ -14,6 +14,16 @@ const videoModalSlice = createSlice({
   name: "videoModal",
   initialState,
   reducers: {
+    // open video without modal
+    openVideo: (state, action) => {
+      state.data = {
+        title: action.payload?.title || "",
+        vimeoId: action.payload?.vimeoId || "",
+        youtubeId: action.payload?.youtubeId || "",
+        autoplay: action.payload?.autoplay ?? true,
+      };
+    },
+
     openVideoModal: (state, action) => {
       state.open = true;
       state.data = {
@@ -33,7 +43,7 @@ const videoModalSlice = createSlice({
   },
 });
 
-export const { openVideoModal, closeVideoModal, setVideoModalData } =
+export const { openVideoModal, closeVideoModal, setVideoModalData, openVideo } =
   videoModalSlice.actions;
 
 export default videoModalSlice.reducer;

@@ -70,7 +70,7 @@ export default function Header() {
           title: "عرض المزيد ....",
           link: "/free-courses",
         };
-
+      
         return {
           ...g,
           items: freeMenuLoading
@@ -83,7 +83,7 @@ export default function Header() {
                 },
               ]
             : apiFreeItems.length
-            ? [...apiFreeItems]
+            ? [...apiFreeItems, moreItem] // ✅ add "more" only when data exists
             : [
                 {
                   id: "empty-free",
@@ -91,11 +91,11 @@ export default function Header() {
                   count: 0,
                   link: "/free-courses",
                 },
-                moreItem,
+                // ✅ no moreItem here
               ],
         };
       }
-
+      
       return g;
     });
   }, [apiCoursesItems, coursesMenuLoading, apiFreeItems, freeMenuLoading]);

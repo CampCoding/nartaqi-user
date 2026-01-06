@@ -40,12 +40,12 @@ const CategorySection = ({ category, color, index }) => {
 
   const colors = colorClasses[color] || colorClasses.secondary;
 
-  return (
+  return categoryParts && categoryParts.length > 0 ? (
     <Container>
       {/* Header */}
       <div className="flex items-center justify-between mb-8 mt-6 md:mt-[74px]">
         <div
-          className={`flex md:w-[261px] items-center justify-center gap-2.5 px-4 py-3 md:px-14 md:py-8 relative ${colors.bg} rounded-[15px] md:rounded-[25px]`}
+          className={`flex md:min-w-[261px] items-center justify-center gap-2.5 px-4 py-3 md:px-14 md:py-8 relative ${colors.bg} rounded-[15px] md:rounded-[25px]`}
         >
           <div
             className={`relative flex items-center justify-center w-fit mt-[-1.00px] font-medium ${colors.text} text-[12px] md:text-2xl text-left leading-5 whitespace-nowrap`}
@@ -103,7 +103,7 @@ const CategorySection = ({ category, color, index }) => {
         ))}
       </div>
     </Container>
-  );
+  ) : null;
 };
 
 export default CategorySection;

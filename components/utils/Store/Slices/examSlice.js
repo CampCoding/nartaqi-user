@@ -53,7 +53,7 @@ const parseTimeToSeconds = (timeStr) => {
 const mapQuestionType = (apiType) => {
   const typeMap = {
     mcq: "mcq",
-    t_f: "boolean",
+    t_f: "t_f",
     paragraph_mcq: "paragraph",
     text: "text",
     boolean: "boolean",
@@ -158,7 +158,7 @@ const examSlice = createSlice({
           section.mcq.forEach((q) => {
             if (processedParagraphQuestionIds.has(q.id)) return;
             if (!q.options?.length) return;
-
+            
             const questionType = mapQuestionType(q.question_type);
 
             // ✅ FIX: boolean always "true"/"false"
@@ -166,7 +166,7 @@ const examSlice = createSlice({
             let correctAnswer = null;
             let correctAnswerText = null;
 
-            if (questionType === "boolean") {
+            if (questionType === "t_f") {
               const trueOpt = q.options.find((o) => ["صحيح", "صح"].includes(stripHtml(o.option_text)));
               const falseOpt = q.options.find((o) => ["خطأ", "خاطئ"].includes(stripHtml(o.option_text)));
 

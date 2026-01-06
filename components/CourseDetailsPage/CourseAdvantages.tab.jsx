@@ -7,6 +7,7 @@ import {
   CourseFeaturesGreadManagmentIcon,
   CourseFeaturesCertificateIcon,
 } from "../../public/svgs";
+import { Dot } from "lucide-react";
 
 const FALLBACK_IMG = "/images/logo.svg"; // ضع الصورة هنا داخل public
 
@@ -53,8 +54,8 @@ const CourseFeatures = ({ courseData }) => {
               </div>
             </div>
 
-            <div className="text-right justify-center text-stone-600 text-base md:text-lg font-medium leading-relaxed md:leading-loose">
-              {feature?.description || "لا يوجد وصف"}
+            <div className=" flex items-start   text-right justify-center text-stone-600 text-base md:text-lg font-medium leading-relaxed md:leading-loose">
+            <Dot className="w-10 h-10" />{feature?.description || "لا يوجد وصف"}
             </div>
           </div>
         ))

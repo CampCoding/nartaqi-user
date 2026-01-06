@@ -25,31 +25,37 @@ const MockExamQuestion = ({
 
   const textSizeClass = getFontSizeClass(fontSize);
 
+  // For paragraph questions, show only the first question (since we split them into separate blocks)
+  const currentQuestion = block.questions && block.questions.length > 0 ? block.questions[0] : null;
+
   return (
     <div>
-      {/* Show passage if exists */}
+      {/* Show passage if exists - fixed/sticky for paragraph questions */}
       {block.passage && (
-        <div className="mb-6">
-          <p
-            className={`flex items-center  font-medium text-zinc-500 ${textSizeClass} tracking-[0] leading-[normal] [direction:rtl]`}
+        <div className={`mb-6 ${block.type === "paragraph" ? "sticky top-0 bg-white z-10 pb-4 pt-2 border-b-2 border-gray-300 shadow-sm" : ""}`}>
+          <div className="mb-3 text-sm font-bold text-primary">الفقرة:</div>
+          <div
+            className={`flex items-center font-medium text-zinc-600 ${textSizeClass} tracking-[0] leading-relaxed [direction:rtl] ${block.type === "paragraph" ? "max-h-[250px] overflow-y-auto pr-2" : ""}`}
             dangerouslySetInnerHTML={{ __html: block?.passage?.replaceAll(/&nbsp;/ig , " ") }}
           />
         </div>
       )}
 
-      {/* Show all questions in this block */}
-      <div className="grid grid-cols-1 gap-6 mt-6">
-        {block.questions.map((question, index) => (
+      {/* Show only one question at a time */}
+      {currentQuestion ? (
+        <div className="mt-6">
           <SingleQuestion
-            key={question.id}
-            questionData={question}
-            questionNumber={questionNumberStart + index}
-            selectedAnswer={answers[question.id]}
-            onAnswerSelect={(optionId) => onAnswerSelect(question.id, optionId)}
+            key={currentQuestion.id}
+            questionData={currentQuestion}
+            questionNumber={questionNumberStart}
+            selectedAnswer={answers[currentQuestion.id]}
+            onAnswerSelect={(optionId) => onAnswerSelect(currentQuestion.id, optionId)}
             fontSize={fontSize}
           />
-        ))}
-      </div>
+        </div>
+      ) : (
+        <div>لا يوجد سؤال متاح</div>
+      )}
     </div>
   );
 };

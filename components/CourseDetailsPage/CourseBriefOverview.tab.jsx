@@ -15,6 +15,7 @@ const FALLBACK_TEACHER_IMG = "/images/teacher-placeholder.png";
 const CourseBriefOverview = ({ isRegistered, courseData }) => {
   const pathname = usePathname();
   const { round, roundRate } = courseData;
+  console.log("courseData", courseData);
 
   const calculateTeacherRating = () => {
     const rates = roundRate || [];
@@ -147,9 +148,9 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
                 </div>
               </Link>
 
-              <div className="self-stretch text-right justify-center text-black text-base md:text-lg leading-relaxed font-medium">
+              {/* <div className="self-stretch text-right justify-center text-black text-base md:text-lg leading-relaxed font-medium">
                 {teacher.description || "غير محدد"}
-              </div>
+              </div> */}
             </React.Fragment>
           ))}
         </div>
@@ -166,7 +167,8 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
               <FileIcon />
             </div>
             <div className="text-right justify-center text-white text-base md:text-lg font-medium">
-              كتاب الدورة
+              {/* {courseData.free == 0 ? "كتاب الدورة" : "المحتوى المجاني"} */}
+              {"المحتوى المجاني"}
             </div>
           </a>
         }

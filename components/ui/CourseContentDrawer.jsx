@@ -44,7 +44,7 @@ export const extractVimeoId = (url) => {
   return match ? match[1] : null;
 };
 
-export  const extractYoutubeId = (url) => {
+export const extractYoutubeId = (url) => {
   if (!url) return null;
   if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
   const match = url.match(
@@ -57,7 +57,7 @@ export  const extractYoutubeId = (url) => {
 const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { token, user } = useSelector((state) => state.auth);
-
+  console.log("content", content);
   const handleToggle = () => setIsOpen((prev) => !prev);
 
   const [infoOpen, setInfoOpen] = useState(false);
@@ -81,17 +81,29 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
         className="self-stretch px-5 md:px-7 py-5 md:py-7 inline-flex justify-between items-center cursor-pointer"
         onClick={handleToggle}
       >
-        <div className="text-right flex items-center gap-2 justify-center text-text text-base md:text-lg font-bold">
-          <button
-            type="button"
-            onClick={openInfo}
-            className="inline-flex items-center justify-center"
-            aria-label="عرض وصف المحتوى"
-          >
-            <InfoIcon />
-          </button>
+        <div>
+          <div className="text-right flex items-start gap-2 justify-center text-text text-base md:text-lg font-bold">
+            <button
+              type="button"
+              onClick={openInfo}
+              className="inline-flex items-center justify-center mt-1"
+              aria-label="عرض وصف المحتوى"
+            >
+              <InfoIcon />
+            </button>
+          
+            <div className="">
+              <div>{content.content_title || "غير محدد"}</div>
+              {
+              !content?.was_opened && content?.show_date &&
 
-          {content.content_title || "غير محدد"}
+              <div className="  text-sm text-gray-500 text-right mt-2  text-text  font-normal">
+                متاح في: {content.show_date}
+              </div>
+              }
+            </div>
+            
+          </div>
         </div>
 
         <div className="transition-transform duration-300">
@@ -130,19 +142,23 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
       {isOpen &&
         (isRegistered ? (
           <div className="w-full flex flex-col gap-4 md:gap-5 px-5 md:px-7 pb-5 md:pb-7">
-            { !content.lessons || content.lessons.length == 0 ? <span className="text-gray-500 text-xl"> لا يوجد بيانات </span> :   content.lessons.map((lesson) => (
-              <RegLectureDrawer
-                key={lesson.id}
-                lesson={lesson}
-                isDone={true}
-                own={own}
-                isRegistered={isRegistered}
-                token={token}
-                studentId={user?.id}
-                // ✅ round_id كان غلط/غير معرّف — لازم من الداتا
-                roundId={content?.round_id}
-              />
-            ))}
+            {!content.lessons || content.lessons.length == 0 ? (
+              <span className="text-gray-500 text-xl"> لا يوجد بيانات </span>
+            ) : (
+              content.lessons.map((lesson) => (
+                <RegLectureDrawer
+                  key={lesson.id}
+                  lesson={lesson}
+                  isDone={true}
+                  own={own}
+                  isRegistered={isRegistered}
+                  token={token}
+                  studentId={user?.id}
+                  // ✅ round_id كان غلط/غير معرّف — لازم من الداتا
+                  roundId={content?.round_id}
+                />
+              ))
+            )}
           </div>
         ) : (
           <div className="w-full flex flex-col gap-4 md:gap-5 px-5 md:px-7 pb-5 md:pb-7">
@@ -151,7 +167,7 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
                 key={lesson.id}
                 lesson={lesson}
                 isDone={true}
-                own={own }
+                own={own}
                 // ✅ كان غلط: isRegistered={!isRegistered}
                 isRegistered={isRegistered}
                 token={token}
@@ -509,104 +525,107 @@ export const RegLectureDrawer = ({
           className="flex flex-col items-start self-stretch w-full gap-4 sm:gap-6 p-5 sm:p-6 md:p-7 !pt-0"
         >
           {/* Videos and Live Sessions */}
-          { !allContent || allContent.length == 0 ? <span className="text-gray-500 text-xl"> لا يوجد بيانات </span> : allContent.map((item) => {
-            const key = `video-${item.id}`;
-            const isSaving = !!savingMap[key];
+          {!allContent || allContent.length == 0 ? (
+            <span className="text-gray-500 text-xl"> لا يوجد بيانات </span>
+          ) : (
+            allContent.map((item) => {
+              const key = `video-${item.id}`;
+              const isSaving = !!savingMap[key];
 
-            return (
-              <div
-                key={`${item.type}-${item.id}`}
-                className="flex items-start gap-4 pt-4 pb-5 sm:pb-6 w-full border-b-[2px] border-solid border-variable-collection-stroke"
-              >
-                <RoundedPlayIcon
-                  className={cx(
-                    "w-[30px] h-[30px] md:w-[36px] md:h-[36px]",
-                    item.type === "live" ? "stroke-danger" : "stroke-primary"
-                  )}
-                />
+              return (
+                <div
+                  key={`${item.type}-${item.id}`}
+                  className="flex items-start gap-4 pt-4 pb-5 sm:pb-6 w-full border-b-[2px] border-solid border-variable-collection-stroke"
+                >
+                  <RoundedPlayIcon
+                    className={cx(
+                      "w-[30px] h-[30px] md:w-[36px] md:h-[36px]",
+                      item.type === "live" ? "stroke-danger" : "stroke-primary"
+                    )}
+                  />
 
-                <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 self-stretch">
-                  <div className="inline-flex items-center gap-3">
-                    {item.type === "video" ? (
-                      // ✅ المسجّل هو اللي يفتح الفيديو
-                      isRegistered ? (
-                        <Link
-                          href={{
-                            pathname,
-                            query: buildVideoQuery(item),
-                            hash: "player",
-                          }}
-                          onClick={async () => {
-                            const key = `video-${item.id}`;
-                            if (!checkedMap[key] && isRegistered) {
-                              await toggleChecked(item);
-                            }
-                          }}
-                        >
-                          <h2 className="cursor-pointer font-medium ...">
-                            {item.title || "غير محدد"}
-                          </h2>
-                        </Link>
-                      ) : (
-                        <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
-                          {item.title || "غير محدد"}
-                        </h2>
-                      )
-                    ) : (
-                      <div className="flex flex-col gap-1">
-                        <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
-                          {item.title || "غير محدد"}
-                        </h2>
-
-                        {item.finished == "1" ? (
+                  <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 self-stretch">
+                    <div className="inline-flex items-center gap-3">
+                      {item.type === "video" ? (
+                        // ✅ المسجّل هو اللي يفتح الفيديو
+                        isRegistered ? (
                           <Link
                             href={{
                               pathname,
                               query: buildVideoQuery(item),
                               hash: "player",
                             }}
-                            className="text-gray-500 underline text-sm md:text-base"
-                            rel="noreferrer"
+                            // onClick={async () => {
+                            //   const key = `video-${item.id}`;
+                            //   if (!checkedMap[key] && isRegistered) {
+                            //     await toggleChecked(item);
+                            //   }
+                            // }}
                           >
-                            عرض التسجيل
+                            <h2 className="cursor-pointer font-medium ...">
+                              {item.title || "غير محدد"}
+                            </h2>
                           </Link>
                         ) : (
-                          <a
-                            className="text-gray-500 underline text-sm md:text-base"
-                            href={item.link}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            دخول البث
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                          <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
+                            {item.title || "غير محدد"}
+                          </h2>
+                        )
+                      ) : (
+                        <div className="flex flex-col gap-1">
+                          <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
+                            {item.title || "غير محدد"}
+                          </h2>
 
-                  {/* Right side: status/time + checkbox for videos */}
-                  <div className="inline-flex items-center gap-3 sm:gap-4">
-                    {item.type === "live" ? (
-                      <div className="inline-flex items-center gap-2">
-                        <span className="font-bold text-sm md:text-base leading-normal">
                           {item.finished == "1" ? (
-                            <span className="text-green-500">انتهى البث</span>
+                            <Link
+                              href={{
+                                pathname,
+                                query: buildVideoQuery(item),
+                                hash: "player",
+                              }}
+                              className="text-gray-500 underline text-sm md:text-base"
+                              rel="noreferrer"
+                            >
+                              عرض التسجيل
+                            </Link>
                           ) : (
-                            <span className="text-danger">بث مباشر</span>
+                            <a
+                              className="text-gray-500 underline text-sm md:text-base"
+                              href={item.link}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              دخول البث
+                            </a>
                           )}
-                        </span>
-                        <time className="font-medium text-text-alt text-xs md:text-sm">
-                          {item.date} - {item.time}
-                        </time>
-                      </div>
-                    ) : (
-                      <div className="inline-flex items-center gap-3 sm:gap-4">
-                        {/* ✅ Checkbox لكل فيديو */}
+                        </div>
+                      )}
+                    </div>
 
-                        <time className="font-medium text-text text-sm md:text-base leading-normal">
-                          {formatTime(item.time)}
-                        </time>
-                        {
+                    {/* Right side: status/time + checkbox for videos */}
+                    <div className="inline-flex items-center gap-3 sm:gap-4">
+                      {item.type === "live" ? (
+                        <div className="inline-flex items-center gap-2">
+                          <span className="font-bold text-sm md:text-base leading-normal">
+                            {item.finished == "1" ? (
+                              <span className="text-green-500">انتهى البث</span>
+                            ) : (
+                              <span className="text-danger">بث مباشر</span>
+                            )}
+                          </span>
+                          <time className="font-medium text-text-alt text-xs md:text-sm">
+                            {item.date} - {item.time}
+                          </time>
+                        </div>
+                      ) : (
+                        <div className="inline-flex items-center gap-3 sm:gap-4">
+                          {/* ✅ Checkbox لكل فيديو */}
+
+                          <time className="font-medium text-text text-sm md:text-base leading-normal">
+                            {formatTime(item.time)}
+                          </time>
+                          {/* {
                           isRegistered &&
                         <label className="inline-flex items-center gap-2 cursor-pointer select-none">
                           <CheckboxButton
@@ -617,14 +636,15 @@ export const RegLectureDrawer = ({
                             disabled={!isRegistered || isSaving}
                           />
                         </label>
-                        }
-                      </div>
-                    )}
+                        } */}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
 
           {/* Exams */}
           {hasExams && (
@@ -783,149 +803,148 @@ export const ExerciseDropDown = ({
 
       {isExpanded && (
         <div id={sectionId} className="w-full">
-          { 
-          !examAllData || examAllData.length == 0 ? <span className="text-gray-500 text-xl"> لا يوجد بيانات </span> :
-          examAllData.map((examData) => {
-            const exam = examData?.exam;
-            const examVideos = examData.videos || [];
-            const examPdfs = examData.exam_pdfs || [];
-            const isSolved = examData.is_solved === true;
+          {!examAllData || examAllData.length == 0 ? (
+            <span className="text-gray-500 text-xl"> لا يوجد بيانات </span>
+          ) : (
+            examAllData.map((examData) => {
+              const exam = examData?.exam;
+              const examVideos = examData.videos || [];
+              const examPdfs = examData.exam_pdfs || [];
+              const isSolved = examData.is_solved === true;
 
-            return (
-              <div key={exam?.id} className="flex flex-col">
-                {/* Exam Title Row */}
-                {exam && (
-                  <div className="flex w-full flex-row justify-between  items-center  border-b-[2px] border-solid last:border-none pt-4 pb-5 bg-white">
-                    {(() => {
-                      const Tag = isDone && isRegistered ? Link : "div";
+              return (
+                <div key={exam?.id} className="flex flex-col">
+                  {/* Exam Title Row */}
+                  {exam && (
+                    <div className="flex w-full flex-row justify-between  items-center  border-b-[2px] border-solid last:border-none pt-4 pb-5 bg-white">
+                      {(() => {
+                        const Tag = isDone && isRegistered ? Link : "div";
+                        return (
+                          <div className="inline-flex items-center gap-5 sm:gap-7 w-full justify-between">
+                            <div className="inline-flex items-center gap-3 sm:gap-5 bg-white  transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded">
+                              <div
+                                className="relative w-7 h-7 sm:w-8 sm:h-8 aspect-[1]"
+                                aria-hidden="true"
+                              >
+                                <FileIcon className="w-[22px] h-[22px] md:w-[30px] md:h-[30px] fill-primary" />
+                              </div>
+                              <span className="font-medium text-text text-base md:text-lg leading-normal">
+                                {exam.title || "أسئلة الاختبار"}
+                              </span>
+                            </div>
+                            <Link
+                              href={
+                                isDone
+                                  ? `/course/${id}/lesson/${lesson.id}/exam-details/${exam?.id}`
+                                  : undefined
+                              }
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-primary rounded-full hover:opacity-90 transition-opacity"
+                            >
+                              <FileIcon className="w-5 h-5 fill-white" />
+
+                              <span className="text-white font-medium text-sm md:text-base">
+                                بدء الاختبار
+                              </span>
+                            </Link>
+
+                            {!isDone && (
+                              <div className="relative w-7 h-7 sm:w-8 sm:h-8 aspect-[1]">
+                                <LockIcon2 className="fill-secondary w-6 h-6" />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+
+                  {/* Exam Videos */}
+                  {examVideos.length > 0 &&
+                    examVideos.map((video) => {
+                      const videoUrl = video.video_url;
+                      const platform = getVideoPlatform(videoUrl);
+                      const isPlayable = !!platform;
+
                       return (
                         <div
-                          className="inline-flex items-center gap-5 sm:gap-7 w-full justify-between"
+                          key={`exam-video-${video.id}`}
+                          className="flex items-center gap-4 pt-4 pb-5 w-full border-b-[2px] border-solid border-variable-collection-stroke"
                         >
-                          <div className="inline-flex items-center gap-3 sm:gap-5 bg-white  transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded">
-                            <div
-                              className="relative w-7 h-7 sm:w-8 sm:h-8 aspect-[1]"
-                              aria-hidden="true"
-                            >
-                              <FileIcon className="w-[22px] h-[22px] md:w-[30px] md:h-[30px] fill-primary" />
-                            </div>
-                            <span className="font-medium text-text text-base md:text-lg leading-normal">
-                              {exam.title || "أسئلة الاختبار"}
-                            </span>
-                          </div>
-                          <Link
-                            href={
-                              isDone
-                                ? `/course/${id}/lesson/${lesson.id}/exam-details/${exam?.id}`
-                                : undefined
-                            }
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-primary rounded-full hover:opacity-90 transition-opacity"
-                          >
-                            <FileIcon className="w-5 h-5 fill-white" />
+                          <RoundedPlayIcon className="w-[30px] h-[30px] md:w-[36px] md:h-[36px] stroke-primary flex-shrink-0" />
 
-                            <span className="text-white font-medium text-sm md:text-base">
-                              بدء الاختبار
-                            </span>
-                          </Link>
-
-                          {!isDone && (
-                            <div className="relative w-7 h-7 sm:w-8 sm:h-8 aspect-[1]">
-                              <LockIcon2 className="fill-secondary w-6 h-6" />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
-
-                {/* Exam Videos */}
-                {examVideos.length > 0 &&
-                  examVideos.map((video) => {
-                    const videoUrl = video.video_url;
-                    const platform = getVideoPlatform(videoUrl);
-                    const isPlayable = !!platform;
-
-                    return (
-                      <div
-                        key={`exam-video-${video.id}`}
-                        className="flex items-center gap-4 pt-4 pb-5 w-full border-b-[2px] border-solid border-variable-collection-stroke"
-                      >
-                        <RoundedPlayIcon className="w-[30px] h-[30px] md:w-[36px] md:h-[36px] stroke-primary flex-shrink-0" />
-
-                        <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                          <div className="inline-flex items-center gap-2.5 flex-wrap flex-1 min-w-0">
-                            {isDone && isPlayable ? (
-                              <Link
-                                href={{
-                                  pathname,
-                                  query: buildExamVideoQuery(video),
-                                  hash: "player",
-                                }}
-                                className="font-medium text-text text-base md:text-lg leading-snug hover:text-primary hover:underline transition-colors"
-                              >
-                                {video.title || "شرح الاختبار"}
-                              </Link>
-                            ) : (
-                              <h2 className="font-medium text-text text-base md:text-lg leading-snug">
-                                {video.title || "شرح الاختبار"}
-                              </h2>
-                            )}
-
-                            {/* <span className="text-xs md:text-sm px-2.5 py-1 rounded-full bg-primary/10 text-primary">
-                              شرح
-                            </span> */}
-                          </div>
-
-                          <div className="inline-flex items-center gap-2 flex-shrink-0">
-                            {!isDone ? (
-                              <LockIcon2 className="fill-secondary w-6 h-6" />
-                            ) : (
-                              isPlayable && (
+                          <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                            <div className="inline-flex items-center gap-2.5 flex-wrap flex-1 min-w-0">
+                              {isDone && isPlayable ? (
                                 <Link
                                   href={{
                                     pathname,
                                     query: buildExamVideoQuery(video),
                                     hash: "player",
                                   }}
-                                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary rounded-full hover:opacity-90 transition-opacity"
+                                  className="font-medium text-text text-base md:text-lg leading-snug hover:text-primary hover:underline transition-colors"
                                 >
-                                  <svg
-                                    className="w-5 h-5 fill-white"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                  <span className="text-white font-medium text-sm md:text-base">
-                                    تشغيل
-                                  </span>
+                                  {video.title || "شرح الاختبار"}
                                 </Link>
-                              )
-                            )}
+                              ) : (
+                                <h2 className="font-medium text-text text-base md:text-lg leading-snug">
+                                  {video.title || "شرح الاختبار"}
+                                </h2>
+                              )}
+
+                              {/* <span className="text-xs md:text-sm px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                              شرح
+                            </span> */}
+                            </div>
+
+                            <div className="inline-flex items-center gap-2 flex-shrink-0">
+                              {!isDone ? (
+                                <LockIcon2 className="fill-secondary w-6 h-6" />
+                              ) : (
+                                isPlayable && (
+                                  <Link
+                                    href={{
+                                      pathname,
+                                      query: buildExamVideoQuery(video),
+                                      hash: "player",
+                                    }}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary rounded-full hover:opacity-90 transition-opacity"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 fill-white"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    <span className="text-white font-medium text-sm md:text-base">
+                                      تشغيل
+                                    </span>
+                                  </Link>
+                                )
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
 
-                {/* PDFs */}
-                {isDone &&
-                  examPdfs.length > 0 &&
-                  examPdfs.map((pdf) => (
-                    <div
-                      key={pdf.id}
-                      className="flex w-full flex-row items-center justify-between border-b-[2px] border-solid last:border-none pt-4 pb-5 bg-white"
-                    >
-                      <div className="inline-flex items-center gap-3 sm:gap-5">
-                        <FileIcon className="w-[22px] h-[22px] md:w-[26px] md:h-[26px] fill-primary" />
-                        <span className="font-medium text-text text-base md:text-lg leading-normal">
-                          {pdf.title}
-                        </span>
-                        {/* <span
+                  {/* PDFs */}
+                  {isDone &&
+                    examPdfs.length > 0 &&
+                    examPdfs.map((pdf) => (
+                      <div
+                        key={pdf.id}
+                        className="flex w-full flex-row items-center justify-between border-b-[2px] border-solid last:border-none pt-4 pb-5 bg-white"
+                      >
+                        <div className="inline-flex items-center gap-3 sm:gap-5">
+                          <FileIcon className="w-[22px] h-[22px] md:w-[26px] md:h-[26px] fill-primary" />
+                          <span className="font-medium text-text text-base md:text-lg leading-normal">
+                            {pdf.title}
+                          </span>
+                          {/* <span
                           className={`text-xs md:text-sm px-2.5 py-1 rounded-full ${
                             pdf.type === "question"
                               ? "bg-blue-100 text-blue-600"
@@ -934,26 +953,27 @@ export const ExerciseDropDown = ({
                         >
                           {pdf.type === "question" ? "أسئلة" : "إجابات"}
                         </span> */}
-                      </div>
+                        </div>
 
-                      {isRegistered && (
-                        <button
-                          onClick={() =>
-                            handleDownloadFile(pdf.pdf_url, pdf.title, "pdf")
-                          }
-                          className="inline-flex items-center justify-end gap-2.5 px-4 py-2 bg-secondary rounded-full md:rounded-[12px] hover:opacity-90 transition-opacity"
-                        >
-                          <DownloadIcon className="w-[18px] h-[18px] md:w-[22px] md:h-[22px]" />
-                          <span className="text-white font-medium text-sm md:text-base leading-normal">
-                            تحميل
-                          </span>
-                        </button>
-                      )}
-                    </div>
-                  ))}
-              </div>
-            );
-          })}
+                        {isRegistered && (
+                          <button
+                            onClick={() =>
+                              handleDownloadFile(pdf.pdf_url, pdf.title, "pdf")
+                            }
+                            className="inline-flex items-center justify-end gap-2.5 px-4 py-2 bg-secondary rounded-full md:rounded-[12px] hover:opacity-90 transition-opacity"
+                          >
+                            <DownloadIcon className="w-[18px] h-[18px] md:w-[22px] md:h-[22px]" />
+                            <span className="text-white font-medium text-sm md:text-base leading-normal">
+                              تحميل
+                            </span>
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              );
+            })
+          )}
         </div>
       )}
     </>

@@ -56,7 +56,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
 
   return (
     <div className="w-full flex-1">
-      <div className="text-right justify-center text-primary text-2xl md:text-3xl font-bold mb-7 lg:mb-10">
+      <div className="text-right justify-center text-primary text-xl md:text-2xl font-bold mb-7 lg:mb-10">
         محتوي الدورة : {round.name}
       </div>
 
