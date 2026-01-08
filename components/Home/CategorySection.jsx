@@ -71,7 +71,7 @@ const CategorySection = ({ category, color, index }) => {
       <div className="gap-4 md:gap-6 grid grid-cols-2 md:grid-cols-4">
         {categoryParts?.map((item) => (
           <Link
-            href={`/courses/${category.id}?category=${item.id}&&categoryName=${item.name}`}
+            href={`/courses/${category.id}?category=${item.id}&categoryName=${item.name}`}
             key={item.id}
           >
             {/* Desktop Card */}

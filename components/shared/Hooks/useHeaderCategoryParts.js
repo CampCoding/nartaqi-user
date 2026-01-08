@@ -48,7 +48,7 @@ export default function useHeaderCoursesItems(studentId) {
           count: Number(p.rounds_count ?? 0),
           title: p.name,
           // ✅ عدّل اللينك حسب صفحة عرض الدورات عندك
-          link: `/courses/${p.course_category_id}?category=${p.id}&&categoryName=${p.name}` ,
+          link: `/courses/${p?.id}` ,
         }));
 
         // (اختياري) ترتيب تنازلي حسب العدد

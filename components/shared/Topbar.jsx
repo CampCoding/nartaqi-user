@@ -389,11 +389,11 @@ const MobileSubMenu = ({ items, onClose }) => {
                 >
                   <span>{item.title}</span>
                   <div className="flex items-center gap-2">
-                    {typeof item.count === "number" && (
+                    {/* {typeof item.count === "number" && (
                       <span className="px-2 py-1 bg-primary-bg rounded-lg text-xs font-medium">
                         {item.count}
                       </span>
-                    )}
+                    )} */}
                     <ChevronDown
                       className={`w-4 h-4 transition-transform ${
                         expandedSubItem === index ? "rotate-180" : ""
@@ -424,11 +424,11 @@ const MobileSubMenu = ({ items, onClose }) => {
                 className="flex items-center justify-between py-3 text-sm text-text"
               >
                 <span>{item.title}</span>
-                {typeof item.count === "number" && (
+                {/* {typeof item.count === "number" && (
                   <span className="px-2 py-1 bg-primary-bg rounded-lg text-xs font-medium">
                     {item.count}
                   </span>
-                )}
+                )} */}
               </Link>
             )}
           </div>
@@ -491,13 +491,13 @@ export const DropDownItems = ({ items }) => {
             </div>
 
             <div className="inline-flex gap-2 flex-[0_0_auto] items-center relative">
-              {typeof course.count === "number" ? (
+              {/* {typeof course.count === "number" ? (
                 <div className="flex flex-col w-6 h-6 justify-center gap-2.5 px-1 py-0 bg-primary-bg rounded-xl items-center relative">
                   <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-text text-sm tracking-[0] leading-6 whitespace-nowrap">
                     {course.count}
                   </span>
                 </div>
-              ) : null}
+              ) : null} */}
 
               <span className="relative w-4 h-4  aspect-[1]" aria-hidden="true">
                 <ChevronLeft className="w-4 h-4" />
