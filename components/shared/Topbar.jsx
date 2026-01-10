@@ -484,8 +484,8 @@ export const DropDownItems = ({ items }) => {
                   {course.title}
                 </p>
               ) : (
-                <h3 className="self-stretch font-cairo w-fit text-left whitespace-nowrap relative flex items-center  font-medium text-text text-base leading-6 [direction:rtl]">
-                  {course.title}
+                <h3 className= "self-stretch font-cairo w-fit text-left whitespace-wrap relative flex items-center max-w-[100%] font-medium text-text text-base leading-6 [direction:rtl]">
+                  {`${course.title?.length > 30 ? course?.title?.slice(0, 30) + "..." : course.title}`}
                 </h3>
               )}
             </div>
