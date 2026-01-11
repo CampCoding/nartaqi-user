@@ -1,0 +1,750 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Swiper custom styles */
+
+.testimonials-swiper .swiper-button-prev,
+.testimonials-swiper .swiper-button-next {
+  color: white !important;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.testimonials-swiper .swiper-button-prev:hover,
+.testimonials-swiper .swiper-button-next:hover {
+  background: #f9fafb !important;
+}
+
+.testimonials-swiper .swiper-button-prev:after,
+.testimonials-swiper .swiper-button-next:after {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.testimonials-swiper .swiper-pagination-bullet {
+  background: white;
+  opacity: 0.3;
+}
+
+.testimonials-swiper .swiper-pagination-bullet-active {
+  opacity: 1;
+  background: white;
+}
+
+/* globals.css */
+body {
+  font-family: var(--font-cairo), sans-serif;
+  color: #2d2d2d;
+  height: auto !important;
+}
+
+:focus {
+  outline: none;
+}
+
+@layer base {
+  button,
+  input,
+  select,
+  textarea {
+    @apply appearance-none bg-transparent border-0 outline-none;
+  }
+}
+
+@layer components {
+  .all-\[unset\] {
+    all: unset;
+  }
+}
+
+/* :root {
+  --primary: rgba(59, 130, 246, 1);
+  --foundation-orangenormal: #f97316;
+  --foundation-bluedarker: rgba(21, 46, 86, 1);
+  --primary: rgba(59, 130, 246, 1);
+  --foundation-bluewhite: #c2d8fc;
+
+  --foundation-yellowlight: rgba(252, 227, 187, 1);
+  --foundation-yellownormal: rgba(245, 166, 37, 1);
+
+  --foundation-bluelight-hover: rgba(226, 236, 254, 1);
+  --variable-collection-stroke: rgba(200, 201, 213, 1);
+  --variable-collection-text: rgba(45, 45, 45, 1);
+  --variable-collection-white-moca: rgba(255, 255, 255, 1);
+} */
+
+:root {
+  /* 🌐 Brand Palette */
+  --color-primary: #3b82f6; /* الأزرق الأساسي */
+  --color-primary-dark: #152e56; /* الأزرق الغامق */
+  --color-primary-light: #ebf3fe; /* الأزرق الفاتح (Hover) */
+  --color-primary-bg: #c2d8fc; /* خلفية فاتحة */
+
+  --color-secondary: #f97316; /* البرتقالي */
+  --color-secondary-dark: #ea580c; /*  برتقالي داكن */
+  --color-secondary-light: #fef1e8; /* أصفر فاتح */
+  --color-secondary-warm: #f5a625; /* أصفر داكن */
+  /* ✨ extra */
+  --color-tertiary: #572808; /* بني داكن للـ Titles */
+
+  /* 🖤 Text & Background */
+  --color-text: #2d2d2d; /* نص أساسي */
+  --color-text-alt: #636363; /* نص ثانوي */
+  --color-bg: #ffffff; /* خلفية أساسية */
+  --color-bg-alt: #f9fafb; /* خلفية ثانوية */
+
+  /* ⚡ States */
+  --color-border: #c8c9d5; /* لون الحدود */
+  --color-success: #22c55e; /* نجاح */
+  --color-warning: #f5a625; /* تحذير */
+  --color-warning-light: #fef2de; /* تحذير */
+  --color-danger: #de3b40; /* خطأ */
+}
+
+:root {
+  --animate-spin: spin 1s linear infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 1s var(--animation-delay, 0s) ease forwards;
+}
+
+.animate-fade-up {
+  animation: fade-up 1s var(--animation-delay, 0s) ease forwards;
+}
+
+.animate-marquee {
+  animation: marquee var(--duration) infinite linear;
+}
+
+.animate-marquee-vertical {
+  animation: marquee-vertical var(--duration) linear infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 8s infinite;
+}
+
+.animate-spin {
+  animation: var(--animate-spin);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes image-glow {
+  0% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.74, 0.25, 0.76, 1);
+  }
+
+  10% {
+    opacity: 0.7;
+    animation-timing-function: cubic-bezier(0.12, 0.01, 0.08, 0.99);
+  }
+
+  to {
+    opacity: 0.4;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes shimmer {
+  0%,
+  90%,
+  to {
+    background-position: calc(-100% - var(--shimmer-width)) 0;
+  }
+
+  30%,
+  60% {
+    background-position: calc(100% + var(--shimmer-width)) 0;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate(0);
+  }
+
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+
+@keyframes marquee-vertical {
+  0% {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+  }
+}
+
+.custom-prev,
+.custom-next {
+  position: absolute;
+  background-color: #222;
+  top: 50%;
+  left: 0;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.custom-next {
+  right: 0;
+  left: auto;
+}
+
+.swiper-pagination-bullet {
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  line-height: 20px;
+  font-size: 12px;
+  color: #000;
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.2);
+  background: #ee711e8b;
+  bottom: -30px !important;
+}
+
+.swiper-pagination-bullet-active {
+  color: #fff;
+  background: #ee701e;
+}
+
+.mobile_swiper .swiper-pagination {
+  bottom: auto; /* Remove default bottom positioning */
+  bottom: 0px; /* Position at the top, adjust as needed */
+  left: 0; /* Adjust left/right positioning if needed */
+  right: 0;
+  width: 100%; /* Ensure the pagination spans the width of the container */
+  text-align: center; /* Center align the pagination bullets */
+  z-index: 4px !important;
+}
+
+.mobile_swiper .step .image {
+  margin-block: 30px;
+}
+
+.swiper-3d,
+.swiper-slide-shadow-left,
+.swiper-slide-shadow-right {
+  background-image: none !important;
+}
+
+.swiper-slide {
+  width: 200px;
+  background-color: transparent;
+  border-radius: 10px;
+  background-size: cover;
+  /* border: 1px solid white; */
+  /* background-image: url(./assets/slideBG.png); */
+  color: #ffffff;
+}
+
+.food_card {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.food_card .food_slide {
+  /* width:300px; */
+}
+
+.food_card .prodName {
+  font-size: 20px;
+  color: #222 !important;
+  font-weight: bolder;
+}
+
+.food_slide {
+  width: 100%;
+}
+
+.food_slide img {
+  width: 100%;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+/* Remove calendar icon from date and datetime-local input */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* Remove spinner from number input */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove clear (X) button from search input */
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) var(--color-bg-alt);
+}
+
+.custom-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: var(--color-bg-alt);
+  border-radius: 8px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 8px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+.custom-scroll::-webkit-scrollbar-corner {
+  background: var(--color-bg-alt);
+}
+
+.hidden-scroll {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.hidden-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* From Uiverse.io by Private-user-2002 */
+.radio-container {
+  background-color: white;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-radius: 12px;
+}
+
+.radio-container input[type="radio"] {
+  display: none;
+}
+
+.radio-container label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 10.67px;
+  font-size: 1rem /* 20px */;
+}
+
+.radio-container .custom-radio {
+  width: 25px; /* Increased size */
+  height: 25px; /* Increased size */
+  border: 2.5px solid #b0b0b0; /* Adjusted thickness */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.radio-container .custom-radio::after {
+  content: "";
+  width: 13px;
+  height: 13px;
+  background-color: #b0b0b0;
+  border-radius: 50%;
+  display: none;
+  transition: background-color 0.3s;
+}
+
+.radio-container input[type="radio"]:checked + label .custom-radio {
+  border-color: var(--color-secondary);
+}
+
+.radio-container input[type="radio"]:checked + label .custom-radio::after {
+  display: block;
+  background-color: var(--color-secondary);
+}
+
+.radio-container label span {
+  margin-left: 5px;
+  color: #b0b0b0;
+  transition: color 0.3s;
+}
+
+.radio-container input[type="radio"]:checked + label span {
+  color: var(--color-secondary);
+}
+
+.custom-pagination {
+  align-items: center;
+}
+
+.custom-pagination .swiper-pagination-bullet {
+  background: var(--color-primary);
+  opacity: 0.5;
+  width: 8px;
+  height: 8px;
+  margin-right: 2px;
+  transition: all 0.3s ease;
+}
+.custom-pagination .swiper-pagination-bullet-active {
+  background: var(--color-primary); /* اللون الثانوي */
+  opacity: 1;
+  width: 30px;
+  height: 8px;
+  border-radius: 10px !important;
+}
+
+.mySwiper .swiper-slide-active {
+  transition: all 0.5s ease !important;
+  transform: translateY(-30px) !important;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+/* globals.css */
+
+/* ✅ Spinner Component */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #f97316;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+#vimeo-player div {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.spinner-sm {
+  width: 12px;
+  height: 12px;
+  border-width: 1.5px;
+}
+
+.spinner-lg {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
+}
+
+.spinner-white {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+}
+
+.spinner-primary {
+  border-color: rgba(249, 115, 22, 0.3);
+  border-top-color: #f97316;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================
+   Creative Big Toast Design
+   ========================= */
+
+   .toast-card {
+    direction: rtl;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    background: rgba(255, 255, 255, 0.82) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10), 0 2px 5px rgba(0, 0, 0, 0.05) !important;
+  
+    /* smaller */
+    min-height: 52px !important;
+  }
+  
+  .toast-card > div {
+    /* react-hot-toast internal wrapper */
+    padding: 10px 12px !important;
+    gap: 10px !important;
+    font-size: 14px !important;
+    text-align: center;
+  }
+  
+  .toast-card:hover {
+    transform: translateY(0) scale(1.005);
+  }
+  
+  /* Typography */
+  .toast-card * {
+    font-family: var(--font-cairo), var(--font-noto-sans-arabic), system-ui !important;
+  }
+  
+  .toast-card .toast-title {
+    font-size: 14px !important;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  
+  .toast-card .toast-desc {
+    font-size: 12px !important;
+    opacity: 0.85;
+    margin-top: 2px !important;
+  }
+  
+  /* Variants */
+  .toast-success {
+    background: rgba(236, 253, 245, 0.86) !important;
+    border-color: rgba(16, 185, 129, 0.22) !important;
+  }
+  
+  .toast-error {
+    background: rgba(254, 242, 242, 0.86) !important;
+    border-color: rgba(239, 68, 68, 0.22) !important;
+  }
+  
+  .toast-loading {
+    background: rgba(239, 246, 255, 0.86) !important;
+    border-color: rgba(59, 130, 246, 0.22) !important;
+  }
+  
+
+.checkbox-wrapper-19 {
+  box-sizing: border-box;
+  --background-color: #fff;
+  --checkbox-height: 25px;
+}
+
+@-moz-keyframes dothabottomcheck-19 {
+  0% {
+    height: 0;
+  }
+
+  100% {
+    height: calc(var(--checkbox-height) / 2);
+  }
+}
+
+@-webkit-keyframes dothabottomcheck-19 {
+  0% {
+    height: 0;
+  }
+
+  100% {
+    height: calc(var(--checkbox-height) / 2);
+  }
+}
+
+@keyframes dothabottomcheck-19 {
+  0% {
+    height: 0;
+  }
+
+  100% {
+    height: calc(var(--checkbox-height) / 2);
+  }
+}
+
+@keyframes dothatopcheck-19 {
+  0% {
+    height: 0;
+  }
+
+  50% {
+    height: 0;
+  }
+
+  100% {
+    height: calc(var(--checkbox-height) * 1.2);
+  }
+}
+
+@-webkit-keyframes dothatopcheck-19 {
+  0% {
+    height: 0;
+  }
+
+  50% {
+    height: 0;
+  }
+
+  100% {
+    height: calc(var(--checkbox-height) * 1.2);
+  }
+}
+
+@-moz-keyframes dothatopcheck-19 {
+  0% {
+    height: 0;
+  }
+
+  50% {
+    height: 0;
+  }
+
+  100% {
+    height: calc(var(--checkbox-height) * 1.2);
+  }
+}
+
+.checkbox-wrapper-19 input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-wrapper-19 .check-box {
+  height: var(--checkbox-height);
+  width: var(--checkbox-height);
+  background-color: transparent;
+  border: calc(var(--checkbox-height) * 0.1) solid #000;
+  border-radius: 5px;
+  position: relative;
+  display: inline-block;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-transition: border-color ease 0.2s;
+  -o-transition: border-color ease 0.2s;
+  -webkit-transition: border-color ease 0.2s;
+  transition: border-color ease 0.2s;
+  cursor: pointer;
+}
+
+.checkbox-wrapper-19 .check-box::before,
+.checkbox-wrapper-19 .check-box::after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  position: absolute;
+  height: 0;
+  width: calc(var(--checkbox-height) * 0.2);
+  background-color: var(--color-primary);
+  display: inline-block;
+  -moz-transform-origin: left top;
+  -ms-transform-origin: left top;
+  -o-transform-origin: left top;
+  -webkit-transform-origin: left top;
+  transform-origin: left top;
+  border-radius: 5px;
+  content: " ";
+  -webkit-transition: opacity ease 0.5;
+  -moz-transition: opacity ease 0.5;
+  transition: opacity ease 0.5;
+}
+
+.checkbox-wrapper-19 .check-box::before {
+  top: calc(var(--checkbox-height) * 0.72);
+  left: calc(var(--checkbox-height) * 0.41);
+  box-shadow: 0 0 0 calc(var(--checkbox-height) * 0.05) var(--background-color);
+  -moz-transform: rotate(-135deg);
+  -ms-transform: rotate(-135deg);
+  -o-transform: rotate(-135deg);
+  -webkit-transform: rotate(-135deg);
+  transform: rotate(-135deg);
+}
+
+.checkbox-wrapper-19 .check-box::after {
+  top: calc(var(--checkbox-height) * 0.37);
+  left: calc(var(--checkbox-height) * 0.05);
+  -moz-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+
+.checkbox-wrapper-19 input[type="checkbox"]:checked + .check-box,
+.checkbox-wrapper-19 .check-box.checked {
+  border-color: var(--color-primary);
+}
+
+.checkbox-wrapper-19 input[type="checkbox"]:checked + .check-box::after,
+.checkbox-wrapper-19 .check-box.checked::after {
+  height: calc(var(--checkbox-height) / 2);
+  -moz-animation: dothabottomcheck-19 0.2s ease 0s forwards;
+  -o-animation: dothabottomcheck-19 0.2s ease 0s forwards;
+  -webkit-animation: dothabottomcheck-19 0.2s ease 0s forwards;
+  animation: dothabottomcheck-19 0.2s ease 0s forwards;
+}
+
+.checkbox-wrapper-19 input[type="checkbox"]:checked + .check-box::before,
+.checkbox-wrapper-19 .check-box.checked::before {
+  height: calc(var(--checkbox-height) * 1.2);
+  -moz-animation: dothatopcheck-19 0.4s ease 0s forwards;
+  -o-animation: dothatopcheck-19 0.4s ease 0s forwards;
+  -webkit-animation: dothatopcheck-19 0.4s ease 0s forwards;
+  animation: dothatopcheck-19 0.4s ease 0s forwards;
+}
+
+
+.course-goal-content * {
+  white-space: pre-wrap !important;
+}
