@@ -173,7 +173,7 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
           </a>
         }
 
-        <Link
+        {/* <Link
           href={
                `/free-courses?category=${round?.category_part_free_id}`
           }
@@ -183,8 +183,8 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
           <div className="text-right justify-center text-white text-base md:text-lg font-medium">
               الشروحات المجانية
           </div>
-        </Link>
-        {/* <Link
+        </Link> */}
+        <Link
           href={
             pathname.startsWith("/course-preview")
               ? `/course/${round.id}`
@@ -198,7 +198,7 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
               ? " الرجوع للدورة"
               : "الشروحات المجانية"}
           </div>
-        </Link> */}
+        </Link>
       </div>
     </div>
   );

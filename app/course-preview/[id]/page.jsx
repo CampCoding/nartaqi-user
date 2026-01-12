@@ -568,9 +568,9 @@ const VideosList = ({ courseData, videos, currentVideo, onVideoSelect, isRegiste
           <div className="text-primary text-sm md:text-base font-bold">
             {currentIndex} من {list.length || 0}
           </div>
-          <div className="text-primary text-sm md:text-base font-bold">
+          {/* <div className="text-primary text-sm md:text-base font-bold">
             {teacherName}
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -601,11 +601,11 @@ const VideosList = ({ courseData, videos, currentVideo, onVideoSelect, isRegiste
         )}
       </div>
 
-      {!isRegistered && (
+      {/* {!isRegistered && (
         <div className="text-xs text-gray-500 mt-2">
           * أنت الآن في وضع المعاينة: المعروض فقط الفيديوهات المجانية.
         </div>
-      )}
+      )} */}
     </div>
   );
 };
