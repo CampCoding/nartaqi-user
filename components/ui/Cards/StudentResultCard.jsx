@@ -21,7 +21,7 @@ export const StudentResultCard = ({ item }) => {
       />
 
       <button
-        className={`flex items-center text-white justify-center gap-2.5 px-8 md:px-12 py-3 md:py-3 relative self-stretch w-full flex-[0_0_auto] rounded-[13px] md:rounded-[20px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-opacity duration-200 ${
+        className={`flex items-center text-white justify-center gap-2.5  px-2 py-3 md:py-3 relative self-stretch w-full flex-[0_0_auto] rounded-[13px] md:rounded-[20px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-opacity duration-200 ${
           canOpen ? "bg-primary hover:opacity-90" : "bg-gray-400 cursor-not-allowed"
         }`}
         type="button"
@@ -33,7 +33,7 @@ export const StudentResultCard = ({ item }) => {
         }}
       >
         <VideoIcon/>
-        <span className="text-base md:text-lg font-semibold">
+        <span className="text-sm lg:text-base  font-semibold">
           {canOpen ? "توثيق الدرجة بالفيديو" : "لا يوجد رابط توثيق"}
         </span>
       </button>

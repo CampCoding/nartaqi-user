@@ -240,7 +240,7 @@ const CourseCard = ({
                   payload.gender == "female" ? "!bg-[#F8B9D4]" : ""
                 )}
               >
-                {payload.gender == "female" ? "إناث" : "ذكور"}
+                {payload.gender == "female" ? "طالبات" : payload.gender == "both" ? "الجميع": "طلاب"}
               </div>
             </div>
 
