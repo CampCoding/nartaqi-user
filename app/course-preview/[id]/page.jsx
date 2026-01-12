@@ -507,11 +507,11 @@ const VideoItem = ({ idx, title, thumb, duration, isActive, onClick, canPlay }) 
           aria-label={`مصغّر الفيديو ${idx}`}
           role="img"
         >
-          <div className="px-2.5 absolute left-2 bottom-2 bg-zinc-800/80 rounded-[10px] inline-flex justify-center items-center">
+          {/* <div className="px-2.5 absolute left-2 bottom-2 bg-zinc-800/80 rounded-[10px] inline-flex justify-center items-center">
             <div className="text-right text-white text-xs md:text-sm font-medium">
               {formatDuration(duration)}
             </div>
-          </div>
+          </div> */}
 
           {!canPlay && (
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
