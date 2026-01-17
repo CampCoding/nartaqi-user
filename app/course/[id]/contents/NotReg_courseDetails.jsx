@@ -28,6 +28,7 @@ const NotReg_courseDetails = ({ courseData, onSubscribe }) => {
           isInFavorites={isFavorited}
           onToggleFavorite={handleToggleFavorite}
           onShare={handleShareOpen}
+          onSubscribe={onSubscribe}
           isShareOpen={openShareDrawer}
         />
 

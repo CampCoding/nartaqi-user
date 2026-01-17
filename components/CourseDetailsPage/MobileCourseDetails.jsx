@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -32,6 +32,9 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { queryClient } from "../../lib/getQueryClient";
+import useEnrollInCourse from "../shared/Hooks/useEnroll";
+import buildShareUrl from "../../lib/buildShareUrl";
+import { openShare } from "../utils/Store/Slices/shareSlice";
 /** =========================
  *  Hook: useHandleFavoriteActions
  *  ========================= */
@@ -79,6 +82,8 @@ function useHandleFavoriteActions() {
 const MobileCourseDetails = ({
   courseData,
   isRegestered,
+  onSubscribe,
+  onShareClick = () => null,
   isDone,
   onToggleFavorite, // optional
   onShare,
@@ -89,6 +94,8 @@ const MobileCourseDetails = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEnrollLoading, setIsEnrollLoading] = useState(false);
+  const [isCartLoading, setIsCartLoading] = useState(false);
 
   // ✅ local optimistic fav state
   const [localFav, setLocalFav] = useState(
@@ -96,53 +103,95 @@ const MobileCourseDetails = ({
   );
 
   const { round } = courseData;
+  const { id: roundId } = round;
 
   const { items: cartItems } = useSelector((state) => state.cart);
-  const { token } = useSelector((state) => state.auth);
+  const { token, user } = useSelector((state) => state.auth);
+  const { enroll } = useEnrollInCourse();
+
+  const studentId = user?.id;
+  const goLogin = useCallback(() => {
+    router.push("/login");
+  }, [router]);
+  const handleSubscribe = useCallback(async () => {
+    const isFull = +round.capacity - +round.students_count == 0;
+
+    if (!token) return goLogin();
+    if (!roundId) return console.error("Round ID is undefined!");
+    if (!studentId) return console.error("Student ID is undefined!");
+    if (isFull) return console.error("هذه الدورة ممتلئة");
+
+    setIsEnrollLoading(true);
+    try {
+      const res = await enroll({
+        token,
+        round_id: roundId,
+        student_id: studentId,
+        payment_id: 1,
+        // ✅ الأفضل بدل تاريخ ثابت
+        end_date: round?.end_date || "2025-12-30",
+      });
+
+      if (res?.ok) onSubscribe?.(res);
+    } catch (e) {
+      console.error("Enroll failed:", e);
+    } finally {
+      setIsEnrollLoading(false);
+    }
+  }, [
+    token,
+    roundId,
+    studentId,
+    enroll,
+    onSubscribe,
+    goLogin,
+    round?.end_date,
+  ]);
 
   // ✅ use hook
   const { mutate: toggleFavMutate, isLoading: favLoading } =
     useHandleFavoriteActions();
 
   const isInCart = useMemo(() => {
-    return cartItems.some((item) => item.round_id === round.id);
-  }, [cartItems, round.id]);
+    if (!roundId) return false;
+    return cartItems.some((item) => {
+      const matchById =
+        item.item_id === roundId ||
+        item.round_id === roundId ||
+        item.round?.id === roundId;
+
+      return matchById && item.type === "rounds";
+    });
+  }, [cartItems, roundId]);
 
   const cartItem = useMemo(() => {
     return cartItems.find((item) => item.round_id === round.id);
   }, [cartItems, round.id]);
 
-  const handleToggleCart = async () => {
-    if (!token) {
-      router.push("/login");
-      return;
-    }
+  const handleToggleCart = useCallback(async () => {
+    if (!token) return goLogin();
+    if (!roundId) return console.error("Round ID is undefined!");
 
-    setIsLoading(true);
-
+    setIsCartLoading(true);
     try {
       if (isInCart) {
         await dispatch(
-          removeFromCart({
-            round_id: round.id,
-          })
+          removeFromCart({ type: "rounds", item_id: roundId })
         ).unwrap();
       } else {
         await dispatch(
-          addToCart({
-            round_id: round.id,
-            quantity: 1,
-          })
+          addToCart({ type: "rounds", item_id: roundId, quantity: 1 })
         ).unwrap();
       }
 
+      // لو عندك Slice بيعمل optimistic update، ممكن تستغني عن دي
       await dispatch(getUserCart()).unwrap();
     } catch (error) {
       console.error("Failed to toggle cart:", error);
     } finally {
-      setIsLoading(false);
+      setIsCartLoading(false);
     }
-  };
+  }, [token, roundId, isInCart, dispatch, goLogin]);
 
   const calculateRating = () => {
     const rates = courseData.roundRate || [];
@@ -219,7 +268,7 @@ const MobileCourseDetails = ({
     },
     {
       id: 4,
-      label: `الجنس : ${genderMap[round.gender] || "غير محدد"}`,
+      label: `النوع : ${genderMap[round.gender] || "غير محدد"}`,
       icon: <GenderIcon />,
     },
   ];
@@ -264,7 +313,19 @@ const MobileCourseDetails = ({
         <div className="w-full p-5 !pt-10 h-8 relative flex items-center justify-between">
           <div className="flex items-center gap-[22px]">
             <ShareIcon
-              onClick={() => onShare(true)}
+              onClick={() => {
+                const url = buildShareUrl(roundId);
+                // return
+                onShareClick?.(courseData);
+                dispatch(
+                  openShare({
+                    url,
+                    title: round?.name || "مشاركة الدورة",
+                    summary: round?.description || "",
+                    image: round?.image_url || "",
+                  })
+                );
+              }}
               className="stroke-white w-7 h-7 cursor-pointer active:scale-90 transition-all duration-300"
             />
 
@@ -293,20 +354,25 @@ const MobileCourseDetails = ({
       </div>
 
       <Container className="flex flex-col items-start gap-4 relative">
-        <h1 className="relative self-stretch text-lg font-bold mt-[-1.00px] text-text flex items-center justify-center [direction:rtl]">
+        <h1 className="relative self-stretch text-lg font-bold mt-[-1.00px] text-text [direction:rtl]">
           {round.name}
         </h1>
 
         <div className="flex flex-col items-center gap-2 relative flex-[0_0_auto]">
-          <div
-            className={`relative self-stretch w-full ${
-              isExpanded ? "h-auto" : "h-[50px]"
-            } overflow-hidden`}
-          >
-            <p className="font-normal text-[#5e5856] text-[12px] leading-6 flex items-center justify-center tracking-[0] [direction:rtl]">
-              {round.description}
-            </p>
-          </div>
+          {round?.description && (
+            <div
+              className={`relative self-stretch w-full ${
+                isExpanded ? "h-auto" : "h-[50px]"
+              } overflow-hidden`}
+            >
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: round?.description?.replaceAll(/&nbsp;/gi, " "),
+                }}
+                className="font-normal text-[#5e5856] text-[12px] leading-6 flex items-center justify-center tracking-[0] [direction:rtl]"
+              />
+            </div>
+          )}
 
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -362,13 +428,13 @@ const MobileCourseDetails = ({
 
         {!isRegestered && (
           <>
-            {round.round_book && (
+            {/* {round.round_book && (
               <div className="self-stretch px-4 py-2 bg-white rounded-[10px] outline outline-1 outline-offset-[-1px] outline-neutral-400 inline-flex justify-center items-center gap-2">
                 <div className="text-center justify-center text-zinc-800 text-base font-normal font-['Cairo']">
                   جدول الدورة
                 </div>
               </div>
-            )}
+            )} */}
 
             <div className="w-full inline-flex flex-col items-start gap-6 relative">
               <div className="items-center justify-start gap-2 self-stretch w-full flex-[0_0_auto] flex relative">
@@ -385,7 +451,7 @@ const MobileCourseDetails = ({
                   <button
                     onClick={handleToggleCart}
                     disabled={isLoading}
-                    className={`items-center justify-center gap-2.5 px-2.5 py-4 flex-1 grow rounded-[20px] border border-solid flex relative transition-all duration-200
+                    className={`items-center justify-center gap-2.5 px-2.5 py-3 flex-1 grow rounded-[20px] border border-solid flex relative transition-all duration-200
                       ${
                         isInCart && !isLoading
                           ? "bg-red-50 border-red-500 hover:bg-red-100"
@@ -449,11 +515,17 @@ const MobileCourseDetails = ({
                 </div>
 
                 <button
-                  className="items-center justify-center gap-2.5 px-2.5 py-[18px] self-stretch w-full flex-[0_0_auto] bg-orange-500 rounded-[20px] flex relative cursor-pointer hover:bg-orange-600 transition-colors"
                   type="button"
+                  onClick={handleSubscribe}
+                  disabled={
+                    isEnrollLoading ||
+                    round.capacity - round?.students_count <= 0
+                  }
+                  className="items-center justify-center gap-2.5 px-2.5 py-[18px] self-stretch w-full flex-[0_0_auto] bg-orange-500 rounded-[20px] flex relative cursor-pointer hover:bg-orange-600 transition-colors"
                 >
-                  <span className="text-[#e8ecf3] text-base text-center leading-[normal] relative flex items-center justify-center w-fit mt-[-1.00px] font-bold tracking-[0] [direction:rtl]">
-                    اشترك الأن
+                  {isEnrollLoading ? <div className="spinner" /> : null}
+                  <span className="text-center justify-center text-slate-200 text-base font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
+                    {isEnrollLoading ? "جاري الاشتراك..." : "اشترك الأن"}
                   </span>
                 </button>
               </div>

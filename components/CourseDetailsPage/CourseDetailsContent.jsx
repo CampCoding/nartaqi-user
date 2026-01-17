@@ -322,7 +322,7 @@ const CourseDetailsContent = ({ courseData, inFreeVideos }) => {
             className={[
               "flex w-full items-center gap-2 overflow-x-auto justify-between hidden-scroll px-1",
               "scroll-smooth",
-              isOverflowing ? "pr-10 pl-10" : "",
+              // isOverflowing ? "pr-10 pl-10" : "",
             ].join(" ")}
             role="tablist"
             aria-label="Course Tabs"

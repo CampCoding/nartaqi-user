@@ -167,14 +167,23 @@ const Reg_courseDetails = ({ courseData, open }) => {
       {/* ===================== MOBILE ===================== */}
       {!isLgUp && (
         <div className="lg:hidden space-y-5 sm:space-y-6">
-          <MobileCourseDetails
-            courseData={courseData}
-            isRegestered
-            isInFavorites={isFavorited}
-            onToggleFavorite={handleToggleFavorite}
-            isShareOpen={openShareDrawer}
-            onShare={handleShareToggle}
-          />
+          {!watch ? (
+            <MobileCourseDetails
+              courseData={courseData}
+              isRegestered
+              isInFavorites={isFavorited}
+              onToggleFavorite={handleToggleFavorite}
+              isShareOpen={openShareDrawer}
+              onShare={handleShareToggle}
+            />
+          ) : (
+            <VideoPlayer
+              vimeo_id={vimeoId}
+              youtube_id={youtubeId}
+              defaultPlay={autoplay}
+              rootClassName="w-full"
+            />
+          )}
 
           <Container className="px-3 sm:px-4">
             <div className="space-y-6 sm:space-y-8">

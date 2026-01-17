@@ -15,10 +15,15 @@ import ShareBottomDrawer from "../shared/ShareBottomDrawer";
 import { useRouter } from "next/navigation";
 import useHandleFavoriteActions from "@/components/shared/Hooks/useHandleFavoriteActions";
 import toast from "react-hot-toast";
+import buildShareUrl from "../../lib/buildShareUrl";
+import { useDispatch } from "react-redux";
 
-const MobileCoursePreview = ({ courseData, onClick = () => null }) => {
+const MobileCoursePreview = ({ courseData, onClick = () => null , onShareClick = () => null}) => {
   const router = useRouter();
-  console.log("courseDataDetails" , courseData )
+  console.log("courseData" , courseData)
+
+  const dispatch = useDispatch();
+
 
   const [openShareDrawer, setOpenShareDrawer] = React.useState(false);
 
@@ -27,15 +32,13 @@ const MobileCoursePreview = ({ courseData, onClick = () => null }) => {
     useHandleFavoriteActions();
 
   // ✅ optimistic state
-  const initialFav =
-    !!courseData?.round?.fav || !!courseData?.fav || false;
+  const initialFav = !!courseData?.round?.fav || !!courseData?.fav || false;
 
   const [isFavorited, setIsFavorited] = React.useState(initialFav);
 
   // ✅ keep UI in sync when courseData updates after refetch
   React.useEffect(() => {
-    const nextFav =
-      !!courseData?.round?.fav || !!courseData?.fav || false;
+    const nextFav = !!courseData?.round?.fav || !!courseData?.fav || false;
     setIsFavorited(nextFav);
   }, [courseData?.round?.fav, courseData?.fav]);
 
@@ -142,7 +145,8 @@ const MobileCoursePreview = ({ courseData, onClick = () => null }) => {
         className="w-full h-[280px] relative bg-black/20 overflow-hidden mb-[16px]"
         style={{
           backgroundImage: `url('${
-            courseData?.round?.image_url || "/images/daily-competition-image.png"
+            courseData?.round?.image_url ||
+            "/images/daily-competition-image.png"
           }')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -179,7 +183,19 @@ const MobileCoursePreview = ({ courseData, onClick = () => null }) => {
         <div className="w-full p-5 !pt-10 h-8 relative flex items-center justify-between">
           <div className="flex items-center gap-[22px]">
             <ShareIcon
-              onClick={() => setOpenShareDrawer(true)}
+              onClick={() => {
+                const url = buildShareUrl();
+                setOpenShareDrawer(true);
+                onShareClick?.(courseData);
+                dispatch(
+                  openShare({
+                    url,
+                    title: courseData?.name || "مشاركة الدورة",
+                    summary: courseData?.description || "",
+                    image: courseData?.image_url || "",
+                  })
+                );
+              }}
               className="stroke-white w-7 h-7 cursor-pointer active:scale-90 transition-all duration-300"
             />
 
@@ -212,9 +228,17 @@ const MobileCoursePreview = ({ courseData, onClick = () => null }) => {
         <h2 className="text-2xl font-bold text-text">
           {courseData?.round?.name || "غير محدد"}
         </h2>
-        <p className="text-text-alt text-sm leading-relaxed">
-          {courseData?.round?.description || "غير محدد"}
-        </p>
+        {courseData?.round?.description && (
+          <p
+            className="text-text-alt text-sm leading-relaxed"
+            dangerouslySetInnerHTML={{
+              __html: courseData?.round?.description.replaceAll(
+                /&nbsp;/gi,
+                " "
+              ),
+            }}
+          />
+        )}
 
         <div className="grid grid-cols-1 gap-3">
           {courseDetails.map((detail) => (

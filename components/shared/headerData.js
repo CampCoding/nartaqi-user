@@ -18,72 +18,73 @@ const headerData = [
      
     ],
   },
-  // {
-  //   key: "competitions",
-  //   className: "text-text text-base leading-6 whitespace-nowrap",
-  //   title: "المسابقات",
-  //   items: [
-  //     {
-  //       id: 1,
-  //       title: "متجر المكـــافات",
-  //       link: "/rewards-store",
-  //     },
-  //     {
-  //       id: 1,
-  //       title: "مسابقة القدرات العامة",
-  //       count: 25,
-  //       link: "/competitions/general-aptitude",
-  //     },
-  //     {
-  //       id: 2,
-  //       title: "مسابقة التحصيلي",
-  //       count: 50,
-  //       link: "/competitions/achievement",
-  //     },
-  //     {
-  //       id: 3,
-  //       title: "مسابقة الرخصة المهنية",
-  //       count: 15,
-  //       link: "/competitions/pro-license",
-  //     },
-  //     {
-  //       id: 4,
-  //       title: "مسابقة قدرات الجامعيين",
-  //       count: 10,
-  //       link: "/competitions/university-aptitude",
-  //     },
-  //     {
-  //       id: 5,
-  //       title: "مسابقة القدرة المعرفية",
-  //       count: 0,
-  //       link: "/competitions/cognitive",
-  //     },
-  //     {
-  //       id: 6,
-  //       title: "مسابقة STEP",
-  //       count: 30,
-  //       link: "/competitions/step",
-  //     },
-  //     {
-  //       id: 7,
-  //       title: "مسابقة اللغات و البرمجة",
-  //       count: 0,
-  //       link: "/competitions/languages-programming",
-  //     },
-  //     {
-  //       id: 8,
-  //       title: "مسابقة حفظ القرآن الكريم",
-  //       count: 6,
-  //       link: "/competitions/quran",
-  //     },
-  //     {
-  //       id: 9,
-  //       title: "مسابقة التأهيل لاختبار CPC - ARAMCO",
-  //       count: 25,
-  //       link: "/competitions/cpc-aramco",
-  //     },
-  //   ],
-  // },
+  {
+    key: "competitions",
+    className: "text-text text-base leading-6 whitespace-nowrap",
+    title: "المسابقات",
+    link:"/competitions"
+    // items: [
+    //   {
+    //     id: 1,
+    //     title: "متجر المكـــافات",
+    //     link: "/rewards-store",
+    //   },
+    //   {
+    //     id: 1,
+    //     title: "مسابقة القدرات العامة",
+    //     count: 25,
+    //     link: "/competitions/general-aptitude",
+    //   },
+    //   {
+    //     id: 2,
+    //     title: "مسابقة التحصيلي",
+    //     count: 50,
+    //     link: "/competitions/achievement",
+    //   },
+    //   {
+    //     id: 3,
+    //     title: "مسابقة الرخصة المهنية",
+    //     count: 15,
+    //     link: "/competitions/pro-license",
+    //   },
+    //   {
+    //     id: 4,
+    //     title: "مسابقة قدرات الجامعيين",
+    //     count: 10,
+    //     link: "/competitions/university-aptitude",
+    //   },
+    //   {
+    //     id: 5,
+    //     title: "مسابقة القدرة المعرفية",
+    //     count: 0,
+    //     link: "/competitions/cognitive",
+    //   },
+    //   {
+    //     id: 6,
+    //     title: "مسابقة STEP",
+    //     count: 30,
+    //     link: "/competitions/step",
+    //   },
+    //   {
+    //     id: 7,
+    //     title: "مسابقة اللغات و البرمجة",
+    //     count: 0,
+    //     link: "/competitions/languages-programming",
+    //   },
+    //   {
+    //     id: 8,
+    //     title: "مسابقة حفظ القرآن الكريم",
+    //     count: 6,
+    //     link: "/competitions/quran",
+    //   },
+    //   { 
+    //     id: 9,
+    //     title: "مسابقة التأهيل لاختبار CPC - ARAMCO",
+    //     count: 25,
+    //     link: "/competitions/cpc-aramco",
+    //   },
+    // ],
+  },
   {
     key: "services",
     className: "text-text text-base leading-6 whitespace-nowrap",

@@ -20,7 +20,7 @@ export default function useHeaderFreeVideosItems(options = {}) {
   const {
     enabled = true,
     // لو مسار صفحتك مختلف غيره هنا
-    basePath = "/free-videos",
+    basePath = "/free-courses",
     achievementsPathname = "/student-results",
     // لو اسم البراميتر مختلف غيره هنا
     paramName = "category_part_free_id",

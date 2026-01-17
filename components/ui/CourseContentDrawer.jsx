@@ -78,7 +78,7 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
     >
       {/* Header */}
       <div
-        className="self-stretch px-5 md:px-7 py-5 md:py-7 inline-flex justify-between items-center cursor-pointer"
+        className="self-stretch px-5 md:px-7 py-5 md:py-7 inline-flex justify-between items-start cursor-pointer"
         onClick={handleToggle}
       >
         <div>
@@ -91,18 +91,15 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
             >
               <InfoIcon />
             </button>
-          
+
             <div className="">
               <div>{content.content_title || "غير محدد"}</div>
-              {
-              !content?.was_opened && content?.show_date &&
-
-              <div className="  text-sm text-gray-500 text-right mt-2  text-text  font-normal">
-                متاح في: {content.show_date}
-              </div>
-              }
+              {!content?.was_opened && content?.show_date && (
+                <div className="  text-sm text-gray-500 text-right mt-2  text-text  font-normal">
+                  متاح في: {content.show_date}
+                </div>
+              )}
             </div>
-            
           </div>
         </div>
 
@@ -463,7 +460,7 @@ export const RegLectureDrawer = ({
             toggleExpanded();
           }
         }}
-        className="flex cursor-pointer gap-4 sm:gap-6 p-5 sm:p-6 md:p-7 items-center justify-between self-stretch w-full"
+        className="flex cursor-pointer gap-4 sm:gap-6 p-5 sm:p-6 md:p-7 items-start justify-between self-stretch w-full"
         role="button"
         tabIndex={0}
         aria-expanded={isExpanded}
@@ -832,20 +829,22 @@ export const ExerciseDropDown = ({
                                 {exam.title || "أسئلة الاختبار"}
                               </span>
                             </div>
-                            <Link
-                              href={
-                                isDone
-                                  ? `/course/${id}/lesson/${lesson.id}/exam-details/${exam?.id}`
-                                  : undefined
-                              }
-                              className="inline-flex items-center gap-2 px-4 py-2 bg-primary rounded-full hover:opacity-90 transition-opacity"
-                            >
-                              <FileIcon className="w-5 h-5 fill-white" />
+                            {isRegistered && (
+                              <Link
+                                href={
+                                  isDone
+                                    ? `/course/${id}/lesson/${lesson.id}/exam-details/${exam?.id}`
+                                    : undefined
+                                }
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-primary rounded-full hover:opacity-90 transition-opacity"
+                              >
+                                <FileIcon className="w-5 h-5 fill-white" />
 
-                              <span className="text-white font-medium text-sm md:text-base">
-                                بدء الاختبار
-                              </span>
-                            </Link>
+                                <span className="text-white font-medium text-sm md:text-base">
+                                  بدء الاختبار
+                                </span>
+                              </Link>
+                            )}
 
                             {!isDone && (
                               <div className="relative w-7 h-7 sm:w-8 sm:h-8 aspect-[1]">
