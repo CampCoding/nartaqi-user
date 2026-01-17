@@ -96,8 +96,6 @@ const CourseDetailsPage = () => {
   }, [roundId, fetchCourseData]);
 
   if (loading) return <LoadingPage />;
-  console.log( "courseData", courseData);
-  console.log( "courseData_loading" , loading);
 
 
   if (error || !courseData) {
@@ -122,7 +120,6 @@ const CourseDetailsPage = () => {
 
   const isRegistered = !!courseData?.own;
   const isFree = courseData?.round?.free == 1 ;
-  console.log(  "isFree" , isFree);
   return (
     <div>
       <CourseTitle

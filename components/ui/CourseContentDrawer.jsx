@@ -57,7 +57,6 @@ export const extractYoutubeId = (url) => {
 const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { token, user } = useSelector((state) => state.auth);
-  console.log("content", content);
   const handleToggle = () => setIsOpen((prev) => !prev);
 
   const [infoOpen, setInfoOpen] = useState(false);

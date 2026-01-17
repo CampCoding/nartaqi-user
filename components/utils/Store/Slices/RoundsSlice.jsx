@@ -15,7 +15,6 @@ export const RoundsSlice = createAsyncThunk(
         }
       );
 
-      console.log("blogs fetched");
 
       return res.data;
     } catch (error) {

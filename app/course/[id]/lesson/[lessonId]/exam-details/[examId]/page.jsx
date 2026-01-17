@@ -24,10 +24,6 @@ const ExamDetails = ({ params }) => {
   const { token } = useSelector((state) => state.auth);
   const user = useSelector((state) => state.auth);
 
-  // useEffect(() => {
-  //   console.log(user, "user");
-  // }, [user]);
-
   // Fetch exam data
   useEffect(() => {
     const fetchExamData = async () => {
@@ -54,7 +50,6 @@ const ExamDetails = ({ params }) => {
         ) {
           
           setExamData(response.data.message);
-          console.log( "response.data.message" ,  response.data)
           setEndExam(response.data.message.is_solved)
         } else {
           setError("فشل في تحميل بيانات الاختبار");
@@ -123,7 +118,6 @@ const ExamDetails = ({ params }) => {
     );
   }
 
-  console.log("examData" , examData)
 
 
   return (

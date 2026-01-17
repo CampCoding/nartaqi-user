@@ -12,7 +12,6 @@ export const McqQuestion = ({
 }) => {
 
 
-  console.log("options" , options)
 
 
 
@@ -29,7 +28,7 @@ export const McqQuestion = ({
 
       {/* Question Text - supports HTML */}
       {questionHtml ? (
-        <div onClick={()=> console.log(options)}
+        <div 
           className="self-stretch text-right justify-center text-text text-lg md:text-xl font-bold leading-[50px]"
           dangerouslySetInnerHTML={{ __html: questionHtml }}
         />

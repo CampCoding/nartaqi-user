@@ -108,7 +108,6 @@ const QuestionCard = ({ question, index, fontSize }) => {
               const isCorrect = opt.id === question.correct_option_id;
 
 
-            console.log(  "optionText" ,  opt.id , "=>"  ,question.correct_option_id)
 
 
 

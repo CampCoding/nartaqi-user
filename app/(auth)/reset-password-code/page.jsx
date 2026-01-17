@@ -74,7 +74,6 @@ const ResetPasswordCode = () => {
         code: data.activationCode,
         verified_at: resetPassword?.expires_at,
       };
-      console.log(payload);
 
       const { data: resData } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/authentication/forgot/verify-code`,

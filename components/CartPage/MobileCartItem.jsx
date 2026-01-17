@@ -31,11 +31,7 @@ export const MobileCartItem = ({ data, onRemove }) => {
   }, [data.quantity]);
 
   const syncWithServer = async (qty) => {
-    console.log("📱 Mobile - Syncing with server:", {
-      type: typeRef.current,
-      item_id: itemIdRef.current,
-      quantity: qty,
-    });
+
 
     try {
       await dispatch(
@@ -46,11 +42,9 @@ export const MobileCartItem = ({ data, onRemove }) => {
         })
       ).unwrap();
 
-      console.log("✅ Mobile - Sync successful");
       lastSyncedQuantity.current = qty;
       pendingQuantity.current = null;
     } catch (error) {
-      console.log("❌ Mobile - Sync failed, rolling back");
       setQuantity(lastSyncedQuantity.current);
       dispatch(
         updateQuantityLocally({

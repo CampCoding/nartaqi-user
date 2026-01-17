@@ -188,10 +188,6 @@ const CoursePreviewPage = () => {
     };
   }, [fetchCourseData]);
 
-  // ✅ FIX LOGGER: this will show true -> false transitions
-  useEffect(() => {
-    console.log("[CoursePreviewPage] loading changed:", loading);
-  }, [loading]);
 
   const isRegistered = useMemo(() => {
     return !!(courseData?.own || courseData?.is_registered);
@@ -302,8 +298,6 @@ const CoursePreviewPage = () => {
     if (targetVideo) handleVideoSelect(targetVideo);
   }, [playableVideos, handleVideoSelect]);
 
-  // ✅ IMPORTANT: log BEFORE early return
-  console.log("[CoursePreviewPage] render loading:", loading);
 
   if (loading) return <LoadingPage />;
 

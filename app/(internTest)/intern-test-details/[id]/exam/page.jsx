@@ -179,7 +179,6 @@ const ExamPage = () => {
       setSubmitting(true);
 
       // Get submission data from Redux (already in API format)
-      console.log("Submitting exam:", submissionData);
 
       // Step 1: Store student answers
       const answersResponse = await axios.post(
@@ -192,7 +191,6 @@ const ExamPage = () => {
         }
       );
 
-      console.log("Answers stored:", answersResponse.data);
 
       // Calculate score
       const scoreData = calculateScore();
@@ -214,7 +212,6 @@ const ExamPage = () => {
         }
       );
 
-      console.log("Score stored:", scoreResponse.data);
 
       // Store results in Redux
       dispatch(

@@ -19,7 +19,6 @@ export const getUserDate = createAsyncThunk(
         }
       );
 
-      console.log("data get");
 
       return res.data;
     } catch (error) {

@@ -44,7 +44,6 @@ const CourseContent = ({ isRegistered, courseData }) => {
 
   const { contents, round, exams_round, own } = courseData;
   const isFree = round.free == 1;
-  console.log("CourseContent", isFree);
 
   const foundationContents = contents.filter(
     (c) => c.content_type === "basic" || c.content_type === "foundation"

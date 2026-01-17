@@ -9,7 +9,6 @@ export function middleware(req) {
   // return true
 
   // if (isAuthed && blockedForAuthed) {
-  //   console.log("not available")
   //   url.pathname = "/"; // destination for logged-in users
   //   return NextResponse.redirect(url);
   // }

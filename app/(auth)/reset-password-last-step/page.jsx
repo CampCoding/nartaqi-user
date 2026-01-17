@@ -54,14 +54,11 @@ const ResetPasswordLastStep = () => {
         `${process.env.NEXT_PUBLIC_API_URL}/authentication/forgot/send-code`,
         { phone: resetPassword?.phone }
       );
-      console.log(res);
 
       toast.success(res.data.message, { duration: 2000 });
     } catch (error) {
-      console.log(error);
 
       toast.error(error?.response?.data?.message);
-      console.log(error);
     }
   };
   const onSubmit = async (data) => {
@@ -73,7 +70,6 @@ const ResetPasswordLastStep = () => {
       password_confirmation: data?.confirmPassword,
     };
     try {
-      console.log(getExecutionDateTime());
 
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/authentication/forgot/reset`,
@@ -85,7 +81,6 @@ const ResetPasswordLastStep = () => {
         router.push("/login");
       }
     } catch (error) {
-      console.log(error);
       toast.error(error?.response?.data?.message);
       if (error.response.data.statusCode === 408) {
         resendCode();
@@ -94,9 +89,7 @@ const ResetPasswordLastStep = () => {
     } finally {
       setLoading(false);
     }
-    console.log("Password reset data:", data);
   };
-  console.log(errors);
 
   return (
     <>

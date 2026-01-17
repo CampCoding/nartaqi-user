@@ -5,7 +5,6 @@ import CourseRateModal from "@/components/CourseRateModal"; // عدّل المس
 
 export const MyCompletedCourseCard = ({ course, studentId, token }) => {
 
-  console.log(  "studentIdAndToken" ,  studentId , token)
 
 
   const courseData = {

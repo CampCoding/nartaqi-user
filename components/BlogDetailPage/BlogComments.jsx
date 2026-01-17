@@ -23,7 +23,6 @@ const BlogComments = ({ count, id }) => {
     payload: { blog_id: id },
   });
   const { token } = useSelector((state) => state.auth);
-  console.log(comments);
 
   return (
     <section className=" flex flex-col gap-6 sm:gap-8 md:gap-10 mt-8 sm:mt-10 md:mt-12 lg:mt-14 max-w-7xl mx-auto">
@@ -65,7 +64,6 @@ const BlogCommentCard = ({ comment }) => {
       "يقدم هذا المقال رؤى قيمة حول مستقبل التعليم. الأمثلة عملية وذات صلة.",
     avatar: "/FRAME.png",
   };
-  console.log(comment);
 
   const renderStars = (rating) => {
     return (
@@ -162,7 +160,6 @@ export const AddBlogComment = ({ id, token }) => {
   const router = useRouter();
   const { commentContent } = useSelector((state) => state.blog);
   const addCommentMutation = useAddComment();
-  console.log(commentContent);
 
   const dispatch = useDispatch();
   const redirect = useRedirect();
@@ -209,7 +206,6 @@ export const AddBlogComment = ({ id, token }) => {
   };
 
   const onSubmit = async (data) => {
-    console.log(window.location.pathname);
 
     // 1️⃣ التأكد من وجود التوكن + تخزين التعليق قبل اللوجين
     const mustLogin = redirect({

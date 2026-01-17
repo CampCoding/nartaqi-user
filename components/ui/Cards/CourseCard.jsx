@@ -40,7 +40,6 @@ const CourseCard = ({
   const dispatch = useDispatch();
   const width = freeWidth ? "w-full" : "w-full lg:max-w-[351px]";
 
-  console.log("payload", payload);
 
   // ✅ normalize values coming from backend
   const roundId = payload?.id;

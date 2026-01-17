@@ -26,10 +26,7 @@ const SuccessCheckout = () => {
 export default SuccessCheckout;
 
 export const BackToHome = () => {
-  const handleReturnHome = () => {
-    // Handle navigation to home page
-    console.log("Navigating to home page");
-  };
+
 
   return (
     <div className="flex flex-col pt-4 sm:pt-6 md:pt-8 pb-12 sm:pb-16 md:pb-20 lg:pb-24 xl:pb-32 w-full items-center justify-center gap-4 sm:gap-5 md:gap-6 relative px-2 sm:px-4">

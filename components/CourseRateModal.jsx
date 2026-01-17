@@ -16,7 +16,6 @@ export default function CourseRateModal({
   // ✅ استخدام الهوك الحقيقي
   const { submitRate, loading, error } = useMakeRoundRate({ token });
 
-  console.log("roundId",  roundId)
 
   const [rate, setRate] = useState(3);
   const [hoverValue, setHoverValue] = useState(undefined);
@@ -35,7 +34,6 @@ export default function CourseRateModal({
   }, [roundId, studentId, rate, loading]);
 
 
-  console.log("canSubmit" , canSubmit)
 
   if (!open) return null;
 

@@ -13,7 +13,6 @@ import NoContent from "../../../../components/shared/NoContent";
 const BlogDetails = () => {
   const { id } = useParams();
   const { blog, loading, error } = useGetBlog(id);
-  console.log({ data: blog, loading, error });
 
   if (loading) return <LoadingPage />;
   if (error)

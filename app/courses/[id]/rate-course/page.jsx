@@ -173,7 +173,6 @@ export default function RateCoursePage() {
       }));
       return;
     }
-    console.log("Submitted answers:", answers);
     setIsFinished(true);
     alert("تم إرسال التقييم بنجاح ✅");
   };

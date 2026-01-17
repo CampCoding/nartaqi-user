@@ -10,7 +10,6 @@ import NoContent from "../../components/shared/NoContent";
 
 const BlogsPage = () => {
   const { blogs, loading, error } = useGetBlogs();
-  console.log(blogs);
 
   const [selectedBlogId, setSelectedBlogId] = useState(null);
 

@@ -26,7 +26,6 @@ export const SendUsMessageForm = () => {
     e.preventDefault();
     // Simple guard – relies on native "required" too
     if (!formData.fullName || !formData.phoneNumber || !formData.messageType || !formData.course) return;
-    console.log("Form submitted:", formData);
   };
 
   // Close dropdown on outside click

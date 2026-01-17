@@ -161,7 +161,6 @@ const middleIndex = Math.floor(firstsStudents.length / 2);
 
 // 4. ندخل الطالب في المنتصف
 firstsStudents.splice(middleIndex, 0, maxStudent);
-console.log("firstsStudents", firstsStudents);
 
 const newmaxIndex = firstsStudents.reduce((maxIdx, student, idx, arr) => {
   const current = parseInt(student.percentage.replace("%", ""));
@@ -169,7 +168,6 @@ const newmaxIndex = firstsStudents.reduce((maxIdx, student, idx, arr) => {
   return current > max ? idx : maxIdx;
 }, 0);
 
-console.log("newmaxIndex", newmaxIndex);
 
 const SwiperEffect = () => {
   // Sort and restructure the array before rendering

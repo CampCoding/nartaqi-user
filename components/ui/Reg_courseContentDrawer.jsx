@@ -55,7 +55,6 @@ const RegCourseContentDrawer = () => {
       return;
     }
     setPlayingId((prev) => (prev === lesson.id ? null : lesson.id));
-    console.log("تشغيل الدرس:", lesson.title);
   };
 
   return (

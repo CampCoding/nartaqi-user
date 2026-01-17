@@ -13,7 +13,6 @@ export default function useGetCertificates(token) {
         },
       }
     );
-    console.log(res);
 
     return res?.data?.message ?? null;
   };

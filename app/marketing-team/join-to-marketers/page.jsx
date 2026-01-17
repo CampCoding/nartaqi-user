@@ -40,7 +40,6 @@ const JoinToMarketers = () => {
   } = useForm();
   // 👉 Create ref for success section
   const successRef = useRef(null);
-  console.log(agreement);
 
   useEffect(() => {
     if (isVerified) {
@@ -54,7 +53,6 @@ const JoinToMarketers = () => {
     }
   }, [isVerified]);
   const onSubmit = (data) => {
-    console.log("FORM DATA:", data);
     const phone = handlePhoneCode({
       phone: data.whatsapp,
       selectedCountryCode: selectedCountry.code,
@@ -71,7 +69,6 @@ const JoinToMarketers = () => {
       setPhoneNumber(phone);
       setOpenVerCode(true);
     } catch (error) {
-      console.log(error);
     }
   };
   const handleFinalSubmit = async () => {
@@ -96,7 +93,6 @@ const JoinToMarketers = () => {
 
     try {
       const res = await useApplyMarketer({ payload: body }); // service function
-      console.log(res);
     } catch (error) {
       console.log(error);
     }

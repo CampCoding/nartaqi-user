@@ -17,7 +17,6 @@ const CheckoutSummery = () => {
 
   const handleCouponSubmit = (e) => {
     e.preventDefault();
-    console.log("Applying coupon:", couponCode);
   };
 
   const handleCouponChange = (e) => {

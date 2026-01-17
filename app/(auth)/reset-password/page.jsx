@@ -47,10 +47,8 @@ const ResetPasswordPage = () => {
       selectedCountryCode: selectedCountry.code,
       phone: data.phone,
     });
-    console.log(phone);
 
     const payload = { phone, expires_at: getExecutionDateTime() };
-    console.log("payload", payload);
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/authentication/forgot/send-code`,
@@ -68,7 +66,6 @@ const ResetPasswordPage = () => {
         toast.error("حدث خطاء");
       }
 
-      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -76,7 +73,6 @@ const ResetPasswordPage = () => {
   const handleBackToLogin = () => {
     // Handle navigation back to login
     router.push("/login");
-    console.log("Navigate back to login");
   };
  
 

@@ -12,7 +12,6 @@ export const useGetCategoryPart = (id) => {
         headers: { Accept: "application/json" },
       }
     );
-    console.log(res);
 
     return res.data;
   };

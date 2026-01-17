@@ -228,7 +228,6 @@ function FreeVideoCard({ video }) {
     );
   };
 
-  console.log("videodata" , video)
 
   return (
     <div className="group rounded-2xl border border-neutral-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition">

@@ -24,13 +24,11 @@ const ChangePassword = () => {
 
   const onSubmit = async (data) => {
     setLoading(true);
-    console.log("Form Data:", data);
     const payload = {
       current_password: data?.oldPassword,
       new_password: data?.newPassword,
       new_password_confirmation: data?.confirmPassword,
     };
-    console.log(payload);
 
     try {
       const res = await axios.post(
@@ -47,7 +45,6 @@ const ChangePassword = () => {
         toast.success(res.data.message);
       }
     } catch (error) {
-      console.log(error);
       if (error.response.data.errors) {
         for (const [key, value] of Object.entries(error.response.data.errors)) {
           toast.error(value[0]);

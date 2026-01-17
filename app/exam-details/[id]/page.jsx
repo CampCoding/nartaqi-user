@@ -24,9 +24,7 @@ const ExamDetails = ({ params }) => {
   const { token } = useSelector((state) => state.auth);
   const user = useSelector((state) => state.auth);
 
-  // useEffect(() => {
-  //   console.log(user, "user");
-  // }, [user]);
+
 
   // Fetch exam data
   useEffect(() => {

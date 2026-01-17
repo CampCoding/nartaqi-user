@@ -23,9 +23,7 @@ const CartItem = ({ data, onRemove }) => {
   const typeRef = useRef(data.type);
   const itemIdRef = useRef(data.item_id);
 
-  useEffect(() => {
-    console.log(data, "data");
-  }, [data]);
+
 
   const isRound = data.type === "rounds";
 
@@ -41,11 +39,7 @@ const CartItem = ({ data, onRemove }) => {
 
   // ✅ Sync with server
   const syncWithServer = async (qty) => {
-    console.log("🚀 Syncing with server:", {
-      type: typeRef.current,
-      item_id: itemIdRef.current,
-      quantity: qty,
-    });
+   
 
     try {
       await dispatch(
@@ -56,11 +50,9 @@ const CartItem = ({ data, onRemove }) => {
         })
       ).unwrap();
 
-      console.log("✅ Sync successful");
       lastSyncedQuantity.current = qty;
       pendingQuantity.current = null;
     } catch (error) {
-      console.log("❌ Sync failed, rolling back");
       setQuantity(lastSyncedQuantity.current);
       dispatch(
         updateQuantityLocally({
@@ -83,10 +75,7 @@ const CartItem = ({ data, onRemove }) => {
         pendingQuantity.current !== null &&
         pendingQuantity.current !== lastSyncedQuantity.current
       ) {
-        console.log(
-          "🔄 Component unmounting, syncing pending quantity:",
-          pendingQuantity.current
-        );
+       
         dispatch(
           updateCartQuantity({
             type: typeRef.current,
@@ -103,7 +92,6 @@ const CartItem = ({ data, onRemove }) => {
     if (isRound) return; // Don't allow quantity change for rounds
     if (newQuantity < 1 || newQuantity > 99) return;
 
-    console.log("📝 Quantity changed to:", newQuantity);
 
     setQuantity(newQuantity);
     pendingQuantity.current = newQuantity;

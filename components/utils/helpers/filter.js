@@ -8,6 +8,11 @@ export function buildFiltersQuery(filters) {
     params.name = filters.search;
   }
 
+  // Search → gender
+  if (filters.gender) {
+    params.gender = filters.gender;
+  }
+
   // 📂 Category = course_category_id
 
   if (filters.category) {

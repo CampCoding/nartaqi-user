@@ -3,7 +3,6 @@ import { DownloadIcon, PeopleGroup, TelegramIcon } from "../../public/svgs";
 import { FileText } from "lucide-react";
 
 const CourseSources = ({ courseData }) => {
-  console.log("courseData__", courseData);
   const { roundResources, round } = courseData;
   const {
     group_links: { telegram_link, whatsapp_link },

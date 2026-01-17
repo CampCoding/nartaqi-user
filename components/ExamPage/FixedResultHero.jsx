@@ -15,7 +15,6 @@ export const FixedResultHero = ({ open, setOpen, id, lessonId, courseId }) => {
   const percentage = useSelector(selectExamPercentage);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  console.log("user", user);
 
   useEffect(() => {
     if (open) {

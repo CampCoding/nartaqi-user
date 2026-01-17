@@ -12,6 +12,7 @@ export const useGetCourseRounds = (payload) => {
 
     if (payload?.category_part_id) f.filters.category_part_id = payload.category_part_id;
     if (payload?.course_category_id) f.filters.course_category_id = payload.course_category_id;
+    if (payload?.gender) f.filters.gender = payload.gender;
 
     // your backend expects "name" as search
     if (payload?.name) f.filters.name = payload.name;

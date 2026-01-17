@@ -13,7 +13,6 @@ import { useSelector } from "react-redux";
 const FreeCourses = () => {
   const loadMoreRef = useRef(null);
   const user = useSelector((state) => state?.auth);
-console.log("user" , user)
   // ✅ غيّر 6 للـ student_id الحقيقي (أو جيبه من auth/session)
   const {
     rounds,

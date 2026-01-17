@@ -169,7 +169,6 @@ const RegCourseDetailsCard = ({
             <button
               type="button"
               onClick={() => {
-                console.log("round", round);
                 const url = buildShareUrl();
                 dispatch(
                   openShare({

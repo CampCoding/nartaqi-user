@@ -97,7 +97,6 @@ export const removeFromCart = createAsyncThunk(
       const { auth } = getState();
       const token = auth.token;
 
-      console.log("🗑️ Removing from cart:", { type, item_id });
 
       const response = await axios.post(
         `${BASE_URL}/user/cart/cart_toggle`,
@@ -128,7 +127,6 @@ export const deleteCartItem = createAsyncThunk(
       const { auth } = getState();
       const token = auth.token;
 
-      console.log("🗑️ Deleting cart item:", { type, item_id });
 
       const response = await axios.post(
         `${BASE_URL}/user/cart/delete_cart_item`,

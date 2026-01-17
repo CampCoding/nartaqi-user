@@ -15,7 +15,6 @@ const FALLBACK_TEACHER_IMG = "/images/teacher-placeholder.png";
 const CourseBriefOverview = ({ isRegistered, courseData }) => {
   const pathname = usePathname();
   const { round, roundRate } = courseData;
-  console.log("courseData", courseData);
 
   const calculateTeacherRating = () => {
     const rates = roundRate || [];

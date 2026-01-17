@@ -11,9 +11,7 @@ import Container from "../ui/Container";
 import ShareModal from "../shared/ShareModal";
 
 const HomeSection4Courses = ({ latestRounds = [] }) => {
-  useEffect(() => {
-    console.log(latestRounds, "latestRounds");
-  }, [latestRounds]);
+
 
   // Fallback data if API doesn't return data
   const fallbackData = [
@@ -36,7 +34,6 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
       },
     },
   ];
-  console.log(latestRounds);
 
   const transformedData = latestRounds?.map((item) => ({
     ...item,
@@ -79,7 +76,6 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
     enrolled: item.enrolled || false,
     teachers: item.teachers,
   }));
-  console.log(transformedData, "transformedData");
 
   // Use transformed data if available, otherwise use fallback
   const displayData =

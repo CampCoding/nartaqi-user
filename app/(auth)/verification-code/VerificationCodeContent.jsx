@@ -74,7 +74,6 @@ export const Frame = ({ phone = "", user = {} }) => {
   const [loading, setLoading] = useState();
   const [sendCodeLoading, setSendCodeLoading] = useState(false);
   const dispatch = useDispatch();
-  console.log(user);
 
   // ✅ إعداد الفورم
   const { handleSubmit, control, setValue, getValues } = useForm({
@@ -92,7 +91,6 @@ export const Frame = ({ phone = "", user = {} }) => {
       inputRefs.current[index + 1]?.focus();
     }
   };
-  console.log(sendCodeLoading);
 
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !getValues(`code.${index}`) && index > 0) {
@@ -124,7 +122,6 @@ export const Frame = ({ phone = "", user = {} }) => {
       toast.success(res.data.message, { duration: 2000 });
     } catch (error) {
       toast.error(error?.response?.data?.message);
-      console.log(error);
     } finally {
       setSendCodeLoading(false);
     }
@@ -142,7 +139,6 @@ export const Frame = ({ phone = "", user = {} }) => {
       code: code,
       verified_at: user.expires_at,
     };
-    console.log(payload);
 
     try {
       const verifiedData = await axios.post(
@@ -156,14 +152,11 @@ export const Frame = ({ phone = "", user = {} }) => {
           toast.success(res.message);
           router.push("/login");
         } catch (error) {
-          console.log(error);
           toast.error(error);
           router.push("/sign-up");
         }
       }
-      console.log(verifiedData.data.message);
     } catch (error) {
-      console.log(error);
       toast.error(error?.response?.data?.message);
     } finally {
       setLoading(false);

@@ -20,7 +20,6 @@ import { useDispatch } from "react-redux";
 
 const MobileCoursePreview = ({ courseData, onClick = () => null , onShareClick = () => null}) => {
   const router = useRouter();
-  console.log("courseData" , courseData)
 
   const dispatch = useDispatch();
 

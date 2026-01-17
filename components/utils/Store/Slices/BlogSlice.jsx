@@ -12,7 +12,6 @@ export const getBlogComments = createAsyncThunk(
         },
       });
 
-      console.log("comments fetched");
 
       return res.data;
     } catch (error) {

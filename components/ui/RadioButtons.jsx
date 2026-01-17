@@ -19,7 +19,6 @@ const RadioButtons = ({
             value={opt.value}
             defaultChecked={opt.value === defaultValue}
             onChange={(e) => {
-              console.log(e.target.value);
               onChange && onChange(e.target.value);
             }}
           />

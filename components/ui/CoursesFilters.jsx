@@ -69,9 +69,9 @@ const CoursesFilters = ({ onFiltersChange, filters, isFree = false }) => {
   };
 
   const mapGenderLabel = {
-    gender_all: "الكل",
-    gender_male: "ذكر",
-    gender_female: "أنثى",
+    both: "الجميع",
+    male: "ذكر",
+    female: "أنثى",
   };
 
   ///////////////////////////////////////////////////////////////
@@ -125,9 +125,9 @@ const CoursesFilters = ({ onFiltersChange, filters, isFree = false }) => {
 
   const genderItems = useMemo(
     () => [
-      { key: "gender_all", label: "الكل" },
-      { key: "gender_male", label: "ذكر" },
-      { key: "gender_female", label: "أنثى" },
+      { key: "both", label: "الجميع" },
+      { key: "male", label: "ذكر" },
+      { key: "female", label: "أنثى" },
     ],
     []
   );
@@ -228,12 +228,12 @@ const CoursesFilters = ({ onFiltersChange, filters, isFree = false }) => {
               className="flex-1"
               trigger={["click"]}
               menu={{
-                items: typeItems,
-                onClick: handleMenuClick("type"),
+                items: genderItems,
+                onClick: handleMenuClick("gender"),
               }}
             >
               <div className="p-6 bg-zinc-800 rounded-[20px] flex justify-between items-center cursor-pointer whitespace-nowrap truncate ">
-                <span className="text-white">{typeLabel}</span>
+                <span className="text-white">{genderLabel}</span>
                 <ChevronDown className="text-white" />
               </div>
             </Dropdown>
