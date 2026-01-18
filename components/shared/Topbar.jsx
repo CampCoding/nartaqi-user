@@ -84,7 +84,7 @@ export default function Header() {
                 },
               ]
             : apiFreeItems.length
-            ? [...apiFreeItems, moreItem] // ✅ add "more" only when data exists
+            ? [...apiFreeItems] // ✅ add "more" only when data exists
             : [
                 {
                   id: "empty-free",
