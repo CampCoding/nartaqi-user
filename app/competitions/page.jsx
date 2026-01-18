@@ -23,6 +23,7 @@ const Compitions = () => {
           },
         ]}
         image={"/images/competitions-banner.png"}
+        
       />
 
       <div className="mt-[48px] mb-[100px]">

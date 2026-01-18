@@ -409,13 +409,13 @@ export const DailyQuizSection = ({
               </p>
 
               <p className="self-stretch font-normal text-transparent text-sm sm:text-base leading-5 sm:leading-6 relative tracking-[0] [direction:rtl]">
-                <span className="font-bold text-orange-500">{ui.conceptLabel}</span>
-                <span className="font-medium text-[#2d2d2d]">{ui.conceptDetails}</span>
+                <span className="font-bold text-orange-500" dangerouslySetInnerHTML={{ __html: ui.conceptLabel.replaceAll(/&nbsp;/gi, " ") }} />
+                <span className="font-medium text-[#2d2d2d]" dangerouslySetInnerHTML={{ __html: ui.conceptDetails.replaceAll(/&nbsp;/gi, " ") }} />
               </p>
 
               <p className="self-stretch font-normal text-warning text-sm sm:text-base leading-5 sm:leading-6 relative tracking-[0] [direction:rtl]">
-                <span className="font-bold">{ui.prizesLabel}</span>
-                <span className="font-medium">{ui.prizesDetails}</span>
+                <span className="font-bold" dangerouslySetInnerHTML={{ __html: ui.prizesLabel.replaceAll(/&nbsp;/gi, " ") }} />
+                <span className="font-medium" dangerouslySetInnerHTML={{ __html: ui.prizesDetails.replaceAll(/&nbsp;/gi, " ") }} />
               </p>
             </div>
 
@@ -469,17 +469,18 @@ export const DailyQuizSection = ({
     ${colorClasses.bg} ${colorClasses.hover}
     rounded-[15px] shadow-[0px_6px_24px_#bac6dc33]
     transition-colors duration-200
-    ${autoDisabled ? "opacity-60 cursor-not-allowed" : ""}
+    ${autoDisabled || true  ? "opacity-60 cursor-not-allowed" : ""}
   `}
               type="button"
               onClick={handleJoin}
-              disabled={autoDisabled}
+              disabled={autoDisabled || true}
               aria-label="انضم إلى المسابقة"
             >
               <span className="font-bold text-neutral-50 text-sm sm:text-base [direction:rtl]">
                 {isJoining ? "جاري الانضمام..." : ui.joinButton}
               </span>
             </button>
+            <p className="text-center text-xs sm:text-sm text-danger font-normal mt-2 [direction:rtl]">تحت التطوير</p>
 
 
 

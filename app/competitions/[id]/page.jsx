@@ -4,154 +4,75 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import LoadingPage from "@/components/shared/Loading";
-import Container from "../../../components/ui/Container"; // غيّر المسار لو مختلف
+import Container from "../../../components/ui/Container";
 import { useCompetitionQuestions } from "../../../components/shared/Hooks/useGetCompetitionQuestions";
-const pad2 = (n) => String(n).padStart(2, "0");
+import { useSubmitCompetitionAnswers } from "../../../components/shared/Hooks/useSubmitAllAnswers";
 
-const formatTimerHHMMSS = (seconds) => {
-  const s = Math.max(0, Number(seconds) || 0);
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const ss = s % 60;
-  return `${pad2(h)}:${pad2(m)}:${pad2(ss)}`;
-};
-
-// groups by show_date => sections
-const groupByShowDate = (questions = []) => {
-  const map = new Map();
-  for (const q of questions) {
-    const key = q?.show_date || "all";
-    if (!map.has(key)) map.set(key, []);
-    map.get(key).push(q);
-  }
-  const keys = Array.from(map.keys()).sort((a, b) => {
-    const da = new Date(a).getTime();
-    const db = new Date(b).getTime();
-    if (!Number.isNaN(da) && !Number.isNaN(db)) return da - db;
-    return String(a).localeCompare(String(b));
-  });
-
-  return keys.map((k, idx) => ({
-    key: k,
-    title: `القسم ${idx + 1}`,
-    questions: map.get(k) || [],
-  }));
-};
+// strip html from option_text for submit
+const stripHtml = (html = "") =>
+  String(html)
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .trim();
 
 export default function CompetitionExamPage() {
   const router = useRouter();
   const { id } = useParams(); // competition_id
   const { token, user } = useSelector((s) => s.auth);
+
   const getToken = useCallback(() => token, [token]);
 
-
+  // ✅ GET QUESTIONS
   const { data, loading, error, fetchQuestions } = useCompetitionQuestions({
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || "https://camp-coding.site/nartaqi/public/api",
+    baseUrl:
+      process.env.NEXT_PUBLIC_API_URL ||
+      "https://camp-coding.site/nartaqi/public/api",
     getToken,
-    cleanHtml: true,
+    cleanHtml: false,
   });
-  // fetch
+
+  // ✅ SUBMIT ANSWERS
+  const {
+    submitAnswers,
+    loading: submitting,
+    error: submitError,
+    reset: resetSubmitState,
+  } = useSubmitCompetitionAnswers({
+    baseUrl:
+      process.env.NEXT_PUBLIC_API_URL ||
+      "https://camp-coding.site/nartaqi/public/api",
+    getToken,
+  });
+
+  // fetch questions
   useEffect(() => {
     if (!token || !user?.id || !id) return;
     fetchQuestions({ student_id: user.id, competition_id: id });
   }, [token, user?.id, id, fetchQuestions]);
 
-  const sections = useMemo(() => {
-    return groupByShowDate(data?.questions || []);
-  }, [data?.questions]);
-
-  // flatten for navigation
-  const flat = useMemo(() => {
-    const arr = [];
-    sections.forEach((sec, secIdx) => {
-      sec.questions.forEach((q, qIdx) => {
-        arr.push({
-          ...q,
-          __secIdx: secIdx,
-          __secTitle: sec.title,
-          __qIdxInSec: qIdx,
-          __globalIdx: arr.length,
-        });
-      });
-    });
-    return arr;
-  }, [sections]);
-
-  const total = flat.length;
+  // ✅ NO GROUPING: use API order directly
+  const questions = useMemo(() => data?.questions || [], [data?.questions]);
+  const total = questions.length;
 
   const [current, setCurrent] = useState(0);
 
-  // answers map: { [questionId]: optionId OR optionId[] }
+  // answers map: { [questionId]: optionId }
   const [answers, setAnswers] = useState({});
   const [marked, setMarked] = useState(() => new Set());
-
-  // timer: use competition end_date as countdown target (as screenshot style)
-  const [remaining, setRemaining] = useState(0);
-
-  useEffect(() => {
-    if (!data?.competition?.end_date) return;
-
-    const endAt = new Date(data.competition.end_date).getTime(); // from API
-    const tick = () => {
-      const now = Date.now();
-      const diff = Math.max(0, Math.floor((endAt - now) / 1000));
-      setRemaining(diff);
-    };
-
-    tick();
-    const t = setInterval(tick, 1000);
-    return () => clearInterval(t);
-  }, [data?.competition?.end_date]);
 
   // keep current in range after data loads
   useEffect(() => {
     if (total > 0) setCurrent((prev) => Math.min(prev, total - 1));
   }, [total]);
 
-  const currentQ = flat[current];
+  const currentQ = questions[current];
 
-  const isAnswered = useCallback(
-    (q) => {
-      const v = answers?.[q?.id];
-      if (Array.isArray(v)) return v.length > 0;
-      return v !== undefined && v !== null && v !== "";
-    },
-    [answers]
-  );
-
-  const isMarked = useCallback((q) => marked.has(q?.id), [marked]);
-
-  const badgeClasses = (qGlobalIndex) => {
-    const q = flat[qGlobalIndex];
-    const isCurrent = qGlobalIndex === current;
-    const answered = q ? isAnswered(q) : false;
-    const flagged = q ? isMarked(q) : false;
-
-    // priority like screenshot: current (blue), marked (yellow), answered (orange), empty (gray)
-    if (isCurrent) return "bg-[#3B82F6] text-white";
-    if (flagged) return "bg-[#FACC15] text-black";
-    if (answered) return "bg-[#F97316] text-white";
-    return "bg-[#F3F4F6] text-[#111827]";
-  };
-
-  const handleChooseOption = (qid, optionId) => {
-    const qType = (data?.competition?.question_type || "").toLowerCase(); // single | multi
-
-    if (qType === "multi") {
-      setAnswers((prev) => {
-        const old = Array.isArray(prev[qid]) ? prev[qid] : [];
-        const exists = old.includes(optionId);
-        const next = exists ? old.filter((x) => x !== optionId) : [...old, optionId];
-        return { ...prev, [qid]: next };
-      });
-      return;
-    }
-
-    // single
+  // ✅ always single choice
+  const handleChooseOption = useCallback((qid, optionId) => {
     setAnswers((prev) => ({ ...prev, [qid]: optionId }));
-  };
+  }, []);
 
-  const toggleMarkCurrent = () => {
+  const toggleMarkCurrent = useCallback(() => {
     if (!currentQ?.id) return;
     setMarked((prev) => {
       const next = new Set(prev);
@@ -159,20 +80,130 @@ export default function CompetitionExamPage() {
       else next.add(currentQ.id);
       return next;
     });
-  };
+  }, [currentQ?.id]);
 
-  const goNext = () => setCurrent((p) => Math.min(p + 1, total - 1));
-  const goPrev = () => setCurrent((p) => Math.max(p - 1, 0));
+  const goNext = useCallback(() => {
+    setCurrent((p) => Math.min(p + 1, total - 1));
+  }, [total]);
+
+  const goPrev = useCallback(() => {
+    setCurrent((p) => Math.max(p - 1, 0));
+  }, []);
 
   const canPrev = current > 0;
   const isLast = total > 0 && current === total - 1;
 
-  const handleSubmit = () => {
-    // هنا هتربط submit API لما يكون جاهز
-    // حاليا هنرجع أو نفتح نتيجة.. إلخ
-    alert("تم إنهاء المسابقة (اربط submit API هنا)");
-    router.back();
-  };
+  // ✅ answered helpers
+  const isAnsweredQ = useCallback(
+    (q) => {
+      const v = answers?.[q?.id];
+      return v !== undefined && v !== null && v !== "";
+    },
+    [answers]
+  );
+
+  const unansweredIndexes = useMemo(() => {
+    return (questions || [])
+      .map((q, idx) => (isAnsweredQ(q) ? null : idx))
+      .filter((x) => x !== null);
+  }, [questions, isAnsweredQ]);
+
+  const answeredCount = total - unansweredIndexes.length;
+  const allAnswered = total > 0 && unansweredIndexes.length === 0;
+
+  // ✅ warn before leaving/reload if there is progress
+  const hasProgress = useMemo(() => {
+    const anyAnswer = Object.keys(answers || {}).length > 0;
+    const moved = current > 0;
+    const anyMarked = (marked?.size || 0) > 0;
+    return anyAnswer || moved || anyMarked;
+  }, [answers, current, marked]);
+
+  useEffect(() => {
+    if (!hasProgress) return;
+
+    const handler = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+      return "";
+    };
+
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [hasProgress]);
+
+  // ✅ build submit payload using selected options + is_correct
+  const buildSubmitPayload = useCallback(() => {
+    const payloadAnswers = [];
+
+    for (const q of questions) {
+      const pickedId = answers[q.id];
+
+      // skip unanswered (but we will block submit anyway)
+      if (pickedId === undefined || pickedId === null || pickedId === "") continue;
+
+      const pickedOption = (q.options || []).find((o) => o.id === pickedId);
+
+      const answer_text = pickedOption ? stripHtml(pickedOption.option_text) : "";
+
+      const correct_or_not =
+        pickedOption && Number(pickedOption.is_correct) === 1 ? 1 : 0;
+
+      payloadAnswers.push({
+        question_id: q.id,
+        answer_text,
+        correct_or_not,
+      });
+    }
+
+    return {
+      student_id: user?.id,
+      competition_id: Number(id),
+      answers: payloadAnswers,
+    };
+  }, [answers, questions, user?.id, id]);
+
+  // ✅ submit handler using hook
+  const handleSubmit = useCallback(async () => {
+    if (!user?.id || !id) return;
+
+    // ✅ block submit if not all answered
+    if (!allAnswered) {
+      const firstMissing = unansweredIndexes[0];
+      if (typeof firstMissing === "number") setCurrent(firstMissing);
+      alert(
+        `لازم تجاوب كل الأسئلة قبل الإنهاء.\nالمتبقي: ${unansweredIndexes.length} سؤال`
+      );
+      return;
+    }
+
+    try {
+      resetSubmitState();
+
+      const payload = buildSubmitPayload();
+
+      if (!payload.answers.length) {
+        alert("لم تقم بالإجابة على أي سؤال بعد.");
+        return;
+      }
+
+      await submitAnswers(payload);
+
+      alert("تم إرسال الإجابات بنجاح ✅");
+      router.back();
+    } catch (e) {
+      alert("حدث خطأ أثناء إرسال الإجابات. حاول مرة أخرى.");
+    }
+  }, [
+    user?.id,
+    id,
+    allAnswered,
+    unansweredIndexes,
+    resetSubmitState,
+    buildSubmitPayload,
+    submitAnswers,
+    router,
+  ]);
 
   if (loading) return <LoadingPage />;
 
@@ -180,11 +211,20 @@ export default function CompetitionExamPage() {
     return (
       <Container className="py-16">
         <div className="mx-auto max-w-xl text-center">
-          <div className="text-red-600 font-bold text-lg">حدث خطأ في تحميل الأسئلة</div>
+          <div className="text-red-600 font-bold text-lg">
+            حدث خطأ في تحميل الأسئلة
+          </div>
           <div className="text-sm text-gray-600 mt-2">{error}</div>
+
           <button
             className="mt-5 px-6 py-2 rounded-xl bg-primary text-white"
-            onClick={() => fetchQuestions({ student_id: user?.id, competition_id: id })}
+            onClick={() => {
+              const ok = confirm(
+                "سيتم فقدان التقدم الحالي إذا قمت بإعادة التحميل/إعادة المحاولة. هل تريد المتابعة؟"
+              );
+              if (!ok) return;
+              fetchQuestions({ student_id: user?.id, competition_id: id });
+            }}
           >
             إعادة المحاولة
           </button>
@@ -203,7 +243,6 @@ export default function CompetitionExamPage() {
     );
   }
 
-  const qType = (data?.competition?.question_type || "").toLowerCase(); // single | multi
   const selected = answers[currentQ.id];
 
   return (
@@ -212,141 +251,163 @@ export default function CompetitionExamPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* RIGHT MAIN */}
           <div className="flex-1">
-            {/* header right */}
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-col items-start gap-2">
               <div className="text-sm font-bold text-[#0F172A]">
-                {currentQ.__secTitle}
+                {data?.competition?.name || "المسابقة"}
               </div>
+
               <div className="text-sm text-[#334155]">
                 السؤال {current + 1} من {total}
               </div>
+
+              <div className="text-xs text-[#64748B]">
+                جاوبت {answeredCount} من {total}
+              </div>
             </div>
 
-            {/* passage box */}
-            <div className="mt-6 border border-[#E5E7EB] rounded-xl p-4 text-sm leading-7 text-[#0F172A] bg-white">
-              {/* لو عندك passage في API حطه هنا. حالياً بنعرض question_text لو طويل */}
-              {currentQ.question_text}
-            </div>
+            {/* question text (HTML) */}
+            <div
+              className="mt-6 border border-[#E5E7EB] rounded-xl p-4 text-sm leading-7 text-[#0F172A] bg-white"
+              dangerouslySetInnerHTML={{
+                __html: String(currentQ.question_text || "").replaceAll(/&nbsp;/gi, " "),
+              }}
+            />
 
-            {/* question */}
-            <div className="mt-6 text-sm font-semibold text-[#0F172A]">
-              {/* لو عندك حقل منفصل للسؤال غير القطعة */}
-              {currentQ.question_text}
-            </div>
-
-            {/* options */}
+            {/* options: radio style */}
             <div className="mt-4 space-y-3">
               {(currentQ.options || []).map((opt) => {
                 const optId = opt.id;
-                const checked =
-                  qType === "multi"
-                    ? Array.isArray(selected) && selected.includes(optId)
-                    : selected === optId;
+                const checked = selected === optId;
 
                 return (
-                  <label
+                  <button
                     key={optId}
-                    className="w-full border border-[#E5E7EB] rounded-xl px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-50"
+                    type="button"
+                    onClick={() => handleChooseOption(currentQ.id, optId)}
+                    className={[
+                      "w-full rounded-xl border px-4 py-3 flex gap-4 items-center",
+                      "transition hover:bg-gray-50 text-right",
+                      checked
+                        ? "border-[#3B82F6] bg-[#EFF6FF]"
+                        : "border-[#E5E7EB] bg-white",
+                    ].join(" ")}
+                    aria-pressed={checked}
                   >
-                    <span className="text-sm text-[#0F172A]">{opt.option_text}</span>
-
-                    {/* radio/checkbox on the right like screenshot */}
-                    <span className="flex items-center">
-                      {qType === "multi" ? (
-                        <input
-                          type="checkbox"
-                          checked={!!checked}
-                          onChange={() => handleChooseOption(currentQ.id, optId)}
-                          className="w-4 h-4 accent-[#3B82F6]"
-                        />
-                      ) : (
-                        <input
-                          type="radio"
-                          name={`q-${currentQ.id}`}
-                          checked={!!checked}
-                          onChange={() => handleChooseOption(currentQ.id, optId)}
-                          className="w-4 h-4 accent-[#3B82F6]"
-                        />
-                      )}
+                    {/* radio indicator */}
+                    <span
+                      className={[
+                        "w-5 h-5 rounded-full border flex items-center justify-center shrink-0",
+                        checked ? "border-[#3B82F6]" : "border-[#CBD5E1]",
+                      ].join(" ")}
+                    >
+                      {checked ? (
+                        <span className="w-3 h-3 rounded-full bg-[#3B82F6]" />
+                      ) : null}
                     </span>
-                  </label>
+
+                    <span
+                      className="text-sm text-[#0F172A] leading-6"
+                      dangerouslySetInnerHTML={{
+                        __html: String(opt.option_text || "").replaceAll(/&nbsp;/gi, " "),
+                      }}
+                    />
+                  </button>
                 );
               })}
             </div>
 
-            {/* bottom buttons like screenshot */}
+            {/* submit error message */}
+            {submitError ? (
+              <div className="mt-4 text-sm text-red-600 font-semibold">
+                {submitError}
+              </div>
+            ) : null}
+
+            {/* bottom buttons */}
             <div className="mt-14 flex items-center justify-between">
-              {/* NEXT (gradient) */}
               <button
                 type="button"
                 onClick={() => (isLast ? handleSubmit() : goNext())}
-                className="w-[180px] h-[54px] rounded-2xl text-white font-bold shadow-sm"
+                disabled={submitting || (isLast && !allAnswered)}
+                className={`w-[180px] h-[54px] rounded-2xl text-white font-bold shadow-sm ${
+                  submitting || (isLast && !allAnswered)
+                    ? "opacity-60 cursor-not-allowed"
+                    : ""
+                }`}
                 style={{
-                  background:
-                    "linear-gradient(90deg, #3B82F6 0%, #F97316 100%)",
+                  background: "linear-gradient(90deg, #3B82F6 0%, #F97316 100%)",
                 }}
               >
-                {isLast ? "إنهاء" : "التالي"}
+                {isLast
+                  ? submitting
+                    ? "جاري الإنهاء..."
+                    : allAnswered
+                    ? "إنهاء"
+                    : "أكمل الإجابات"
+                  : "التالي"}
               </button>
 
-              {/* PREV (outline) */}
               <button
                 type="button"
                 onClick={goPrev}
-                disabled={!canPrev}
-                className={`w-[180px] h-[54px] rounded-2xl font-bold border ${canPrev
-                  ? "border-[#93C5FD] text-[#60A5FA] hover:bg-[#EFF6FF]"
-                  : "border-[#E5E7EB] text-gray-300 cursor-not-allowed"
-                  }`}
+                disabled={!canPrev || submitting}
+                className={`w-[180px] h-[54px] rounded-2xl font-bold border ${
+                  canPrev && !submitting
+                    ? "border-[#93C5FD] text-[#60A5FA] hover:bg-[#EFF6FF]"
+                    : "border-[#E5E7EB] text-gray-300 cursor-not-allowed"
+                }`}
               >
                 السابق
               </button>
             </div>
           </div>
-          {/* LEFT SIDEBAR */}
-          <LeftSidebar
-            totalQuestions={total}
-            currentIndex={current}
-            answeredMap={answers}
-            markedSet={marked}
-            questionIds={flat.map((q) => q.id)}
-            onJumpTo={(idx) => setCurrent(idx)}
-          />
 
+          {/* LEFT SIDEBAR */}
+          <div className="w-full lg:w-[479px] flex flex-col gap-4">
+            <LeftSidebar
+              totalQuestions={total}
+              currentIndex={current}
+              answeredMap={answers}
+              markedSet={marked}
+              questionIds={questions.map((q) => q.id)}
+              onJumpTo={(idx) => setCurrent(idx)}
+            />
+
+            {/* mark question */}
+            <button
+              type="button"
+              onClick={toggleMarkCurrent}
+              className="w-full rounded-xl border border-[#E5E7EB] py-2 text-sm font-semibold hover:bg-gray-50"
+              disabled={submitting}
+            >
+              {marked.has(currentQ?.id) ? "إزالة تعليم السؤال" : "تعليم السؤال"}
+            </button>
+
+            {/* optional: hint if missing answers */}
+            {!allAnswered ? (
+              <div className="text-xs text-[#B45309] font-semibold">
+                لديك {unansweredIndexes.length} سؤال غير مجاب عنه.
+              </div>
+            ) : null}
+          </div>
         </div>
       </Container>
     </div>
   );
 }
 
-function LegendItem({ color, label }) {
-  return (
-    <div className="flex items-center justify-end gap-2">
-      <span className="text-xs text-[#111827]">{label}</span>
-      <span
-        className="w-3 h-3 rounded-sm"
-        style={{ backgroundColor: color }}
-      />
-    </div>
-  );
-}
-
-
-
-
 function LeftSidebar({
   totalQuestions = 0,
   currentIndex = 0,
-  answeredMap = {}, // { [questionId]: optionId | optionId[] }
-  markedSet = new Set(), // Set(questionId)
-  questionIds = [], // array of question ids by order (same order as numbers)
-  onJumpTo, // (index)=>void
+  answeredMap = {},
+  markedSet = new Set(),
+  questionIds = [],
+  onJumpTo,
 }) {
   const isAnsweredByIndex = (index) => {
     const qid = questionIds?.[index];
     if (!qid) return false;
     const v = answeredMap?.[qid];
-    if (Array.isArray(v)) return v.length > 0;
     return v !== undefined && v !== null && v !== "";
   };
 
@@ -361,10 +422,9 @@ function LeftSidebar({
     const isMarked = isMarkedByIndex(index);
     const isAnswered = isAnsweredByIndex(index);
 
-    // priority: current > marked > answered > empty
     if (isCurrent) return "bg-primary text-white";
     if (isMarked) return "bg-yellow-400 text-black";
-    if (isAnswered) return "bg-secondary text-white";
+    if (isAnswered) return "bg-[#F97316] text-white";
     return "bg-[#d9d9d9] text-text";
   };
 
@@ -410,7 +470,7 @@ function LeftSidebar({
 
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 w-[160px]">
-            <div className="bg-secondary w-4 sm:w-5 lg:w-6 h-4 sm:h-5 lg:h-6 rounded-md" />
+            <div className="bg-[#F97316] w-4 sm:w-5 lg:w-6 h-4 sm:h-5 lg:h-6 rounded-md" />
             <span className="font-medium text-text text-xs sm:text-sm lg:text-base leading-tight sm:leading-relaxed">
               المجاب عنه
             </span>
