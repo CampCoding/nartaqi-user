@@ -295,8 +295,8 @@ export default function CompetitionExamPage() {
                 onClick={goPrev}
                 disabled={!canPrev}
                 className={`w-[180px] h-[54px] rounded-2xl font-bold border ${canPrev
-                    ? "border-[#93C5FD] text-[#60A5FA] hover:bg-[#EFF6FF]"
-                    : "border-[#E5E7EB] text-gray-300 cursor-not-allowed"
+                  ? "border-[#93C5FD] text-[#60A5FA] hover:bg-[#EFF6FF]"
+                  : "border-[#E5E7EB] text-gray-300 cursor-not-allowed"
                   }`}
               >
                 السابق
@@ -305,13 +305,13 @@ export default function CompetitionExamPage() {
           </div>
           {/* LEFT SIDEBAR */}
           <LeftSidebar
-  totalQuestions={total}
-  currentIndex={current}
-  answeredMap={answers}
-  markedSet={marked}
-  questionIds={flat.map((q) => q.id)}
-  onJumpTo={(idx) => setCurrent(idx)}
-/>
+            totalQuestions={total}
+            currentIndex={current}
+            answeredMap={answers}
+            markedSet={marked}
+            questionIds={flat.map((q) => q.id)}
+            onJumpTo={(idx) => setCurrent(idx)}
+          />
 
         </div>
       </Container>

@@ -15,7 +15,7 @@ const Compitions = () => {
         breadcrumb={[
           {
             title: "الرئيسية",
-            link: "/",d
+            link: "/",
           },
           {
             title: "المسابقات",
