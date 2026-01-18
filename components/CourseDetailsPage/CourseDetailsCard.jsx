@@ -48,8 +48,8 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
 
   const genderLabel = useMemo(() => {
     const genderMap = {
-      male: "معلمين",
-      female: "معلمات",
+      male: "طلاب",
+      female: "طالبات",
       both: "الجميع",
     };
     return genderMap[round?.gender] || "غير محدد";

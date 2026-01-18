@@ -29,7 +29,7 @@ export const McqQuestion = ({
       {/* Question Text - supports HTML */}
       {questionHtml ? (
         <div 
-          className="self-stretch text-right justify-center text-text text-lg md:text-xl font-bold leading-[50px]"
+          className=""
           dangerouslySetInnerHTML={{ __html: questionHtml }}
         />
       ) : (

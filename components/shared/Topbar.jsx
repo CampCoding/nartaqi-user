@@ -532,9 +532,9 @@ export const DropDownItems = ({ items }) => {
                 </div>
               ) : null} */}
 
-              <span className="relative w-4 h-4  aspect-[1]" aria-hidden="true">
+              {/* <span className="relative w-4 h-4  aspect-[1]" aria-hidden="true">
                 <ChevronLeft className="w-4 h-4" />
-              </span>
+              </span> */}
             </div>
           </div>
         );

@@ -42,7 +42,7 @@ const initialState = {
 // Helper function to strip HTML tags
 const stripHtml = (html) => {
   if (!html) return "";
-  return html.replace(/<[^>]*>/g, "").trim();
+  return html
 };
 
 // Helper to parse time string "HH:MM:SS" to seconds

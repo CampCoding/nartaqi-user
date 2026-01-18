@@ -245,7 +245,7 @@ const CoursesFilters = ({ onFiltersChange, filters, isFree = false }) => {
             className="flex-1 px-12 py-6 bg-secondary rounded-[20px] cursor-pointer flex justify-center items-center"
           >
             <span className="text-white font-semibold">بحث</span>
-          </div>
+          </div>  
 
           {/* CLEAR BUTTON - Only show when filters are active */}
           {hasActiveFilters && (

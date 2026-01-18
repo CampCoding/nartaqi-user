@@ -86,23 +86,22 @@ export const SingleQuestion = ({
   const textSizeClass = getFontSizeClass(fontSize);
 
   return (
-    <div className="flex flex-col items-start justify-center gap-12 px-0 py-2.5 relative">
-      <div className="flex items-center justify-between w-full">
-        <p
-          className={`relative flex items-center justify-center mt-[-1.00px] font-bold text-text ${textSizeClass} tracking-[0] leading-[normal] [direction:rtl]`}
-        >
-          السؤال {questionNumber}:
-          <br />
-          <div dangerouslySetInnerHTML={{ __html: questionData.text }} />
-        </p>
-        {selectedAnswer && (
+    <div className="py-2.5 relative">
+      {/* {selectedAnswer && (
           <div
-            className={`bg-green-100 whitespace-nowrap text-green-800 px-3 py-1 rounded-full ${textSizeClass} font-medium`}
+            className={`bg-green-100 w-fit whitespace-nowrap text-green-800 px-3 py-1 rounded-full ${textSizeClass} font-medium`}
           >
             تم الإجابة
           </div>
-        )}
-      </div>
+        )} */}
+        
+        <p
+        >
+          {/* السؤال {questionNumber}: */}
+          {/* <br /> */}
+          <div className="mb-5" dangerouslySetInnerHTML={{ __html: questionData.text }} />
+        </p>
+        
 
       <fieldset className="flex-col items-start flex gap-4 relative self-stretch w-full flex-[0_0_auto]">
         <legend className="sr-only">اختر الإجابة الصحيحة</legend>

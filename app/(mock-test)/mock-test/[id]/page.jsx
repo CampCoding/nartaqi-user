@@ -178,7 +178,7 @@ const MockTest = () => {
   const examPercentage = useSelector(selectPercentage);
   const examId = useSelector(selectExamId);
   const studentId = useSelector(selectStudentId);
-
+  // console.log("currentBlock" , currentBlock)
   // Local state
   const [isLoading, setIsLoading] = useState(true);
   const [noAccess, setNoAccess] = useState(false); // ✅ NEW
@@ -637,9 +637,8 @@ const MockTest = () => {
                     __html: currentSection.title.replaceAll(/&nbsp;/gi, " "),
                   }}
                 />
-                <p className="font-medium">
-                  {currentSection.description.replaceAll(/&nbsp;/gi, " ")}
-                </p>
+                <p className="font-medium"  dangerouslySetInnerHTML={{__html:currentSection.description.replaceAll(/&nbsp;/gi, " ")}} />
+                  
               </div>
             )}
           </div>

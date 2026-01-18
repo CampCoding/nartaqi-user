@@ -252,7 +252,7 @@ const RegCourseDetailsCard = ({
           </div>
         </div>
         <Link
-          href={`/free-courses?category=${round?.category_part_free_id}`}
+          href={`/course-preview/${round.id}  `}
           className={[
             "flex w-full justify-center items-center gap-3",
             "px-5 sm:px-6 py-3 sm:py-3.5",
