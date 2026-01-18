@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+import { useEnrollInCompetition } from "../../shared/Hooks/useEnrollCompetition";
 export const DailyQuizSection = ({
   buttonHoverColor,
   color = "primary",
@@ -65,11 +68,11 @@ export const DailyQuizSection = ({
     const idea =
       competition.idea ||
       competition.description ||
-      competition.conceptDetails 
+      competition.conceptDetails || ""
     const prize =
       competition.prize ||
       competition.prizes ||
-      competition.rewards 
+      competition.rewards || ""
     // status from API: upcoming | active | ended (example)
     const statusRaw = (competition.status || "").toString().toLowerCase();
     const apiActive = competition.active;
@@ -164,6 +167,16 @@ export const DailyQuizSection = ({
   }, [targetAt, totalSeconds]);
 
   const [timeRemaining, setTimeRemaining] = useState(initialRemaining);
+
+  const router = useRouter();
+  const { token, user } = useSelector((state) => state.auth);
+  const studentId = user?.id;
+
+  const { enroll, loading: isJoining, error: joinError } = useEnrollInCompetition({
+    getToken: () => token, // ياخد التوكن من Redux بدل localStorage
+  });
+
+
 
   // Re-init timer when competition/status changes
   useEffect(() => {
@@ -275,20 +288,94 @@ export const DailyQuizSection = ({
     }
   };
 
+  const toParts = (seconds) => {
+    const s = Math.max(0, Number(seconds) || 0);
+
+    const days = Math.floor(s / 86400);
+    const hours = Math.floor((s % 86400) / 3600);
+    const minutes = Math.floor((s % 3600) / 60);
+    const secs = s % 60;
+
+    return { days, hours, minutes, secs };
+  };
+
+  const formatUpcoming = (seconds) => {
+    const { days, hours, minutes, secs } = toParts(seconds);
+
+    // الشكل: 2 يوم • 3 س • 10 د • 05 ث
+    // تقدر تغيّر الرموز حسب ذوقك
+    return `${days} يوم • ${hours} س • ${minutes} د • ${pad2(secs)} ث`;
+  };
+  const formatActive = (seconds) => {
+    const { hours, minutes, secs } = toParts(seconds);
+    if (hours > 0) return `${hours}:${pad2(minutes)}:${pad2(secs)}`;
+    return `${minutes} د : ${pad2(secs)} ث`;
+  };
+
+
   const colorClasses = getColorClasses();
 
   // ---------- Join rules ----------
   const autoDisabled =
     disabled ||
+    isJoining ||
     !competition ||
+    !studentId ||
+    !token ||
     computedStatus !== "active" ||
     timeRemaining <= 0 ||
     normalized?.apiActive === false;
 
-  const handleJoin = () => {
-    if (autoDisabled) return;
-    if (typeof onJoin === "function") onJoin(competition);
-  };
+  const handleJoin = useCallback(async () => {
+    // لو مش مسجل
+    if (!token) {
+      toast.error("سجّل الدخول أولاً");
+      router.push("/login");
+      return;
+    }
+    if (!studentId) {
+      toast.error("تعذر تحديد بيانات الطالب");
+      return;
+    }
+
+    // لو المسابقة لسه ما بدأتش أو انتهت
+    if (computedStatus === "upcoming") {
+      toast.message("المسابقة لم تبدأ بعد");
+      return;
+    }
+    if (computedStatus === "ended") {
+      toast.message("انتهت المسابقة");
+      return;
+    }
+
+    const competitionId = competition?.id;
+    if (!competitionId) {
+      toast.error("Competition ID غير موجود");
+      return;
+    }
+
+    const res = await enroll({
+      student_id: studentId,
+      competition_id: competitionId,
+      // token: token, // (اختياري) لو تحب تمرره override
+    });
+
+    if (res?.ok) {
+      toast.success("تم الانضمام للمسابقة ✅");
+
+      // ✅ Redirect بعد الانضمام — عدّل المسار حسب صفحاتك
+      router.push(`/competitions/${competitionId}`);
+      // أو: router.push(`/daily-competition/${competitionId}/quiz`);
+
+      // لو عايز تنادي callback خارجي كمان:
+      onJoin?.(competition);
+    } else if (res?.aborted) {
+      // تجاهل
+    } else {
+      toast.error(res?.error || "تعذر الانضمام، حاول مرة أخرى");
+    }
+  }, [token, studentId, computedStatus, competition, enroll, router, onJoin]);
+
 
   return (
     <section
@@ -345,7 +432,11 @@ export const DailyQuizSection = ({
                     className={`flex self-stretch ${colorClasses.text} text-xs sm:text-sm text-left leading-5 whitespace-nowrap relative items-center justify-center w-fit [direction:rtl]`}
                     dateTime={`PT${Math.floor(timeRemaining / 60)}M`}
                   >
-                    {computedStatus === "ended" ? "0" : formatRemaining(timeRemaining)}
+                    {computedStatus === "ended"
+                      ? "0"
+                      : computedStatus === "upcoming"
+                        ? formatUpcoming(timeRemaining)
+                        : formatActive(timeRemaining)}
                   </time>
                 </div>
               </div>
@@ -374,34 +465,24 @@ export const DailyQuizSection = ({
 
           <div className="w-full sm:px-0">
             <button
-              className={`flex w-full max-w-[387px] items-center justify-center gap-2 px-6 sm:px-12 py-3 sm:py-4 relative flex-[0_0_auto]
-                ${colorClasses.bg} ${colorClasses.hover}
-                rounded-[15px] shadow-[0px_6px_24px_#bac6dc33]
-                focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
-                transition-colors duration-200 sm:mx-0
-                ${autoDisabled ? "opacity-60 cursor-not-allowed" : ""}
-              `}
+              className={`flex w-full max-w-[387px] items-center justify-center gap-2 px-6 sm:px-12 py-3 sm:py-4
+    ${colorClasses.bg} ${colorClasses.hover}
+    rounded-[15px] shadow-[0px_6px_24px_#bac6dc33]
+    transition-colors duration-200
+    ${autoDisabled ? "opacity-60 cursor-not-allowed" : ""}
+  `}
               type="button"
               onClick={handleJoin}
               disabled={autoDisabled}
               aria-label="انضم إلى المسابقة"
             >
-              <span className="[display:-webkit-box] font-bold text-neutral-50 text-sm sm:text-base text-center leading-[normal] overflow-hidden text-ellipsis [-webkit-line-clamp:2] [-webkit-box-orient:vertical] relative items-center justify-center w-fit [direction:rtl]">
-                {ui.joinButton}
+              <span className="font-bold text-neutral-50 text-sm sm:text-base [direction:rtl]">
+                {isJoining ? "جاري الانضمام..." : ui.joinButton}
               </span>
             </button>
 
-            {/* Optional tiny status hint */}
-            {normalized && (
-              <div className="mt-2 text-xs text-muted-foreground [direction:rtl] text-center">
-                الحالة:{" "}
-                {computedStatus === "upcoming"
-                  ? "قادمة"
-                  : computedStatus === "active"
-                  ? "نشطة الآن"
-                  : "منتهية"}
-              </div>
-            )}
+
+
           </div>
         </div>
       </div>

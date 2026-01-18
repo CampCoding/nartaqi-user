@@ -15,7 +15,7 @@ export const StudentResultCard = ({ item }) => {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         loading="lazy"
-        className="relative self-stretch w-full object-contain rounded-2xl aspect-video bg-neutral-100"
+        className="relative self-stretch w-full object-fit rounded-2xl aspect-video bg-neutral-100"
         alt={title}
         src={image}
       />
