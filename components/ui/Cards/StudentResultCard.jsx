@@ -2,13 +2,34 @@
 
 import { VideoIcon } from "lucide-react";
 import React from "react";
+import { openVideoModal } from "../../utils/Store/Slices/videoModalSlice";
+import { useDispatch } from "react-redux";
+import { detectVideoType, parseVideoLink } from "../../../lib/parseVideoLink";
 
 export const StudentResultCard = ({ item }) => {
   const title = item?.title || "نتيجة طالب";
   const image = item?.image_url || "/images/resultImage.png";
   const videoLink = item?.video_link || "";
-
   const canOpen = !!videoLink;
+  
+  const dispatch = useDispatch();
+  
+  const openModal = () => {
+    const { link, type } = detectVideoType(videoLink);
+
+    console.log("link" , link)
+    console.log("type" , type)
+
+  
+    dispatch(
+      openVideoModal({
+        title: (title || "").trim(),
+        vimeoId: type === "vimeo" ? link : "",
+        youtubeId: type === "youtube" ? link : "",
+        autoplay: true,
+      })
+    );
+  };
 
   return (
     <main className="flex flex-col w-full items-start gap-6 py-4 px-4  relative  rounded-[35px]  border-[4px] md:border-[5px] border-solid">
@@ -29,7 +50,7 @@ export const StudentResultCard = ({ item }) => {
         disabled={!canOpen}
         onClick={() => {
           if (!canOpen) return;
-          window.open(videoLink, "_blank", "noopener,noreferrer");
+          openModal()
         }}
       >
         <VideoIcon/>

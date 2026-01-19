@@ -158,7 +158,7 @@ const CoursePreviewPage = () => {
 
       // ✅ free videos is data.message (array)
       const freeList = Array.isArray(freeRes?.data?.message) ? freeRes.data.message : [];
-
+      console.log("freeList" , freeList)
       setCourseData(bundleData || null);
       setFreeVideos(freeList);
     } catch (err) {
@@ -230,13 +230,9 @@ const CoursePreviewPage = () => {
     return { allCourseVideos: videos, sortedCourseVideos: sorted };
   }, [courseData, freeVideos]);
 
-  // ✅ Source of truth for what the user can see in the list
-  const playableVideos = useMemo(() => {
-    if (isRegistered) return sortedCourseVideos;
-
-    // Preview mode: ONLY freeVideos response
+  const playableVideos = useMemo(() => {    
     return Array.isArray(freeVideos) ? freeVideos : [];
-  }, [isRegistered, sortedCourseVideos, freeVideos]);
+  }, [isRegistered, freeVideos]);
 
   // ✅ current video based on playable list
   const currentVideo = useMemo(() => {

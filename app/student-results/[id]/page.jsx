@@ -8,6 +8,7 @@ import { StudentResultCard } from "../../../components/ui/Cards/StudentResultCar
 import Container from "../../../components/ui/Container";
 
 import useGetStudentAchievementResults from "../../../components/shared/Hooks/useGetStudentAchievementResults";
+import { useDispatch } from "react-redux";
 
 const StudentsResults = () => {
   const {id : categoryPartId} = useParams()
@@ -22,6 +23,9 @@ const StudentsResults = () => {
   const bannerTitle = useMemo(() => {
     return categoryPart?.name || "درجات الطلاب بالقدرات";
   }, [categoryPart?.name]);
+
+  const dispatch = useDispatch();
+
 
   if (!categoryPartId) {
     return (
