@@ -215,6 +215,7 @@ export const DailyQuizSection = ({
           " نقاط تضاف لرصيدك فورا، تقدر تجمعها وتستبدلها بمكافآت داخل المنصة.",
         timeLabel: "الوقت المتبقي",
         joinButton: "انضم الآن",
+
       };
     }
 
@@ -233,7 +234,7 @@ export const DailyQuizSection = ({
     if (computedStatus === "upcoming") timeLabel = "يبدأ بعد";
     if (computedStatus === "ended") timeLabel = "انتهت";
 
-    let joinButton = "انضم الآن";
+    let joinButton = competition.enrolled ? "ادخل المسابقة" : "انضم الآن";
     if (computedStatus === "upcoming") joinButton = "قريبًا";
     if (computedStatus === "ended") joinButton = "انتهت المسابقة";
 
@@ -354,6 +355,12 @@ export const DailyQuizSection = ({
       return;
     }
 
+    if(!!competition.enrolled){
+      router.push(`/competitions/${competitionId}`);
+      return;
+    }
+
+
     const res = await enroll({
       student_id: studentId,
       competition_id: competitionId,
@@ -469,11 +476,11 @@ export const DailyQuizSection = ({
     ${colorClasses.bg} ${colorClasses.hover}
     rounded-[15px] shadow-[0px_6px_24px_#bac6dc33]
     transition-colors duration-200
-    ${autoDisabled || true  ? "opacity-60 cursor-not-allowed" : ""}
+    ${autoDisabled ? "opacity-60 cursor-not-allowed" : ""}
   `}
               type="button"
               onClick={handleJoin}
-              disabled={autoDisabled || true}
+              disabled={autoDisabled}
               aria-label="انضم إلى المسابقة"
             >
               <span className="font-bold text-neutral-50 text-sm sm:text-base [direction:rtl]">

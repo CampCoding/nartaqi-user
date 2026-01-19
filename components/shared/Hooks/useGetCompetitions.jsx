@@ -1,5 +1,4 @@
-"use client"
-
+"use client";
 
 // useGetAllCompetitions.js
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -8,7 +7,8 @@ import axios from "axios";
 /**
  * Custom hook: Get all competitions (paginated)
  * Endpoint:
- *  GET /user/competitions/getAllCompetitions?page=1&per_page=10
+ *  POST /user/competitions/getAllCompetitions
+ *  Body: { page, per_page }
  */
 export function useGetAllCompetitions(options = {}) {
   const {
@@ -16,7 +16,11 @@ export function useGetAllCompetitions(options = {}) {
     initialPage = 1,
     initialPerPage = 10,
     enabled = true,
-    headers, // { Authorization: `Bearer ...` } if needed
+    student_id,
+    // ✅ token support
+    getToken, // function returning token
+    token, // optional direct token
+    headers, // optional extra headers
   } = options;
 
   const [page, setPage] = useState(initialPage);
@@ -35,6 +39,18 @@ export function useGetAllCompetitions(options = {}) {
     return `${baseURL}/user/competitions/getAllCompetitions`;
   }, [baseURL]);
 
+  const buildHeaders = useCallback(() => {
+    const t = (typeof getToken === "function" ? getToken() : token) || null;
+
+    return {
+      ...(headers || {}),
+      ...(t ? { Authorization: `Bearer ${t}` } : {}),
+      // optional but nice:
+      // Accept: "application/json",
+      // "Content-Type": "application/json",
+    };
+  }, [getToken, token, headers]);
+
   const fetchData = useCallback(
     async (override) => {
       const reqId = ++requestIdRef.current;
@@ -45,10 +61,11 @@ export function useGetAllCompetitions(options = {}) {
       const finalPerPage = override?.per_page ?? perPage;
 
       try {
-        const res = await axios.get(endpoint, {
-          params: { page: finalPage, per_page: finalPerPage },
-          headers,
-        });
+        const res = await axios.post(
+          endpoint,
+          { page: finalPage, per_page: finalPerPage , student_id: student_id}, // ✅ BODY
+          { headers: buildHeaders() } // ✅ token
+        );
 
         // ignore if a newer request already happened
         if (reqId !== requestIdRef.current) return;
@@ -78,7 +95,7 @@ export function useGetAllCompetitions(options = {}) {
         if (reqId === requestIdRef.current) setLoading(false);
       }
     },
-    [endpoint, headers, page, perPage]
+    [endpoint, page, perPage, buildHeaders]
   );
 
   useEffect(() => {
@@ -115,6 +132,6 @@ export function useGetAllCompetitions(options = {}) {
     hasPrev,
     next,
     prev,
-    fetchData, // optional: manual fetch with override {page, per_page}
+    fetchData, // optional: manual fetch override {page, per_page}
   };
 }

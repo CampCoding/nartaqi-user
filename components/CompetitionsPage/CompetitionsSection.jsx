@@ -1,10 +1,11 @@
 "use client"
 
 
-import React from "react";
+import React, { useCallback } from "react";
 import { DailyQuizSection } from "../ui/Cards/CompetitionCard";
 import Container from "../ui/Container";
 import { useGetAllCompetitions } from "../shared/Hooks/useGetCompetitions";
+import { useSelector } from "react-redux";
 
 const SkeletonCard = () => (
   <div className="w-full max-w-[419px] rounded-2xl border border-white/15 bg-white/5 backdrop-blur p-5">
@@ -16,6 +17,12 @@ const SkeletonCard = () => (
 );
 
 const CompetitionsSection = () => {
+
+  const {token , user} = useSelector((state) => state.auth);
+  const {id :student_id} = user;
+  const getToken = useCallback(() => token, [token]);
+
+
   const {
     items,
     loading,
@@ -23,7 +30,9 @@ const CompetitionsSection = () => {
     refetch,
   } = useGetAllCompetitions({
     initialPage: 1,
-    initialPerPage: 3,
+    initialPerPage: 100,
+    getToken,
+    student_id,
     enabled: true,
     // headers: { Authorization: `Bearer ${token}` }, // if needed
   });
@@ -65,7 +74,7 @@ const CompetitionsSection = () => {
         {/* Data */}
         {!loading && !error && items && items.length > 0 && (
           <>
-            {items.slice(0, 3).map((comp, idx) => {
+            {items.map((comp, idx) => {
               const card = (
                 <DailyQuizSection
                   color="primary"
