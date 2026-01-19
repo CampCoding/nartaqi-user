@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useRef, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import Link from "next/link";
@@ -8,9 +8,8 @@ import Link from "next/link";
 import Container from "../../components/ui/Container";
 import PagesBanner from "../../components/ui/PagesBanner";
 import LoadingPage from "../../components/shared/Loading";
-import LoadingContent from "../../components/shared/LoadingContent";
 import FreeVideosFilters from "../../components/ui/FreeVideosFilters";
-import { useGetFreeVideos } from "../../components/shared/Hooks/useGetFreeRounds";
+
 import { openVideoModal } from "../../components/utils/Store/Slices/videoModalSlice";
 
 import {
@@ -18,6 +17,9 @@ import {
   extractVimeoId,
   extractYoutubeId,
 } from "../../components/ui/CourseContentDrawer";
+
+// ✅ keep your hook import (but make sure it is the SIMPLE one)
+import { useGetFreeVideos } from "../../components/shared/Hooks/useGetFreeRounds";
 
 // ---------- helpers ----------
 function toInt(v, fallback = 0) {
@@ -57,7 +59,6 @@ function buildYoutubeUrl(youtube_link) {
   if (!youtube_link) return "";
   const s = String(youtube_link).trim();
   if (s.startsWith("http")) return s;
-  // assume it's an id
   return `https://www.youtube.com/watch?v=${s}`;
 }
 
@@ -65,14 +66,12 @@ function buildVimeoPlayerUrl(vimeo_link) {
   if (!vimeo_link) return "";
   const s = String(vimeo_link).trim();
 
-  // numeric id
   if (isNumericId(s)) return `https://player.vimeo.com/video/${s}`;
 
-  // already url
   if (s.startsWith("http")) {
     const id = extractVimeoId(s);
     if (id && isNumericId(id)) return `https://player.vimeo.com/video/${id}`;
-    return s; // fallback (maybe already player or some vimeo url)
+    return s;
   }
 
   return "";
@@ -86,25 +85,43 @@ function classifyPlatform(item) {
   if (youtubeSource) {
     const youtubeId = extractYoutubeId(String(youtubeSource));
     if (youtubeId || isYoutubeUrl(youtubeSource)) {
-      return { platform: "youtube", youtubeId: youtubeId || "", vimeoId: "", directUrl: "" };
+      return {
+        platform: "youtube",
+        youtubeId: youtubeId || "",
+        vimeoId: "",
+        directUrl: "",
+      };
     }
   }
 
   // Vimeo
   if (vimeoSource) {
     const vimeoId = extractVimeoId(String(vimeoSource));
-    if ((vimeoId && isNumericId(vimeoId)) || isNumericId(vimeoSource) || isVimeoUrl(vimeoSource)) {
+    if (
+      (vimeoId && isNumericId(vimeoId)) ||
+      isNumericId(vimeoSource) ||
+      isVimeoUrl(vimeoSource)
+    ) {
       return {
         platform: "vimeo",
         youtubeId: "",
-        vimeoId: isNumericId(vimeoSource) ? String(vimeoSource).trim() : (vimeoId && isNumericId(vimeoId) ? vimeoId : ""),
+        vimeoId: isNumericId(vimeoSource)
+          ? String(vimeoSource).trim()
+          : vimeoId && isNumericId(vimeoId)
+          ? vimeoId
+          : "",
         directUrl: "",
       };
     }
 
-    // direct mp4 / m3u8 in vimeo_link field (some backends do this)
+    // direct mp4 / m3u8 in vimeo_link field
     if (isDirectVideoUrl(vimeoSource)) {
-      return { platform: "direct", youtubeId: "", vimeoId: "", directUrl: String(vimeoSource).trim() };
+      return {
+        platform: "direct",
+        youtubeId: "",
+        vimeoId: "",
+        directUrl: String(vimeoSource).trim(),
+      };
     }
   }
 
@@ -116,20 +133,21 @@ function youtubeThumb(youtubeId) {
   return `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`;
 }
 
-function normalizeVideo(item) {
+function normalizeVideo(item, categoryMeta) {
   const id = item?.id;
   const title = item?.title || "فيديو مجاني";
   const description = item?.description || "";
 
   const durationSecRaw = item?.time;
   const durationSec =
-    durationSecRaw === null || durationSecRaw === undefined || durationSecRaw === ""
+    durationSecRaw === null ||
+    durationSecRaw === undefined ||
+    durationSecRaw === ""
       ? null
       : toInt(durationSecRaw, 0);
 
   const { platform, youtubeId, vimeoId, directUrl } = classifyPlatform(item);
 
-  // always compute urls if present (helps playable + modal)
   const youtubeUrl = buildYoutubeUrl(item?.youtube_link);
   const vimeoUrl = buildVimeoPlayerUrl(item?.vimeo_link || vimeoId);
 
@@ -140,8 +158,9 @@ function normalizeVideo(item) {
     "";
 
   const categoryName =
+    categoryMeta?.name ||
     item?.category_part_free?.name ||
-    item?.course_category?.name || // fallback لو API اتغير
+    item?.course_category?.name ||
     "";
 
   return {
@@ -149,7 +168,7 @@ function normalizeVideo(item) {
     title,
     description,
     durationSec,
-    platform, // youtube | vimeo | direct | unknown
+    platform,
     youtubeId,
     vimeoId,
     youtube: youtubeUrl,
@@ -171,7 +190,9 @@ function PlatformBadge({ platform }) {
   };
   const meta = map[platform] || map.unknown;
   return (
-    <div className={`absolute top-2 left-2 px-2 py-1 text-xs rounded-md text-white ${meta.cls}`}>
+    <div
+      className={`absolute top-2 left-2 px-2 py-1 text-xs rounded-md text-white ${meta.cls}`}
+    >
       {meta.label}
     </div>
   );
@@ -190,7 +211,6 @@ function FreeVideoCard({ video }) {
   const buildVideoQuery = () => {
     const query = { ...mergedParams, video: String(video.id) };
 
-    // priority: vimeo -> youtube -> direct
     if (video.platform === "vimeo" && (video.vimeoId || video.vimeo)) {
       query.vimeo_id = encodeId(video.vimeoId || video.vimeo);
       return query;
@@ -200,12 +220,10 @@ function FreeVideoCard({ video }) {
       return query;
     }
     if (video.platform === "direct" && video.directUrl) {
-      // لو الـ player عندك مش داعم directUrl، خليه vimeo_id كـ fallback url
       query.vimeo_id = encodeId(video.directUrl);
       return query;
     }
 
-    // fallback
     const raw = video.vimeo || video.youtube || video.directUrl || "";
     if (raw) query.vimeo_id = encodeId(raw);
     return query;
@@ -220,14 +238,12 @@ function FreeVideoCard({ video }) {
     dispatch(
       openVideoModal({
         title: (video.title || "").trim(),
-        vimeoId: video.vimeoId || video.vimeo || video.directUrl || "",
-        // youtubeId: video.youtubeId || video.youtube || "",
-        youtubeId: video.youtubeId || video.youtube || "",
+        vimeoId: video.vimeo || video.vimeoId || video.directUrl || "",
+        youtubeId: video.youtube || video.youtubeId || "",
         autoplay: true,
       })
     );
   };
-
 
   return (
     <div className="group rounded-2xl border border-neutral-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition">
@@ -253,7 +269,6 @@ function FreeVideoCard({ video }) {
           </div>
         )}
 
-        {/* play overlay */}
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
           <div className="px-4 py-2 rounded-full bg-black/60 text-white text-sm">
             ▶ تشغيل
@@ -285,7 +300,6 @@ function FreeVideoCard({ video }) {
             href={{ pathname, query: buildVideoQuery(), hash: "player" }}
             className="mt-2 inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm bg-primary text-white"
             onClick={(e) => {
-              // امنع الـ card bubbling لو هتضيف onClick للكارد بعدين
               e.stopPropagation();
               openModal();
             }}
@@ -304,7 +318,6 @@ function FreeVideoCard({ video }) {
 export default function FreeVideosPage() {
   const searchParams = useSearchParams();
 
-  // ✅ دعم اسم البراميتر الصحيح من عندك: category_part_free_id
   const categoryFromUrl =
     searchParams.get("category_part_free_id") ||
     searchParams.get("course_category_id") ||
@@ -312,10 +325,10 @@ export default function FreeVideosPage() {
     searchParams.get("category") ||
     "";
 
+  // ✅ removed sort (to avoid any sorting)
   const [filters, setFilters] = useState({
     search: "",
     platform: "all", // all | youtube | vimeo | direct
-    sort: "id_desc",
     minSec: "",
     maxSec: "",
   });
@@ -326,28 +339,35 @@ export default function FreeVideosPage() {
     setCourseCategoryId(categoryFromUrl || "");
   }, [categoryFromUrl]);
 
-  const { data, loading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useGetFreeVideos({
-      category_part_free_id: courseCategoryId,
-      apiParams: "",
-    });
+  const { data, loading, error, refetch, refetching } = useGetFreeVideos({
+    category_part_free_id: courseCategoryId,
+    apiParams: "",
+  });
+
+  const api = useMemo(() => {
+    // supports old react-query shape just in case
+    if (data?.pages?.length) return data.pages?.[0]?.data || null;
+    return data || null;
+  }, [data]);
+
+  const categoryMeta = api?.message?.category_part_free || null;
 
   const allItems = useMemo(() => {
-    const pages = data?.pages ?? [];
-    const list = pages.flatMap((p) => p?.data?.message ?? []);
-    return list.map(normalizeVideo);
-  }, [data?.pages]);
+    const list = Array.isArray(api?.message?.free_data)
+      ? api.message.free_data
+      : Array.isArray(api?.message)
+      ? api.message
+      : [];
+    return list.map((item) => normalizeVideo(item, categoryMeta));
+  }, [api, categoryMeta]);
 
-  // ✅ اسم القسم من أول عنصر (للعرض فوق)
   const categoryTitle = useMemo(() => {
     return (
-      allItems?.[0]?.raw?.category_part_free?.name ||
-      allItems?.[0]?.categoryName ||
-      courseCategoryId ||
-      ""
+      categoryMeta?.name || allItems?.[0]?.categoryName || courseCategoryId || ""
     );
-  }, [allItems, courseCategoryId]);
+  }, [categoryMeta, allItems, courseCategoryId]);
 
+  // ✅ NO SORT HERE (keeps API order)
   const filtered = useMemo(() => {
     const q = (filters.search || "").trim().toLowerCase();
     const min = filters.minSec === "" ? null : toInt(filters.minSec, 0);
@@ -367,58 +387,22 @@ export default function FreeVideosPage() {
       res = res.filter((v) => v.platform === filters.platform);
     }
 
-    // لو الوقت null، اعتبره 0 في الفلاتر
     if (min !== null) res = res.filter((v) => (v.durationSec ?? 0) >= min);
     if (max !== null) res = res.filter((v) => (v.durationSec ?? 0) <= max);
 
-    const sorted = [...res];
-    switch (filters.sort) {
-      case "id_asc":
-        sorted.sort((a, b) => toInt(a.id) - toInt(b.id));
-        break;
-      case "id_desc":
-        sorted.sort((a, b) => toInt(b.id) - toInt(a.id));
-        break;
-      case "time_asc":
-        sorted.sort((a, b) => toInt(a.durationSec) - toInt(b.durationSec));
-        break;
-      case "time_desc":
-        sorted.sort((a, b) => toInt(b.durationSec) - toInt(a.durationSec));
-        break;
-      case "title_asc":
-        sorted.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
-        break;
-      case "title_desc":
-        sorted.sort((a, b) => (b.title || "").localeCompare(a.title || ""));
-        break;
-      default:
-        break;
-    }
-    return sorted;
+    return res; // ✅ keep original order
   }, [allItems, filters]);
-
-  const loadMoreRef = useRef(null);
-  useEffect(() => {
-    if (!hasNextPage) return;
-    if (!loadMoreRef.current) return;
-
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !isFetchingNextPage) fetchNextPage();
-    });
-
-    observer.observe(loadMoreRef.current);
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (!courseCategoryId) {
     return (
       <div>
         <PagesBanner
           variant="normal"
-          title="الفيديوهات المجانية"
+          title="الشروحات المجانية"
           breadcrumb={[
             { title: "الرئيسية", link: "/" },
-            { title: "الفيديوهات المجانية", link: "#" },
+            { title: "الشروحات المجانية", link: "#" },
+            { title: categoryTitle, link: "#" },
           ]}
           image="/images/Frame 1000005155.png"
         />
@@ -435,14 +419,46 @@ export default function FreeVideosPage() {
 
   if (loading) return <LoadingPage />;
 
+  if (error) {
+    return (
+      <div>
+        <PagesBanner
+          variant="normal"
+          title="الشروحات المجانية"
+          breadcrumb={[
+            { title: "الرئيسية", link: "/" },
+            { title: "الشروحات المجانية", link: "#" },
+            { title: categoryTitle, link: "#" },
+          ]}
+          image="/images/Frame 1000005155.png"
+        />
+        <Container className="my-[32px]">
+          <div className="py-10 text-center text-neutral-600">
+            حدث خطأ أثناء تحميل الفيديوهات.
+            <div className="mt-4">
+              <button
+                className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm bg-primary text-white disabled:opacity-60"
+                onClick={refetch}
+                disabled={refetching}
+              >
+                {refetching ? "جارِ إعادة التحميل..." : "إعادة المحاولة"}
+              </button>
+            </div>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
   return (
     <div>
       <PagesBanner
         variant="normal"
-        title="الفيديوهات المجانية"
+        title="الشروحات المجانية"
         breadcrumb={[
           { title: "الرئيسية", link: "/" },
-          { title: "الفيديوهات المجانية", link: "#" },
+          { title: "الشروحات المجانية", link: "#" },
+          { title: categoryTitle, link: "#" },
         ]}
         image="/images/Frame 1000005155.png"
       />
@@ -477,19 +493,11 @@ export default function FreeVideosPage() {
           </div>
         )}
 
-        <div className="flex justify-center items-center">
-          <div ref={loadMoreRef} className="py-6 text-center text-sm">
-            {isFetchingNextPage && (
-              <div className="w-full flex justify-center items-center h-[200px]">
-                <LoadingContent />
-              </div>
-            )}
-
-            {!hasNextPage && !isFetchingNextPage && filtered.length > 0 && (
-              <p className="text-gray-400 mt-2">لا يوجد المزيد من النتائج</p>
-            )}
+        {filtered.length > 0 ? (
+          <div className="py-6 text-center text-sm text-gray-400">
+            تم عرض جميع النتائج
           </div>
-        </div>
+        ) : null}
       </Container>
     </div>
   );

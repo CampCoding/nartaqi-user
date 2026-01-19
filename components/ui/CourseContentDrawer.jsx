@@ -540,17 +540,17 @@ export const RegLectureDrawer = ({
                     )}
                   />
 
-                  <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 self-stretch">
+                  <div className={cx("flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 self-stretch")}>
                     <div className="inline-flex items-center gap-3">
                       {item.type === "video" ? (
                         // ✅ المسجّل هو اللي يفتح الفيديو
                         isRegistered ? (
                           <Link
-                            href={{
+                            href={ lesson.was_opened  ?{
                               pathname,
                               query: buildVideoQuery(item),
                               hash: "player",
-                            }}
+                            } : "#"}
                             // onClick={async () => {
                             //   const key = `video-${item.id}`;
                             //   if (!checkedMap[key] && isRegistered) {
@@ -647,6 +647,7 @@ export const RegLectureDrawer = ({
             <ExerciseDropDown
               lesson={lesson}
               examAllData={lesson.exam_all_data}
+              isOpen={lesson?.was_opened}
               isDone={isDone}
               isRegistered={isRegistered}
             />
@@ -662,6 +663,7 @@ export const ExerciseDropDown = ({
   examAllData,
   isDone = false,
   isRegistered,
+  isOpen,
   lesson,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -807,9 +809,10 @@ export const ExerciseDropDown = ({
               const examVideos = examData.videos || [];
               const examPdfs = examData.exam_pdfs || [];
               const isSolved = examData.is_solved === true;
+             
 
               return (
-                <div key={exam?.id} className="flex flex-col">
+                <div onClick={()=> console.log("isOpened" , isOpen )}  key={exam?.id} className="flex flex-col">
                   {/* Exam Title Row */}
                   {exam && (
                     <div className="flex w-full flex-row justify-between  items-center  border-b-[2px] border-solid last:border-none pt-4 pb-5 bg-white">
@@ -828,7 +831,7 @@ export const ExerciseDropDown = ({
                                 {exam.title || "أسئلة الاختبار"}
                               </span>
                             </div>
-                            {isRegistered && (
+                            { isOpen &&  isRegistered && (
                               <Link
                                 href={
                                   isDone
@@ -898,7 +901,7 @@ export const ExerciseDropDown = ({
                               {!isDone ? (
                                 <LockIcon2 className="fill-secondary w-6 h-6" />
                               ) : (
-                                isPlayable && (
+                                isOpen && isPlayable && (
                                   <Link
                                     href={{
                                       pathname,
@@ -953,7 +956,7 @@ export const ExerciseDropDown = ({
                         </span> */}
                         </div>
 
-                        {isRegistered && (
+                        { isOpen && isRegistered && (
                           <button
                             onClick={() =>
                               handleDownloadFile(pdf.pdf_url, pdf.title, "pdf")

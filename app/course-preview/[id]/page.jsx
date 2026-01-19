@@ -597,7 +597,7 @@ const VideosList = ({ courseData, videos, currentVideo, onVideoSelect, isRegiste
 
       {/* {!isRegistered && (
         <div className="text-xs text-gray-500 mt-2">
-          * أنت الآن في وضع المعاينة: المعروض فقط الفيديوهات المجانية.
+          * أنت الآن في وضع المعاينة: المعروض فقط الشروحات المجانية.
         </div>
       )} */}
     </div>
