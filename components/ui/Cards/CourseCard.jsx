@@ -220,7 +220,7 @@ const CourseCard = ({
 
             <div
               dangerouslySetInnerHTML={{ __html: payload?.description }}
-              className="self-stretch text-right text-text-alt text-xs sm:text-sm font-normal leading-relaxed line-clamp-2 h-[45px]"
+              className="self-stretch prose prose-neutral text-right text-text-alt text-xs sm:text-sm font-normal leading-relaxed line-clamp-2 h-[45px]"
             />
           </div>
 

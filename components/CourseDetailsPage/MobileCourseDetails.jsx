@@ -369,7 +369,7 @@ const MobileCourseDetails = ({
                 dangerouslySetInnerHTML={{
                   __html: round?.description?.replaceAll(/&nbsp;/gi, " "),
                 }}
-                className="font-normal text-[#5e5856] text-[12px] leading-6 flex items-center justify-center tracking-[0] [direction:rtl]"
+                className="font-normal prose prose-neutral text-[#5e5856] text-[12px] leading-6 flex items-center justify-center tracking-[0] [direction:rtl]"
               />
             </div>
           )}

@@ -28,14 +28,14 @@ export const McqQuestion = ({
 
       {/* Question Text - supports HTML */}
       {questionHtml ? (
-        <div 
-          className=""
-          dangerouslySetInnerHTML={{ __html: questionHtml }}
+        <div
+        className="prose prose-neutral"
+        dangerouslySetInnerHTML={{ __html: questionHtml }}
         />
       ) : (
-        <h2 className="self-stretch text-right justify-center text-text text-lg md:text-xl font-bold leading-[50px]">
+        <p className="">
           {questionText}
-        </h2>
+        </p>
       )}
 
       {/* Radio-like options */}
@@ -84,13 +84,13 @@ export const McqQuestion = ({
               {option.textHtml ? (
                 <span
                   dir="rtl"
-                  className="text-sm md:text-base leading-[40px] text-right flex-1"
+                  className=" prose prose-neutral "
                   dangerouslySetInnerHTML={{ __html: option.textHtml }}
                 />
               ) : (
                 <span
                   dir="rtl"
-                  className="text-sm md:text-base leading-[40px] text-right flex-1"
+                  className=""
                 >
                   {option.label}
                 </span>

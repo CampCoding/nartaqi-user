@@ -37,6 +37,7 @@
     "yup": "^1.7.1"
   },
   "devDependencies": {
-    "@iconify/react": "^6.0.2"
+    "@iconify/react": "^6.0.2",
+    "@tailwindcss/typography": "^0.5.19"
   }
 }

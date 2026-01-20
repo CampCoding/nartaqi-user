@@ -41,7 +41,7 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
       {/* عرض محتوى الدورة من goal (HTML) */}
       {round.goal ? (
         <div
-          className="course-goal-content"
+          className="prose-neutral"
           dangerouslySetInnerHTML={{
             __html: round?.goal?.replaceAll(/&nbsp;/gi, " "),
           }}

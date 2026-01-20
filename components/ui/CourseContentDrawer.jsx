@@ -124,7 +124,7 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
         title={content.content_title || "وصف المحتوى"}
       >
         <div
-          className="text-right leading-relaxed text-text leading-7 md:leading-8 text-sm md:text-base font-normal"
+          className="text-right leading-relaxed prose prose-neutral text-text leading-7 md:leading-8 text-sm md:text-base font-normal"
           dangerouslySetInnerHTML={{
             __html:
               content?.description ||
@@ -506,7 +506,7 @@ export const RegLectureDrawer = ({
         title={lesson.lesson_title || "وصف الدرس"}
       >
         <div
-          className="text-right leading-relaxed text-text leading-7 md:leading-8 text-sm md:text-base font-normal"
+          className="text-right leading-relaxed prose prose-neutral text-text leading-7 md:leading-8 text-sm md:text-base font-normal"
           dangerouslySetInnerHTML={{
             __html: lessonDescription?.trim()
               ? lessonDescription

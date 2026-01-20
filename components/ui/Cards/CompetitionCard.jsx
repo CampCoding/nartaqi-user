@@ -384,6 +384,21 @@ export const DailyQuizSection = ({
   }, [token, studentId, computedStatus, competition, enroll, router, onJoin]);
 
 
+
+  const FALLBACK_IMG = "/images/daily-competition-image.png";
+
+const [imgSrc, setImgSrc] = useState(ui.image || FALLBACK_IMG);
+
+useEffect(() => {
+  setImgSrc(ui.image || FALLBACK_IMG);
+}, [ui.image]);
+
+const handleImgError = useCallback(() => {
+  setImgSrc(FALLBACK_IMG);
+}, []);
+
+
+
   return (
     <section
       className={`${colorClasses.shadow} w-full max-w-[419px] md:!w-full px-4 py-4 flex bg-white rounded-[30px] overflow-hidden border-4 ${colorClasses.border}`}
@@ -395,7 +410,9 @@ export const DailyQuizSection = ({
           loading="lazy"
           className="relative w-full rounded-3xl overflow-hidden max-w-[387px] h-[173px] object-cover sm:px-0"
           alt="صورة المسابقة"
-          src={ui.image}
+          src={imgSrc}
+          onError={handleImgError}
+
         />
 
         <div className="flex flex-col items-center gap-6 sm:gap-8 relative self-stretch w-full flex-[0_0_auto]">
@@ -416,13 +433,13 @@ export const DailyQuizSection = ({
               </p>
 
               <p className="self-stretch font-normal text-transparent text-sm sm:text-base leading-5 sm:leading-6 relative tracking-[0] [direction:rtl]">
-                <span className="font-bold text-orange-500" dangerouslySetInnerHTML={{ __html: ui.conceptLabel.replaceAll(/&nbsp;/gi, " ") }} />
-                <span className="font-medium text-[#2d2d2d]" dangerouslySetInnerHTML={{ __html: ui.conceptDetails.replaceAll(/&nbsp;/gi, " ") }} />
+                <span className="font-bold text-orange-500 prose prose-neutral" dangerouslySetInnerHTML={{ __html: ui.conceptLabel.replaceAll(/&nbsp;/gi, " ") }} />
+                <span className="font-medium text-[#2d2d2d] prose prose-neutral" dangerouslySetInnerHTML={{ __html: ui.conceptDetails.replaceAll(/&nbsp;/gi, " ") }} />
               </p>
 
               <p className="self-stretch font-normal text-warning text-sm sm:text-base leading-5 sm:leading-6 relative tracking-[0] [direction:rtl]">
-                <span className="font-bold" dangerouslySetInnerHTML={{ __html: ui.prizesLabel.replaceAll(/&nbsp;/gi, " ") }} />
-                <span className="font-medium" dangerouslySetInnerHTML={{ __html: ui.prizesDetails.replaceAll(/&nbsp;/gi, " ") }} />
+                <span className="font-bold prose prose-neutral" dangerouslySetInnerHTML={{ __html: ui.prizesLabel.replaceAll(/&nbsp;/gi, " ") }} />
+                <span className="font-medium prose prose-neutral" dangerouslySetInnerHTML={{ __html: ui.prizesDetails.replaceAll(/&nbsp;/gi, " ") }} />
               </p>
             </div>
 
@@ -487,7 +504,7 @@ export const DailyQuizSection = ({
                 {isJoining ? "جاري الانضمام..." : ui.joinButton}
               </span>
             </button>
-            <p className="text-center text-xs sm:text-sm text-danger font-normal mt-2 [direction:rtl]">تحت التطوير</p>
+            {/* <p className="text-center text-xs sm:text-sm text-danger font-normal mt-2 [direction:rtl]">تحت التطوير</p> */}
 
 
 

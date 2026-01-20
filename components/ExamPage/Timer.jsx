@@ -99,7 +99,7 @@ export const Timer = ({
         </div> */}
         {isStarted ? (
           <h3
-            className="text-xl sm:text-2xl lg:text-3xl font-bold text-text text-right sm:text-right"
+            className=" prose prose-neutral text-xl sm:text-2xl lg:text-3xl font-bold text-text text-right sm:text-right"
             dangerouslySetInnerHTML={{
               __html: currentSection?.title?.replace(/&nbsp;/gi, " ") || "",
             }}

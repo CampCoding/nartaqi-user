@@ -3,16 +3,17 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+
 import LoadingPage from "@/components/shared/Loading";
 import Container from "../../../components/ui/Container";
 import { useCompetitionQuestions } from "../../../components/shared/Hooks/useGetCompetitionQuestions";
 import { useSubmitCompetitionAnswers } from "../../../components/shared/Hooks/useSubmitAllAnswers";
 
-// strip html from option_text for submit
+// ✅ strip html from option_text for submit (answer_text)
 const stripHtml = (html = "") =>
-  String(html)
+  String(html || "")
     .replace(/<[^>]*>/g, "")
-    .replace(/&nbsp;/g, " ")
+    .replace(/&nbsp;/gi, " ")
     .trim();
 
 export default function CompetitionExamPage() {
@@ -22,13 +23,13 @@ export default function CompetitionExamPage() {
 
   const getToken = useCallback(() => token, [token]);
 
-  // ✅ GET QUESTIONS
+  // ✅ GET QUESTIONS (hook now may return { type: "questions" } OR { type: "already_answered" })
   const { data, loading, error, fetchQuestions } = useCompetitionQuestions({
     baseUrl:
       process.env.NEXT_PUBLIC_API_URL ||
       "https://camp-coding.site/nartaqi/public/api",
     getToken,
-    cleanHtml: false,
+    cleanHtml: false, // keep HTML for rendering via dangerouslySetInnerHTML
   });
 
   // ✅ SUBMIT ANSWERS
@@ -44,14 +45,22 @@ export default function CompetitionExamPage() {
     getToken,
   });
 
-  // fetch questions
+  // ✅ fetch questions
   useEffect(() => {
     if (!token || !user?.id || !id) return;
     fetchQuestions({ student_id: user.id, competition_id: id });
   }, [token, user?.id, id, fetchQuestions]);
 
-  // ✅ NO GROUPING: use API order directly
-  const questions = useMemo(() => data?.questions || [], [data?.questions]);
+  // ✅ handle both response shapes
+  const isAlreadyAnswered = data?.type === "already_answered";
+  const isQuestionsPayload = data?.type === "questions";
+
+  // ✅ NO GROUPING: use API order directly (only if questions payload)
+  const questions = useMemo(() => {
+    if (!isQuestionsPayload) return [];
+    return data?.questions || [];
+  }, [isQuestionsPayload, data?.questions]);
+
   const total = questions.length;
 
   const [current, setCurrent] = useState(0);
@@ -120,7 +129,8 @@ export default function CompetitionExamPage() {
   }, [answers, current, marked]);
 
   useEffect(() => {
-    if (!hasProgress) return;
+    // do not attach leave warning if already answered or no questions
+    if (!hasProgress || isAlreadyAnswered) return;
 
     const handler = (e) => {
       e.preventDefault();
@@ -130,7 +140,7 @@ export default function CompetitionExamPage() {
 
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [hasProgress]);
+  }, [hasProgress, isAlreadyAnswered]);
 
   // ✅ build submit payload using selected options + is_correct
   const buildSubmitPayload = useCallback(() => {
@@ -205,6 +215,7 @@ export default function CompetitionExamPage() {
     router,
   ]);
 
+  // -------------------- UI STATES --------------------
   if (loading) return <LoadingPage />;
 
   if (error) {
@@ -233,6 +244,58 @@ export default function CompetitionExamPage() {
     );
   }
 
+  // ✅ NEW: already answered response
+  if (isAlreadyAnswered) {
+    return (
+      <div dir="rtl" className="min-h-screen bg-white">
+        <Container className="py-16">
+          <div className="mx-auto max-w-xl text-center">
+            <div className="text-lg font-bold text-[#0F172A]">
+              {data?.message || "تم حل أسئلة اليوم"}
+            </div>
+
+            <div className="mt-3 text-sm text-[#334155]">
+              جاوبت {Number(data?.answered_count ?? 0)} من{" "}
+              {Number(data?.total_questions ?? 0)}
+            </div>
+
+            <div className="mt-8 flex items-center justify-center gap-3">
+              <button
+                type="button"
+                className="px-6 py-2 rounded-xl bg-primary text-white font-bold"
+                onClick={() => router.back()}
+              >
+                رجوع
+              </button>
+
+              <button
+                type="button"
+                className="px-6 py-2 rounded-xl border border-[#E5E7EB] font-bold text-[#0F172A]"
+                onClick={() =>
+                  fetchQuestions({ student_id: user?.id, competition_id: id })
+                }
+              >
+                تحديث
+              </button>
+            </div>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  // ✅ if questions payload but empty
+  if (isQuestionsPayload && total === 0) {
+    return (
+      <Container className="py-16">
+        <div className="mx-auto max-w-xl text-center text-gray-700">
+          لا توجد أسئلة لهذه المسابقة حاليًا
+        </div>
+      </Container>
+    );
+  }
+
+  // ✅ if still no current question for any reason
   if (!currentQ) {
     return (
       <Container className="py-16">
@@ -267,9 +330,12 @@ export default function CompetitionExamPage() {
 
             {/* question text (HTML) */}
             <div
-              className="mt-6 border border-[#E5E7EB] rounded-xl p-4 text-sm leading-7 text-[#0F172A] bg-white"
+              className="mt-6 prose prose-neutral border border-[#E5E7EB] rounded-xl p-4 text-sm leading-7 text-[#0F172A] bg-white"
               dangerouslySetInnerHTML={{
-                __html: String(currentQ.question_text || "").replaceAll(/&nbsp;/gi, " "),
+                __html: String(currentQ.question_text || "").replaceAll(
+                  /&nbsp;/gi,
+                  " "
+                ),
               }}
             />
 
@@ -306,9 +372,12 @@ export default function CompetitionExamPage() {
                     </span>
 
                     <span
-                      className="text-sm text-[#0F172A] leading-6"
+                      className="text-sm text-[#0F172A] leading-6 prose prose-neutral"
                       dangerouslySetInnerHTML={{
-                        __html: String(opt.option_text || "").replaceAll(/&nbsp;/gi, " "),
+                        __html: String(opt.option_text || "").replaceAll(
+                          /&nbsp;/gi,
+                          " "
+                        ),
                       }}
                     />
                   </button>

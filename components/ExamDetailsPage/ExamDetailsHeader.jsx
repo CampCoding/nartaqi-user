@@ -6,10 +6,7 @@ import React, { useMemo } from "react";
 const stripHtml = (html) => {
   if (!html) return "";
   return String(html)
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  
 };
 
 const toArabicLevel = (level) => {

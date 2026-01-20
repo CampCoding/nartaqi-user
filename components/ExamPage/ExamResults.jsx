@@ -23,11 +23,10 @@ const Nanigation = ({ activeTab, setActiveTab }) => {
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
-          className={`snap-center flex-shrink-0 min-w-fit sm:min-w-0 sm:w-auto px-6 sm:px-10 md:px-16 py-3 sm:py-3.5 md:py-4 rounded-[15px] sm:rounded-[20px] transition-colors text-sm sm:text-base ${
-            activeTab === tab.id
+          className={`snap-center flex-shrink-0 min-w-fit sm:min-w-0 sm:w-auto px-6 sm:px-10 md:px-16 py-3 sm:py-3.5 md:py-4 rounded-[15px] sm:rounded-[20px] transition-colors text-sm sm:text-base ${activeTab === tab.id
               ? "bg-primary text-white font-bold"
               : "hover:bg-blue-100 text-gray-800"
-          }`}
+            }`}
         >
           {tab.label}
         </button>
@@ -39,12 +38,7 @@ const Nanigation = ({ activeTab, setActiveTab }) => {
 // =====================
 // Helpers
 // =====================
-const stripHtml = (html = "") =>
-  String(html)
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+const stripHtml = (html = "") => html
 
 const normalize = (v) => stripHtml(String(v ?? "")).toLowerCase().trim();
 
@@ -153,7 +147,7 @@ const ExamResults = ({ show, setShow, examId }) => {
   const studentId = user?.id;
 
   const { sections, isSolved, lastStudentScore, examInfo, loading, error, refetch } =
-  useGetStudentExamAnswers({ studentId, examId });
+    useGetStudentExamAnswers({ studentId, examId });
 
   const answeredQuestions = useMemo(() => {
     return toAnsweredQuestions(sections);
@@ -299,24 +293,23 @@ export const AnsweredQuestion = ({ questionData }) => {
       {/* Header */}
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-3 sm:gap-4">
         <div className="flex flex-col gap-2">
-          <h1 className="font-bold text-secondary text-lg sm:text-xl md:text-2xl">
-            {questionData.title}
-          </h1>
+          <h1 className="font-bold text-secondary text-lg sm:text-xl md:text-2xl" dangerouslySetInnerHTML={{ __html: questionData.title }} />
+
 
           {/* ✅ Section title */}
           {questionData.sectionTitle ? (
             <div className="text-sm text-text-alt">
-              <span className="font-bold">القسم:</span> {questionData.sectionTitle}
+              {/* <span className="font-bold">القسم:</span>  */}
+              <span className="" dangerouslySetInnerHTML={{ __html: questionData.sectionTitle }} />
             </div>
           ) : null}
         </div>
 
         <div
-          className={`inline-flex items-center justify-center gap-2 px-6 sm:px-8 md:px-12 py-2 sm:py-3 md:py-4 rounded-[10px] sm:rounded-[15px] text-sm sm:text-base whitespace-nowrap ${
-            questionData.answer === correctId
+          className={`inline-flex items-center justify-center gap-2 px-6 sm:px-8 md:px-12 py-2 sm:py-3 md:py-4 rounded-[10px] sm:rounded-[15px] text-sm sm:text-base whitespace-nowrap ${questionData.answer === correctId
               ? "bg-[#c9ffca] text-[#24ab28]"
               : "bg-[#FFC4C4] text-red-700"
-          }`}
+            }`}
         >
           {questionData.answer === correctId ? "صحيح" : "خطأ"}
         </div>
@@ -326,16 +319,15 @@ export const AnsweredQuestion = ({ questionData }) => {
       {questionData.passage ? (
         <div className="w-full p-4 bg-gray-50 rounded-xl border text-sm leading-relaxed">
           <div className="font-bold mb-2">الفقرة:</div>
-          <p>{questionData.passage}</p>
+          <p dangerouslySetInnerHTML={{ __html: questionData.passage.replaceAll(/&nbsp;/ig, " ") }} />
         </div>
       ) : null}
 
       {/* Question */}
       <section className="flex flex-col items-start gap-4 sm:gap-5 md:gap-6 w-full">
         <div className="flex flex-col w-full gap-2">
-          <h2 className="font-bold text-text text-sm sm:text-base leading-normal sm:leading-relaxed md:leading-[50px]">
-            {questionData.question}
-          </h2>
+          <div  dangerouslySetInnerHTML={{ __html: questionData.question }} className="prose prose-neutral" />
+
 
           <fieldset className="flex flex-col w-full gap-3 sm:gap-4">
             <legend className="sr-only">خيارات الإجابة</legend>
@@ -350,13 +342,12 @@ export const AnsweredQuestion = ({ questionData }) => {
                   className="flex items-center gap-2 sm:gap-3 md:gap-4 w-full"
                 >
                   <label
-                    className={`flex-1 flex items-center gap-2 sm:gap-3 p-3 sm:p-3.5 md:p-4 rounded-[15px] sm:rounded-[20px] transition-all ${
-                      isCorrect
+                    className={`flex-1 flex items-center gap-2 sm:gap-3 p-3 sm:p-3.5 md:p-4 rounded-[15px] sm:rounded-[20px] transition-all ${isCorrect
                         ? "bg-[#c9ffca]"
                         : isStudentAnswer
-                        ? "bg-[#FFC4C4] text-red-700"
-                        : "border-2 md:border-[3px] border-solid"
-                    }`}
+                          ? "bg-[#FFC4C4] text-red-700"
+                          : "border-2 md:border-[3px] border-solid"
+                      }`}
                   >
                     <div className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0">
                       {isCorrect ? (
@@ -369,20 +360,19 @@ export const AnsweredQuestion = ({ questionData }) => {
                     </div>
 
                     <span
-                      className={`text-sm sm:text-base leading-normal sm:leading-relaxed md:leading-[50px] ${
-                        isCorrect
+                      dangerouslySetInnerHTML={{ __html: answer.text }}
+                      className={` prose prose-neutral text-sm sm:text-base leading-normal sm:leading-relaxed md:leading-[50px] ${isCorrect
                           ? "font-semibold text-[#24ab28]"
                           : isStudentAnswer
-                          ? "font-semibold text-red-700"
-                          : "text-text"
-                      }`}
-                    >
-                      {answer.text}
-                    </span>
+                            ? "font-semibold text-red-700"
+                            : "text-text"
+                        }`}
+                    />
+
                   </label>
 
                   <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 flex-shrink-0">
-                    {isCorrect ? <CheckIcon /> : isStudentAnswer ? <RoundedX /> : null}
+                    {isCorrect ? <CheckIcon /> : isStudentAnswer ? <div className="border-[3px] rounded-full  border-danger"><RoundedX className='' /></div> : null}
                   </div>
                 </div>
               );
@@ -392,9 +382,9 @@ export const AnsweredQuestion = ({ questionData }) => {
 
         {/* Explanation */}
         <aside className="w-full">
-          <p className="text-sm sm:text-base text-text leading-normal sm:leading-relaxed">
-            <span className="font-bold">الشرح: </span>
-            {questionData.explanation}
+          <p className="text-sm sm:text-base text-text flex gap-2 leading-normal sm:leading-relaxed" >
+            <span className="font-bold"> الشرح: </span>
+            <span className="" dangerouslySetInnerHTML={{ __html: questionData.explanation.replaceAll(/&nbsp;/ig, " ") }} />
           </p>
         </aside>
       </section>
@@ -452,7 +442,6 @@ const RoundedX = (props) => (
       fillRule="evenodd"
       clipRule="evenodd"
       d="M14.6565 1.96935C20.692 1.69979 25.244 4.13729 28.3128 9.28185C30.0786 12.6745 30.4536 16.2162 29.4378 19.9069C27.8857 24.7089 24.7086 27.886 19.9065 29.4381C15.0999 30.6936 10.7665 29.7769 6.90652 26.6881C3.0286 23.2017 1.43485 18.858 2.12527 13.6569C3.11964 8.64266 5.94255 5.09055 10.594 3.0006C11.9112 2.47718 13.2653 2.13343 14.6565 1.96935Z"
-      fill="#BE1A1A"
     />
     <path
       opacity={0.954}

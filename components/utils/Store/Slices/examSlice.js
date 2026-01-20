@@ -33,7 +33,7 @@ const initialState = {
 
 const stripHtml = (html) => {
   if (!html) return "";
-  return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
+  return html;
 };
 
 const parseTimeToSeconds = (timeStr) => {
@@ -66,8 +66,8 @@ const normalizeBooleanValue = (val) => {
   if (val === true) return "true";
   if (val === false) return "false";
   const s = String(val).toLowerCase().trim();
-  if (s === "true" || s === "صح" || s === "صحيح") return "true";
-  if (s === "false" || s === "خطأ" || s === "خاطئ") return "false";
+  if (s === "true" || s === "صح" || s === "صحيح") return "صحيح";
+  if (s === "false" || s === "خطأ" || s === "خاطئ") return "خطأ";
   return String(val);
 };
 
@@ -405,7 +405,7 @@ const examSlice = createSlice({
         studentAnswerText = selected ? selected.text : null;
         correctAnswerText = question.correctAnswerText;
         isCorrect = answer === question.correctAnswer;
-      } else if (question.type === "boolean") {
+      } else if (question.type === "t_f") {
         const normalized = normalizeBooleanValue(answer);
         studentAnswerText = normalized;
         correctAnswerText = question.correctAnswer; // "true"/"false"

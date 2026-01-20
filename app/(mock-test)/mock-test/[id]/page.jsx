@@ -624,7 +624,7 @@ const MockTest = () => {
                 } leading-relaxed`}
               >
                 <h3
-                  className={`  ${
+                  className={` prose prose-neutral  ${
                     fontSize === "small"
                       ? "text-lg"
                       : fontSize === "large"

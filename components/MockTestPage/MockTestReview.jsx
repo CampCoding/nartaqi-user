@@ -213,7 +213,7 @@ const MockTestReview = ({
               <div className="mb-4 px-4 py-2 bg-primary-light rounded-lg">
                 <div className="flex items-center justify-between">
                   <div
-                    className="text-right text-primary text-xl font-semibold"
+                    className="text-right text-primary prose prose-neutral text-xl font-semibold"
                     dangerouslySetInnerHTML={{
                       __html: section.title
                         ? section.title.replaceAll(/&nbsp;/ig, " ")

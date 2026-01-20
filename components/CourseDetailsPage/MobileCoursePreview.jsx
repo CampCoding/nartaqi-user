@@ -229,7 +229,7 @@ const MobileCoursePreview = ({ courseData, onClick = () => null , onShareClick =
         </h2>
         {courseData?.round?.description && (
           <p
-            className="text-text-alt text-sm leading-relaxed"
+            className="text-text-alt text-sm leading-relaxed prose prose-neutral"
             dangerouslySetInnerHTML={{
               __html: courseData?.round?.description.replaceAll(
                 /&nbsp;/gi,

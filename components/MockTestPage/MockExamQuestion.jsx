@@ -35,7 +35,7 @@ const MockExamQuestion = ({
         <div className={`mb-6 ${block.type === "paragraph" ? "sticky top-0 bg-white z-10 pb-4 pt-2 border-b-2 border-gray-300 shadow-sm" : ""}`}>
           <div className="mb-3 text-sm font-bold text-primary">الفقرة:</div>
           <div
-            className={`flex items-center font-medium text-zinc-600 ${textSizeClass} tracking-[0] leading-relaxed [direction:rtl] ${block.type === "paragraph" ? "max-h-[250px] overflow-y-auto pr-2" : ""}`}
+            className={` prose prose-neutral flex items-center font-medium text-zinc-600 ${textSizeClass} tracking-[0] leading-relaxed [direction:rtl] ${block.type === "paragraph" ? "max-h-[250px] overflow-y-auto pr-2" : ""}`}
             dangerouslySetInnerHTML={{ __html: block?.passage?.replaceAll(/&nbsp;/ig , " ") }}
           />
         </div>
@@ -99,7 +99,7 @@ export const SingleQuestion = ({
         >
           {/* السؤال {questionNumber}: */}
           {/* <br /> */}
-          <div className="mb-5" dangerouslySetInnerHTML={{ __html: questionData.text }} />
+          <div className="mb-5 prose prose-neutral " dangerouslySetInnerHTML={{ __html: questionData.text }} />
         </p>
         
 

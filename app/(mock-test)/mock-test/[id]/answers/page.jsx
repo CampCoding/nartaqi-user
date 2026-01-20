@@ -46,7 +46,7 @@ const OptionItem = ({ option, isCorrect, isStudentChoice , state }) => {
   return (
     <div className={`${base} ${stateClass}`}>
       <div
-        className="ql-editor p-0 m-0"
+        className="ql-editor prose prose-neutral"
         dangerouslySetInnerHTML={{
           __html: option?.option_text?.replaceAll?.(/&nbsp;/gi, " ") || "",
         }}
@@ -78,7 +78,7 @@ const QuestionCard = ({ question, index, fontSize }) => {
         <div className="flex-1 text-right">
           <p className="text-sm text-text-alt mb-1">سؤال {index}</p>
           <div
-            className={`text-text font-semibold leading-relaxed ql-editor p-0 m-0 ${
+            className={` prose prose-neutral text-text font-semibold leading-relaxed ql-editor p-0 m-0 ${
               fontSize === "small"
                 ? "text-sm"
                 : fontSize === "large"
@@ -130,7 +130,7 @@ const QuestionCard = ({ question, index, fontSize }) => {
             <div>
               <p className="text-sm font-semibold text-text mb-1">إجابتك:</p>
               <div
-                className={`ql-editor p-0 m-0 text-text-alt ${
+                className={` prose prose-neutral ql-editor p-0 m-0 text-text-alt ${
                   fontSize === "small"
                     ? "text-sm"
                     : fontSize === "large"
@@ -154,7 +154,7 @@ const QuestionCard = ({ question, index, fontSize }) => {
                 الإجابة الصحيحة:
               </p>
               <div
-                className={`ql-editor p-0 m-0 text-green-800 ${
+                className={` prose prose-neutral ql-editor p-0 m-0 text-green-800 ${
                   fontSize === "small"
                     ? "text-sm"
                     : fontSize === "large"
@@ -178,7 +178,7 @@ const QuestionCard = ({ question, index, fontSize }) => {
                 التفسير:
               </p>
               <div
-                className={`ql-editor p-0 m-0 text-text-alt ${
+                className={` prose prose-neutral ql-editor p-0 m-0 text-text-alt ${
                   fontSize === "small"
                     ? "text-sm"
                     : fontSize === "large"
@@ -313,7 +313,7 @@ const AnswersPage = () => {
                 {currentItem.paragraphContent && (
                   <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 md:p-5 mb-4">
                     <div
-                      className="text-right text-text ql-editor p-0 m-0"
+                      className=" prose prose-neutral text-right text-text ql-editor p-0 m-0"
                       dangerouslySetInnerHTML={{
                         __html: currentItem.paragraphContent,
                       }}
@@ -348,7 +348,7 @@ const AnswersPage = () => {
                 } leading-relaxed w-full`}
               >
                 <h3
-                  className={`${
+                  className={` prose prose-neutral ${
                     fontSize === "small"
                       ? "text-lg"
                       : fontSize === "large"
@@ -365,7 +365,7 @@ const AnswersPage = () => {
                     {currentItem.sectionDescription}
                   </p> */}
                 <p
-                  className="font-medium"
+                  className="font-medium prose prose-neutral"
                   dangerouslySetInnerHTML={{
                     __html: currentItem.sectionDescription.replaceAll(
                       /&nbsp;/gi,
