@@ -1,40 +1,166 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { useEnrollInCompetition } from "../../shared/Hooks/useEnrollCompetition";
+
+const TZ = "Africa/Cairo";
+
+// ---------- Timezone-safe helpers (NO libs) ----------
+const _dtfCache = new Map();
+function getDtf(tz) {
+  const key = tz;
+  if (_dtfCache.has(key)) return _dtfCache.get(key);
+  const dtf = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    hour12: false,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+  _dtfCache.set(key, dtf);
+  return dtf;
+}
+
+function tzPartsFromDate(date, tz) {
+  const parts = getDtf(tz).formatToParts(date);
+  const map = {};
+  for (const p of parts) {
+    if (p.type !== "literal") map[p.type] = p.value;
+  }
+  return {
+    year: Number(map.year),
+    month: Number(map.month),
+    day: Number(map.day),
+    hour: Number(map.hour),
+    minute: Number(map.minute),
+    second: Number(map.second),
+  };
+}
+
+/**
+ * Build a Date that represents (y-m-d h:m:s) *as wall-clock time* in a given IANA timezone.
+ * This prevents "shift by 2 hours" when API sends "YYYY-MM-DD HH:mm:ss" with no timezone.
+ */
+function makeDateInTimeZone(y, m, d, hh, mm, ss, tz) {
+  const desiredUTC = Date.UTC(y, m - 1, d, hh, mm, ss);
+  let guess = new Date(desiredUTC);
+
+  // iterate a couple times to resolve DST edges
+  for (let i = 0; i < 3; i++) {
+    const p = tzPartsFromDate(guess, tz);
+    const asUTC = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+    const offsetMs = asUTC - guess.getTime(); // tz offset at guess
+    const corrected = desiredUTC - offsetMs;
+    if (Math.abs(corrected - guess.getTime()) < 1) break;
+    guess = new Date(corrected);
+  }
+  return guess;
+}
+
+function parseApiDate(v) {
+  if (!v) return null;
+  if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+
+  const str = String(v).trim();
+  if (!str) return null;
+
+  // If ISO with Z or offset -> trust native parser
+  const looksISOWithTZ =
+    /Z$/i.test(str) ||
+    /[+-]\d{2}:?\d{2}$/i.test(str) ||
+    (str.includes("T") && (str.includes("Z") || /[+-]\d{2}:?\d{2}/.test(str)));
+
+  if (looksISOWithTZ) {
+    const d = new Date(str);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // Handle: "YYYY-MM-DD HH:mm:ss" or "YYYY-MM-DD"
+  const m = str.match(
+    /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/
+  );
+  if (m) {
+    const y = Number(m[1]);
+    const mo = Number(m[2]);
+    const da = Number(m[3]);
+    const hh = Number(m[4] ?? 0);
+    const mi = Number(m[5] ?? 0);
+    const ss = Number(m[6] ?? 0);
+
+    // treat as Cairo wall-clock time
+    const d = makeDateInTimeZone(y, mo, da, hh, mi, ss, TZ);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // fallback (last resort)
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function formatInTZ(date, locale = "ar-EG") {
+  if (!date) return "قريبًا";
+  try {
+    return new Intl.DateTimeFormat(locale, {
+      timeZone: TZ,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  } catch {
+    return date.toLocaleString(locale);
+  }
+}
+
 export const DailyQuizSection = ({
   buttonHoverColor,
   color = "primary",
   border,
-
-  competition = null, // object from API
-  onJoin, // function(competition)
-  disabled = false, // optional external disable
+  competition = null,
+  onJoin,
+  disabled = false,
 }) => {
-  // ---------- Helpers ----------
-  const parseDate = (v) => {
-    if (!v) return null;
-    const d = new Date(v);
-    return isNaN(d.getTime()) ? null : d;
-  };
+  const router = useRouter();
+  const { token, user } = useSelector((state) => state.auth);
+  const studentId = user?.id;
+
+  // ✅ tick "now" every second (status + countdown update correctly)
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   const pad2 = (n) => String(n).padStart(2, "0");
 
-  // better than "minutes only"
-  const formatRemaining = (seconds) => {
+  const toParts = (seconds) => {
     const s = Math.max(0, Number(seconds) || 0);
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const ss = s % 60;
-
-    if (h > 0) return `${h}:${pad2(m)}:${pad2(ss)}`;
-    return `${m} د : ${pad2(ss)} ث`;
+    const days = Math.floor(s / 86400);
+    const hours = Math.floor((s % 86400) / 3600);
+    const minutes = Math.floor((s % 3600) / 60);
+    const secs = s % 60;
+    return { days, hours, minutes, secs };
   };
 
-  // ---------- Normalize API Fields ----------
+  const formatUpcoming = (seconds) => {
+    const { days, hours, minutes, secs } = toParts(seconds);
+    return `${days} يوم • ${hours} س • ${minutes} د • ${pad2(secs)} ث`;
+  };
+
+  const formatActive = (seconds) => {
+    const { hours, minutes, secs } = toParts(seconds);
+    if (hours > 0) return `${hours}:${pad2(minutes)}:${pad2(secs)}`;
+    return `${minutes} د : ${pad2(secs)} ث`;
+  };
+
+  // ---------- Normalize API Fields (fixed parsing) ----------
   const normalized = useMemo(() => {
     if (!competition) return null;
 
@@ -52,73 +178,70 @@ export const DailyQuizSection = ({
       "/images/daily-competition-image.png";
 
     const startAt =
-      parseDate(competition.starts_at) ||
-      parseDate(competition.start_date) ||
-      parseDate(competition.start_at) ||
-      parseDate(competition.start_time) ||
+      parseApiDate(competition.starts_at) ||
+      parseApiDate(competition.start_date) ||
+      parseApiDate(competition.start_at) ||
+      parseApiDate(competition.start_time) ||
       null;
 
     const endAt =
-      parseDate(competition.ends_at) ||
-      parseDate(competition.end_date) ||
-      parseDate(competition.end_at) ||
-      parseDate(competition.end_time) ||
+      parseApiDate(competition.ends_at) ||
+      parseApiDate(competition.end_date) ||
+      parseApiDate(competition.end_at) ||
+      parseApiDate(competition.end_time) ||
       null;
 
-    const idea =
-      competition.idea ||
-      competition.description ||
-      competition.conceptDetails || ""
-    const prize =
-      competition.prize ||
-      competition.prizes ||
-      competition.rewards || ""
-    // status from API: upcoming | active | ended (example)
+    const idea = competition.idea || competition.description || competition.conceptDetails || "";
+    const prize = competition.prize || competition.prizes || competition.rewards || "";
+
     const statusRaw = (competition.status || "").toString().toLowerCase();
+    const statusMapped =
+      statusRaw === "ongoing" ? "active" : statusRaw === "active" ? "active" : statusRaw;
+
     const apiActive = competition.active;
 
+    // duration fields (optional)
+    const durationMin =
+      competition.duration_minutes ?? competition.durationMin ?? competition.duration ?? null;
+
     return {
+      id: competition.id,
       title,
       image,
       startAt,
       endAt,
       idea,
       prize,
-      statusRaw,
+      statusRaw: statusMapped,
       apiActive,
+      durationMin,
+      enrolled: !!competition.enrolled,
     };
   }, [competition]);
 
-  // ---------- Status Logic (robust) ----------
+  // ---------- Status Logic (updates with nowMs) ----------
   const computedStatus = useMemo(() => {
     if (!normalized) return "none";
 
-    const now = Date.now();
     const s = normalized.startAt?.getTime?.() ?? null;
     const e = normalized.endAt?.getTime?.() ?? null;
-
-    // If API already provides a useful status, honor it (but still validate by time if possible)
     const api = normalized.statusRaw;
 
-    // Time-based fallback / correction:
-    if (s && now < s) return "upcoming";
-    if (e && now >= e) return "ended";
-    if (normalized.apiActive === false) {
-      // explicitly inactive
-      return api || "ended";
-    }
-    // If within time window (or missing dates) consider active if API says active or active flag true
-    if ((s && now >= s && (!e || now < e)) || (!s && !e)) {
-      if (api === "upcoming") return "upcoming";
-      if (api === "ended") return "ended";
-      return "active";
-    }
+    // time-based truth first
+    if (s && nowMs < s) return "upcoming";
+    if (e && nowMs >= e) return "ended";
 
-    // final fallback
-    return api || "active";
-  }, [normalized]);
+    // if API explicitly inactive
+    if (normalized.apiActive === false) return "ended";
 
-  // ---------- Timer Target (start for upcoming, end for active) ----------
+    // fallback to API status if exists
+    if (api === "upcoming" || api === "ended" || api === "active") return api;
+
+    // otherwise active
+    return "active";
+  }, [normalized, nowMs]);
+
+  // ---------- Determine countdown target ----------
   const targetAt = useMemo(() => {
     if (!normalized) return null;
     if (computedStatus === "upcoming") return normalized.startAt;
@@ -126,78 +249,50 @@ export const DailyQuizSection = ({
     return null;
   }, [normalized, computedStatus]);
 
-  const totalSeconds = useMemo(() => {
+  // ✅ Remaining seconds = real diff (no drift, no tab sleep issues)
+  const timeRemaining = useMemo(() => {
+    if (!targetAt) return 0;
+    const diff = Math.floor((targetAt.getTime() - nowMs) / 1000);
+    return Math.max(0, diff);
+  }, [targetAt, nowMs]);
+
+  // ---------- Duration/base for progress ----------
+  const activeDurationSeconds = useMemo(() => {
     if (!normalized) return 15 * 60;
 
-    const durationMin =
-      normalized.duration_minutes ??
-      normalized.durationMin ??
-      normalized.duration ??
-      competition?.duration_minutes ??
-      competition?.durationMin ??
-      competition?.duration ??
-      null;
-
-    // 1) explicit duration
-    if (durationMin && Number(durationMin) > 0) return Number(durationMin) * 60;
-
-    // 2) if we have start & end, use that
-    if (normalized.startAt && normalized.endAt) {
-      const diff = Math.max(
-        1,
-        Math.floor((normalized.endAt.getTime() - normalized.startAt.getTime()) / 1000)
-      );
-      return diff;
+    // 1) explicit duration minutes
+    if (normalized.durationMin && Number(normalized.durationMin) > 0) {
+      return Math.max(1, Number(normalized.durationMin) * 60);
     }
 
-    // 3) if we only have targetAt, use remaining-to-target as "total" to avoid NaN
-    if (targetAt) {
-      const now = Date.now();
-      const diff = Math.max(1, Math.floor((targetAt.getTime() - now) / 1000));
-      return diff;
+    // 2) end-start
+    if (normalized.startAt && normalized.endAt) {
+      const diff = Math.floor((normalized.endAt.getTime() - normalized.startAt.getTime()) / 1000);
+      return Math.max(1, diff);
     }
 
     return 15 * 60;
-  }, [normalized, targetAt, competition]);
+  }, [normalized]);
 
-  const initialRemaining = useMemo(() => {
-    if (!targetAt) return totalSeconds;
-    const now = Date.now();
-    return Math.max(0, Math.floor((targetAt.getTime() - now) / 1000));
-  }, [targetAt, totalSeconds]);
-
-  const [timeRemaining, setTimeRemaining] = useState(initialRemaining);
-
-  const router = useRouter();
-  const { token, user } = useSelector((state) => state.auth);
-  const studentId = user?.id;
-
-  const { enroll, loading: isJoining, error: joinError } = useEnrollInCompetition({
-    getToken: () => token, // ياخد التوكن من Redux بدل localStorage
-  });
-
-
-
-  // Re-init timer when competition/status changes
+  // keep a stable "base" per phase (upcoming vs active) to make progress bar meaningful
+  const baseRef = useRef(1);
   useEffect(() => {
-    setTimeRemaining(initialRemaining);
-  }, [initialRemaining]);
+    if (!normalized) return;
 
-  // Countdown tick
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeRemaining((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    if (computedStatus === "active") {
+      baseRef.current = activeDurationSeconds || 1;
+    } else if (computedStatus === "upcoming") {
+      // base = initial remaining until start (so bar decreases smoothly)
+      baseRef.current = Math.max(1, timeRemaining || 1);
+    } else {
+      baseRef.current = 1;
+    }
+  }, [normalized?.id, computedStatus, activeDurationSeconds]); // intentionally not timeRemaining
 
-  // Progress:
-  // - if active and we have start+end: remaining/total
-  // - otherwise: remaining/total
   const progressPercentage = useMemo(() => {
-    const base = totalSeconds || 1;
+    const base = baseRef.current || 1;
     return Math.max(0, Math.min(100, (timeRemaining / base) * 100));
-  }, [timeRemaining, totalSeconds]);
+  }, [timeRemaining]);
 
   // ---------- UI Data ----------
   const ui = useMemo(() => {
@@ -211,31 +306,27 @@ export const DailyQuizSection = ({
         conceptDetails:
           ": مجموعة سريعة من الأسئلة القصيرة في مجالات مختلفة عشان تختبر سرعة البديهة والمعرفة.",
         prizesLabel: "الجوائز:",
-        prizesDetails:
-          " نقاط تضاف لرصيدك فورا، تقدر تجمعها وتستبدلها بمكافآت داخل المنصة.",
+        prizesDetails: " نقاط تضاف لرصيدك فورا، تقدر تجمعها وتستبدلها بمكافآت داخل المنصة.",
         timeLabel: "الوقت المتبقي",
         joinButton: "انضم الآن",
-
       };
     }
 
     const startLabel = "متى تبدأ؟";
-    const startDetails = normalized.startAt
-      ? `: ${normalized.startAt.toLocaleString("ar-EG")}`
-      : ": قريبًا";
+    const startDetails = normalized.startAt ? `: ${formatInTZ(normalized.startAt)}` : ": قريبًا";
 
     const conceptLabel = "فكرتها";
-    const conceptDetails = `: ${normalized.idea}`;
+    const conceptDetails = `: ${normalized.idea || ""}`;
 
     const prizesLabel = "الجوائز:";
-    const prizesDetails = ` ${normalized.prize}`;
+    const prizesDetails = ` ${normalized.prize || ""}`;
 
     let timeLabel = "الوقت المتبقي";
     if (computedStatus === "upcoming") timeLabel = "يبدأ بعد";
     if (computedStatus === "ended") timeLabel = "انتهت";
 
-    let joinButton = competition.enrolled ? "ادخل المسابقة" : "انضم الآن";
-    if (computedStatus === "upcoming") joinButton = "قريبًا";
+    let joinButton = normalized.enrolled ? "ادخل المسابقة" : "انضم الآن";
+    if (computedStatus === "upcoming") joinButton = normalized.enrolled ? "مسجل (قريبًا)" : "قريبًا";
     if (computedStatus === "ended") joinButton = "انتهت المسابقة";
 
     return {
@@ -289,32 +380,11 @@ export const DailyQuizSection = ({
     }
   };
 
-  const toParts = (seconds) => {
-    const s = Math.max(0, Number(seconds) || 0);
-
-    const days = Math.floor(s / 86400);
-    const hours = Math.floor((s % 86400) / 3600);
-    const minutes = Math.floor((s % 3600) / 60);
-    const secs = s % 60;
-
-    return { days, hours, minutes, secs };
-  };
-
-  const formatUpcoming = (seconds) => {
-    const { days, hours, minutes, secs } = toParts(seconds);
-
-    // الشكل: 2 يوم • 3 س • 10 د • 05 ث
-    // تقدر تغيّر الرموز حسب ذوقك
-    return `${days} يوم • ${hours} س • ${minutes} د • ${pad2(secs)} ث`;
-  };
-  const formatActive = (seconds) => {
-    const { hours, minutes, secs } = toParts(seconds);
-    if (hours > 0) return `${hours}:${pad2(minutes)}:${pad2(secs)}`;
-    return `${minutes} د : ${pad2(secs)} ث`;
-  };
-
-
   const colorClasses = getColorClasses();
+
+  const { enroll, loading: isJoining } = useEnrollInCompetition({
+    getToken: () => token,
+  });
 
   // ---------- Join rules ----------
   const autoDisabled =
@@ -328,7 +398,6 @@ export const DailyQuizSection = ({
     normalized?.apiActive === false;
 
   const handleJoin = useCallback(async () => {
-    // لو مش مسجل
     if (!token) {
       toast.error("سجّل الدخول أولاً");
       router.push("/login");
@@ -339,7 +408,6 @@ export const DailyQuizSection = ({
       return;
     }
 
-    // لو المسابقة لسه ما بدأتش أو انتهت
     if (computedStatus === "upcoming") {
       toast.message("المسابقة لم تبدأ بعد");
       return;
@@ -355,49 +423,38 @@ export const DailyQuizSection = ({
       return;
     }
 
-    if(!!competition.enrolled){
+    if (!!competition.enrolled) {
       router.push(`/competitions/${competitionId}`);
       return;
     }
 
-
     const res = await enroll({
       student_id: studentId,
       competition_id: competitionId,
-      // token: token, // (اختياري) لو تحب تمرره override
     });
 
     if (res?.ok) {
       toast.success("تم الانضمام للمسابقة ✅");
-
-      // ✅ Redirect بعد الانضمام — عدّل المسار حسب صفحاتك
       router.push(`/competitions/${competitionId}`);
-      // أو: router.push(`/daily-competition/${competitionId}/quiz`);
-
-      // لو عايز تنادي callback خارجي كمان:
       onJoin?.(competition);
     } else if (res?.aborted) {
-      // تجاهل
+      // ignore
     } else {
       toast.error(res?.error || "تعذر الانضمام، حاول مرة أخرى");
     }
   }, [token, studentId, computedStatus, competition, enroll, router, onJoin]);
 
-
-
+  // ---------- Image fallback ----------
   const FALLBACK_IMG = "/images/daily-competition-image.png";
+  const [imgSrc, setImgSrc] = useState(ui.image || FALLBACK_IMG);
 
-const [imgSrc, setImgSrc] = useState(ui.image || FALLBACK_IMG);
+  useEffect(() => {
+    setImgSrc(ui.image || FALLBACK_IMG);
+  }, [ui.image]);
 
-useEffect(() => {
-  setImgSrc(ui.image || FALLBACK_IMG);
-}, [ui.image]);
-
-const handleImgError = useCallback(() => {
-  setImgSrc(FALLBACK_IMG);
-}, []);
-
-
+  const handleImgError = useCallback(() => {
+    setImgSrc(FALLBACK_IMG);
+  }, []);
 
   return (
     <section
@@ -412,7 +469,6 @@ const handleImgError = useCallback(() => {
           alt="صورة المسابقة"
           src={imgSrc}
           onError={handleImgError}
-
         />
 
         <div className="flex flex-col items-center gap-6 sm:gap-8 relative self-stretch w-full flex-[0_0_auto]">
@@ -433,13 +489,33 @@ const handleImgError = useCallback(() => {
               </p>
 
               <p className="self-stretch font-normal text-transparent text-sm sm:text-base leading-5 sm:leading-6 relative tracking-[0] [direction:rtl]">
-                <span className="font-bold text-orange-500 prose prose-neutral" dangerouslySetInnerHTML={{ __html: ui.conceptLabel.replaceAll(/&nbsp;/gi, " ") }} />
-                <span className="font-medium text-[#2d2d2d] prose prose-neutral" dangerouslySetInnerHTML={{ __html: ui.conceptDetails.replaceAll(/&nbsp;/gi, " ") }} />
+                <span
+                  className="font-bold text-orange-500 prose prose-neutral"
+                  dangerouslySetInnerHTML={{
+                    __html: ui.conceptLabel.replaceAll(/&nbsp;/gi, " "),
+                  }}
+                />
+                <span
+                  className="font-medium text-[#2d2d2d] prose prose-neutral"
+                  dangerouslySetInnerHTML={{
+                    __html: ui.conceptDetails.replaceAll(/&nbsp;/gi, " "),
+                  }}
+                />
               </p>
 
               <p className="self-stretch font-normal text-warning text-sm sm:text-base leading-5 sm:leading-6 relative tracking-[0] [direction:rtl]">
-                <span className="font-bold prose prose-neutral" dangerouslySetInnerHTML={{ __html: ui.prizesLabel.replaceAll(/&nbsp;/gi, " ") }} />
-                <span className="font-medium prose prose-neutral" dangerouslySetInnerHTML={{ __html: ui.prizesDetails.replaceAll(/&nbsp;/gi, " ") }} />
+                <span
+                  className="font-bold prose prose-neutral"
+                  dangerouslySetInnerHTML={{
+                    __html: ui.prizesLabel.replaceAll(/&nbsp;/gi, " "),
+                  }}
+                />
+                <span
+                  className="font-medium prose prose-neutral"
+                  dangerouslySetInnerHTML={{
+                    __html: ui.prizesDetails.replaceAll(/&nbsp;/gi, " "),
+                  }}
+                />
               </p>
             </div>
 
@@ -459,8 +535,8 @@ const handleImgError = useCallback(() => {
                     {computedStatus === "ended"
                       ? "0"
                       : computedStatus === "upcoming"
-                        ? formatUpcoming(timeRemaining)
-                        : formatActive(timeRemaining)}
+                      ? formatUpcoming(timeRemaining)
+                      : formatActive(timeRemaining)}
                   </time>
                 </div>
               </div>
@@ -474,10 +550,7 @@ const handleImgError = useCallback(() => {
                 aria-label="الوقت المتبقي للمسابقة"
               >
                 <div
-                  className={`relative h-1 ${colorClasses.text.replace(
-                    "text-",
-                    "bg-"
-                  )} transition-all duration-1000 ease-linear`}
+                  className={`relative h-1 ${colorClasses.text.replace("text-", "bg-")} transition-all duration-1000 ease-linear`}
                   style={{
                     width: `${progressPercentage}%`,
                     left: `${100 - progressPercentage}%`,
@@ -490,11 +563,10 @@ const handleImgError = useCallback(() => {
           <div className="w-full sm:px-0">
             <button
               className={`flex w-full max-w-[387px] items-center justify-center gap-2 px-6 sm:px-12 py-3 sm:py-4
-    ${colorClasses.bg} ${colorClasses.hover}
-    rounded-[15px] shadow-[0px_6px_24px_#bac6dc33]
-    transition-colors duration-200
-    ${autoDisabled ? "opacity-60 cursor-not-allowed" : ""}
-  `}
+                ${colorClasses.bg} ${colorClasses.hover}
+                rounded-[15px] shadow-[0px_6px_24px_#bac6dc33]
+                transition-colors duration-200
+                ${autoDisabled ? "opacity-60 cursor-not-allowed" : ""}`}
               type="button"
               onClick={handleJoin}
               disabled={autoDisabled}
@@ -504,10 +576,6 @@ const handleImgError = useCallback(() => {
                 {isJoining ? "جاري الانضمام..." : ui.joinButton}
               </span>
             </button>
-            {/* <p className="text-center text-xs sm:text-sm text-danger font-normal mt-2 [direction:rtl]">تحت التطوير</p> */}
-
-
-
           </div>
         </div>
       </div>
