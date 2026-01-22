@@ -108,8 +108,8 @@ function classifyPlatform(item) {
         vimeoId: isNumericId(vimeoSource)
           ? String(vimeoSource).trim()
           : vimeoId && isNumericId(vimeoId)
-          ? vimeoId
-          : "",
+            ? vimeoId
+            : "",
         directUrl: "",
       };
     }
@@ -141,8 +141,8 @@ function normalizeVideo(item, categoryMeta) {
   const durationSecRaw = item?.time;
   const durationSec =
     durationSecRaw === null ||
-    durationSecRaw === undefined ||
-    durationSecRaw === ""
+      durationSecRaw === undefined ||
+      durationSecRaw === ""
       ? null
       : toInt(durationSecRaw, 0);
 
@@ -254,11 +254,20 @@ function FreeVideoCard({ video }) {
             src={video.thumb}
             alt={video.title}
             className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+            onError={(e) => {
+              e.currentTarget.src = "/images/logo.svg";   // your local fallback
+              e.currentTarget.onerror = null;             // prevent infinite loop if fallback also fails
+            }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-neutral-500 text-sm">
-            {video.platform === "direct" ? "Video File" : "No Thumbnail"}
-          </div>
+          <img
+            src="/images/logo.svg"
+            alt={video.title}
+            className="w-full h-full object-contain  group-hover:scale-[1.02] transition-transform duration-300"
+          />
+          // <div className="w-full h-full flex items-center justify-center text-neutral-500 text-sm">
+          //   {video.platform === "direct" ? "Video File" : "No Thumbnail"}
+          // </div>
         )}
 
         <PlatformBadge platform={video.platform} />
@@ -356,8 +365,8 @@ export default function FreeVideosPage() {
     const list = Array.isArray(api?.message?.free_data)
       ? api.message.free_data
       : Array.isArray(api?.message)
-      ? api.message
-      : [];
+        ? api.message
+        : [];
     return list.map((item) => normalizeVideo(item, categoryMeta));
   }, [api, categoryMeta]);
 
