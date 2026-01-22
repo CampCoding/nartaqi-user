@@ -6,6 +6,7 @@ export const MockExamHeader = ({
   timeRemaining = "56:25",
   questionProgress = "2 من 20",
   onMarkForReview,
+  examInfo,
   isMarkedForReview = false,
   isInReview,
   setInReview,
@@ -44,7 +45,7 @@ export const MockExamHeader = ({
   }, []);
 
   const examData = {
-    examTitle: "اختبار استراتيجيات التدريس الحديثة -",
+    examTitle: examInfo?.title || "",
     studentName: `الطالب: ${user?.name}`,
     timeRemaining: `الوقت المتبقي: ${timeRemaining}`,
     questionProgress: questionProgress,

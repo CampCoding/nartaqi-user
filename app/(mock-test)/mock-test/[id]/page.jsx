@@ -35,6 +35,7 @@ import {
   selectIsSolved,
   selectTotalQuestions,
   selectProgressText,
+  selectExamInfo,
   selectIsCurrentBlockMarked,
   selectIsLastBlockInSection,
   selectIsLastSection,
@@ -157,10 +158,14 @@ const MockTest = () => {
   // Redux selectors
   const sections = useSelector(selectSections);
   const currentSection = useSelector(selectCurrentSection);
+  console.log("currentSection" , currentSection)
+
+
   const currentBlock = useSelector(selectCurrentBlock);
   const currentSectionIndex = useSelector(selectCurrentSectionIndex);
   const currentBlockIndex = useSelector(selectCurrentBlockIndex);
   const timeRemaining = useSelector(selectTimeRemaining);
+  const examInfo = useSelector(selectExamInfo);
   const answeredMap = useSelector(selectAnsweredMap);
   const flaggedMap = useSelector(selectFlaggedMap);
   const isStarted = useSelector(selectIsStarted);
@@ -550,6 +555,7 @@ const MockTest = () => {
   return (
     <div className="bg-primary min-h-screen">
       <MockExamHeader
+        examInfo={examInfo}
         drawerPlacement="right"
         isInReview={isInReview}
         setIsInReview={setIsInReview}

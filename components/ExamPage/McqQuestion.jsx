@@ -16,7 +16,7 @@ export const McqQuestion = ({
 
 
   return (
-    <div className="flex-1 flex flex-col gap-4">
+    <div className="flex-1 flex flex-col gap-4 w-full">
       {imageUrl && (
         <img
           loading="lazy"
@@ -29,7 +29,7 @@ export const McqQuestion = ({
       {/* Question Text - supports HTML */}
       {questionHtml ? (
         <div
-        className="prose prose-neutral"
+        className="prose-neutral !w-full" 
         dangerouslySetInnerHTML={{ __html: questionHtml }}
         />
       ) : (

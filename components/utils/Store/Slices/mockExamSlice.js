@@ -29,6 +29,7 @@ const initialState = {
 
   // State
   isStarted: false,
+
   isSubmitted: false,
   isSolved: false,
 
@@ -92,8 +93,8 @@ const mockExamSlice = createSlice({
       state.sectionTimers = {};
 
       apiSections.forEach((section, sectionIndex) => {
-        const sectionTitle = stripHtml(section.title) || "||";
-        const sectionDescription = stripHtml(section.description) || "||";
+        const sectionTitle = stripHtml(section.title) || "";
+        const sectionDescription = stripHtml(section.description) || "";
         const sectionTimeLimit = parseTimeToSeconds(section.time_if_free);
 
         calculatedTotalTime += sectionTimeLimit;

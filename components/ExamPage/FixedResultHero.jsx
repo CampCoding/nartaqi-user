@@ -9,7 +9,7 @@ import {
   closeExam,
 } from "../../components/utils/Store/Slices/examSlice";
 
-export const FixedResultHero = ({ open, setOpen, id, lessonId, courseId }) => {
+export const FixedResultHero = ({ showDetailsButtonLink = "#", open, setOpen, id, lessonId, courseId }) => {
   // Get score from Redux
   const score = useSelector(selectExamScore);
   const percentage = useSelector(selectExamPercentage);
@@ -117,8 +117,9 @@ export const FixedResultHero = ({ open, setOpen, id, lessonId, courseId }) => {
             {/* Action Buttons */}
             <div className=" w-full">
               <Link
-                href={`/intern-test-details/${id}`}
+                href={showDetailsButtonLink}
                 onClick={() => {
+                  console.log("showDetailsButtonLink" , showDetailsButtonLink)
                   setOpen(false);
                   dispatch(closeExam());
                 }}

@@ -312,7 +312,7 @@ const ExamPage = () => {
         onSubmitExam={handleSubmitTheExam}
         submitting={submitting}
       />
-      <FixedResultHero courseId={id} id={id} lessonId={0} open={openResult} setOpen={() => {
+      <FixedResultHero showDetailsButtonLink={`/intern-test-details/${id}`} courseId={id} id={id} lessonId={0} open={openResult} setOpen={() => {
         setOpenResult(true)
       }} />
     </Container>
