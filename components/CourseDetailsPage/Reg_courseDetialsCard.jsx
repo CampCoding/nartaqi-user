@@ -210,9 +210,9 @@ const RegCourseDetailsCard = ({
           <div className="w-full py-3 sm:py-3.5 border-b-2 border-zinc-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 sm:gap-4">
             <div className="flex w-full sm:w-[200px] items-center gap-2">
               <SeatsIcon className="w-5 h-5 flex-shrink-0" />
-              <div className="text-text text-xs sm:text-[13px] font-medium leading-relaxed line-clamp-1">
+              <div onClick={()=> console.log(+round.capacity)} className="text-text text-xs sm:text-[13px] font-medium leading-relaxed line-clamp-1">
                 المقاعد المتبقية:{" "}
-                {round.capacity - round?.students_count || "غير محدد"}
+                {+round.capacity - +round?.students_count  ?? " 0 " }
               </div>
             </div>
 

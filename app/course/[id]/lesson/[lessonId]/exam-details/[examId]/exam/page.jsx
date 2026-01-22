@@ -306,7 +306,7 @@ const ExamPage = () => {
         onSubmitExam={handleSubmitTheExam}
         submitting={submitting}
       />
-      <FixedResultHero showDetailsButtonLink={`/course/${id}/lesson/${lessonId}/exam-details/${examId}/exam`} courseId={id} id={examId} lessonId={lessonId} open={openResult} setOpen={() => {
+      <FixedResultHero showDetailsButtonLink={`/course/${id}/lesson/${lessonId}/exam-details/${examId}`} courseId={id} id={examId} lessonId={lessonId} open={openResult} setOpen={() => {
         setOpenResult(true)
       }} />
     </Container>

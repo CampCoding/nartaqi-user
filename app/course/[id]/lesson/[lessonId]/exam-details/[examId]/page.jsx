@@ -170,8 +170,8 @@ const ExamDetails = ({ params }) => {
                       : "للأسف، لم تنجح في الاختبار"}
                   </div>
                   {
-                    examData.score_percentage &&
-                  <div className=" text-sm sm:text-base lg:text-lg font-bold mt-2 text-center px-4 py-2 rounded-lg">نتيجة اخر اختبار <span>( {examData.score_percentage}% )</span></div>
+                    +examData.score_percentage > 0 &&
+                  <div className=" text-sm sm:text-base lg:text-lg font-bold mt-2 text-center px-4 py-2 rounded-lg">نتيجة الإختبار السابق <span>( {examData.score_percentage}% )</span></div>
                   }
 
                 </div>

@@ -161,18 +161,17 @@ const ExamDetails = ({ params }) => {
                   </div>
                   <CircularProgress value={+examData?.student_max_score_percentage.toFixed("2") || +examData?.score_percentage.toFixed("2") || 0} />
                   <div
-                    className={`${
-                      isSuccess ? "text-green-600" : "text-red-600"
-                    } text-sm sm:text-base lg:text-lg font-bold bg-white mt-2 text-center px-4 py-2 rounded-lg`}
+                    className={`${isSuccess ? "text-green-600" : "text-red-600"
+                      } text-sm sm:text-base lg:text-lg font-bold bg-white mt-2 text-center px-4 py-2 rounded-lg`}
                   >
                     {isSuccess
                       ? "تهانينا! لقد نجحت في الأختبار"
                       : "للأسف، لم تنجح في الاختبار"}
-                      
+
                   </div>
                   {
-                    examData.score_percentage &&
-                  <div className=" text-sm sm:text-base lg:text-lg font-bold mt-2 text-center px-4 py-2 rounded-lg">نتيجة اخر اختبار <span>( {examData.score_percentage}% )</span></div>
+                    examData.score_percentage > 0 &&
+                    <div className=" text-sm sm:text-base lg:text-lg font-bold mt-2 text-center px-4 py-2 rounded-lg">نتيجة الإختبار السابق <span>( {examData.score_percentage}% )</span></div>
                   }                </div>
               </>
             )}
