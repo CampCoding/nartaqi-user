@@ -94,7 +94,7 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
             <div className="">
               <div>{content.content_title || "غير محدد"}</div>
               {!content?.was_opened && content?.show_date && (
-                <div className="  text-sm text-gray-500 text-right mt-2  text-text  font-normal">
+                <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
                   متاح في: {content.show_date}
                 </div>
               )}
@@ -147,6 +147,8 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
                   lesson={lesson}
                   isDone={true}
                   own={own}
+                  isSectionOpen={content.was_opened}
+
                   isRegistered={isRegistered}
                   token={token}
                   studentId={user?.id}
@@ -163,6 +165,7 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
                 key={lesson.id}
                 lesson={lesson}
                 isDone={true}
+                isSectionOpen={content.was_opened}
                 own={own}
                 // ✅ كان غلط: isRegistered={!isRegistered}
                 isRegistered={isRegistered}
@@ -186,6 +189,7 @@ export const RegLectureDrawer = ({
   isRegistered,
   own,
   roundId,
+  isSectionOpen,
   token,
   studentId,
 }) => {
@@ -474,10 +478,17 @@ export const RegLectureDrawer = ({
           >
             <InfoIcon />
           </button>
+        <div className="">
 
           <h1 className="font-bold cursor-pointer flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
             {lesson.lesson_title || "غير محدد"}
           </h1>
+          { !lesson?.was_opened && lesson?.show_date && (
+            <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
+                  متاح في: {lesson.show_date}
+                </div>
+              )}
+              </div>
         </div>
 
         <div
@@ -648,6 +659,7 @@ export const RegLectureDrawer = ({
               lesson={lesson}
               examAllData={lesson.exam_all_data}
               isOpen={lesson?.was_opened}
+              isSectionOpen={isSectionOpen}
               isDone={isDone}
               isRegistered={isRegistered}
             />
@@ -663,6 +675,7 @@ export const ExerciseDropDown = ({
   examAllData,
   isDone = false,
   isRegistered,
+  isSectionOpen,
   isOpen,
   lesson,
 }) => {
@@ -670,7 +683,12 @@ export const ExerciseDropDown = ({
   const sectionId = useId();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { id } = useParams();
+  const { id } = useParams(); 
+
+
+
+  const isAvailable = isOpen && isSectionOpen
+
 
   const getVideoPlatform = (videoUrl) => {
     if (!videoUrl) return null;
@@ -812,7 +830,7 @@ export const ExerciseDropDown = ({
              
 
               return (
-                <div onClick={()=> console.log("isOpened" , isOpen )}  key={exam?.id} className="flex flex-col">
+                <div onClick={()=> console.log("isAvailable" , isAvailable )}  key={exam?.id} className="flex flex-col">
                   {/* Exam Title Row */}
                   {exam && (
                     <div className="flex w-full flex-row justify-between  items-center  border-b-[2px] border-solid last:border-none pt-4 pb-5 bg-white">
@@ -831,7 +849,7 @@ export const ExerciseDropDown = ({
                                 {exam.title || "أسئلة الاختبار"}
                               </span>
                             </div>
-                            { isOpen &&  isRegistered && (
+                            { isAvailable &&  isRegistered && (
                               <Link
                                 href={
                                   isDone
@@ -901,7 +919,7 @@ export const ExerciseDropDown = ({
                               {!isDone ? (
                                 <LockIcon2 className="fill-secondary w-6 h-6" />
                               ) : (
-                                isOpen && isPlayable && (
+                                isAvailable && isPlayable && (
                                   <Link
                                     href={{
                                       pathname,
@@ -956,7 +974,7 @@ export const ExerciseDropDown = ({
                         </span> */}
                         </div>
 
-                        { isOpen && isRegistered && (
+                        { isAvailable && isRegistered && (
                           <button
                             onClick={() =>
                               handleDownloadFile(pdf.pdf_url, pdf.title, "pdf")
