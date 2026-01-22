@@ -1,60 +1,41 @@
 import React from "react";
 
 export const Alerts = () => {
-  const items = [
-    "سيتم إنهاء الاختبار تلقائيًا عند انتهاء الوقت.",
-    "لا يمكن إيقاف المؤقت بعد بدء الاختبار.",
-    "تأكد من اتصال الإنترنت طوال مدة الاختبار.",
-    "تحديث الصفحة قد يؤدي لفقد الإجابات غير المحفوظة.",
-  ];
-
   return (
-    <section className="w-full">
-      {/* Header */}
-      <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4">
+    <div className="flex  items-center flex-col items-start gap-2 sm:gap-4 lg:gap-6 w-full">
+      <div className="flex items-center justify-start gap-2 sm:gap-3 lg:gap-4 w-full">
+        {/* ✅ نفس تصميم Instructions لكن بلون danger */}
         <AlertIcon className="text-danger w-5 sm:w-6 lg:w-7 h-5 sm:h-6 lg:h-7 flex-shrink-0" />
-        <h2 className="font-bold text-danger text-xl sm:text-2xl lg:text-3xl leading-tight">
+        <div className="font-bold text-danger text-xl sm:text-2xl lg:text-3xl leading-tight">
           التنبيهات
-        </h2>
-      </div>
-
-      {/* Alert Box */}
-      <div className="w-full rounded-2xl border border-danger/25 bg-danger/10 p-4 sm:p-5 lg:p-6">
-        <div className="flex items-start gap-3 sm:gap-4">
-          <div className="mt-0.5">
-            <AlertIcon className="text-danger w-6 h-6 sm:w-7 sm:h-7" />
-          </div>
-
-          <div className="flex-1">
-            <p className="text-danger font-semibold text-sm sm:text-base lg:text-lg leading-relaxed">
-              الرجاء الانتباه للنقاط التالية قبل بدء الاختبار:
-            </p>
-
-            <ul className="mt-3 space-y-2 sm:space-y-3">
-              {items.map((t, idx) => (
-                <li key={idx} className="flex items-start gap-3">
-                  <BulletIcon className="text-danger w-4 h-4 sm:w-5 sm:h-5 mt-1 flex-shrink-0" />
-                  <span className="font-medium text-text-alt text-sm sm:text-base lg:text-lg leading-relaxed">
-                    {t}
-                  </span>
-                </li>
-              ))}
-            </ul>
-
-            {/* Optional footer hint */}
-            <div className="mt-4 rounded-xl bg-white/60 p-3 border border-danger/15">
-              <p className="text-xs sm:text-sm text-text-alt leading-relaxed">
-                نصيحة: استخدم متصفح Chrome أو Safari، وأغلق أي تبويبات/برامج ثقيلة لتجنب التقطّع.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
-    </section>
+
+      <div className="flex flex-col items-start gap-2 sm:gap-4 lg:gap-6 w-full">
+        <AlertRow>يجب الإجابة على جميع الأسئلة خلال الوقت المحدد.</AlertRow>
+        <AlertRow>
+          الأسئلة من نوع اختيار من متعدد، وبعضها يحتوي على مقاطع نصية للقراءة.
+        </AlertRow>
+        <AlertRow>يمكنك الانتقال بين الأسئلة بالضغط على (التالي) أو (السابق).</AlertRow>
+        <AlertRow>النجاح يبدأ من نسبة 50% فأكثر.</AlertRow>
+      </div>
+    </div>
   );
 };
 
-/** ✅ Icon: uses currentColor so Tailwind text-* works */
+function AlertRow({ children }) {
+  return (
+    <div className="flex items-start gap-4 sm:gap-6 lg:gap-8 w-full">
+      {/* ✅ نفس CheckIcon بتاع Instructions لكن بلون danger */}
+      <CheckIcon className="text-danger w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 flex-shrink-0 mt-0.5" />
+      <p className="font-medium text-text-alt text-sm sm:text-base lg:text-lg leading-tight sm:leading-relaxed flex-1">
+        {children}
+      </p>
+    </div>
+  );
+}
+
+/** ✅ Make it colorable via text-* */
 const AlertIcon = ({ className, ...props }) => (
   <svg
     width={24}
@@ -96,33 +77,44 @@ const AlertIcon = ({ className, ...props }) => (
   </svg>
 );
 
-/** ✅ small bullet icon (triangle/alert style) */
-const BulletIcon = ({ className, ...props }) => (
+/** ✅ Same CheckIcon behavior: color by text-* */
+const CheckIcon = ({ className, ...props }) => (
   <svg
-    width="20"
-    height="20"
+    width={24}
+    height={24}
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
     {...props}
   >
-    <path
-      d="M12 2L22 20H2L12 2Z"
-      fill="currentColor"
-      opacity="0.9"
-    />
-    <path
-      d="M12 9V13"
-      stroke="white"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <path
-      d="M12 16.5H12.01"
-      stroke="white"
-      strokeWidth="3"
-      strokeLinecap="round"
-    />
+    <mask
+      id="mask0_143_290"
+      style={{ maskType: "luminance" }}
+      maskUnits="userSpaceOnUse"
+      x={1}
+      y={1}
+      width={22}
+      height={22}
+    >
+      <path
+        d="M12 22C13.3135 22.0016 14.6143 21.7437 15.8278 21.2411C17.0412 20.7384 18.1434 20.0009 19.071 19.071C20.0009 18.1434 20.7384 17.0412 21.2411 15.8278C21.7437 14.6143 22.0016 13.3135 22 12C22.0016 10.6866 21.7437 9.38572 21.2411 8.17225C20.7384 6.95878 20.0009 5.85659 19.071 4.92901C18.1434 3.99909 17.0412 3.26162 15.8278 2.75897C14.6143 2.25631 13.3135 1.99839 12 2.00001C10.6866 1.99839 9.38572 2.25631 8.17225 2.75897C6.95878 3.26162 5.85659 3.99909 4.92901 4.92901C3.99909 5.85659 3.26162 6.95878 2.75897 8.17225C2.25631 9.38572 1.99839 10.6866 2.00001 12C1.99839 13.3135 2.25631 14.6143 2.75897 15.8278C3.26162 17.0412 3.99909 18.1434 4.92901 19.071C5.85659 20.0009 6.95878 20.7384 8.17225 21.2411C9.38572 21.7437 10.6866 22.0016 12 22Z"
+        fill="white"
+        stroke="white"
+        strokeWidth={2}
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8 12L11 15L17 9"
+        stroke="black"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </mask>
+    <g mask="url(#mask0_143_290)">
+      {/* ✅ important: currentColor */}
+      <path d="M0 0H24V24H0V0Z" fill="currentColor" />
+    </g>
   </svg>
 );

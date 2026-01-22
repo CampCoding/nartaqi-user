@@ -16,7 +16,7 @@ export const McqQuestion = ({
 
 
   return (
-    <div className="flex-1 flex flex-col gap-4 w-full">
+    <div className="flex-1 flex flex-col gap-4">
       {imageUrl && (
         <img
           loading="lazy"
@@ -29,7 +29,7 @@ export const McqQuestion = ({
       {/* Question Text - supports HTML */}
       {questionHtml ? (
         <div
-        className="prose-neutral !w-full" 
+        className="prose prose-neutral"
         dangerouslySetInnerHTML={{ __html: questionHtml }}
         />
       ) : (
@@ -47,7 +47,7 @@ export const McqQuestion = ({
         {options.map((option) => {
           const selected = selectedOptionId === option.id;
           return (
-            <button
+            <div
               key={option.id}
               type="button"
               role="radio"
@@ -84,18 +84,18 @@ export const McqQuestion = ({
               {option.textHtml ? (
                 <span
                   dir="rtl"
-                  className=" prose prose-neutral "
+                  className=" prose prose-neutral !w-full "
                   dangerouslySetInnerHTML={{ __html: option.textHtml }}
                 />
               ) : (
                 <span
                   dir="rtl"
-                  className=""
+                  className="w-full flex-1"
                 >
                   {option.label}
                 </span>
               )}
-            </button>
+            </div>
           );
         })}
       </div>
