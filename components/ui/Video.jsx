@@ -158,11 +158,14 @@ export default function VideoPlayer({
 
   // Format time helper
   const formatTime = (seconds) => {
-    const mins = Math.floor((seconds || 0) / 60);
-    const secs = Math.floor((seconds || 0) % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
+    const s = Math.max(0, Number(seconds) || 0);
+  
+    const hours = Math.floor(s / 3600);
+    const mins = Math.floor((s % 3600) / 60);
+    const secs = Math.floor(s % 60);
+  
+    return `${hours}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
-
   // Reset player state
   const resetPlayerState = useCallback(() => {
     setIsPlaying(false);
