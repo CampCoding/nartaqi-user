@@ -13,7 +13,7 @@ export const FirstSection = () => {
           </p>
         </header>
 
-        <button
+        <a href="#competitions-section"
           className="flex items-center justify-center gap-2 px-8 sm:px-12 lg:px-16 py-3 sm:py-4 relative flex-[0_0_auto] bg-primary rounded-[15px] sm:rounded-[20px] shadow-[0px_6px_24px_#bac6dc33] hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200 w-full sm:w-auto mt-6 lg:mt-8"
           type="button"
           aria-label="ابدأ الأن - بدء استخدام المنصة التعليمية"
@@ -21,7 +21,7 @@ export const FirstSection = () => {
           <span className="relative [display:-webkit-box] items-center justify-center w-fit font-bold text-neutral-50 text-lg sm:text-xl text-center leading-[normal] overflow-hidden text-ellipsis [-webkit-line-clamp:2] [-webkit-box-orient:vertical] [direction:rtl]">
             ابدأ الأن
           </span>
-        </button>
+        </a>
       </section>
 
       <section

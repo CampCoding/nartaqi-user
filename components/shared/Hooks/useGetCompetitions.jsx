@@ -14,7 +14,7 @@ export function useGetAllCompetitions(options = {}) {
   const {
     baseURL = "https://camp-coding.site/nartaqi/public/api",
     initialPage = 1,
-    initialPerPage = 10,
+    initialPerPage = 6,
     enabled = true,
     student_id,
     // ✅ token support
@@ -56,38 +56,41 @@ export function useGetAllCompetitions(options = {}) {
       const reqId = ++requestIdRef.current;
       setLoading(true);
       setError(null);
-
+  
       const finalPage = override?.page ?? page;
       const finalPerPage = override?.per_page ?? perPage;
-
+  
       try {
         const res = await axios.post(
           endpoint,
-          { page: finalPage, per_page: finalPerPage , student_id: student_id}, // ✅ BODY
-          { headers: buildHeaders() } // ✅ token
+          {
+            page: finalPage,
+            per_page: finalPerPage,
+            student_id: student_id,
+          },
+          { headers: buildHeaders() }
         );
-
-        // ignore if a newer request already happened
+  
         if (reqId !== requestIdRef.current) return;
-
+  
         if (!res.data || res.data.status !== "success") {
           setItems([]);
           setPagination(null);
           setError("Request failed.");
           return;
         }
-
+  
         setItems(res.data?.data?.data || []);
         setPagination(res.data?.data || null);
       } catch (e) {
         if (reqId !== requestIdRef.current) return;
-
+  
         const msg =
           e?.response?.data?.message ||
           e?.response?.data?.error ||
           e?.message ||
           "Network error";
-
+  
         setItems([]);
         setPagination(null);
         setError(msg);
@@ -95,8 +98,9 @@ export function useGetAllCompetitions(options = {}) {
         if (reqId === requestIdRef.current) setLoading(false);
       }
     },
-    [endpoint, page, perPage, buildHeaders]
+    [endpoint, page, perPage, buildHeaders, student_id] // ✅ add student_id
   );
+  
 
   useEffect(() => {
     if (!enabled) return;
