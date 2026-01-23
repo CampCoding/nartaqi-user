@@ -749,3 +749,143 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .course-goal-content * {
   white-space: pre-wrap !important;
 }
+
+
+
+
+/* ✅ UA-like defaults for rich text content */
+.richtext {
+  /* inherit from your app (font, color, etc.) */
+}
+
+.richtext p {
+  display: block;
+  margin: 1em 0;
+}
+
+.richtext b,
+.richtext strong {
+  font-weight: bolder; /* most UA sheets render bold/bolder */
+}
+
+.richtext i,
+.richtext em {
+  font-style: italic;
+}
+
+.richtext u {
+  text-decoration: underline;
+}
+
+.richtext s,
+.richtext del {
+  text-decoration: line-through;
+}
+
+.richtext a {
+  color: -webkit-link;   /* closest to UA in WebKit */
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.richtext a:visited {
+  color: -webkit-visited-link;
+}
+
+/* Headings */
+.richtext h1 {
+  display: block;
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+.richtext h2 {
+  display: block;
+  font-size: 1.5em;
+  margin: 0.83em 0;
+}
+.richtext h3 {
+  display: block;
+  font-size: 1.17em;
+  margin: 1em 0;
+}
+.richtext h4 {
+  display: block;
+  font-size: 1em;
+  margin: 1.33em 0;
+}
+.richtext h5 {
+  display: block;
+  font-size: 0.83em;
+  margin: 1.67em 0;
+}
+.richtext h6 {
+  display: block;
+  font-size: 0.67em;
+  margin: 2.33em 0;
+}
+
+/* Lists */
+.richtext ul {
+  display: block;
+  list-style-type: disc;
+  margin: 1em 0;
+  padding-left: 40px;
+}
+.richtext ol {
+  display: block;
+  list-style-type: decimal;
+  margin: 1em 0;
+  padding-left: 40px;
+}
+.richtext li {
+  display: list-item;
+}
+
+/* Quotes / code */
+.richtext blockquote {
+  display: block;
+  margin: 1em 40px;
+}
+
+.richtext pre {
+  display: block;
+  font-family: monospace;
+  white-space: pre;
+  margin: 1em 0;
+}
+
+.richtext code,
+.richtext kbd,
+.richtext samp {
+  font-family: monospace;
+  font-size: 1em;
+}
+
+/* Horizontal rule */
+.richtext hr {
+  display: block;
+  margin: 0.5em auto;
+  border-style: inset;
+  border-width: 1px;
+}
+
+/* Images */
+.richtext img {
+  display: inline;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Tables (basic UA-ish) */
+.richtext table {
+  display: table;
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+.richtext th {
+  text-align: center;
+}
+.richtext td,
+.richtext th {
+  padding: 1px;
+}

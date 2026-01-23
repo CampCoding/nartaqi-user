@@ -326,7 +326,7 @@ export const AnsweredQuestion = ({ questionData }) => {
       {/* Question */}
       <section className="flex flex-col items-start gap-4 sm:gap-5 md:gap-6 w-full">
         <div className="flex flex-col w-full gap-2">
-          <div  dangerouslySetInnerHTML={{ __html: questionData.question }} className="prose prose-neutral" />
+          <div  dangerouslySetInnerHTML={{ __html: questionData.question }} className="richtext w-full" />
 
 
           <fieldset className="flex flex-col w-full gap-3 sm:gap-4">

@@ -37,16 +37,16 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
   };
 
   return (
-    <div className="grid-cols-1 space-y-10 md:space-y-12">
+    <div className="grid-cols-1 space-y-10 md:space-y-12  ">
       {/* عرض محتوى الدورة من goal (HTML) */}
       {round.goal ? (
         <div
-          className="prose-neutral"
+          className="richtext"
           dangerouslySetInnerHTML={{
             __html: round?.goal?.replaceAll(/&nbsp;/gi, " "),
           }}
         />
-      ) : (
+      ) : (   
         <>
           <div className="self-stretch inline-flex flex-col justify-start items-end gap-2">
             <div className="self-stretch text-right justify-center text-text text-xl md:text-2xl font-bold">

@@ -152,6 +152,7 @@ const ExamPage = () => {
   // Calculate score from answers
   const calculateScore = () => {
     const correctAnswers = answers.filter((answer) => answer.is_correct).length;
+    console.log("correctAnswers" , answers)
     const totalQuestions = questions.length;
     const percentage =
       totalQuestions > 0

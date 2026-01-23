@@ -29,7 +29,7 @@ export const McqQuestion = ({
       {/* Question Text - supports HTML */}
       {questionHtml ? (
         <div
-        className="prose prose-neutral"
+        className="!w-full richtext"
         dangerouslySetInnerHTML={{ __html: questionHtml }}
         />
       ) : (

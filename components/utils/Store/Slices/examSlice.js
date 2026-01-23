@@ -167,8 +167,8 @@ const examSlice = createSlice({
             let correctAnswerText = null;
 
             if (questionType === "t_f") {
-              const trueOpt = q.options.find((o) => ["صحيح", "صح"].includes(stripHtml(o.option_text)));
-              const falseOpt = q.options.find((o) => ["خطأ", "خاطئ"].includes(stripHtml(o.option_text)));
+              const trueOpt = q.options.find((o) => ["صحيح", "صح" , "true" , true].includes(stripHtml(o.option_text)));
+              const falseOpt = q.options.find((o) => ["خطأ", "خاطئ"  , "false" , false].includes(stripHtml(o.option_text)));
 
               const trueCorrect = trueOpt?.is_correct === 1;
               const falseCorrect = falseOpt?.is_correct === 1;
@@ -179,10 +179,10 @@ const examSlice = createSlice({
               ];
 
               if (trueCorrect) {
-                correctAnswer = "true";
+                correctAnswer = "صحيح";
                 correctAnswerText = "صح";
               } else if (falseCorrect) {
-                correctAnswer = "false";
+                correctAnswer = "خطأ";
                 correctAnswerText = "خطأ";
               } else {
                 correctAnswer = null;
@@ -400,7 +400,7 @@ const examSlice = createSlice({
       let correctAnswerText = null;
       let isCorrect = false;
 
-      if (question.type === "mcq" || question.type === "paragraph") {
+      if (question.type === "mcq" || question.type === "paragraph" ) {
         const selected = question.options?.find((opt) => opt.id === answer);
         studentAnswerText = selected ? selected.text : null;
         correctAnswerText = question.correctAnswerText;
