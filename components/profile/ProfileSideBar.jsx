@@ -37,6 +37,12 @@ export const ProfileSideBar = () => {
       label: "دوراتي",
       icon: OpenBook, // ✅
     },
+    {
+      id: "course-rate",
+      path: "/course-rate",
+      label: "معدل اللإنجاز",
+      icon: Badge,
+    },
     // {
     //   id: "badges",
     //   path: "/my-badges",
@@ -93,17 +99,15 @@ export const ProfileSideBar = () => {
             <button
               key={item.id}
               onClick={() => handleItemClick(item.path)}
-              className={`flex items-center justify-start gap-4 px-4 py-5 relative self-stretch w-full flex-[0_0_auto] rounded-[20px] transition-colors duration-200  focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 ${
-                item.path == pathname ? "bg-primary" : " text-text"
-              }`}
+              className={`flex items-center justify-start gap-4 px-4 py-5 relative self-stretch w-full flex-[0_0_auto] rounded-[20px] transition-colors duration-200  focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 ${item.path == pathname ? "bg-primary" : " text-text"
+                }`}
               aria-pressed={item?.path === pathname}
               role="menuitem"
             >
               {icon}
               <div
-                className={`relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold text-base text-left tracking-[0] leading-6 whitespace-nowrap ${
-                  item.path === pathname ? "text-white" : "text-text"
-                }`}
+                className={`relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold text-base text-left tracking-[0] leading-6 whitespace-nowrap ${item.path === pathname ? "text-white" : "text-text"
+                  }`}
               >
                 {item.label}
               </div>

@@ -8,6 +8,7 @@ import Providers from "../components/utils/Store/Provider.jsx";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "../components/ScrollToTop/ScrollToTop";
 import Shared from "./../components/shared/Shared";
+import FloatingCompletionRateButton from "../components/shared/FloatingCompletionRateButton";
 
 const cairo = Cairo({
   subsets: ["latin", "arabic"],
@@ -63,8 +64,10 @@ export default function RootLayout({ children }) {
             <ScrollToTop />
             <div className="min-h-[100svh]">{children}</div>
             <Footer />
+        <FloatingCompletionRateButton  href="/course-rate" />
           </UserProvider>
         </Providers>
+
       </body>
     </html>
   );

@@ -8,7 +8,7 @@ const headerData = [
     key: "courses",
     className: "text-text text-base leading-6 whitespace-nowrap",
     title: "الدورات",
-   
+    
   },
   {
     key: "free",
@@ -18,6 +18,14 @@ const headerData = [
      
     ],
   },
+  {
+    key: "my courses",
+    className: "text-text text-base leading-6 whitespace-nowrap",
+    title: "دوراتي",
+    link:"/my-courses",
+    ifLoggedIn: true,
+  },
+
   {
     key: "competitions",
     className: "text-text text-base leading-6 whitespace-nowrap",
@@ -157,7 +165,7 @@ const headerData = [
   {
     key: "services",
     className: "text-text text-base leading-6 whitespace-nowrap",
-    title: "متجر الكتب",
+    title: "المتجر",
     link: "/store",
   },
   {

@@ -75,8 +75,8 @@ export default function Home() {
         <MobileHero />
       </div>
 
-      <AboutUs />
-      
+      <AboutUs youtubeId="jmVflHiAEV4" />
+
       <CoursesCategoriesLable />
 
       {/* Dynamic Category Sections */}

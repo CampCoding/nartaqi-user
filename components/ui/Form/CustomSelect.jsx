@@ -13,7 +13,7 @@ export const CustomSelect = ({ label, value, options, placeholder, onChange }) =
   };
 
   return (
-    <div className="flex w-full flex-col items-start gap-2.5">
+    <div className="flex w-full flex-col items-start gap-2.5 relative ">
       <label className="font-semibold text-text">{label}</label>
       <div ref={selectRef} className="relative w-full">
         <button

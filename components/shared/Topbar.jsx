@@ -1,8 +1,7 @@
 // Header.jsx (full file)
 
 "use client";
-
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { headerIcons } from "../../public/svgs";
 import SearchBanner from "./SearchBanner";
 import { useEffect, useMemo, useState } from "react";
@@ -16,12 +15,48 @@ import { useSelector, useDispatch } from "react-redux";
 import { getUserCart } from "../utils/Store/Slices/cartSlice";
 import useHeaderCoursesItems from "./Hooks/useHeaderCategoryParts";
 import useHeaderFreeVideosItems from "./Hooks/useHeaderFreeVideosItems";
+import toast from "react-hot-toast";
+import { logoutUser } from "../utils/Store/Slices/authntcationSlice";
 
 export default function Header() {
   const [openSearch, setOpenSearch] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const dispatch = useDispatch();
+  const router = useRouter();
+
+  const accountItems = useMemo(
+    () => [
+      { key: "my-courses", label: "دوراتي" },
+      { key: "account", label: "حسابي" },
+      { key: "progress", label: "معدل الإنجاز" },
+      { type: "divider" },
+      { key: "logout", danger: true, label: "تسجيل الخروج" },
+    ],
+    []
+  );
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    router.push("/");
+    toast.success("تم تسجيل الخروج بنجاح", { duration: 3000 });
+  };
+
+
+  const onAccountMenuClick = ({ key }) => {
+    if (key === "my-courses") return router.push("/my-courses"); // عدّل اللينك
+    if (key === "account")
+      return router.push(user?.type == "marketer" ? "/marketer-profile" : "/profile");
+    if (key === "progress") return router.push("/achievements"); // عدّل اللينك
+    if (key === "logout") {
+      // ✅ الأفضل لو عندك logout action
+      // dispatch(logout());
+
+      // ✅ حل عام (لو مفيش logout action): امسح التوكن/اليوزر من التخزين ثم روح للّوجين
+      handleLogout()
+    
+    }
+  };
 
   // Auth State
   const { user, token } = useSelector((state) => state.auth);
@@ -31,12 +66,13 @@ export default function Header() {
     useHeaderCoursesItems(user?.id);
 
   // ✅ API items for "الشروحات المجانية"
-  const { freeitems: apiFreeItems,   achievementsItem  ,loading: freeMenuLoading } =
+  const { freeitems: apiFreeItems, achievementsItem, loading: freeMenuLoading } =
     useHeaderFreeVideosItems();
 
-    
+
   // ✅ build headerData exactly like old, but replace only courses.items + free.items
   const finalHeaderData = useMemo(() => {
+    
     return headerData.map((g) => {
       // 1) Replace courses items
       if (g.key === "courses") {
@@ -44,16 +80,16 @@ export default function Header() {
           ...g,
           items: coursesMenuLoading
             ? [
-                {
-                  id: "loading-courses",
-                  title: "جاري التحميل...",
-                  count: null,
-                  link: "#",
-                },
-              ]
+              {
+                id: "loading-courses",
+                title: "جاري التحميل...",
+                count: null,
+                link: "#",
+              },
+            ]
             : apiCoursesItems.length
-            ? apiCoursesItems
-            : [
+              ? apiCoursesItems
+              : [
                 {
                   id: "empty-courses",
                   title: "لا توجد أقسام",
@@ -71,21 +107,21 @@ export default function Header() {
           title: "عرض المزيد ....",
           link: "/free-courses",
         };
-      
+
         return {
           ...g,
           items: freeMenuLoading
             ? [
-                {
-                  id: "loading-free",
-                  title: "جاري التحميل...",
-                  count: null,
-                  link: "#",
-                },
-              ]
+              {
+                id: "loading-free",
+                title: "جاري التحميل...",
+                count: null,
+                link: "#",
+              },
+            ]
             : apiFreeItems.length
-            ? [...apiFreeItems] // ✅ add "more" only when data exists
-            : [
+              ? [...apiFreeItems] // ✅ add "more" only when data exists
+              : [
                 {
                   id: "empty-free",
                   title: "لا توجد أقسام",
@@ -98,22 +134,22 @@ export default function Header() {
       }
       // 3) Replace grades items
       if (g.key === "grades") {
-       
-      
+
+
         return {
           ...g,
           items: freeMenuLoading
             ? [
-                {
-                  id: "loading-free",
-                  title: "جاري التحميل...",
-                  count: null,
-                  link: "#",
-                },
-              ]
+              {
+                id: "loading-free",
+                title: "جاري التحميل...",
+                count: null,
+                link: "#",
+              },
+            ]
             : achievementsItem.length
-            ? [...achievementsItem] // ✅ add "more" only when data exists
-            : [
+              ? [...achievementsItem] // ✅ add "more" only when data exists
+              : [
                 {
                   id: "empty-free",
                   title: "لا توجد داتا",
@@ -125,10 +161,10 @@ export default function Header() {
         };
       }
 
-      
-      
+
+
       return g;
-    });
+    }).filter(item => !item.ifLoggedIn || token);
   }, [apiCoursesItems, coursesMenuLoading, apiFreeItems, freeMenuLoading]);
 
 
@@ -169,9 +205,8 @@ export default function Header() {
                   key={index}
                   href={group.link}
                   target={group.target == "_blank" ? "_blank" : "_self"}
-                  className={`${
-                    index == 0 ? "ml-5" : ""
-                  } cursor-pointer hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary`}
+                  className={`${index == 0 ? "ml-5" : ""
+                    } cursor-pointer hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary`}
                 >
                   {group.title}
                 </Link>
@@ -229,16 +264,35 @@ export default function Header() {
             )}
           </div>
 
+
+
           {token && (
-            <Link
-              href={user?.type == "marketer" ? "/marketer-profile" : "/profile"}
-              className="px-16 py-4 bg-white transition-all rounded-[100px] outline outline-1 outline-offset-[-0.50px] outline-primary hover:bg-primary group hover:text-white inline-flex justify-center items-center gap-4"
+            <Dropdown
+              menu={{ items: accountItems, onClick: onAccountMenuClick }}
+              trigger={["click"]}
+              placement="bottomRight"
             >
-              <div className="justify-center group-hover:text-white text-primary text-base font-bold font-['Cairo'] leading-normal">
-                حسابي
-              </div>
-            </Link>
+              <button
+                type="button"
+                onClick={(e) => e.preventDefault()} // ✅ يمنع أي تنقل
+                className="px-12 py-4 bg-white transition-all rounded-[100px] outline outline-1 outline-offset-[-0.50px] outline-primary hover:bg-primary group hover:text-white inline-flex justify-center items-center gap-4"
+              >
+                <span className="justify-center group-hover:text-white text-primary text-base font-bold font-['Cairo'] leading-normal">
+                  مرحبا {user?.name.split(" ")[0]}
+                </span>
+                <ChevronDown className="w-4 h-4 text-primary group-hover:text-white" />
+              </button>
+
+
+
+
+
+            </Dropdown>
           )}
+
+
+
+
         </div>
 
         {/* Mobile Actions */}
@@ -360,9 +414,8 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
               >
                 <span>{group.title}</span>
                 <ChevronDown
-                  className={`w-5 h-5 transition-transform ${
-                    expandedItem === index ? "rotate-180" : ""
-                  }`}
+                  className={`w-5 h-5 transition-transform ${expandedItem === index ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -428,9 +481,8 @@ const MobileSubMenu = ({ items, onClose }) => {
                       </span>
                     )} */}
                     <ChevronDown
-                      className={`w-4 h-4 transition-transform ${
-                        expandedSubItem === index ? "rotate-180" : ""
-                      }`}
+                      className={`w-4 h-4 transition-transform ${expandedSubItem === index ? "rotate-180" : ""
+                        }`}
                     />
                   </div>
                 </button>
@@ -478,7 +530,7 @@ export const DropDownItems = ({ items }) => {
   const [openSub, setOpenSub] = useState(null);
 
   return (
-    
+
     <nav
       className="flex max-h-[500px] overflow-auto custom-scroll rounded-3xl flex-col items-start pt-2 pb-6 px-4 relative bg-white border-2 [border-top-style:solid]  border-variable-collection-stroke"
       role="navigation"
@@ -494,30 +546,27 @@ export const DropDownItems = ({ items }) => {
 
         const rowContent = (
           <div
-            className={`flex w-[271px] cursor-pointer justify-between px-0 py-4 flex-[0_0_auto] ${
-              isFirst ? "mt-[-1.00px]" : ""
-            } ${
-              !isLast
+            className={`flex w-[271px] cursor-pointer justify-between px-0 py-4 flex-[0_0_auto] ${isFirst ? "mt-[-1.00px]" : ""
+              } ${!isLast
                 ? "ml-[-1.00px] mr-[-1.00px] bg-white border-b-2 [border-bottom-style:solid] border-variable-collection-stroke"
                 : "w-[269px] bg-white rounded-[0px_0px_30px_30px]"
-            } items-center relative cursor-pointer`}
+              } items-center relative cursor-pointer`}
             role="menuitem"
             aria-haspopup={"menu"}
             aria-expanded={openSub === rowId ? "true" : "false"}
           >
             <div
-              className={`${
-                isLast
+              className={`${isLast
                   ? "flex h-6 items-center relative flex-1 grow"
                   : "inline-flex h-6 items-center relative flex-[0_0_auto]"
-              }`}
+                }`}
             >
               {isLast ? (
                 <p className="flex-1  font-cairo mt-[-12.00px] mb-[-12.00px] relative flex items-center  font-medium text-text text-base leading-6 [direction:rtl]">
                   {course.title}
                 </p>
               ) : (
-                <h3 className= "self-stretch font-cairo w-fit text-left whitespace-wrap relative flex items-center max-w-[100%] font-medium text-text text-base leading-6 [direction:rtl]">
+                <h3 className="self-stretch font-cairo w-fit text-left whitespace-wrap relative flex items-center max-w-[100%] font-medium text-text text-base leading-6 [direction:rtl]">
                   {`${course.title?.length > 30 ? course?.title?.slice(0, 30) + "..." : course.title}`}
                 </h3>
               )}
@@ -575,10 +624,10 @@ const SubMenu = ({ course, subItems }) => {
   const links =
     Array.isArray(subItems) && subItems.length > 0
       ? subItems.map((s, idx) => ({
-          key: s.key || `sub-${idx}`,
-          href: s.link || "#",
-          title: s.title,
-        }))
+        key: s.key || `sub-${idx}`,
+        href: s.link || "#",
+        title: s.title,
+      }))
       : null;
 
   if (!links) return null;

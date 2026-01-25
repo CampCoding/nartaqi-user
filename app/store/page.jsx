@@ -258,11 +258,11 @@ const Store = () => {
       <PagesBanner
         variant="normal"
         objectPosition={"object-[50%_80%]"}
-        title={"متجر الكتب"}
+        title={"المتجر"}
         image={"/images/Frame 1000004928.png"}
         breadcrumb={[
           { title: "الرئيسية", link: "/" },
-          { title: "متجر الكتب", link: "/store" },
+          { title: "المتجر", link: "/store" },
         ]}
       />
 
