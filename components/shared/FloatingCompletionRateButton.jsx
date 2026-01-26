@@ -12,7 +12,8 @@ export default function FloatingCompletionRateButton({
 
 
   const user = useSelector(state => state.auth)
- if (!user) return null
+  console.log("useruseruser" , user)
+ if (!user.user) return null
 
 
   return (
