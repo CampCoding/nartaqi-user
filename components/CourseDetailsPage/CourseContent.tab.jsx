@@ -422,9 +422,9 @@ export const TestRow = ({ examData, isRegistered }) => {
         <div className="w-full lg:w-auto flex items-center justify-between lg:justify-end gap-3 sm:gap-4 lg:gap-5">
           <div className="flex items-center gap-3 sm:gap-4">
 
-            {exam.date && isBlocked && (
+            {examData?.show_date && isBlocked && (
               <span className="text-text-alt text-xs sm:text-sm whitespace-nowrap">
-                متاح في {new Date(exam.date).toLocaleDateString("ar-EG", {
+                متاح في {new Date(examData?.show_date).toLocaleDateString("ar-EG", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
