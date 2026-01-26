@@ -170,9 +170,9 @@ const ExamDetails = ({ params }) => {
                       : "للأسف، لم تنجح في الاختبار"}
                   </div>
                   {
-                    +examData.max_score_percentage > 0 &&
+                    +examData.student_max_score_percentage > 0 &&
                     <div className=" text-sm sm:text-base lg:text-base mt-2 text-center px-4 backdrop-blur-sm  "> إنجازك الأفضل حتى الآن
-                      <div>( {examData.max_score_percentage}% )</div></div>
+                      <div>( {examData.student_max_score_percentage}% )</div></div>
                   }
 
                 </div>

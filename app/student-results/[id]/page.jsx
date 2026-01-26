@@ -1,19 +1,16 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import React, { useMemo, useState } from "react";
+import { useParams } from "next/navigation";
 
 import PagesBanner from "../../../components/ui/PagesBanner";
 import { StudentResultCard } from "../../../components/ui/Cards/StudentResultCard";
 import Container from "../../../components/ui/Container";
 
 import useGetStudentAchievementResults from "../../../components/shared/Hooks/useGetStudentAchievementResults";
-import { useDispatch } from "react-redux";
-
+import ResultsImagesSliderModal from "../../../components/ui/Modals/ResultsImagesSliderModal";
 const StudentsResults = () => {
-  const {id : categoryPartId} = useParams()
-  // ✅ expected url: /students-results?category_part_id=48
-
+  const { id: categoryPartId } = useParams();
 
   const { results, categoryPart, loading, error, refetch } =
     useGetStudentAchievementResults(categoryPartId, {
@@ -24,8 +21,9 @@ const StudentsResults = () => {
     return categoryPart?.name || "درجات الطلاب بالقدرات";
   }, [categoryPart?.name]);
 
-  const dispatch = useDispatch();
-
+  // ✅ modal state
+  const [sliderOpen, setSliderOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   if (!categoryPartId) {
     return (
@@ -63,7 +61,6 @@ const StudentsResults = () => {
       />
 
       <Container className="mt-[32px] mb-[100px]">
-        {/* header info */}
         <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
           <div>
             <p className="text-sm text-neutral-500">
@@ -86,7 +83,6 @@ const StudentsResults = () => {
           </button>
         </div>
 
-        {/* states */}
         {loading ? (
           <div className="py-14 text-center text-neutral-600">
             جاري تحميل النتائج...
@@ -112,12 +108,28 @@ const StudentsResults = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-4">
-            {results.map((item) => (
-              <StudentResultCard key={item.id} item={item} />
+            {results.map((item, idx) => (
+              <StudentResultCard
+                key={item.id}
+                item={item}
+                onOpenImages={() => {
+                  setActiveIndex(idx);
+                  setSliderOpen(true);
+                }}
+              />
             ))}
           </div>
         )}
       </Container>
+
+      {/* ✅ modal */}
+      <ResultsImagesSliderModal
+        open={sliderOpen}
+        onClose={() => setSliderOpen(false)}
+        items={results}
+        initialIndex={activeIndex}
+        title={bannerTitle}
+      />
     </div>
   );
 };

@@ -20,8 +20,9 @@ import {
 } from "@/components/utils/Store/Slices/cartSlice";
 import useHandleFavoriteActions from "../shared/Hooks/useHandleFavoriteActions";
 import useEnrollInCourse from "../shared/Hooks/useEnroll";
+import cx from "../../lib/cx";
 
-const CourseDetailsCard = ({ courseData, onSubscribe }) => {
+const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -192,10 +193,10 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
   }
 
   return (
-    <div className="w-full max-w-[460px] px-4 sm:px-5 pt-5 sm:pt-6 relative bg-white rounded-[30px] sm:rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] overflow-hidden">
+    <div className="w-full lg:text-white max-w-[460px] px-4 sm:px-5 pt-5 sm:pt-6 relative bg-white rounded-[30px] sm:rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] overflow-hidden">
       {/* Image */}
       <div
-        className="w-full h-52 sm:h-60 relative bg-black/20 rounded-[22px] sm:rounded-[28px] overflow-hidden"
+        className={cx("w-full h-52 sm:h-60 relative bg-black/20 rounded-[22px] sm:rounded-[28px] overflow-hidden", scrolled ? "hidden" : "visible")}
         style={{
           backgroundImage: `url('${round.image_url}')`,
           backgroundSize: "cover",
@@ -315,10 +316,9 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
             disabled={isCartLoading}
             aria-label={isInCart ? "حذف من السلة" : "إضافة إلى السلة"}
             className={`flex-1 px-3 py-3 rounded-[14px] sm:rounded-[16px] border border-1 border-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200
-              ${
-                isInCart && !isCartLoading
-                  ? "bg-red-50 border-red-500 hover:bg-red-100 group"
-                  : isCartLoading
+              ${isInCart && !isCartLoading
+                ? "bg-red-50 border-red-500 hover:bg-red-100 group"
+                : isCartLoading
                   ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
                   : "bg-white border-secondary hover:bg-secondary group"
               }`}
@@ -381,10 +381,9 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
             disabled={isFavLoading}
             aria-label={isFavorited ? "إزالة من المفضلة" : "إضافة للمفضلة"}
             className={`flex px-3 py-3 rounded-[14px] sm:rounded-[16px] border border-1 border-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200
-              ${
-                isFavorited && !isFavLoading
-                  ? "bg-red-50 border-red-500 hover:bg-red-100 group"
-                  : isFavLoading
+              ${isFavorited && !isFavLoading
+                ? "bg-red-50 border-red-500 hover:bg-red-100 group"
+                : isFavLoading
                   ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
                   : "bg-white border-secondary hover:bg-secondary group"
               }`}
@@ -428,11 +427,10 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
           onClick={handleSubscribe}
           disabled={isEnrollLoading || round.capacity - round?.students_count <= 0}
           // disabled={true}
-          className={` ${ "disabled:!bg-gray-300 disabled:!cursor-not-allowed" }  w-full px-3.5 py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group
-            ${
-              isEnrollLoading
-                ? "bg-gray-300 cursor-wait"
-                : "bg-secondary hover:bg-secondary-warm focus:bg-primary"
+          className={` ${"disabled:!bg-gray-300 disabled:!cursor-not-allowed"}  w-full px-3.5 py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group
+            ${isEnrollLoading
+              ? "bg-gray-300 cursor-wait"
+              : "bg-secondary hover:bg-secondary-warm focus:bg-primary"
             }`}
         >
           {isEnrollLoading ? <div className="spinner" /> : null}
@@ -444,11 +442,11 @@ const CourseDetailsCard = ({ courseData, onSubscribe }) => {
           href={`/course-preview/${roundId}`}
           className={`w-full px-3.5 mt-3 bg-primary py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group
            `}
-          >
+        >
           <span className="text-center justify-center text-slate-200 text-xs sm:text-[13px] font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
-           الشروحات المجانية 
-            </span>
-          </Link>
+            الشروحات المجانية
+          </span>
+        </Link>
       </div>
 
       <style jsx>{`

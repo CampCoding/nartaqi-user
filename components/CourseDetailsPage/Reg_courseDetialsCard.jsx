@@ -119,7 +119,7 @@ const RegCourseDetailsCard = ({
   const roundId = round?.id || courseData?.id;
 
   return (
-    <div className="overflow-hidden w-full bg-white rounded-[22px] sm:rounded-[28px] lg:rounded-[34px] shadow-[0px_4px_15px_0px_rgba(0,0,0,0.14)] sm:shadow-[0px_6px_25px_0px_rgba(0,0,0,0.22)]">
+    <div className="w-full max-w-[460px] px-4 sm:px-5 pt-5 sm:pt-6 relative bg-white rounded-[30px] sm:rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] overflow-hidden">
       {/* inner padding */}
       <div className="px-4 sm:px-5 lg:px-6 pt-4 sm:pt-5 lg:pt-6 pb-4 sm:pb-5">
         {/* Cover */}
@@ -179,10 +179,10 @@ const RegCourseDetailsCard = ({
                   })
                 );
               }}
-              className="p-2 sm:p-2.5 bg-black/20 backdrop-blur-sm rounded-full group hover:bg-white/30 transition-colors duration-200 cursor-pointer active:scale-90"
+              className="p-2 hover:scale-110 active:scale-95 sm:p-2.5 bg-black/20 backdrop-blur-sm rounded-full group hover:bg-white/30 transition-colors duration-200 cursor-pointer "
               aria-label="مشاركة الدورة"
             >
-              <ShareIcon className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-white stroke-white group-hover:stroke-secondary" />
+              <ShareIcon className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-white stroke-white " />
             </button>
           </div>
         </div>

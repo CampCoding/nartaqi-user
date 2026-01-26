@@ -62,9 +62,9 @@ const CourseContent = ({ isRegistered, courseData }) => {
       <Navs selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
 
       {selectedTab === "foundation" && (
-        <div className="flex flex-col gap-4 md:gap-5">
+        <div className="  flex flex-col gap-4 md:gap-5">
           {foundationContents.length > 0 ? (
-            foundationContents.map((content) => (
+            [...foundationContents, ...foundationContents, ...foundationContents].map((content) => (
               <CourseContentDrawer
                 key={content.id}
                 content={content}
@@ -330,8 +330,20 @@ export const TestRow = ({ examData, isRegistered }) => {
 
   const hasContent = videos.length > 0 || exam_pdfs.length > 0;
 
+
+
+  const examDate = examData?.show_date ? new Date(examData?.show_date) : null;
+  const isFutureExam = examDate ? examDate.getTime() > Date.now() : false;
+  const isBlocked = !isRegistered || isFutureExam;
+
+  
+
+
   return (
     <div
+      title={
+        !isRegistered ? "يجب التسجيل في الدورة أولاً 🔒" : isFutureExam ? "هذا الاختبار لم يبدأ بعد ⏳" : ""
+      }
       className={cx(
         "flex flex-col relative bg-white rounded-[22px] md:rounded-[26px] border-2 border-solid transition-all border-zinc-300",
         isExpanded ? "shadow-xl" : "hover:shadow-2xl"
@@ -339,7 +351,12 @@ export const TestRow = ({ examData, isRegistered }) => {
     >
       {/* Main Row */}
       <div
-        onClick={() => hasContent && setIsExpanded(!isExpanded)}
+        onClick={() =>{
+
+          hasContent && setIsExpanded(!isExpanded)
+
+
+        }}
         className={cx(
           "flex flex-col lg:flex-row items-start lg:items-center justify-between",
           "p-4 sm:p-5 lg:px-7 lg:py-7",
@@ -354,30 +371,43 @@ export const TestRow = ({ examData, isRegistered }) => {
           )}
           <Link
             href={
-              isRegistered
-                ? exam.type == "mock"
+              isBlocked
+                ? "#"
+                : exam.type === "mock"
                   ? `/mock-test/${exam.id}`
                   : `/intern-test-details/${exam.id}`
-                : "#"
             }
             onClick={(e) => {
-              if (!isRegistered) {
+              console.log("examData" , examData)
+              if (isBlocked) {
                 e.preventDefault();
-                alert("يجب التسجيل في الدورة أولاً 🔒");
+
+                if (!isRegistered) {
+                  alert("يجب التسجيل في الدورة أولاً 🔒");
+                } else if (isFutureExam) {
+                  alert("هذا الاختبار لم يبدأ بعد ⏳");
+                }
               }
+
               e.stopPropagation();
             }}
-            className="font-medium text-text text-sm sm:text-base md:text-lg hover:text-primary hover:underline  transition-all line-clamp-2 sm:line-clamp-1"
+            className={[
+              "font-medium text-text text-sm sm:text-base md:text-lg transition-all line-clamp-2 sm:line-clamp-1",
+              isBlocked
+                ? "pointer-events-auto opacity-60 cursor-not-allowed hover:no-underline hover:text-text"
+                : "hover:text-primary hover:underline",
+            ].join(" ")}
+            aria-disabled={isBlocked}
           >
-            {exam.title || "غير محدد"} {"  "}{" "}
-            {exam.type == "mock" ? (
+            {exam.title || "غير محدد"}{" "}
+            {exam.type === "mock" ? (
               <span className="text-primary">(محــاكي)</span>
             ) : (
-              <span className="text-secondary">(تدريـــــب) </span>
+              <span className="text-secondary">(تدريـــــب)</span>
             )}
           </Link>
 
-          {exam.level && (
+          {/* {exam.level && (
             <span
               className={`text-xs md:text-sm px-2.5 py-1 rounded-full whitespace-nowrap ${getLevelColor(
                 exam.level
@@ -385,27 +415,31 @@ export const TestRow = ({ examData, isRegistered }) => {
             >
               {getLevelLabel(exam.level)}
             </span>
-          )}
+          )} */}
         </div>
 
         {/* Time + Date */}
         <div className="w-full lg:w-auto flex items-center justify-between lg:justify-end gap-3 sm:gap-4 lg:gap-5">
           <div className="flex items-center gap-3 sm:gap-4">
-            {exam.date && (
-              <span className="text-text-alt text-xs sm:text-sm md:text-base whitespace-nowrap">
-                {exam.date}
+
+            {exam.date && isBlocked && (
+              <span className="text-text-alt text-xs sm:text-sm whitespace-nowrap">
+                متاح في {new Date(exam.date).toLocaleDateString("ar-EG", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
               </span>
             )}
-            <span className="text-text-alt text-xs sm:text-sm md:text-base whitespace-nowrap">
+            <span className="text-text-alt text-xs sm:text-sm whitespace-nowrap">
               {formatTime(exam.time)}
             </span>
           </div>
 
           {hasContent && (
             <div
-              className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 flex-shrink-0 ${
-                isExpanded ? "rotate-180" : "rotate-0"
-              }`}
+              className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 flex-shrink-0 ${isExpanded ? "rotate-180" : "rotate-0"
+                }`}
               aria-hidden="true"
             >
               <svg
@@ -556,15 +590,14 @@ export const TestRow = ({ examData, isRegistered }) => {
                           <span className="font-medium text-text text-sm md:text-base line-clamp-1">
                             {pdf.title}
                           </span>
-                          <span
-                            className={`text-xs md:text-sm px-2.5 py-1 rounded-full whitespace-nowrap ${
-                              pdf.type === "question"
-                                ? "bg-blue-100 text-blue-600"
-                                : "bg-green-100 text-green-600"
-                            }`}
+                          {/* <span
+                            className={`text-xs md:text-sm px-2.5 py-1 rounded-full whitespace-nowrap ${pdf.type === "question"
+                              ? "bg-blue-100 text-blue-600"
+                              : "bg-green-100 text-green-600"
+                              }`}
                           >
                             {pdf.type === "question" ? "أسئلة" : "إجابات"}
-                          </span>
+                          </span> */}
                         </div>
 
                         {pdf.description && (
@@ -631,9 +664,15 @@ export const TestRow = ({ examData, isRegistered }) => {
           {isRegistered && (
             <div className="flex justify-center pt-2">
               <Link
-                href={`/mock-test/${exam.id}`}
-                className="inline-flex items-center gap-2 px-7 sm:px-9 py-3.5 bg-primary text-white rounded-2xl hover:opacity-90 transition-opacity font-medium text-sm md:text-base"
-              >
+                href={
+                  isBlocked
+                  ? "#"
+                  : exam.type === "mock"
+                    ? `/mock-test/${exam.id}`
+                    : `/intern-test-details/${exam.id}`
+                }
+                  className={["inline-flex items-center gap-2 px-7 sm:px-9 py-3.5 bg-primary text-white rounded-2xl hover:opacity-90 transition-opacity font-medium text-sm md:text-base", isBlocked ? "pointer-events-auto opacity-60 cursor-not-allowed hover:no-underline hover:text-text" : "hover:text-primary hover:underline"].join(" ")}
+                >
                 <svg
                   className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0"
                   fill="none"

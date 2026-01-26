@@ -121,7 +121,7 @@ const CourseDetailsPage = () => {
   const isRegistered = !!courseData?.own;
   const isFree = courseData?.round?.free == 1 ;
   return (
-    <div>
+    <div className="">
       <CourseTitle
         title={courseData?.round?.name}
         breadcrumbs={[
@@ -131,10 +131,11 @@ const CourseDetailsPage = () => {
         ]}
       />
 
+
       {isRegistered || isFree ? (
-        <Reg_courseDetails open={isRegistered || isFree} courseData={courseData} />
+        <Reg_courseDetails open={isRegistered || isFree} courseData={courseData}/>
       ) : (
-        <NotReg_courseDetails courseData={courseData} onSubscribe={fetchCourseData} /> 
+        <NotReg_courseDetails courseData={courseData} onSubscribe={fetchCourseData}/> 
       )}
     </div>
   );

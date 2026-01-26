@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -29,6 +29,21 @@ const Reg_courseDetails = ({ courseData, open }) => {
   const [openShareDrawer, setOpenShareDrawer] = React.useState(false);
   const [isFavorited, setIsFavorited] = React.useState(courseData.fav);
   const { data } = useSelector((s) => s.videoModal);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY >= 700);
+    };
+
+    onScroll(); // initial
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+
+
+
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -184,8 +199,8 @@ const Reg_courseDetails = ({ courseData, open }) => {
               rootClassName="w-full"
             />
           )}
-
-          <Container className="px-3 sm:px-4">
+          
+          <Container className="px-3 sm:px-4 ">
             <div className="space-y-6 sm:space-y-8">
               <RegCourseDetailsContent
                 courseData={courseData}
@@ -224,8 +239,8 @@ const Reg_courseDetails = ({ courseData, open }) => {
             />
           )}
 
-          <Container className="mt-10 xl:mt-12 relative z-30">
-            <div className="flex gap-8 xl:gap-6 justify-between items-start">
+          <Container className="mt-10 xl:mt-12 relative z-30  ">
+            <div className="flex ov gap-8 xl:gap-6 justify-between items-start">
               {/* Left content */}
               <div className="max-w-[762px] w-full">
                 <RegCourseDetailsContent
@@ -238,8 +253,8 @@ const Reg_courseDetails = ({ courseData, open }) => {
               {/* Right sidebar */}
               <div
                 className={cx(
-                  "space-y-12 xl:space-y-14 lg:sticky lg:top-[160px]",
-                  watch ? "" : " translate-y-[-441px]"
+                  "space-y-12 xl:space-y-14 transition-all lg:sticky lg:top-[160px]",
+                  watch || scrolled ? "" : " translate-y-[-441px]"
                 )}
               >
                 <RegCourseDetailsCard

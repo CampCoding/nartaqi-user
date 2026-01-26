@@ -182,8 +182,8 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full sticky top-0 z-50 bg-white shadow-sm py-[20px] md:py-[35.5px] lg:py-[35.5px]">
-      <Container className="flex items-center justify-between">
+    <header className="w-full sticky top-0 z-50 bg-white shadow-sm py-[20px] md:py-[35.5px] ">
+      <Container className="  flex items-center justify-between">
         {/* Logo */}
         <Link href={"/"} className="flex items-center space-x-2">
           <img

@@ -15,6 +15,7 @@ import { useHomeData } from "../hooks/useHomeData";
 import { Icon } from "@iconify/react";
 import LoadingPage from "../components/shared/Loading";
 import { useSelector } from "react-redux";
+import CursorLabelSection from "../components/ui/CursorLabelSection";
 
 export default function Home() {
   const user = useSelector((state) => state.auth);
@@ -66,9 +67,9 @@ export default function Home() {
   return (
     <>
       <TopServices />
-
       <div className="hidden md:block">
         <HeaderHero />
+      <CursorLabelSection />
       </div>
 
       <div className="block md:hidden">

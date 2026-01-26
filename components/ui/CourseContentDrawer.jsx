@@ -25,6 +25,7 @@ import { useSelector } from "react-redux";
 import CheckboxButton from "./CheckboxButton";
 import { InfoIcon } from "./../../public/svgs";
 import { Modal } from "antd";
+import CursorLabelSection from "./CursorLabelSection";
 
 // ==================== ENCODING/DECODING HELPERS ====================
 export const encodeId = (value) => {
@@ -69,6 +70,14 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
   const closeInfo = () => setInfoOpen(false);
 
   return (
+    <CursorLabelSection stop={true} label={<div className="">
+      { isRegistered && own && !content?.was_opened && content?.show_date && (
+        <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
+          متاح في: {content.show_date}
+        </div>
+      )}
+    </div>}>
+
     <div
       className={cx(
         "self-stretch w-full transition-all bg-white rounded-2xl md:rounded-[24px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] outline outline-2 outline-offset-[-1px] outline-neutral-300 inline-flex flex-col justify-start items-start",
@@ -80,7 +89,7 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
         className="self-stretch px-5 md:px-7 py-5 md:py-7 inline-flex justify-between items-start cursor-pointer"
         onClick={handleToggle}
       >
-        <div>
+        <div> 
           <div className="text-right flex items-start gap-2 justify-center text-text text-base md:text-lg font-bold">
             <button
               type="button"
@@ -93,7 +102,7 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
 
             <div className="">
               <div>{content.content_title || "غير محدد"}</div>
-              {!content?.was_opened && content?.show_date && (
+              { isRegistered && own && !content?.was_opened && content?.show_date && (
                 <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
                   متاح في: {content.show_date}
                 </div>
@@ -177,6 +186,9 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
           </div>
         ))}
     </div>
+
+    </CursorLabelSection>
+
   );
 };
 
@@ -483,7 +495,7 @@ export const RegLectureDrawer = ({
           <h1 className="font-bold cursor-pointer flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
             {lesson.lesson_title || "غير محدد"}
           </h1>
-          { !lesson?.was_opened && lesson?.show_date && (
+          { isRegistered && own && !lesson?.was_opened && lesson?.show_date && (
             <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
                   متاح في: {lesson.show_date}
                 </div>
