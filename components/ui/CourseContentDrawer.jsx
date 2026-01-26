@@ -557,7 +557,7 @@ export const RegLectureDrawer = ({
                         // ✅ المسجّل هو اللي يفتح الفيديو
                         isRegistered ? (
                           <Link
-                            href={ lesson.was_opened  ?{
+                            href={ lesson.was_opened && isSectionOpen  ?{
                               pathname,
                               query: buildVideoQuery(item),
                               hash: "player",
@@ -569,7 +569,7 @@ export const RegLectureDrawer = ({
                             //   }
                             // }}
                           >
-                            <h2 className="cursor-pointer font-medium ...">
+                            <h2 onClick={()=> console.log("isSectionOpen" , isSectionOpen)} className="cursor-pointer font-medium ...">
                               {item.title || "غير محدد"}
                             </h2>
                           </Link>

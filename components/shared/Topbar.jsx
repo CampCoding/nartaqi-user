@@ -47,14 +47,12 @@ export default function Header() {
     if (key === "my-courses") return router.push("/my-courses"); // عدّل اللينك
     if (key === "account")
       return router.push(user?.type == "marketer" ? "/marketer-profile" : "/profile");
-    if (key === "progress") return router.push("/achievements"); // عدّل اللينك
+    if (key === "progress") return router.push("/course-rate"); // عدّل اللينك
     if (key === "logout") {
       // ✅ الأفضل لو عندك logout action
       // dispatch(logout());
-
       // ✅ حل عام (لو مفيش logout action): امسح التوكن/اليوزر من التخزين ثم روح للّوجين
       handleLogout()
-    
     }
   };
 

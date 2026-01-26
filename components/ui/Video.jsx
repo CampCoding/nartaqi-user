@@ -7,9 +7,10 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { Pause, RotateCcw, RotateCw } from "lucide-react";
+import { Pause, Play, RotateCcw, RotateCw } from "lucide-react";
 import cx from "../../lib/cx";
 import { useSearchParams } from "next/navigation";
+import Container from "./Container";
 
 const PlayerType = {
   VIMEO: "vimeo",
@@ -681,18 +682,19 @@ export default function VideoPlayer({
     <div className={`w-full ${rootClassName}`}>
       {/* Platform Toggle Buttons */}
       {hasBothPlatforms && (
-        <div className="flex items-center justify-center gap-3 my-4">
+      // {true && (
+        <Container className="flex items-center justify-start gap-3 my-4">
           <button
             onClick={() => handlePlatformSwitch(PlayerType.VIMEO)}
             className={cx(
               "flex items-center gap-2 px-5 py-2.5 rounded-full font-medium transition-all duration-300 transform hover:scale-105",
               activePlatform === PlayerType.VIMEO
-                ? "bg-[#1ab7ea] text-white shadow-lg shadow-[#1ab7ea]/30"
+                ? "_bg-[#1ab7ea] bg-primary text-white shadow-lg shadow-primary-bg"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             )}
           >
-            <VimeoIcon className="w-5 h-5" />
-            <span>Vimeo</span>
+            <Play className="w-5 h-5" />
+            <span>مشغل 1</span>
             {activePlatform === PlayerType.VIMEO && (
               <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
             )}
@@ -703,42 +705,43 @@ export default function VideoPlayer({
             className={cx(
               "flex items-center gap-2 px-5 py-2.5 rounded-full font-medium transition-all duration-300 transform hover:scale-105",
               activePlatform === PlayerType.YOUTUBE
-                ? "bg-[#FF0000] text-white shadow-lg shadow-[#FF0000]/30"
+                ? "_bg-[#FF0000] bg-primary text-white shadow-lg shadow-[#FF0000]/30"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             )}
           >
-            <YouTubeIcon className="w-5 h-5" />
-            <span>YouTube</span>
+            <Play className="w-5 h-5" />
+            <span>مشغل  2</span>
             {activePlatform === PlayerType.YOUTUBE && (
               <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
             )}
           </button>
-        </div>
+        </Container>
       )}
 
       {/* Single Platform Badge */}
-      {!hasBothPlatforms && (
+      {/* {!hasBothPlatforms && ( */}
+      {/* {!hasBothPlatforms  &&(
         <div className="flex items-center justify-start p-3">
           <div
             className={cx(
-              "flex items-center gap-2 px-4 py-2 rounded-full font-medium text-white",
-              hasVimeo ? "bg-[#1ab7ea]" : "bg-[#FF0000]"
+              "flex items-center gap-2 px-4 py-2 rounded-full font-medium text-white bg-primary",
+              // hasVimeo ? "bg-[#1ab7ea]" : "bg-[#FF0000]"
             )}
           >
             {hasVimeo ? (
               <>
-                <VimeoIcon className="w-5 h-5" />
-                <span>Vimeo Player</span>
+                <Play className="w-5 h-5" />
+                <span> مشغل 1 </span>
               </>
             ) : (
               <>
-                <YouTubeIcon className="w-5 h-5" />
-                <span>YouTube Player</span>
+                <Play className="w-5 h-5" />
+                <span>مشغل 2</span>
               </>
             )}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Video Player Container */}
       <div
@@ -861,7 +864,7 @@ export default function VideoPlayer({
         )}
 
         {/* Platform Badge */}
-        {isReady && !isLoading && (
+        {/* {isReady && !isLoading && (
           <div className="absolute top-4 left-4 z-20">
             <div
               className={cx(
@@ -881,7 +884,7 @@ export default function VideoPlayer({
               </span>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Controls */}
         <div

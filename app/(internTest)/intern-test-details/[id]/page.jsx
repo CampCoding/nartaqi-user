@@ -121,7 +121,7 @@ const InternTestDetails = ({ params }) => {
 
 
 
-  const isSuccess = +examData?.score_percentage >= +  examData?.exam_info.success_percentage;
+  const isSuccess = +examData?.score_percentage >= +examData?.exam_info.success_percentage;
 
 
 
@@ -137,7 +137,7 @@ const InternTestDetails = ({ params }) => {
           { title: examData?.exam_info.title, link: "#" },
         ]}
       />
-  
+
       {!showResults && (
         <Container className=" mt-6 sm:mt-8 lg:mt-10 mb-8 sm:mb-12 lg:mb-16">
           <ExamDetailsHeader examData={examData} />
@@ -162,7 +162,7 @@ const InternTestDetails = ({ params }) => {
                   <div className="text-right text-primary text-xl sm:text-2xl lg:text-3xl font-semibold mb-6 sm:mb-8">
                     نتيجة الأختبار
                   </div>
-                  <CircularProgress value={+examData?.score_percentage.toFixed("2") || +examData?.student_max_score_percentage.toFixed("2") || 0} />
+                  <CircularProgress value={+examData?.score_percentage.toFixed("2") ?? 0} />
                   <div
                     className={`${isSuccess ? "text-green-600" : "text-red-600"
                       } text-sm sm:text-base lg:text-lg font-bold bg-white mt-2 text-center px-4 py-2 rounded-lg`}
@@ -182,6 +182,19 @@ const InternTestDetails = ({ params }) => {
           </div>
 
           <div className="flex flex-col sm:flex-row sm:justify-between gap-4 sm:gap-6">
+          <Link href={`/course/${examData?.round_id}`}>
+              <button
+                type="button"
+                aria-label="الرجوع إلى الدورة"
+                className="w-full sm:w-auto flex items-center justify-center gap-2.5 p-[2px] rounded-3xl bg-gradient-to-r from-primary to-secondary cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                <div className="flex items-center justify-center gap-2.5 px-8 sm:px-12 lg:px-16 py-3 sm:py-4 w-full bg-white rounded-3xl transition-all duration-200 hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                  <div className="text-secondary font-bold text-base sm:text-lg lg:text-xl leading-tight whitespace-nowrap">
+                    الرجوع إلى الدورة
+                  </div>
+                </div>
+              </button>
+            </Link>
             {!endExam && (
               <>
                 {" "}

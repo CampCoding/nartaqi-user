@@ -238,7 +238,7 @@ const Reg_courseDetails = ({ courseData, open }) => {
               {/* Right sidebar */}
               <div
                 className={cx(
-                  "space-y-12 xl:space-y-14",
+                  "space-y-12 xl:space-y-14 lg:sticky lg:top-[160px]",
                   watch ? "" : " translate-y-[-441px]"
                 )}
               >

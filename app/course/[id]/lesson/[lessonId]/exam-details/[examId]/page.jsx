@@ -119,7 +119,7 @@ const ExamDetails = ({ params }) => {
   }
 
 
-  const isSuccess = (+examData.student_max_score_percentage || +examData?.score_percentage) >= +  examData?.exam_info.success_percentage;
+  const isSuccess = (+examData.score_percentage) >= +  examData?.exam_info.success_percentage;
 
 
   return (
@@ -160,7 +160,7 @@ const ExamDetails = ({ params }) => {
                   <div className="text-right text-primary text-xl sm:text-2xl lg:text-3xl font-semibold mb-6 sm:mb-8">
                     نتيجة الأختبار
                   </div>
-                  <CircularProgress value= { +examData?.score_percentage.toFixed("2") || +examData?.student_max_score_percentage.toFixed("2") || 0} />
+                  <CircularProgress value= {+examData?.score_percentage.toFixed("2") ?? 0} />
                   <div
                     className={`${isSuccess ? "text-green-600" : "text-red-600"
                       } text-sm sm:text-base lg:text-lg font-bold bg-white mt-2 text-center px-4 py-2 rounded-lg`}
