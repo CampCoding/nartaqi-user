@@ -83,7 +83,7 @@ const toAnsweredQuestions = (sections = []) => {
         correctId,
         isSolved: !!q?.is_solved,
         explanation:
-          options.find((o) => o.id === correctId)?.explanation || "لا يوجد شرح",
+          options.find((o) => o.id === correctId)?.explanation || null,
         answers: options.map((o) => ({
           id: o.id,
           text: o.text,
@@ -123,7 +123,7 @@ const toAnsweredQuestions = (sections = []) => {
           correctId,
           isSolved: !!q?.is_solved,
           explanation:
-            options.find((o) => o.id === correctId)?.explanation || "لا يوجد شرح",
+            options.find((o) => o.id === correctId)?.explanation || null,
           answers: options.map((o) => ({
             id: o.id,
             text: o.text,
@@ -381,12 +381,15 @@ export const AnsweredQuestion = ({ questionData }) => {
         </div>
 
         {/* Explanation */}
+        {
+          questionData.explanation &&
         <aside className="w-full">
           <p className="text-sm sm:text-base text-text flex gap-2 leading-normal sm:leading-relaxed" >
             <span className="font-bold"> الشرح: </span>
             <span className="" dangerouslySetInnerHTML={{ __html: questionData.explanation.replaceAll(/&nbsp;/ig, " ") }} />
           </p>
         </aside>
+        }
       </section>
     </main>
   );

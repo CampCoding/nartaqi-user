@@ -18,13 +18,7 @@ const headerData = [
      
     ],
   },
-  {
-    key: "my courses",
-    className: "text-text text-base leading-6 whitespace-nowrap",
-    title: "دوراتي",
-    link:"/my-courses",
-    ifLoggedIn: true,
-  },
+ 
 
   {
     key: "competitions",
@@ -208,6 +202,13 @@ const headerData = [
         target: "_blank",
       },
     ],
+  },
+  {
+    key: "my courses",
+    className: "text-text text-base leading-6 whitespace-nowrap",
+    title: "دوراتي",
+    link:"/my-courses",
+    ifLoggedIn: true,
   },
 ];
 

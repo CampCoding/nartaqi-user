@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { ListCheck, SupportIcon } from "../../public/svgs";
 import Link from "next/link";
 import Container from "../ui/Container";
@@ -9,54 +9,58 @@ export const AboutUs = ({
   showCTA = true,
 
   // ✅ Choose ONE of these:
-  youtubeId = "dQw4w9WgXcQ", // put your real ID, or set to "" / null to disable
+  youtubeId = "dQw4w9WgXcQ", // set to "" / null to disable
   mp4Src = "", // e.g. "/videos/about.mp4"
 
-  // ✅ Placeholder image (used if no video OR while not in view)
+  // ✅ Placeholder image
   placeholderImage = "/images/Frame 32.png",
 }) => {
-  const rightMediaRef = useRef(null);
   const videoRef = useRef(null);
-
-  const [inView, setInView] = useState(false);
-
-  useEffect(() => {
-    const el = rightMediaRef.current;
-    if (!el) return;
-
-    const obs = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      { threshold: 0.35 }
-    );
-
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
-  // ✅ autoplay/pause for MP4 only
-  useEffect(() => {
-    if (!mp4Src) return;
-    const v = videoRef.current;
-    if (!v) return;
-
-    if (inView) {
-      v.muted = true;
-      v.playsInline = true;
-      const p = v.play();
-      if (p && typeof p.catch === "function") p.catch(() => { });
-    } else {
-      v.pause();
-    }
-  }, [inView, mp4Src]);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const hasYoutube = !!youtubeId;
   const hasMp4 = !!mp4Src;
 
-  // ✅ YouTube autoplay only when in view
-  const youtubeSrc = hasYoutube
-    ? `https://www.youtube.com/embed/${youtubeId}?autoplay=${inView ? 1 : 0
-    }&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1`
-    : "";
+  const youtubeSrc = useMemo(() => {
+    if (!hasYoutube || !isPlaying) return "";
+    // start playing only after click (autoplay=1 happens only after user gesture)
+    return `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=0&playsinline=1&controls=1&rel=0&modestbranding=1`;
+  }, [hasYoutube, youtubeId, isPlaying]);
+
+  const handlePlayClick = async () => {
+    // If MP4 exists => play it
+    if (hasMp4) {
+      setIsPlaying(true);
+
+      // wait next tick so <video> is in DOM and ref is ready
+      requestAnimationFrame(async () => {
+        const v = videoRef.current;
+        if (!v) return;
+        try {
+          v.playsInline = true;
+          // muted optional: many sites want muted autoplay; but we're click-to-play, so you can keep sound
+          // v.muted = false;
+          await v.play();
+        } catch {
+          // ignore
+        }
+      });
+
+      return;
+    }
+
+    // If YouTube exists => mount iframe and autoplay (after user click)
+    if (hasYoutube) {
+      setIsPlaying(true);
+    }
+  };
+
+  // Optional: if you want click again to stop MP4 and show placeholder
+  const handleStopMp4 = () => {
+    const v = videoRef.current;
+    if (v) v.pause();
+    setIsPlaying(false);
+  };
 
   return (
     <Container className="md:py-[48px] py-8 relative bg-bg overflow-hidden flex md:flex-row flex-col items-center justify-between md:gap-4 gap-8">
@@ -145,12 +149,9 @@ export const AboutUs = ({
       </div>
 
       {/* ✅ Right side media */}
-      <div
-        ref={rightMediaRef}
-        className="md:block hidden justify-center w-full md:w-auto"
-      >
+      <div className="md:block hidden justify-center w-full md:w-auto">
         <div className="relative md:w-[620px] w-full aspect-video rounded-3xl overflow-hidden">
-          {/* Placeholder behind */}
+          {/* Placeholder */}
           <img
             loading="lazy"
             src={placeholderImage}
@@ -158,18 +159,50 @@ export const AboutUs = ({
             className="absolute inset-0 w-full h-full object-cover"
           />
 
-          {/* Prefer MP4 if provided, else YouTube, else only placeholder */}
-          {hasMp4 ? (
-            <video
-              ref={videoRef}
-              className="absolute inset-0 w-full h-full object-cover"
-              src={mp4Src}
-              muted
-              playsInline
-              controls
-              preload="metadata"
-            />
-          ) : hasYoutube ? (
+          {/* Click overlay (Play button) */}
+          {!isPlaying && (hasMp4 || hasYoutube) && (
+            <button
+              type="button"
+              onClick={handlePlayClick}
+              className="absolute inset-0 grid place-items-center bg-black/20 hover:bg-black/30 transition"
+              aria-label="تشغيل الفيديو"
+            >
+              <span className="grid place-items-center w-16 h-16 rounded-full bg-white/90">
+                {/* simple play icon */}
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M8 5v14l11-7-11-7z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+            </button>
+          )}
+
+          {/* MP4 (mounted only after click) */}
+          {hasMp4 && isPlaying ? (
+            <div className="absolute inset-0">
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                src={mp4Src}
+                controls
+                playsInline
+                preload="metadata"
+              />
+              {/* optional stop button */}
+              <button
+                type="button"
+                onClick={handleStopMp4}
+                className="absolute top-3 right-3 px-3 py-2 rounded-xl bg-black/60 text-white text-xs font-bold"
+              >
+                إيقاف
+              </button>
+            </div>
+          ) : null}
+
+          {/* YouTube (mounted only after click) */}
+          {!hasMp4 && hasYoutube && isPlaying ? (
             <iframe
               className="absolute inset-0 w-full h-full"
               src={youtubeSrc}

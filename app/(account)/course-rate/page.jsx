@@ -510,17 +510,17 @@ export default function CompletionRatePage() {
               {/* 1. Summary Cards */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <StatCard
-                  title="الأساسيات"
+                  title="تدريبات التأسيس"
                   value={message.basic_percentage}
                   color="blue"
                 />
                 <StatCard
-                  title="المحاضرات"
+                  title=" تدريبات المحاضرات"
                   value={message.lecture_percentage}
                   color="purple"
                 />
                 <StatCard
-                  title="الدورة الكاملة"
+                  title="الاختبارات"
                   value={message.full_round_percentage}
                   color="green"
                 />
@@ -541,7 +541,7 @@ export default function CompletionRatePage() {
               
               {/* SECTION: BASIC */}
               <ContentSection
-                title="الأساسيات"
+                title="تدريبات التأسيس"
                 icon={<BookOutlined className="text-blue-500" />}
                 items={basicItems}
                 emptyText="لا توجد أساسيات في هذه الدورة"
@@ -549,7 +549,7 @@ export default function CompletionRatePage() {
 
               {/* SECTION: LECTURE */}
               <ContentSection
-                title="المحاضرات"
+                title="تدريبات المحاضرات"
                 icon={<VideoCameraOutlined className="text-purple-500" />}
                 items={lectureItems}
                 emptyText="لا توجد محاضرات في هذه الدورة"
@@ -557,7 +557,7 @@ export default function CompletionRatePage() {
 
               {/* SECTION: FULL ROUND */}
               <ContentSection
-                title="الاختبارات الشاملة"
+                title="الاختبارات"
                 icon={<TrophyOutlined className="text-yellow-500" />}
                 items={fullRoundItems}
                 emptyText="لا توجد اختبارات شاملة"

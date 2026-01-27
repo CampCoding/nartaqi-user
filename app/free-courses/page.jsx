@@ -246,7 +246,14 @@ function FreeVideoCard({ video }) {
   };
 
   return (
-    <div className="group rounded-2xl border border-neutral-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition">
+    <Link 
+    href={ playable ?  { pathname, query: buildVideoQuery(), hash: "player" } : "#"}
+
+    onClick={(e) => {
+      e.stopPropagation();
+      openModal();
+    }}
+    className="group rounded-2xl border border-neutral-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition">
       <div className="relative w-full aspect-video bg-neutral-100 overflow-hidden">
         {video.thumb ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -270,7 +277,7 @@ function FreeVideoCard({ video }) {
           // </div>
         )}
 
-        <PlatformBadge platform={video.platform} />
+        {/* <PlatformBadge platform={video.platform} /> */}
 
         {!!formatDuration(video.durationSec) && (
           <div className="absolute bottom-2 right-2 px-2 py-1 text-xs rounded-md bg-black/70 text-white">
@@ -319,7 +326,7 @@ function FreeVideoCard({ video }) {
           <div className="mt-2 text-sm text-neutral-500">لا يوجد رابط فيديو</div>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
 

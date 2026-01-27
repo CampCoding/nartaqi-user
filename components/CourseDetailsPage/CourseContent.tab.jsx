@@ -64,7 +64,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
       {selectedTab === "foundation" && (
         <div className="  flex flex-col gap-4 md:gap-5">
           {foundationContents.length > 0 ? (
-            [...foundationContents, ...foundationContents, ...foundationContents].map((content) => (
+            foundationContents.map((content) => (
               <CourseContentDrawer
                 key={content.id}
                 content={content}
@@ -671,7 +671,7 @@ export const TestRow = ({ examData, isRegistered }) => {
                     ? `/mock-test/${exam.id}`
                     : `/intern-test-details/${exam.id}`
                 }
-                  className={["inline-flex items-center gap-2 px-7 sm:px-9 py-3.5 bg-primary text-white rounded-2xl hover:opacity-90 transition-opacity font-medium text-sm md:text-base", isBlocked ? "pointer-events-auto opacity-60 cursor-not-allowed hover:no-underline hover:text-text" : "hover:text-primary hover:underline"].join(" ")}
+                  className={["inline-flex items-center gap-2 px-7 sm:px-9 py-3.5 bg-primary text-white rounded-2xl hover:opacity-90 transition-opacity font-medium text-sm md:text-base", isBlocked ? "pointer-events-auto opacity-60 cursor-not-allowed hover:no-underline hover:text-text" : " hover:shadow-2xl hover:scale-105 !transition-all "].join(" ")}
                 >
                 <svg
                   className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0"
