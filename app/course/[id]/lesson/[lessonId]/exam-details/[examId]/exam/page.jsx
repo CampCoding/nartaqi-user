@@ -91,7 +91,7 @@ const ExamPage = () => {
           `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/get_exam_sectionsWithQuestions`,
           {
             exam_id: examId,
-            lesson_id: id,
+            lesson_id: lessonId,
             student_id: user?.id,
           },
           {
