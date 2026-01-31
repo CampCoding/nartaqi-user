@@ -1,8 +1,68 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useMemo, useState } from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
 import Container from "../../components/ui/Container";
 
+const ENDPOINT =
+  "https://camp-coding.site/nartaqi/public/api/user/settings/getSupportInfo";
+
+function normalizePhoneForLink(phone) {
+  return String(phone || "").replace(/[^\d+]/g, "");
+}
+
+function buildWhatsAppLink(phone, message) {
+  const num = normalizePhoneForLink(phone).replace(/^\+/, ""); // wa.me بدون +
+  const text = encodeURIComponent(message || "");
+  return `https://wa.me/${num}?text=${text}`;
+}
+
 const TechnicalSupport = () => {
+  const [loading, setLoading] = useState(true);
+  const [info, setInfo] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const res = await fetch(ENDPOINT, { method: "GET" });
+        const data = await res.json();
+
+        if (!mounted) return;
+        setInfo(data?.message ?? null);
+      } catch (e) {
+        if (!mounted) return;
+        setError("تعذر تحميل بيانات الدعم حالياً. حاول مرة أخرى.");
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const isActive = !!info?.active;
+
+  const showWhatsApp = isActive && !!info?.show_whatsapp && !!info?.whatsapp_number;
+  const showEmail = isActive && !!info?.show_email && !!info?.support_email;
+  const showPhone = isActive && !!info?.phone_number;
+
+  const whatsappHref = useMemo(() => {
+    if (!showWhatsApp) return "#";
+    return buildWhatsAppLink(info.whatsapp_number, info.whatsapp_message);
+  }, [showWhatsApp, info]);
+
+  const emailText = info?.support_email || "—";
+  const phoneText = info?.phone_number || "—";
+
   return (
     <div>
       <PagesBanner
@@ -11,14 +71,8 @@ const TechnicalSupport = () => {
         image="/images/Frame 1000005434.png"
         title={"الدعم الفني"}
         breadcrumb={[
-          {
-            title: "الرئيسية",
-            link: "/",
-          },
-          {
-            title: "الدعم الفني",
-            link: "/services",
-          },
+          { title: "الرئيسية", link: "/" },
+          { title: "الدعم الفني", link: "/services" },
         ]}
       />
 
@@ -28,49 +82,124 @@ const TechnicalSupport = () => {
             ما هي قنوات الدعم الفني؟
           </h1>
 
-          <div className="flex flex-col items-start gap-6 sm:gap-8 self-stretch w-full relative flex-[0_0_auto]">
-            {/* WhatsApp Support */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 relative flex-[0_0_auto] w-full ">
-              <div className="self-stretch flex items-center  w-full sm:w-[291px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
-                المحادثة المباشرة في المنصة
-              </div>
-              <a
-                href="#"
-                className="inline-flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-3 bg-[#24ab28] rounded-[12px] sm:rounded-[15px] relative flex-[0_0_auto] w-full sm:w-auto hover:bg-[#1e8f23] transition-colors duration-200"
-              >
-                <div className="w-6 h-6 sm:w-6 sm:h-6 flex-shrink-0">
-                  <WhatsappIcon />
-                </div>
-                <p className="w-fit font-semibold  text-white text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal] text-center">
-                  عبر واتساب من هنا
-                </p>
-              </a>
+          {/* Loading / Error */}
+          {loading ? (
+            <div className="w-full rounded-2xl border bg-white p-4 sm:p-5">
+              <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
+              <div className="mt-3 h-3 w-full bg-gray-200 rounded animate-pulse" />
+              <div className="mt-2 h-3 w-5/6 bg-gray-200 rounded animate-pulse" />
             </div>
+          ) : error ? (
+            <div className="w-full rounded-2xl border bg-red-50 p-4 sm:p-5 text-red-700">
+              {error}
+            </div>
+          ) : !isActive ? (
+            <div className="w-full rounded-2xl border bg-white p-4 sm:p-5">
+              <p className="font-semibold text-text">الدعم الفني غير متاح حالياً.</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                يرجى المحاولة لاحقاً.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-start gap-6 sm:gap-8 self-stretch w-full relative flex-[0_0_auto]">
+              {/* WhatsApp Support */}
+              {showWhatsApp && (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 relative flex-[0_0_auto] w-full ">
+                  <div className="self-stretch flex items-center w-full sm:w-[291px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
+                    واتساب
+                  </div>
 
-            {/* Email Support */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6  self-stretch w-full relative flex-[0_0_auto]">
-              <div className="self-stretch w-full flex items-center  sm:w-[268px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
-                البريد الإلكتروني
-              </div>
-              <div className="inline-flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-3 relative flex-[0_0_auto] bg-primary rounded-[12px] sm:rounded-[15px] w-full sm:w-auto">
-                <div className="w-6 h-6 sm:w-6 sm:h-6 flex-shrink-0">
-                  <EmailIcon />
+                  <a
+                    href={whatsappHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-3 bg-[#24ab28] rounded-[12px] sm:rounded-[15px] relative flex-[0_0_auto] w-full sm:w-auto hover:bg-[#1e8f23] transition-colors duration-200"
+                  >
+                    <div className="w-6 h-6 sm:w-6 sm:h-6 flex-shrink-0">
+                      <WhatsappIcon />
+                    </div>
+                    <p className="w-fit font-semibold text-white text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal] text-center">
+                      عبر واتساب من هنا
+                    </p>
+                  </a>
+
+                  {/* الرقم (اختياري) */}
+                  {/* <div className="text-xs text-muted-foreground break-all sm:break-normal">
+                    {info?.whatsapp_number}
+                  </div> */}
                 </div>
-                <div className="relative w-fit mt-[-1.00px] font-semibold text-white text-sm sm:text-base text-center sm:text-right tracking-[0] leading-[normal] break-all sm:break-normal">
-                  Qudrat@albaraah.sa
+              )}
+
+              {/* Phone Support */}
+              {showPhone && (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 self-stretch w-full relative flex-[0_0_auto]">
+                  <div className="self-stretch w-full flex items-center sm:w-[268px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
+                    رقم الهاتف
+                  </div>
+
+                  <a
+                    href={`tel:${normalizePhoneForLink(info.phone_number)}`}
+                    className="inline-flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-3 relative flex-[0_0_auto] bg-text rounded-[12px] sm:rounded-[15px] w-full sm:w-auto hover:opacity-90 transition"
+                  >
+                    <div className="w-6 h-6 sm:w-6 sm:h-6 flex-shrink-0">
+                      <PhoneIcon />
+                    </div>
+                    <div className="relative w-fit mt-[-1.00px] font-semibold text-white text-sm sm:text-base text-center sm:text-right tracking-[0] leading-[normal]">
+                      {phoneText}
+                    </div>
+                  </a>
                 </div>
-              </div>
+              )}
+
+              {/* Email Support */}
+              {showEmail && (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 self-stretch w-full relative flex-[0_0_auto]">
+                  <div className="self-stretch w-full flex items-center sm:w-[268px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
+                    البريد الإلكتروني
+                  </div>
+
+                  <a
+                    href={`mailto:${emailText}`}
+                    className="inline-flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-3 relative flex-[0_0_auto] bg-primary rounded-[12px] sm:rounded-[15px] w-full sm:w-auto hover:opacity-90 transition"
+                  >
+                    <div className="w-6 h-6 sm:w-6 sm:h-6 flex-shrink-0">
+                      <EmailIcon />
+                    </div>
+                    <div className="relative w-fit mt-[-1.00px] font-semibold text-white text-sm sm:text-base text-center sm:text-right tracking-[0] leading-[normal] break-all sm:break-normal">
+                      {emailText}
+                    </div>
+                  </a>
+                </div>
+              )}
             </div>
-          </div>
+          )}
         </div>
 
+        {/* Dynamic text from API (optional) */}
+        {!loading && !error && isActive && (info?.working_hours_text || info?.response_time_text) ? (
+          <div className="flex flex-col gap-3 sm:gap-4 mb-8 sm:mb-10">
+            {info?.working_hours_text ? (
+              <div className="rounded-2xl border bg-white p-4">
+                <p className="font-bold text-primary">ساعات العمل</p>
+                <p className="mt-1 text-sm text-text">{info.working_hours_text}</p>
+              </div>
+            ) : null}
+
+            {info?.response_time_text ? (
+              <div className="rounded-2xl border bg-white p-4">
+                <p className="font-bold text-primary">وقت الاستجابة</p>
+                <p className="mt-1 text-sm text-text">{info.response_time_text}</p>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        {/* Your static sections (keep as-is) */}
         <div className="flex flex-col gap-8 sm:gap-10 lg:gap-[48px]">
-          {/* Response Times Section */}
           <div className="flex flex-col items-start gap-6 sm:gap-8 relative">
             <h2 className="mt-[-1.00px] font-bold text-primary text-lg sm:text-xl lg:text-[24px] relative self-stretch tracking-[0] leading-[normal]">
               ما هي الأوقات التي سيتم الإجابة فيها على استفساراتي؟
             </h2>
-
             <p className="font-medium text-text text-sm sm:text-base relative self-stretch tracking-[0] leading-6 sm:leading-7">
               خلال أوقات الدوام الرسمي من الأحد إلى الخميس من الساعة 10 صباحا
               حتى الساعة 4 مساء، يكون الرد خلال ساعة من خلال المحادثة المباشرة
@@ -80,12 +209,10 @@ const TechnicalSupport = () => {
             </p>
           </div>
 
-          {/* Problem Resolution Section */}
           <div className="flex flex-col items-start gap-6 sm:gap-8 relative">
             <h2 className="mt-[-1.00px] font-bold text-primary text-lg sm:text-xl lg:text-[24px] relative self-stretch tracking-[0] leading-[normal]">
               الوقت المتوقع لمعالجة المشكلة
             </h2>
-
             <p className="font-medium text-text text-sm sm:text-base relative self-stretch tracking-[0] leading-6 sm:leading-7">
               ستتم معالجة المشاكل الأساسية (غير التقنية) خلال 24 ساعة من وقت
               الرد بينما يتم معالجة المشاكل التقنية خلال أسبوع إلى أسبوعين وفي
@@ -101,6 +228,7 @@ const TechnicalSupport = () => {
 
 export default TechnicalSupport;
 
+/* Icons */
 const WhatsappIcon = (props) => (
   <svg
     width="100%"
@@ -128,6 +256,22 @@ const EmailIcon = (props) => (
   >
     <path
       d="M29.3327 8.50065C29.3327 7.03398 28.1327 5.83398 26.666 5.83398H5.33268C3.86602 5.83398 2.66602 7.03398 2.66602 8.50065V24.5007C2.66602 25.9673 3.86602 27.1673 5.33268 27.1673H26.666C28.1327 27.1673 29.3327 25.9673 29.3327 24.5007V8.50065ZM26.666 8.50065L15.9993 15.1673L5.33268 8.50065H26.666ZM26.666 24.5007H5.33268V11.1673L15.9993 17.834L26.666 11.1673V24.5007Z"
+      fill="white"
+    />
+  </svg>
+);
+
+const PhoneIcon = (props) => (
+  <svg
+    width="100%"
+    height="100%"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      d="M6.6 10.8c1.2 2.4 3.2 4.4 5.6 5.6l1.9-1.9c.2-.2.5-.3.8-.2 1 .3 2 .5 3.1.5.4 0 .7.3.7.7V19c0 .4-.3.7-.7.7C10.8 19.7 4.3 13.2 4.3 5.9c0-.4.3-.7.7-.7H8c.4 0 .7.3.7.7 0 1.1.2 2.1.5 3.1.1.3 0 .6-.2.8l-1.9 1.9Z"
       fill="white"
     />
   </svg>

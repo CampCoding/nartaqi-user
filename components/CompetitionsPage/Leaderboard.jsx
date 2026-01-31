@@ -21,7 +21,7 @@ const Leaderboard = () => {
   return (
     <div className="w-full min-h-[400px] sm:min-h-[600px] lg:min-h-[670px] pt-8 sm:pt-12 lg:pt-[48px] bg-[url('/images/Leaderboard-section-background.png')] bg-cover bg-center px-4 sm:px-6 lg:px-0">
       <Container className={"flex flex-col items-center"}>
-        <Navs activeTab={activeTab} onChange={setActiveTab} />
+        <CompetitionsNavs activeTab={activeTab} onChange={setActiveTab} title={"لوحة المتصدرين"} />
 
         {/* small status line (optional) */}
         <div className="w-full max-w-[1000px] mt-4 flex items-center justify-center">
@@ -85,7 +85,7 @@ const Leaderboard = () => {
 
 export default Leaderboard;
 
-export const Navs = ({ activeTab, onChange }) => {
+export const CompetitionsNavs = ({ activeTab, onChange , title }) => {
   const tabData = [
     { id: "monthly", label: "شهرية" },
     { id: "weekly", label: "أسبوعية" },
@@ -94,9 +94,14 @@ export const Navs = ({ activeTab, onChange }) => {
 
   return (
     <div className="flex flex-col lg:flex-row w-full mx-auto justify-between items-center gap-4 lg:gap-0 relative">
+      {
+        title ?
       <h1 className="flex text-primary font-bold text-xl sm:text-2xl lg:text-3xl leading-tight relative items-center justify-center w-fit text-center [direction:rtl] order-2 lg:order-1">
-        لوحة المتصدرين
+       {title}
       </h1>
+      :
+      <div></div>
+      }
 
       <div className="inline-flex justify-center lg:justify-end px-4 sm:px-6 py-3 sm:py-4 flex-[0_0_auto] bg-primary-light rounded-[20px] sm:rounded-[25px] lg:rounded-[30px] border-0 border-none items-center relative order-1 lg:order-2 w-full sm:w-auto overflow-x-auto scrollbar-hide hidden-scroll">
         <div className="flex items-center gap-1 sm:gap-2 min-w-max">

@@ -1,65 +1,105 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { RatingStarIcon } from "../../../public/svgs";
 
-export const LecturerCard = () => {
+const FALLBACK_AVATAR = "https://avatars.hsoubcdn.com/default";
 
-  // 1. Define your data for a lecturer
-const lecturerData = {
-  name: "خالد عبد الرحمن يوسف",
-  title: "محاضر في إتقان التدريس الفعال",
-  imageUrl: "/images/Image-12422.png", // Or any other image path
-  rating: 4.5,
-  reviews: 1450,
-  socialLinks: [
-    { name: "Instagram", url: "#", icon: <InstagramIcon /> },
-    { name: "LinkedIn", url: "#", icon: <LinkedInIcon /> },
-    { name: "Facebook", url: "#", icon: <FacebookIcon /> },
-  ],
-};
+export const LecturerCard = ({ lecturer }) => {
+  const name = lecturer?.name || "—";
+  const title = lecturer?.description || lecturer?.gender || "—";
+  const initialSrc =
+    lecturer?.image || lecturer?.image_url || "/images/Image-12422.png";
 
-// 2. Render the component in your application
-// <LecturerCard lecturer={lecturerData} />
+  const [imgSrc, setImgSrc] = useState(initialSrc);
+  const [imgLoading, setImgLoading] = useState(true);
 
-  const { name, title, imageUrl, rating, reviews, socialLinks } = lecturerData;
+  // لو الـ lecturer اتغير (كارت جديد) لازم نرجّع الصورة للحالة الطبيعية
+  React.useEffect(() => {
+    setImgSrc(initialSrc);
+    setImgLoading(true);
+  }, [initialSrc]);
+
+  const socialLinks = useMemo(() => {
+    const links = [];
+    if (lecturer?.instagram)
+      links.push({ name: "Instagram", url: lecturer.instagram, icon: <InstagramIcon /> });
+    if (lecturer?.linkedin)
+      links.push({ name: "LinkedIn", url: lecturer.linkedin, icon: <LinkedInIcon /> });
+    if (lecturer?.facebook)
+      links.push({ name: "Facebook", url: lecturer.facebook, icon: <FacebookIcon /> });
+    if (lecturer?.youtube)
+      links.push({ name: "YouTube", url: lecturer.youtube, icon: <YouTubeIcon /> });
+    if (lecturer?.twitter)
+      links.push({ name: "Twitter", url: lecturer.twitter, icon: <TwitterIcon /> });
+    if (lecturer?.website)
+      links.push({ name: "Website", url: lecturer.website, icon: <WebsiteIcon /> });
+    return links;
+  }, [lecturer]);
+
+  const rating = lecturer?.rating ?? null;
+  const reviews = lecturer?.reviews ?? null;
 
   return (
-    <article className="inline-flex w-full md:max-w-sm flex-col items-center gap-6 rounded-[30px] border-2 border-solid border-neutral-300 bg-white p-8 md:p-12">
-      <div
-        className="h-28 w-28 rounded-full bg-cover bg-center md:h-[124px] md:w-[124px]"
-        style={{ backgroundImage: `url(${imageUrl})` }}
-        role="img"
-        aria-label={`${name} profile picture`}
-      />
+    <article className="inline-flex w-full md:max-w-sm flex-col items-center gap-6 rounded-[30px] border-2 border-solid border-neutral-300 bg-white p-4 md:p-8">
+      {/* Avatar wrapper */}
+      <div className="relative h-28 w-28 md:h-[124px] md:w-[124px]">
+        {/* ✅ Skeleton أثناء التحميل */}
+        {imgLoading ? (
+          <div className="absolute inset-0 rounded-full bg-gray-200 animate-pulse" />
+        ) : null}
+
+        <img
+          src={imgSrc}
+          alt={`${name} profile picture`}
+          className={`h-full w-full rounded-full object-cover border border-neutral-200 transition-opacity duration-300 ${
+            imgLoading ? "opacity-0" : "opacity-100"
+          }`}
+          loading="lazy"
+          onLoad={() => setImgLoading(false)}
+          onError={() => {
+            // لو فشلنا مرة، بدّل للفولباك فقط (علشان ما تعملش loop)
+            if (imgSrc !== FALLBACK_AVATAR) {
+              setImgSrc(FALLBACK_AVATAR);
+              setImgLoading(false);
+            } else {
+              setImgLoading(false);
+            }
+          }}
+        />
+      </div>
 
       <div className="inline-flex flex-col items-center gap-4">
         <header className="flex w-full flex-col items-center">
           <h1 className="text-center text-xl font-bold text-text [direction:rtl]">
             {name}
           </h1>
-          <p className="text-center text-base font-medium text-text-alt [direction:rtl]">
+
+          <p className="text-center text-base font-medium text-text-alt [direction:rtl] line-clamp-2">
             {title}
           </p>
         </header>
 
-        <div className="inline-flex flex-col items-center gap-3">
-          <div
-            className="inline-flex items-center gap-2"
-            role="group"
-            aria-label="Rating information"
-          >
-            <RatingStarIcon className="h-5 w-5" />
-
+        {/* Rating (اختياري) */}
+        {rating !== null ? (
+          <div className="inline-flex flex-col items-center gap-3">
             <div
-              className="font-medium text-text-duplicate text-xl"
-              aria-label={`Rating ${rating} out of 5 stars with ${reviews} reviews`}
+              className="inline-flex items-center gap-2"
+              role="group"
+              aria-label="Rating information"
             >
-              {rating} ({reviews})
+              <RatingStarIcon className="h-5 w-5" />
+              <div className="font-medium text-text-duplicate text-xl">
+                {rating}
+                {reviews !== null ? ` (${reviews})` : ""}
+              </div>
             </div>
           </div>
+        ) : null}
 
+        {/* Social */}
+        {socialLinks.length ? (
           <nav
             aria-label="Social media links"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 flex-wrap justify-center"
           >
             {socialLinks.map((social) => (
               <a
@@ -75,11 +115,32 @@ const lecturerData = {
               </a>
             ))}
           </nav>
-        </div>
+        ) : null}
       </div>
     </article>
   );
 };
+
+
+/** ✅ أضف أيقونات ناقصة (YouTube/Twitter/Website) */
+const YouTubeIcon = (props) => (
+  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" {...props} xmlns="http://www.w3.org/2000/svg">
+    <path d="M21.8 8.001a2.75 2.75 0 0 0-1.94-1.95C18.15 5.5 12 5.5 12 5.5s-6.15 0-7.86.551A2.75 2.75 0 0 0 2.2 8.001 28.6 28.6 0 0 0 2 12a28.6 28.6 0 0 0 .2 3.999 2.75 2.75 0 0 0 1.94 1.95C5.85 18.5 12 18.5 12 18.5s6.15 0 7.86-.551a2.75 2.75 0 0 0 1.94-1.95A28.6 28.6 0 0 0 22 12a28.6 28.6 0 0 0-.2-3.999Z" fill="#3B82F6"/>
+    <path d="M10.5 14.75v-5.5L15.25 12l-4.75 2.75Z" fill="#fff"/>
+  </svg>
+);
+
+const TwitterIcon = (props) => (
+  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" {...props} xmlns="http://www.w3.org/2000/svg">
+    <path d="M18.9 2H22l-6.8 7.8L23.4 22h-6.6l-5.2-6.7L5.8 22H2.6l7.3-8.4L.9 2h6.8l4.7 6.1L18.9 2Zm-1.2 18h1.7L8.2 3.9H6.3L17.7 20Z" fill="#3B82F6"/>
+  </svg>
+);
+
+const WebsiteIcon = (props) => (
+  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" {...props} xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm7.8 9H16.9a16 16 0 0 0-1.2-6 8.03 8.03 0 0 1 4.1 6ZM12 4c1 1.4 1.8 3.6 2.2 7H9.8C10.2 7.6 11 5.4 12 4Zm-3.7 1a16 16 0 0 0-1.2 6H4.2a8.03 8.03 0 0 1 4.1-6ZM4.2 13h2.9a16 16 0 0 0 1.2 6 8.03 8.03 0 0 1-4.1-6Zm5.6 0h4.4c-.4 3.4-1.2 5.6-2.2 7-1-1.4-1.8-3.6-2.2-7Zm6 6a16 16 0 0 0 1.2-6h2.9a8.03 8.03 0 0 1-4.1 6Z" fill="#3B82F6"/>
+  </svg>
+);
 
 export const FacebookIcon = (props) => (
   <svg

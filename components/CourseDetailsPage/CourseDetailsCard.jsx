@@ -303,9 +303,12 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
           <div className="justify-center text-primary text-xl sm:text-2xl font-bold">
             {round.price} ر.س
           </div>
-          <div className="justify-center text-text text-[11px] sm:text-xs font-medium">
-            (شاملة كتاب الدورة بصيغة PDF)
-          </div>
+          {
+            round.round_book_url && 
+            <div className="justify-center text-text text-[11px] sm:text-xs font-medium">
+              (شاملة كتاب الدورة بصيغة PDF)
+            </div>
+          }
         </div>
 
         <div className="mt-4 mb-4 sm:mb-5 w-full inline-flex justify-end items-center gap-3 sm:gap-4">

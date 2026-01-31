@@ -1,34 +1,142 @@
 "use client";
 
-import React from "react";
+import React, { useMemo, useState } from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
 import { CheckIcon } from "../../public/svgs";
 import Container from "../../components/ui/Container";
+import { useSupportGate } from "../../components/shared/Hooks/useSupportGate";
+import { detectVideoType } from "../../lib/parseVideoLink";
+import { useDispatch } from "react-redux";
+import { openVideoModal } from "../../components/utils/Store/Slices/videoModalSlice";
+
+
+
+const fallbackImages = [
+  "/images/support_1.png",
+  "/images/support-2.png",
+  "/images/support-3.png",
+];
+
+function toYoutubeEmbed(url) {
+  if (!url) return null;
+
+  try {
+    const u = new URL(url);
+
+    // youtu.be/VIDEO_ID
+    if (u.hostname.includes("youtu.be")) {
+      const id = u.pathname.replace("/", "");
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+
+    // youtube.com/watch?v=VIDEO_ID
+    if (u.hostname.includes("youtube.com")) {
+      const v = u.searchParams.get("v");
+      if (v) return `https://www.youtube.com/embed/${v}`;
+
+      // youtube.com/embed/VIDEO_ID
+      if (u.pathname.startsWith("/embed/")) {
+        return `https://www.youtube.com${u.pathname}`;
+      }
+    }
+
+    // لو اللينك أصلاً embed أو أي لينك تاني—نحاول نرجعه زي ما هو
+    return url;
+  } catch {
+    return url;
+  }
+}
+
+const VideoModal = ({ open, onClose, title, youtubeUrl }) => {
+  if (!open) return null;
+
+  const embedUrl = toYoutubeEmbed(youtubeUrl);
+
+  return (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title || "تشغيل الفيديو"}
+    >
+      {/* overlay */}
+      <button
+        className="absolute inset-0 bg-black/60"
+        onClick={onClose}
+        aria-label="إغلاق"
+        type="button"
+      />
+
+      {/* modal */}
+      <div className="relative w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-xl">
+        <div className="flex items-center justify-between gap-3 border-b p-4">
+          <h3 className="text-base md:text-lg font-bold text-secondary">
+            {title || "فيديو الدعم"}
+          </h3>
+
+          <button
+            className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-50"
+            onClick={onClose}
+            type="button"
+          >
+            إغلاق
+          </button>
+        </div>
+
+        <div className="aspect-video w-full bg-black">
+          {embedUrl ? (
+            <iframe
+              className="h-full w-full"
+              src={embedUrl}
+              title={title || "Support Video"}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-white">
+              لا يوجد رابط فيديو صالح
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const SupportGate = () => {
-  const supportData = [
-    {
-      title: "إدارة حسابك الطلابي",
-      description: "تعلم كيفية إدارة ملفك الشخصي كطالب والإعدادات",
-      image: "/images/support_1.png",
-      buttonAria: "تشغيل الفيديو التعليمي لإدارة الحساب الطلابي",
-      onPlay: () => alert("تشغيل الفيديو 🎬"),
-    },
-    {
-      title: "كيفية التسجيل في الدورات",
-      description: "دليل خطوة بخطوة لتسجيل الدورة",
-      image: "/images/support-2.png",
-      buttonAria: "تشغيل الفيديو التعليمي لإدارة الحساب الطلابي",
-      onPlay: () => alert("تشغيل الفيديو 🎬"),
-    },
-    {
-      title: "جولة في الصف الافتراضي",
-      description: "تصفح بيئة التعلم الافتراضية الخاصة بنا",
-      image: "/images/support-3.png",
-      buttonAria: "تشغيل الفيديو التعليمي لإدارة الحساب الطلابي",
-      onPlay: () => alert("تشغيل الفيديو 🎬"),
-    },
-  ];
+  const { items, loading, error, page, setPage, next, prev, pagination } =
+    useSupportGate({ initialPage: 1 });
+
+  const [videoOpen, setVideoOpen] = useState(false);
+  const [activeVideo, setActiveVideo] = useState(null); // { title, youtube_link }
+
+  const supportData = useMemo(() => {
+    // API returns: items => [{id,title,youtube_link,description}]
+    return (items || []).map((x, idx) => ({
+      id: x.id,
+      title: x.title,
+      description: x.description || "—",
+      youtube_link: x.youtube_link,
+      image: fallbackImages[idx % fallbackImages.length], // ✅ صور محلية بديلة
+      buttonAria: `تشغيل الفيديو التعليمي: ${x.title || "فيديو الدعم"}`,
+    }));
+  }, [items]);
+
+  const dispatch = useDispatch()
+
+  const onPlay = (item) => {
+
+    console.log(item.youtube_link)
+
+    dispatch(
+      openVideoModal({
+        title: (item.title || "").trim(),
+        vimeoId:  "",
+        youtubeId: item.youtube_link ?? "",
+        autoplay: true,
+      })
+    );
+  };
 
   return (
     <div>
@@ -38,24 +146,73 @@ const SupportGate = () => {
         image={"/images/Frame 1000005153.png"}
         objectPosition={"100%_100%"}
         breadcrumb={[
-          {
-            title: "الرئيسية",
-            link: "/",
-          },
-          {
-            title: "بوابة الدعم",
-            link: "/",
-          },
+          { title: "الرئيسية", link: "/" },
+          { title: "بوابة الدعم", link: "/" },
         ]}
       />
+
       <Container className="space-y-[64px] mt-[48px] mb-[74px]">
-        <div className="grid grid-cols-1 gap-4 md:gap-[32px]">
-          {supportData.map((item, index) => {
-            return <SupportSection key={index} data={item} />;
-          })}
-        </div>
-        <GuideLines />
+        {/* حالة التحميل/الخطأ */}
+        {loading ? (
+          <div className="rounded-2xl border bg-white p-6 text-center">
+            جاري تحميل بوابة الدعم...
+          </div>
+        ) : error ? (
+          <div className="rounded-2xl border bg-white p-6 text-center">
+            <p className="text-red-600">حدث خطأ: {error}</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 gap-4 md:gap-[32px]">
+              {supportData.map((item) => (
+                <SupportSection
+                  key={item.id}
+                  data={{
+                    ...item,
+                    onPlay: () => onPlay(item),
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Pagination (لو فيه صفحات) */}
+            {pagination?.lastPage > 1 ? (
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={prev}
+                  disabled={page === 1}
+                  className="rounded-xl border px-4 py-2 disabled:opacity-50"
+                  type="button"
+                >
+                  السابق
+                </button>
+
+                <div className="text-sm text-text">
+                  صفحة {pagination.currentPage} من {pagination.lastPage}
+                </div>
+
+                <button
+                  onClick={next}
+                  disabled={page === pagination.lastPage}
+                  className="rounded-xl border px-4 py-2 disabled:opacity-50"
+                  type="button"
+                >
+                  التالي
+                </button>
+              </div>
+            ) : null}
+
+            <GuideLines />
+          </>
+        )}
       </Container>
+
+      <VideoModal
+        open={videoOpen}
+        onClose={() => setVideoOpen(false)}
+        title={activeVideo?.title}
+        youtubeUrl={activeVideo?.youtube_link}
+      />
     </div>
   );
 };
@@ -86,6 +243,7 @@ export const SupportSection = ({ data }) => {
             aria-label={data.buttonAria || "تشغيل الفيديو"}
             type="button"
             onClick={data.onPlay}
+            disabled={!data.youtube_link} // ✅ لو مفيش فيديو
           >
             <div className="relative h-7 w-7 md:h-12 md:w-12">
               <svg
@@ -111,30 +269,14 @@ export const SupportSection = ({ data }) => {
 
 export const GuideLines = () => {
   const guidelines = [
-    {
-      text: "تأكد من وجود اتصال إنترنت مستقر قبل الانضمام إلى أي جلسة",
-    },
-    {
-      text: "استخدم بيئة هادئة ومضاءة جيدا لتحسين تجربة التعلم.",
-    },
-    {
-      text: "توجه إلى الجلسات المباشرة قبل 5 دقائق للتحقق من إعدادك",
-    },
-    {
-      text: "احتفظ بميكروفونك مكتوما عند عدم التحدث",
-    },
-    {
-      text: "استخدم سماعات الرأس لمنع ردود الفعل الصوتية",
-    },
-    {
-      text: "شارك بنشاط في المناقشات عندما يطلب منك",
-    },
-    {
-      text: "أكمل جميع المواد التمهيدية المعينة",
-    },
-    {
-      text: "قم بتدوين الملاحظات خلال الجلسات لتحسين الاحتفاظ بالمعلومات.",
-    },
+    { text: "تأكد من وجود اتصال إنترنت مستقر قبل الانضمام إلى أي جلسة" },
+    { text: "استخدم بيئة هادئة ومضاءة جيدا لتحسين تجربة التعلم." },
+    { text: "توجه إلى الجلسات المباشرة قبل 5 دقائق للتحقق من إعدادك" },
+    { text: "احتفظ بميكروفونك مكتوما عند عدم التحدث" },
+    { text: "استخدم سماعات الرأس لمنع ردود الفعل الصوتية" },
+    { text: "شارك بنشاط في المناقشات عندما يطلب منك" },
+    { text: "أكمل جميع المواد التمهيدية المعينة" },
+    { text: "قم بتدوين الملاحظات خلال الجلسات لتحسين الاحتفاظ بالمعلومات." },
   ];
 
   return (
@@ -144,33 +286,27 @@ export const GuideLines = () => {
           <h1 className="self-stretch mt-[-1.00px] font-bold text-[#2d2d2d] text-2xl tracking-[-0.60px] leading-6 relative">
             إرشادات لاستخدام الصف الافتراضي
           </h1>
-          {/* ✅ Removed whitespace-nowrap and fixed height */}
           <p className="self-stretch text-text-alt text-base leading-5 relative">
             القواعد الهامة وأفضل الممارسات
           </p>
         </div>
       </header>
+
       <main className="flex-col items-start gap-4 px-6 py-0 self-stretch w-full flex-[0_0_auto] flex relative">
         {guidelines.map((guideline, index) => (
           <div
             key={index}
             className="w-full md:w-[550px] items-start justify-start gap-3 flex-[0_0_auto] flex relative"
           >
-            {/* ✅ Icon container with flex-shrink-0 to prevent icon from shrinking */}
-            <div
-              className="relative w-6 h-6 flex-shrink-0"
-              role="img"
-              aria-label="تم"
-            >
+            <div className="relative w-6 h-6 flex-shrink-0" role="img" aria-label="تم">
               <div className="relative w-[21px] h-[21px] top-px left-px">
                 <div className="relative h-[21px]">
                   <CheckIcon />
                 </div>
               </div>
             </div>
-            {/* ✅ Removed fixed height (h-5) and inline-flex, using flex-1 for proper text wrapping */}
+
             <div className="flex-1 items-center justify-start relative">
-              {/* ✅ Changed to text-wrap and md:whitespace-nowrap for responsive behavior */}
               <p className="w-full text-[#2d2d2d] text-sm text-right leading-5 break-words md:whitespace-nowrap relative">
                 {guideline.text}
               </p>
