@@ -59,6 +59,7 @@ export function useGetAllCompetitions(options = {}) {
   
       const finalPage = override?.page ?? page;
       const finalPerPage = override?.per_page ?? perPage;
+      const type = override?.type ?? "daily";
   
       try {
         const res = await axios.post(
@@ -67,6 +68,7 @@ export function useGetAllCompetitions(options = {}) {
             page: finalPage,
             per_page: finalPerPage,
             student_id: student_id,
+            type
           },
           { headers: buildHeaders() }
         );

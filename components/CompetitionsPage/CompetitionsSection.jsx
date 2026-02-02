@@ -35,6 +35,7 @@ const CompetitionsSection = () => {
     hasNext,
     hasPrev,
     next,
+    fetchData,
     prev,
   } = useGetAllCompetitions({
     initialPage: 1,
@@ -79,10 +80,7 @@ const CompetitionsSection = () => {
   }
 
   const [activeTab, setActiveTab] = useState("daily");
-
-
-
-
+    
 
   return (
     <div
@@ -93,7 +91,10 @@ const CompetitionsSection = () => {
         {
           !loading && !error && items && items.length > 0 &&
           <Container className="my-4">
-            <CompetitionsNavs activeTab={activeTab} onChange={setActiveTab} />
+            <CompetitionsNavs activeTab={activeTab} onChange={(type)=>{
+              fetchData({type})
+              setActiveTab(type)
+            }} />
           </Container>
         }
 

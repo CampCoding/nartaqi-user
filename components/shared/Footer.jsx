@@ -57,9 +57,9 @@ export const Frame = () => {
     // { text: "الدورات", href: "/courses" },
     { text: "المدربون", href: "/instructors" },
     { text: "بوابة الدعم", href: "/support-gate" },
-    { text: "شروط الالتحاق بالدورات", href: "/conditions-for-joining-courses" },
+    // { text: "شروط الالتحاق بالدورات", href: "/conditions-for-joining-courses" },
     { text: "الدعم الفني", href: "/technical-support" },
-    { text: "الشكاوى والمقترحات", href: "/complaints-and-suggestions" },
+    // { text: "الشكاوى والمقترحات", href: "/complaints-and-suggestions" },
   ];
 
   const contactInfo = [
