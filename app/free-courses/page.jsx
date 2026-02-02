@@ -133,7 +133,7 @@ function youtubeThumb(youtubeId) {
   return `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`;
 }
 
-function normalizeVideo(item, categoryMeta) {
+export function normalizeVideo(item, categoryMeta) {
   const id = item?.id;
   const title = item?.title || "فيديو مجاني";
   const description = item?.description || "";
@@ -390,6 +390,7 @@ export default function FreeVideosPage() {
     const max = filters.maxSec === "" ? null : toInt(filters.maxSec, 0);
 
     let res = allItems;
+    console.log("allItems" , allItems)
 
     if (q) {
       res = res.filter((v) => {

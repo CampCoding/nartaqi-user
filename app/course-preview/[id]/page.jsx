@@ -25,6 +25,7 @@ import useIsLgUp from "../../../hooks/useLgUp";
 import LoadingPage from "@/components/shared/Loading";
 
 import "./style.css";
+import { normalizeVideo } from "../../free-courses/page";
 
 // ==================== URL SANITIZERS ====================
 const cleanEmbedUrl = (raw) => {
@@ -158,7 +159,7 @@ const CoursePreviewPage = () => {
 
       // ✅ free videos is data.message (array)
       const freeList = Array.isArray(freeRes?.data?.message) ? freeRes.data.message : [];
-      console.log("freeList" , freeList)
+      console.log("freeList", freeList)
       setCourseData(bundleData || null);
       setFreeVideos(freeList);
     } catch (err) {
@@ -230,7 +231,7 @@ const CoursePreviewPage = () => {
     return { allCourseVideos: videos, sortedCourseVideos: sorted };
   }, [courseData, freeVideos]);
 
-  const playableVideos = useMemo(() => {    
+  const playableVideos = useMemo(() => {
     return Array.isArray(freeVideos) ? freeVideos : [];
   }, [isRegistered, freeVideos]);
 
@@ -433,7 +434,7 @@ const CoursePreviewPage = () => {
 export default CoursePreviewPage;
 
 // ==================== VIDEO ITEM ====================
-const VideoItem = ({ idx, title, thumb, duration, isActive, onClick, canPlay }) => {
+const VideoItem = ({ data, idx, title, thumb, duration, isActive, onClick, canPlay }) => {
   const formatDuration = (time) => {
     if (!time) return "غير محدد";
 
@@ -460,6 +461,7 @@ const VideoItem = ({ idx, title, thumb, duration, isActive, onClick, canPlay }) 
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+
   return (
     <div
       onClick={() => canPlay && onClick()}
@@ -476,20 +478,18 @@ const VideoItem = ({ idx, title, thumb, duration, isActive, onClick, canPlay }) 
       `}
     >
       <div
-        className={`text-right text-xl md:text-2xl font-medium ${
-          isActive ? "text-secondary" : "text-zinc-400"
-        }`}
+        className={`text-right text-xl md:text-2xl font-medium ${isActive ? "text-secondary" : "text-zinc-400"
+          }`}
       >
         {idx}
       </div>
 
       <div className="flex justify-start items-start gap-2 w-full">
         <div
-          className={`w-28 h-16 md:w-[100px] md:h-20 relative rounded-[10px] overflow-hidden shrink-0 bg-gray-200 ${
-            isActive ? "ring-2 ring-secondary ring-offset-2" : ""
-          }`}
+          className={`w-28 h-16 md:w-[100px] md:h-20 relative rounded-[10px] overflow-hidden shrink-0 bg-gray-200 ${isActive ? "ring-2 ring-secondary ring-offset-2" : ""
+            }`}
           style={{
-            backgroundImage: thumb ? `url('${thumb}')` : "url('/images/Frame 1000004932.png')",
+            backgroundImage: data?.thumb ? `url('${data?.thumb}')` : "url('/images/Frame 1000004932.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
@@ -517,9 +517,8 @@ const VideoItem = ({ idx, title, thumb, duration, isActive, onClick, canPlay }) 
         </div>
 
         <div
-          className={`flex-1 text-right text-xs md:text-sm font-medium leading-relaxed transition-colors ${
-            isActive ? "text-secondary font-bold" : "text-text"
-          }`}
+          className={`flex-1 text-right text-xs md:text-sm font-medium leading-relaxed transition-colors ${isActive ? "text-secondary font-bold" : "text-text"
+            }`}
         >
           {title || "غير محدد"}
         </div>
@@ -530,6 +529,9 @@ const VideoItem = ({ idx, title, thumb, duration, isActive, onClick, canPlay }) 
 
 // ==================== VIDEOS LIST ====================
 const VideosList = ({ courseData, videos, currentVideo, onVideoSelect, isRegistered }) => {
+
+
+
   const list = Array.isArray(videos) ? videos : [];
 
   const teacherName =
@@ -542,6 +544,9 @@ const VideosList = ({ courseData, videos, currentVideo, onVideoSelect, isRegiste
     const idx = list.findIndex((v) => String(v.id) === String(currentVideo.id));
     return idx >= 0 ? idx + 1 : 1;
   }, [list, currentVideo]);
+
+
+
 
   return (
     <div
@@ -570,9 +575,9 @@ const VideosList = ({ courseData, videos, currentVideo, onVideoSelect, isRegiste
             // In preview mode list is free only => canPlay true
             // In registered mode list is all => canPlay true
             const canPlay = true;
-
             return (
               <VideoItem
+                data={normalizeVideo(video, video.category_part_free_id)}
                 key={video.id || i}
                 idx={i + 1}
                 title={video.title}

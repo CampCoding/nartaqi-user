@@ -192,7 +192,7 @@ const StudyPlannerForm = () => {
               <div className="flex flex-col items-start gap-[11px] relative self-stretch w-full flex-[0_0_auto]">
                 <div className="inline-flex  items-center justify-start relative">
                   <label className="relative w-fit text-zinc-950 text-sm whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]">
-                    تاريخ بدء الدراسة
+                  تاريخ بداية المذاكرة
                   </label>
                 </div>
                 <Dropdown
@@ -228,7 +228,7 @@ const StudyPlannerForm = () => {
               <div className="flex flex-col items-start gap-[11px] relative self-stretch w-full flex-[0_0_auto]">
                 <div className="inline-flex  items-center justify-start relative">
                   <label className="relative w-fit text-zinc-950 text-sm whitespace-nowrap overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]">
-                    تاريخ الامتحان
+                  تاريخ نهاية المذاكرة 
                   </label>
                 </div>
                 <Dropdown

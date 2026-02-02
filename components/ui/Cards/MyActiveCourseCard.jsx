@@ -65,7 +65,7 @@ export const MyActiveCourseCard = ({ course }) => {
             </div>
           </div>
         </div>
-
+        
         <Link
           href={`/course/${courseData.id}?reg=true&done=false`}
           className="flex h-[45px] sm:h-[50px] items-center justify-center gap-2.5 px-3 sm:px-4 py-3 relative self-stretch w-full bg-secondary rounded-[8px] sm:rounded-[10px] shadow-[8px_8px_12px_#fdd4b7] sm:shadow-[11px_11px_15px_#fdd4b7] hover:bg-secondary-dark focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 transition-all duration-200"

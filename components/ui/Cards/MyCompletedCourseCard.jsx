@@ -46,7 +46,7 @@ export const MyCompletedCourseCard = ({ course, studentId, token }) => {
   );
 };
 
-const Buttons = ({ course, studentId, token }) => {
+export const Buttons = ({ course, studentId, token }) => {
   const [activeTab, setActiveTab] = useState("evaluation");
   const [openRate, setOpenRate] = useState(false);
 

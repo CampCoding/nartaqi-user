@@ -1,12 +1,56 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
 import Container from "../../components/ui/Container";
 import cx from "../../lib/cx";
+import { useTconditions } from "../../components/shared/Hooks/useTconditions"; // ✅ عدّل المسار حسب مشروعك
 
 const ConditionsAndPrivacy = () => {
   const [selectedSection, setSelectedSection] = useState(1);
+
+  // ✅ API
+  const { data, term, conditions, loading, error, refetch } = useTconditions();
+
+  // ✅ جهّز المينيو + المحتوى بناءً على الـ API
+  // - لو الـ API رجّع فقط term + conditions → هنظهر اتنين بس
+  // - لو بعدين زوّدتوا أنواع إضافية → هنظهرها تلقائي
+  const menuItems = useMemo(() => {
+    // ترتيب مبدئي لو موجودين
+    const order = ["term", "conditions"];
+    const typeToTitle = {
+      term: "شروط الاستخدام",
+      conditions: "سياسة الخصوصية",
+    };
+
+    const normalized = Array.isArray(data) ? data : [];
+
+    // رتّب اللي معروفين أولاً ثم أي نوع جديد
+    const sorted = [...normalized].sort((a, b) => {
+      const ai = order.indexOf(a?.type);
+      const bi = order.indexOf(b?.type);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    });
+
+    // لو فاضي (أو لسه loading) رجّع الافتراضي (اتنين)
+    if (!sorted.length) {
+      return [
+        { id: 1, type: "term", text: "شروط الاستخدام" },
+        { id: 2, type: "conditions", text: "سياسة الخصوصية" },
+      ];
+    }
+
+    return sorted.map((item, idx) => ({
+      id: idx + 1,
+      type: item?.type || `type_${idx + 1}`,
+      text: typeToTitle[item?.type] || item?.type || `قسم ${idx + 1}`,
+      content: item?.content || "",
+    }));
+  }, [data]);
+
+  const selectedItem = useMemo(() => {
+    return menuItems.find((x) => x.id === selectedSection) || menuItems[0];
+  }, [menuItems, selectedSection]);
 
   return (
     <div className="">
@@ -16,28 +60,27 @@ const ConditionsAndPrivacy = () => {
         title={"شروط الأستخدام و الخصوصية"}
         image={"/images/Frame 1000005097.png"}
         breadcrumb={[
-          {
-            title: "الرئيسية",
-            link: "/",
-          },
-          {
-            title: "شروط الأستخدام و الخصوصية",
-            link: "/",
-          },
+          { title: "الرئيسية", link: "/" },
+          { title: "شروط الأستخدام و الخصوصية", link: "/" },
         ]}
       />
+
       <Container className=" mt-[48px]  ">
-        <div className="grid  grid-cols-1 lg:grid-cols-[379px_auto] gap-6 ">
-          
+        <div className="grid grid-cols-1 lg:grid-cols-[379px_auto] gap-6 ">
           <SideNav
             rootClassName="h-fit"
             selectedSection={selectedSection}
             setSelectedSection={setSelectedSection}
+            menuItems={menuItems} // ✅ من الـ API
           />
 
           <PoliciesSections
             selectedSection={selectedSection}
             setSelectedSection={setSelectedSection}
+            selectedItem={selectedItem} // ✅ المحتوى
+            loading={loading}
+            error={error}
+            onRetry={refetch}
           />
         </div>
       </Container>
@@ -66,61 +109,14 @@ const ChevromLeft = (props) => (
   </svg>
 );
 
-const SideNav = ({ selectedSection, setSelectedSection , rootClassName }) => {
-  const menuItems = [
-    {
-      id: 1,
-      text: "شروط الاستخدام",
-      icon: <ChevromLeft />,
-      isTitle: true,
-    },
-    {
-      id: 2,
-      text: "مسؤوليات المستخدم",
-      icon: <ChevromLeft />,
-      isTitle: false,
-    },
-    {
-      id: 3,
-      text: "ملكية المحتوى",
-      icon: <ChevromLeft />,
-      isTitle: false,
-    },
-    {
-      id: 4,
-      text: "سياسة الخصوصية",
-      icon: <ChevromLeft />,
-      isTitle: false,
-    },
-    {
-      id: 5,
-      text: "جمع البيانات",
-      icon: <ChevromLeft />,
-      isTitle: false,
-    },
-    {
-      id: 6,
-      text: "ملفات تعريف الارتباط والتتبع",
-      icon: <ChevromLeft />,
-      isTitle: false,
-    },
-    {
-      id: 7,
-      text: "حقوق المستخدم",
-      icon: <ChevromLeft />,
-      isTitle: false,
-    },
-    {
-      id: 8,
-      text: "معلومات الاتصال",
-      icon: <ChevromLeft />,
-      isTitle: false,
-    },
-  ];
-
+// ✅ SideNav بقى بياخد menuItems من بره
+const SideNav = ({ selectedSection, setSelectedSection, rootClassName, menuItems }) => {
   return (
     <nav
-      className={cx(" h-fit inline-flex flex-col items-start  gap-3 md:gap-6 px-4 md:px-8 py-8 md:py-12 relative bg-primary-light rounded-[30px]"  , rootClassName)}
+      className={cx(
+        "h-fit inline-flex flex-col items-start gap-3 md:gap-6 px-4 md:px-8 py-8 md:py-12 relative bg-primary-light rounded-[30px]",
+        rootClassName
+      )}
       role="navigation"
       aria-label="قائمة شروط الاستخدام"
     >
@@ -133,14 +129,15 @@ const SideNav = ({ selectedSection, setSelectedSection , rootClassName }) => {
           onClick={() => setSelectedSection(item.id)}
         >
           <div className="inline-flex h-4 items-center pl-0 pr-2 py-0 relative flex-[0_0_auto] ">
-            <div className="relative w-6 h-6  aspect-[1]">{item.icon}</div>
+            <div className="relative w-6 h-6 aspect-[1]">
+              <ChevromLeft />
+            </div>
           </div>
+
           <div
-            className={` cursor-pointer ${
-              selectedSection === item.id
-                ? " font-bold !text-primary"
-                : " text-text"
-            } tracking-[0] relative w-fit  texst-lg md:text-xl  leading-[normal] overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical] `}
+            className={`cursor-pointer ${
+              selectedSection === item.id ? "font-bold !text-primary" : "text-text"
+            } tracking-[0] relative w-fit texst-lg md:text-xl leading-[normal] overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]`}
           >
             {item.text}
           </div>
@@ -150,197 +147,58 @@ const SideNav = ({ selectedSection, setSelectedSection , rootClassName }) => {
   );
 };
 
-const privacySections = [
-  {
-    title: "سياسة الخصوصية",
-    introduction:
-      "نحن في المنصة نلتزم بحماية خصوصية مستخدمينا. توضح هذه السياسة كيفية جمعنا واستخدامنا وحمايتنا للمعلومات التي نحصل عليها من المستخدمين.",
-    image: "/images/privacy-policy.png",
-    sections: [
-      {
-        title: "البيانات التي نجمعها:",
-        content: [
-          "المعلومات الشخصية: الاسم، البريد الإلكتروني، معلومات الدفع، بيانات تسجيل الحساب.",
-          "معلومات الاستخدام: مثل الصفحات التي تزورها، الأنشطة التي تقوم بها داخل المنصة.",
-          "معلومات تقنية: مثل نوع المتصفح، عنوان IP، نوع الجهاز ونظام التشغيل.",
-        ],
-      },
-      {
-        title: "كيفية استخدام البيانات:",
-        content: [
-          "تحسين تجربة المستخدم.",
-          "تطوير خدماتنا ومنتجاتنا.",
-          "التواصل معك بشأن التحديثات أو العروض أو الدعم الفني.",
-          "الامتثال للمتطلبات القانونية.",
-        ],
-      },
-      {
-        title: "حماية بياناتك:",
-        content: [
-          "نستخدم تقنيات حديثة لحماية بيانات المستخدمين مثل التشفير وأنظمة الأمان المتقدمة. ومع ذلك، لا يمكن ضمان أمان مطلق لأي نظام إلكتروني.",
-        ],
-      },
-      {
-        title: "حقوقك:",
-        content: [
-          "يمكنك دائما طلب الوصول إلى بياناتك الشخصية وتحديثها أو حذفها من خلال إعدادات الحساب أو التواصل مع الدعم الفني.",
-        ],
-      },
-    ],
-  },
-  {
-    title: "شروط الاستخدام",
-    introduction:
-      "تحدد شروط الاستخدام القواعد والسياسات التي يجب على المستخدمين الالتزام بها عند استخدام خدمات المنصة.",
-    image: "/images/terms-of-use.png",
-    sections: [
-      {
-        title: "الموافقة على الشروط:",
-        content: [
-          "باستخدامك للمنصة، فإنك توافق على الالتزام بجميع الشروط والأحكام المنصوص عليها.",
-        ],
-      },
-      {
-        title: "الاستخدام الشخصي غير التجاري:",
-        content: [
-          "تسمح لك المنصة باستخدام الخدمات لأغراض شخصية فقط. لا يُسمح باستخدامها لأغراض تجارية أو إعادة بيعها أو استغلالها بشكل غير قانوني.",
-        ],
-      },
-      {
-        title: "المحتويات:",
-        content: ["يحتفظ فريق المنصة بحق تعديل أو إزالة أي محتوى غير مناسب."],
-      },
-    ],
-  },
-  {
-    title: "حقوق الملكية الفكرية",
-    introduction:
-      "توضح هذه السياسة حقوق الملكية الفكرية المتعلقة باستخدام محتوى المنصة والمحتوى الذي ينشئه المستخدمون.",
-    image: "/images/intellectual-property.png",
-    sections: [
-      {
-        title: "استخدام المحتوى:",
-        content: [
-          "يحظر تماماً نسخ أو إعادة إنتاج أو نشر أو بيع أي جزء من المحتوى دون إذن خطي من إدارة المنصة.",
-        ],
-      },
-      {
-        title: "المحتوى الذي ينشئه المستخدمون:",
-        content: [
-          "إذا قمت بنشر محتوى عبر المنصة، فإنك تمنح المنصة حقاً دائماً باستخدامه لأغراض تشغيل وتحسين الخدمات.",
-        ],
-      },
-      {
-        title: "سياسة الدفع والاسترداد:",
-        content: [
-          "توضح هذه السياسة إجراءات الدفع، المحتويات المدفوعة، وسياسات الاسترداد المرتبطة باستخدام المنصة.",
-        ],
-      },
-    ],
-  },
-  {
-    title: "سياسة الدفع والاسترداد",
-    introduction:
-      "توضح هذه السياسة القواعد المتعلقة بالأسعار وطرق الدفع، بالإضافة إلى شروط استرداد الأموال في حال إلغاء الاشتراكات أو وجود مشاكل بالخدمة.",
-    image: "/images/payment-refund.png",
-    sections: [
-      {
-        title: "الأسعار والدفع:",
-        content: [
-          "جميع الأسعار معروضة بالعملة المحلية.",
-          "يجب دفع المبالغ المستحقة بشكل كامل قبل الحصول على الخدمة.",
-        ],
-      },
-      {
-        title: "سياسة الاسترداد:",
-        content: [
-          "يمكن طلب استرداد الأموال خلال 7 أيام من تاريخ الدفع في حالة وجود مشكلة جدية بالخدمة.",
-          "لن يتم استرداد الأموال بعد إتمام استخدام المحتوى أو حضور الدورة.",
-        ],
-      },
-      {
-        title: "الاشتراكات:",
-        content: [
-          "يمكن إلغاء الاشتراك في أي وقت، ولكن لن يتم استرداد المبالغ المدفوعة عن الفترة الحالية.",
-        ],
-      },
-      {
-        title: "مسؤولية المستخدم:",
-        content: [
-          "مستخدمي المنصة مسؤولون عن دقة وصحة المعلومات التي يقدمونها وعن حماية بياناتهم الخاصة.",
-        ],
-      },
-    ],
-  },
-];
-
-export const PoliciesSections = ({ selectedSection, setSelectedSection }) => {
+// ✅ PoliciesSections: عرض قسم واحد فقط بناءً على الـ selectedSection
+const PoliciesSections = ({
+  selectedSection,
+  setSelectedSection,
+  selectedItem,
+  loading,
+  error,
+  onRetry,
+}) => {
   return (
     <section className="flex flex-col gap-[32px] mb-[100px]">
-      {privacySections?.map((privacyData, index) => {
-        return (
-          <main
-            className="flex flex-col items-start gap-4 relative"
-            role="main"
-            onClick={() => setSelectedSection(index + 1)}
-          >
-            <header>
-              <h1 className=" font-bold text-primary  text-xl md:text-2xl relative self-stretch mt-[-1.00px] tracking-[0] leading-[normal] ">
-                {privacyData.title}
-              </h1>
-            </header>
+      <main
+        className="flex flex-col items-start gap-4 relative"
+        role="main"
+        onClick={() => setSelectedSection(selectedSection)}
+      >
+        <header>
+          <h1 className="font-bold text-primary text-xl md:text-2xl relative self-stretch mt-[-1.00px] tracking-[0] leading-[normal]">
+            {selectedItem?.text || "—"}
+          </h1>
+        </header>
 
-            <section
-              className="flex flex-col items-start gap-2 relative self-stretch w-full flex-[0_0_auto]"
-              aria-labelledby="privacy-policy"
-            >
-              <p className=" font-medium text-text-alt text-lg  md:text-xl relative self-stretch mt-[-1.00px] tracking-[0] leading-[normal] ">
-                {privacyData.introduction}
+        <section className="flex flex-col items-start gap-2 relative self-stretch w-full flex-[0_0_auto]">
+          {loading && (
+            <p className="font-medium text-text-alt text-lg md:text-xl">
+              جاري التحميل...
+            </p>
+          )}
+
+          {!loading && error && (
+            <div className="w-full space-y-3">
+              <p className="font-medium text-red-600 text-lg md:text-xl">
+                حصل خطأ: {error}
               </p>
+              <button
+                type="button"
+                onClick={onRetry}
+                className="px-4 py-2 rounded-xl bg-primary text-white"
+              >
+                إعادة المحاولة
+              </button>
+            </div>
+          )}
 
-              {privacyData.sections.map((section, index) => (
-                <article
-                  key={index}
-                  className=" mb-4 relative self-stretch  font-normal text-text-duplicate  text-lg md:text-xl tracking-[0] leading-[normal] "
-                >
-                  <h2 className="font-bold">
-                    {section.title}
-                    <br />
-                  </h2>
-
-                  <div className=" font-medium leading-loose">
-                    {section.content.map((item, itemIndex) => (
-                      <React.Fragment key={itemIndex}>
-                        {item}
-                        {itemIndex < section.content.length - 1 && <br />}
-                      </React.Fragment>
-                    ))}
-                    {index < privacyData.sections.length - 2 && <br />}
-                  </div>
-
-                  {index === privacyData.sections.length - 2 && (
-                    <>
-                      <span className="font-bold">
-                        {
-                          privacyData.sections[privacyData.sections.length - 1]
-                            .title
-                        }
-                        <br />
-                      </span>
-                      <span className=" font-medium">
-                        {
-                          privacyData.sections[privacyData.sections.length - 1]
-                            .content[0]
-                        }
-                      </span>
-                    </>
-                  )}
-                </article>
-              ))}
-            </section>
-          </main>
-        );
-      })}
+          {!loading && !error && (
+            <div className="font-medium text-text-alt text-lg md:text-xl leading-loose whitespace-pre-line">
+              {/* ✅ لو رجع HTML من الـ backend وعايز تعرضه كـ HTML قولّي */}
+              {selectedItem?.content || "—"}
+            </div>
+          )}
+        </section>
+      </main>
     </section>
   );
 };
