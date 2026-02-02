@@ -6,6 +6,7 @@ import Container from "../ui/Container";
 import { useGetAllCompetitions } from "../shared/Hooks/useGetCompetitions";
 import { useSelector } from "react-redux";
 import { CompetitionsNavs } from "./Leaderboard";
+import Link from "next/link";
 
 const SkeletonCard = () => (
   <div className="w-full max-w-[419px] rounded-2xl border border-white/15 bg-white/5 backdrop-blur p-5">
@@ -90,10 +91,10 @@ const CompetitionsSection = () => {
       className="w-full flex items-center justify-center mt-[32px] min-h-[770px] relative overflow-hidden bg-[url('/images/competition-banner-section-mobile.png')] md:bg-[url('/images/competition-banner-section.png')] bg-cover bg-top bg-fixed lg:bg-scroll py-4 lg:p-0">
       <div className="w-full">
         {
-          !loading && !error && (!items || items.length === 0) &&
-        <Container className="my-4">
-          <CompetitionsNavs activeTab={activeTab} onChange={setActiveTab} />
-        </Container>
+          !loading && !error && items && items.length > 0 &&
+          <Container className="my-4">
+            <CompetitionsNavs activeTab={activeTab} onChange={setActiveTab} />
+          </Container>
         }
 
         <Container className="grid py-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8 justify-items-center mx-auto max-w-[1312px] w-full">
@@ -111,7 +112,10 @@ const CompetitionsSection = () => {
             error == "Token is required" ?
               <div className="col-span-full w-full max-w-[720px] mx-auto  p-5 text-center">
                 <p className=" text-sm md:text-xl">قم بتسجيل الدخول كي ترى المسابقات المتاحة.</p>
-               
+                <div className="flex items-center justify-center gap-3 mt-3">
+                  <Link href={"/login"} className=" py-2 px-6 bg-primary rounded-full hover:bg-primary-dark transition-all text-white font-bold mt-3">تسجيل الدخول</Link>
+                  <Link href={"/register"} className="py-2 px-6 bg-primary rounded-full bg hover:bg-primary-dark transition-all text-white font-bold mt-3">إنشاء حساب جديد</Link>
+                </div>
               </div>
               : <div className="col-span-full w-full max-w-[720px] mx-auto rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-center">
                 <p className="text-sm text-white/90">Something went wrong: {error}</p>
