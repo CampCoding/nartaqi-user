@@ -219,7 +219,7 @@ export const SendUsMessageForm = () => {
             htmlFor="course"
             className="font-[600] text-text text-base leading-[14px]"
           >
-            الدورة المشترك بها
+               نص الشكوى
           </label>
           <div className="flex items-start justify-end bg-white rounded-[15px] border border-solid border-zinc-200 focus-within:ring-2 focus-within:ring-secondary">
             <textarea
@@ -227,7 +227,7 @@ export const SendUsMessageForm = () => {
               name="course"
               value={formData.course}
               onChange={(e) => handleInputChange("course", e.target.value)}
-              placeholder="اكتب الدورة التي تواجه بها مشكلة"
+              placeholder="اكتب المشكلة التي تواجهها"
               rows={3}
               className="w-full resize-none px-4 py-5 text-text text-sm leading-5 placeholder:text-text-alt outline-none"
               required

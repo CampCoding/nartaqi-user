@@ -1,67 +1,23 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
 import Container from "../../components/ui/Container";
-
-const ENDPOINT =
-  "https://camp-coding.site/nartaqi/public/api/user/settings/getSupportInfo";
-
-function normalizePhoneForLink(phone) {
-  return String(phone || "").replace(/[^\d+]/g, "");
-}
-
-function buildWhatsAppLink(phone, message) {
-  const num = normalizePhoneForLink(phone).replace(/^\+/, ""); // wa.me بدون +
-  const text = encodeURIComponent(message || "");
-  return `https://wa.me/${num}?text=${text}`;
-}
-
+import useSupportInfo from "../../components/shared/Hooks/getSupportInfo";
 const TechnicalSupport = () => {
-  const [loading, setLoading] = useState(true);
-  const [info, setInfo] = useState(null);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    let mounted = true;
-
-    (async () => {
-      try {
-        setLoading(true);
-        setError("");
-
-        const res = await fetch(ENDPOINT, { method: "GET" });
-        const data = await res.json();
-
-        if (!mounted) return;
-        setInfo(data?.message ?? null);
-      } catch (e) {
-        if (!mounted) return;
-        setError("تعذر تحميل بيانات الدعم حالياً. حاول مرة أخرى.");
-      } finally {
-        if (!mounted) return;
-        setLoading(false);
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const isActive = !!info?.active;
-
-  const showWhatsApp = isActive && !!info?.show_whatsapp && !!info?.whatsapp_number;
-  const showEmail = isActive && !!info?.show_email && !!info?.support_email;
-  const showPhone = isActive && !!info?.phone_number;
-
-  const whatsappHref = useMemo(() => {
-    if (!showWhatsApp) return "#";
-    return buildWhatsAppLink(info.whatsapp_number, info.whatsapp_message);
-  }, [showWhatsApp, info]);
-
-  const emailText = info?.support_email || "—";
-  const phoneText = info?.phone_number || "—";
+  const {
+    loading,
+    error,
+    info,
+    isActive,
+    showWhatsApp,
+    showEmail,
+    showPhone,
+    whatsappHref,
+    emailText,
+    phoneText,
+    telHref,
+  } = useSupportInfo();
 
   return (
     <div>
@@ -82,7 +38,6 @@ const TechnicalSupport = () => {
             ما هي قنوات الدعم الفني؟
           </h1>
 
-          {/* Loading / Error */}
           {loading ? (
             <div className="w-full rounded-2xl border bg-white p-4 sm:p-5">
               <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
@@ -102,7 +57,6 @@ const TechnicalSupport = () => {
             </div>
           ) : (
             <div className="flex flex-col items-start gap-6 sm:gap-8 self-stretch w-full relative flex-[0_0_auto]">
-              {/* WhatsApp Support */}
               {showWhatsApp && (
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 relative flex-[0_0_auto] w-full ">
                   <div className="self-stretch flex items-center w-full sm:w-[291px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
@@ -122,15 +76,9 @@ const TechnicalSupport = () => {
                       عبر واتساب من هنا
                     </p>
                   </a>
-
-                  {/* الرقم (اختياري) */}
-                  {/* <div className="text-xs text-muted-foreground break-all sm:break-normal">
-                    {info?.whatsapp_number}
-                  </div> */}
                 </div>
               )}
 
-              {/* Phone Support */}
               {showPhone && (
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 self-stretch w-full relative flex-[0_0_auto]">
                   <div className="self-stretch w-full flex items-center sm:w-[268px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
@@ -138,7 +86,7 @@ const TechnicalSupport = () => {
                   </div>
 
                   <a
-                    href={`tel:${normalizePhoneForLink(info.phone_number)}`}
+                    href={telHref}
                     className="inline-flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2 sm:py-3 relative flex-[0_0_auto] bg-text rounded-[12px] sm:rounded-[15px] w-full sm:w-auto hover:opacity-90 transition"
                   >
                     <div className="w-6 h-6 sm:w-6 sm:h-6 flex-shrink-0">
@@ -151,7 +99,6 @@ const TechnicalSupport = () => {
                 </div>
               )}
 
-              {/* Email Support */}
               {showEmail && (
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 self-stretch w-full relative flex-[0_0_auto]">
                   <div className="self-stretch w-full flex items-center sm:w-[268px] font-semibold text-text text-sm sm:text-base relative mt-[-1.00px] tracking-[0] leading-[normal]">
@@ -175,8 +122,10 @@ const TechnicalSupport = () => {
           )}
         </div>
 
-        {/* Dynamic text from API (optional) */}
-        {!loading && !error && isActive && (info?.working_hours_text || info?.response_time_text) ? (
+        {!loading &&
+          !error &&
+          isActive &&
+          (info?.working_hours_text || info?.response_time_text) ? (
           <div className="flex flex-col gap-3 sm:gap-4 mb-8 sm:mb-10">
             {info?.working_hours_text ? (
               <div className="rounded-2xl border bg-white p-4">
@@ -220,8 +169,7 @@ const TechnicalSupport = () => {
               للمدير التقني
             </p>
           </div>
-        </div>
-      </Container>
+        </div>      </Container>
     </div>
   );
 };
@@ -229,7 +177,7 @@ const TechnicalSupport = () => {
 export default TechnicalSupport;
 
 /* Icons */
-const WhatsappIcon = (props) => (
+export const WhatsappIcon = (props) => (
   <svg
     width="100%"
     height="100%"
@@ -245,7 +193,7 @@ const WhatsappIcon = (props) => (
   </svg>
 );
 
-const EmailIcon = (props) => (
+export const EmailIcon = (props) => (
   <svg
     width="100%"
     height="100%"
@@ -261,7 +209,7 @@ const EmailIcon = (props) => (
   </svg>
 );
 
-const PhoneIcon = (props) => (
+export const PhoneIcon = (props) => (
   <svg
     width="100%"
     height="100%"
@@ -276,3 +224,4 @@ const PhoneIcon = (props) => (
     />
   </svg>
 );
+

@@ -253,8 +253,9 @@ const Reg_courseDetails = ({ courseData, open }) => {
               {/* Right sidebar */}
               <div
                 className={cx(
-                  "space-y-12 xl:space-y-14 transition-all lg:sticky lg:top-[160px]",
-                  watch || scrolled ? "" : " translate-y-[-441px]"
+                  "space-y-12 xl:space-y-14 transition-all mb-10",
+                  !activeLiveSession && "lg:sticky lg:top-[160px]",
+                  watch || scrolled ? "" :  " translate-y-[-441px]"
                 )}
               >
                 <RegCourseDetailsCard

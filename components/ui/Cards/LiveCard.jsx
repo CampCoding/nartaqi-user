@@ -8,7 +8,7 @@ const LiveCard = ({ liveData, courseData }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [isJoining, setIsJoining] = useState(false);
 
-  const accessCode = "558"; // يمكن إضافته في الـ API
+  const accessCode = liveData.password; // يمكن إضافته في الـ API
 
   const handleJoinClick = () => {
     setIsJoining(true);
@@ -32,7 +32,7 @@ const LiveCard = ({ liveData, courseData }) => {
   };
 
   return (
-    <main className="flex flex-col w-full xl:w-[502px] items-start gap-3.5 sm:gap-4 lg:gap-5 pt-4 sm:pt-5 lg:pt-6 pb-7 sm:pb-8 lg:pb-10 px-3.5 sm:px-4 lg:px-5 relative bg-white rounded-[26px] sm:rounded-[34px] lg:rounded-[44px] border-2 sm:border-[2.5px] lg:border-[3px] border-solid border-variable-collection-stroke">
+    <main className="flex flex-col w-full xl:w-[460px] items-start gap-3.5 sm:gap-4 lg:gap-5 pt-4 sm:pt-5 lg:pt-6 pb-7 sm:pb-8 lg:pb-10 px-3.5 sm:px-4 lg:px-5 relative bg-white rounded-[26px] sm:rounded-[34px] lg:rounded-[44px] border-2 sm:border-[2.5px] lg:border-[3px] border-solid border-variable-collection-stroke">
       <header className="flex flex-col items-start gap-2.5 sm:gap-3 lg:gap-3.5 relative self-stretch w-full">
         <div className="flex items-center justify-start gap-2 sm:gap-2.5 lg:gap-3 relative self-stretch w-full">
           <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-[18px] lg:h-[18px] bg-danger rounded-full mx-2 sm:mx-2.5 lg:mx-3 animate-pulse flex-shrink-0" />

@@ -1,5 +1,4 @@
 "use client";
-
 import { TopServices } from "../components/Home/TopServices";
 import { HeaderHero } from "../components/Home/Hero";
 import { AboutUs } from "../components/Home/AboutUs";
@@ -16,18 +15,17 @@ import { Icon } from "@iconify/react";
 import LoadingPage from "../components/shared/Loading";
 import { useSelector } from "react-redux";
 import CursorLabelSection from "../components/ui/CursorLabelSection";
-
 export default function Home() {
   const user = useSelector((state) => state.auth);
   const studentId = user?.user?.id || null; // Get student_id from Redux
-
   const { data, isLoading, isError, error, refetch } = useHomeData(studentId);
+  
 
   // Loading State
   if (isLoading) {
     return <LoadingPage />;
   }
-
+  
   // Error State
   if (isError) {
     return (

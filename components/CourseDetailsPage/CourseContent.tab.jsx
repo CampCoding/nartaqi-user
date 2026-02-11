@@ -64,7 +64,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
       {selectedTab === "foundation" && (
         <div className="  flex flex-col gap-4 md:gap-5">
           {foundationContents.length > 0 ? (
-            foundationContents.map((content) => (
+            [...foundationContents].map((content) => (
               <CourseContentDrawer
                 key={content.id}
                 content={content}

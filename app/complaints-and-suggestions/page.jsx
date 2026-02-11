@@ -1,9 +1,26 @@
+
+"use client"
+
 import React from "react";
 import PagesBanner from "../../components/ui/PagesBanner";
 import { SendUsMessageForm } from "./../../components/ui/SendUsMessageForm";
 import Container from "../../components/ui/Container";
+import useSupportInfo from "../../components/shared/Hooks/getSupportInfo";
 
 const ComplaintsAndSuggestions = () => {
+
+
+  const {
+    whatsappHref,
+    emailText,
+    phoneText,
+    whatsappNumber,
+    telHref,
+  } = useSupportInfo();
+
+
+
+
   return (
     <div>
       <PagesBanner
@@ -88,22 +105,24 @@ const ComplaintsAndSuggestions = () => {
                 <div className="font-semibold text-text-alt">
                   الواتس اب:{" "}
                   <a
-                    href="https://wa.me/966559513555"
+                    dir="ltr"
+                    href={whatsappHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary font-bold underline underline-offset-2"
                   >
-                    966559513555
+                    {whatsappNumber}
                   </a>
                 </div>
 
                 <div className="font-semibold text-text-alt">
                   البريد الالكتروني:{" "}
                   <a
-                    href="mailto:qudrat@albaraah.sa"
+                    dir="ltr"
+                    href={`mailto:${emailText}`}
                     className="text-primary font-bold underline underline-offset-2 break-all"
                   >
-                    qudrat@albaraah.sa
+                    {emailText}
                   </a>
                 </div>
               </div>

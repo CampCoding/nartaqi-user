@@ -1,10 +1,24 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
-import {  QuestionAccordion } from "../faqs/page";
+import { QuestionAccordion } from "../faqs/page";
 
 import Container from "../../components/ui/Container";
+
+
+
+const clampNumber = (v, min = 0, max = 100) => {
+  const n = Number.parseFloat(v);
+  if (Number.isNaN(n)) return "";
+  return String(Math.min(max, Math.max(min, n)));
+};
+
+const toNum = (v) => {
+  const n = Number.parseFloat(v);
+  return Number.isNaN(n) ? 0 : n;
+};
+
 
 const WeightedPercentageCalculator = () => {
   const faqs = [
@@ -27,6 +41,132 @@ const WeightedPercentageCalculator = () => {
         "النسبة الموزونة هي مجموع درجاتك في الثانوية العامة و اختبار القدرات و الاختبار التحصيلي بعد ما نوزن كل درجة بالنسبة المحددة لها.\nكل جامعة ممكن تغير نسب الوزن بين الثانوية والقدرات والتحصيلي، عشان كده تأكد من متطلبات الجامعة اللي ناوي تقدم لها.",
     },
   ];
+
+
+  // درجات الطالب
+  const [student, setStudent] = useState({
+    highSchoolGrade: "",
+    aptitudeScore: "",
+    achievementScore: "",
+  });
+
+  // أوزان الجامعة (بالـ %)
+  const [weights, setWeights] = useState({
+    highSchoolPercentage: "",
+    abilitiesScore: "",
+    achievementScore: "",
+  });
+
+  const [result, setResult] = useState(null); // النسبة الموزونة الناتجة
+  const [globalError, setGlobalError] = useState("");
+
+  const pdfRef = useRef(null);
+
+
+
+  const weightsTotal = useMemo(() => {
+    return (
+      toNum(weights.highSchoolPercentage) +
+      toNum(weights.abilitiesScore) +
+      toNum(weights.achievementScore)
+    );
+  }, [weights]);
+
+  const calculate = () => {
+    setGlobalError("");
+
+    const hsW = toNum(weights.highSchoolPercentage);
+    const abW = toNum(weights.abilitiesScore);
+    const acW = toNum(weights.achievementScore);
+
+    const hsS = toNum(student.highSchoolGrade);
+    const abS = toNum(student.aptitudeScore);
+    const acS = toNum(student.achievementScore);
+
+    // لازم مجموع الأوزان 100
+    if (weightsTotal !== 100) {
+      setGlobalError("مجموع متطلبات الجامعة يجب أن يكون 100٪ بالضبط");
+      setResult(null);
+      return;
+    }
+
+    // لو وزن التحصيلي > 0 يبقى لازم الطالب يدخل التحصيلي
+    if (acW > 0 && student.achievementScore === "") {
+      setGlobalError("التحصيلي مطلوب لأن وزنه أكبر من 0٪. أدخل درجة التحصيلي.");
+      setResult(null);
+      return;
+    }
+
+    // حساب المعادلة (نقسم على 100 لأن الأوزان %)
+    const weighted =
+      (abW * abS + acW * acS + hsW * hsS) / 100;
+
+    // تقفيل على رقمين عشريين
+    const rounded = Math.round(weighted * 100) / 100;
+    setResult(rounded);
+  };
+
+  const resetAll = () => {
+    setStudent({ highSchoolGrade: "", aptitudeScore: "", achievementScore: "" });
+    setWeights({ highSchoolPercentage: "", abilitiesScore: "", achievementScore: "" });
+    setResult(null);
+    setGlobalError("");
+  };
+  const downloadPDF = async () => {
+    if (!pdfRef.current) return;
+  
+    // show pdf-only elements
+    const pdfOnlyNodes = pdfRef.current.querySelectorAll('[data-pdf-only="true"]');
+    const printContainer = document.querySelector('.print-container');
+    pdfOnlyNodes.forEach((el) => el.classList.remove("hidden"));
+    printContainer.classList.add('p-10');
+    console.log("printContainer" , printContainer)
+
+  
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const jsPDF = (await import("jspdf")).default;
+  
+      const canvas = await html2canvas(pdfRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
+  
+      const imgData = canvas.toDataURL("image/png");
+  
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+  
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  
+      let heightLeft = imgHeight;
+      let position = 0;
+  
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+  
+      while (heightLeft > 0) {
+        position -= pageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+  
+      pdf.save("weighted-percentage-result.pdf");
+    } finally {
+      // hide pdf-only elements again (even if error happens)
+      pdfOnlyNodes.forEach((el) => el.classList.add("hidden"));
+      printContainer.classList.remove('p-0');
+
+    }
+  };
+  
+
+
+
 
   return (
     <div>
@@ -59,19 +199,74 @@ const WeightedPercentageCalculator = () => {
           </p>
         </header>
         <div className="flex flex-col md:flex-row gap-6">
-          <StudentDataFrame />
-          <UniversityRequirementsFrame />
-        </div>
-        <div className="flex items-center justify-center ">
-          <div className=" px-10 md:px-20  py-3 md:py-6 mx-auto !bg-primary hover:!bg-primary-dark transition cursor-pointer mt-[27px] mb-[48px]  rounded-xl md:rounded-[20px] inline-flex justify-center items-center gap-2.5">
-            <div className="text-right justify-center text-white  text-sm md:text-base font-bold ">
-              احسب نسبتي
-            </div>
-          </div>
+          <StudentDataFrame
+            value={student}
+            onChange={(field, value) => {
+              setResult(null);
+              setStudent((prev) => ({ ...prev, [field]: clampNumber(value) }));
+            }}
+          />
+
+          <UniversityRequirementsFrame
+            value={weights}
+            onChange={(field, value) => {
+              setResult(null);
+              setWeights((prev) => ({ ...prev, [field]: clampNumber(value) }));
+            }}
+          />
+
         </div>
 
-        <ProgressFrame />
-        <ActionsButtons />
+        {globalError ? (
+          <div className="mt-4 w-full rounded-xl border border-red-200 bg-red-50 p-4">
+            <p className="text-red-700 text-sm [direction:rtl]">{globalError}</p>
+          </div>
+        ) : null}
+        <div className="flex items-center justify-center ">
+          <button
+            type="button"
+            onClick={calculate}
+            className="px-10 md:px-20 py-3 md:py-6 mx-auto bg-primary hover:bg-primary-dark transition cursor-pointer mt-[27px] mb-[48px] rounded-xl md:rounded-[20px] inline-flex justify-center items-center gap-2.5"
+          >
+            <span className="text-white text-sm md:text-base font-bold">
+              احسب نسبتي
+            </span>
+          </button>
+        </div>
+
+        {result !== null ? (
+          <>
+            <div ref={pdfRef} className="w-full print-container">
+              <ProgressFrame percentage={result} show />
+              {/* لو عايز تضيف ملخص للبيانات داخل الـ PDF */}
+              <div
+                data-pdf-only="true"
+                className="mt-4 rounded-xl border bg-white p-4 [direction:rtl] hidden"
+              >
+                <p className="font-bold text-primary mb-2">ملخص البيانات</p>
+
+                <p className="text-sm text-text">الثانوية: {student.highSchoolGrade || "—"}%</p>
+                <p className="text-sm text-text">القدرات: {student.aptitudeScore || "—"}</p>
+                <p className="text-sm text-text">التحصيلي: {student.achievementScore || "—"}</p>
+
+                <hr className="my-3" />
+
+                <p className="text-sm text-text">وزن الثانوية: {weights.highSchoolPercentage || "—"}%</p>
+                <p className="text-sm text-text">وزن القدرات: {weights.abilitiesScore || "—"}%</p>
+                <p className="text-sm text-text">وزن التحصيلي: {weights.achievementScore || "—"}%</p>
+              </div>
+            </div>
+            {result !== null ? (
+              <ActionsButtons
+                onRecalculate={calculate}
+                onReset={resetAll}
+                canDownload={true}
+                onDownload={downloadPDF}
+              />
+            ) : null}
+
+          </>
+        ) : null}
 
         <div className=" mt-[48px]">
           <div className="text-right justify-center text-primary  text-xl md:text-3xl font-bold  mb-8">
@@ -114,101 +309,72 @@ const Input = ({
   );
 };
 
-export const StudentDataFrame = () => {
-  const [formData, setFormData] = useState({
-    highSchoolGrade: "",
-    aptitudeScore: "",
-    achievementScore: "",
-  });
-
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
+export const StudentDataFrame = ({ value, onChange }) => {
   const formFields = [
     {
       id: "highSchoolGrade",
       label: "نسبة الثانوية العامة",
       placeholder: "ادخل نسبتك في الثانوية العامة",
-      value: formData.highSchoolGrade,
+      val: value.highSchoolGrade,
     },
     {
       id: "aptitudeScore",
       label: "درجة اختبار القدرات",
       placeholder: "اكتب درجتك في اختبار القدرات (من 100)",
-      value: formData.aptitudeScore,
+      val: value.aptitudeScore,
     },
   ];
 
   return (
-    // CHANGED: Reduced padding on mobile (`px-4 py-8`) and restored original padding on medium screens (`md:`).
     <form className="flex flex-col flex-1 items-start gap-8 px-4 py-8 md:px-6 md:py-12 relative bg-white rounded-[30px] border-[3px] border-solid border-variable-collection-stroke">
-      {/* CHANGED: Adjusted font size for mobile. */}
-      <h1 className="relative self-stretch mt-[-3.00px] font-bold text-primary text-xl md:text-2xl tracking-[0] leading-[normal] [direction:rtl]">
+      <h1 className="relative self-stretch mt-[-3.00px] font-bold text-primary text-xl md:text-2xl [direction:rtl]">
         بيانات الطالب
       </h1>
 
-      <div className="flex-col items-start justify-center gap-6 flex relative self-stretch w-full flex-[0_0_auto]">
+      <div className="flex-col items-start justify-center gap-6 flex relative self-stretch w-full">
         {formFields.map((field) => (
-          <div
-            key={field.id}
-            className="flex-col items-start gap-2.5 flex relative self-stretch w-full flex-[0_0_auto]"
-          >
-            <label
-              htmlFor={field.id}
-              className="relative [display:-webkit-box] text-text items-center justify-center self-stretch mt-[-1.00px] text-zinc-950 text-base leading-[normal] whitespace-nowrap overflow-hidden text-ellipsis [-webkit-line-clamp:0] [-webkit-box-orient:vertical] [direction:rtl]"
-            >
+          <div key={field.id} className="flex-col items-start gap-2.5 flex self-stretch w-full">
+            <label htmlFor={field.id} className="text-zinc-950 text-base [direction:rtl]">
               {field.label}
             </label>
-            <div className="items-start justify-start gap-2.5 p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex relative self-stretch w-full flex-[0_0_auto]">
+
+            <div className="p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex self-stretch w-full">
               <input
                 id={field.id}
-                type="text"
-                value={field.value}
-                onChange={(e) => handleInputChange(field.id, e.target.value)}
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                value={field.val}
+                onChange={(e) => onChange(field.id, e.target.value)}
                 placeholder={field.placeholder}
-                className=" text-text-alt text-sm text-right relative [display:-webkit-box] items-center justify-center w-full mt-[-1.00px] leading-[normal] overflow-hidden text-ellipsis [-webkit-line-clamp:1] [-webkit-box-orient:vertical] [direction:rtl] placeholder:text-text-alt focus:text-zinc-950"
-                aria-describedby={
-                  field.id === "achievementScore"
-                    ? "achievement-help"
-                    : undefined
-                }
+                className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500"
               />
             </div>
           </div>
         ))}
 
-        <div className="flex-col items-start gap-2.5 flex relative self-stretch w-full flex-[0_0_auto]">
-          {/* CHANGED: Stacked label and helper text on mobile (`flex-col`) and kept them in a row on medium screens (`md:flex-row`). */}
-          <div className="flex flex-col items-start gap-1 md:flex-row md:items-start md:justify-between relative self-stretch w-full flex-[0_0_auto]">
-            <label
-              htmlFor="achievementScore"
-              className=" text-zinc-950 text-base relative [display:-webkit-box] items-center justify-center w-fit mt-[-1.00px] leading-[normal] overflow-hidden text-ellipsis [-webkit-line-clamp:1] [-webkit-box-orient:vertical] [direction:rtl]"
-            >
+        <div className="flex-col items-start gap-2.5 flex self-stretch w-full">
+          <div className="flex flex-col items-start gap-1 md:flex-row md:justify-between self-stretch w-full">
+            <label htmlFor="achievementScore" className="text-zinc-950 text-base [direction:rtl]">
               درجة الاختبار التحصيلي
             </label>
-            {/* CHANGED: Made helper text slightly smaller on mobile. */}
-            <p
-              id="achievement-help"
-              className=" text-[#be1919] text-sm md:text-base relative [display:-webkit-box] items-center justify-center w-fit mt-[-1.00px] leading-[normal] overflow-hidden text-ellipsis [-webkit-line-clamp:1] [-webkit-box-orient:vertical] [direction:rtl]"
-            >
+            <p className="text-[#be1919] text-sm md:text-base [direction:rtl]">
               إذا كان التحصيلي غير مطلوب, اتركه فارغا
             </p>
           </div>
-          <div className="items-start justify-start gap-2.5 p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex relative self-stretch w-full flex-[0_0_auto]">
+
+          <div className="p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex self-stretch w-full">
             <input
               id="achievementScore"
-              type="text"
-              value={formData.achievementScore}
-              onChange={(e) =>
-                handleInputChange("achievementScore", e.target.value)
-              }
+              type="number"
+              min="0"
+              max="100"
+              step="0.1"
+              value={value.achievementScore}
+              onChange={(e) => onChange("achievementScore", e.target.value)}
               placeholder="ادخل درجتك في الاختبار التحصيلي (من 100)"
-              className=" text-text-alt text-sm text-right relative [display:-webkit-box] items-center justify-center w-full mt-[-1.00px] leading-[normal] overflow-hidden text-ellipsis [-webkit-line-clamp:1] [-webkit-box-orient:vertical] [direction:rtl] placeholder:text-text-alt focus:text-zinc-950"
-              aria-describedby="achievement-help"
+              className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500"
             />
           </div>
         </div>
@@ -217,212 +383,144 @@ export const StudentDataFrame = () => {
   );
 };
 
-export const UniversityRequirementsFrame = () => {
-  const [highSchoolPercentage, setHighSchoolPercentage] = useState("");
-  const [abilitiesScore, setAbilitiesScore] = useState("");
-  const [achievementScore, setAchievementScore] = useState("");
+
+export const UniversityRequirementsFrame = ({ value, onChange }) => {
   const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
 
-  const validateTotal = () => {
-    const hsPercent = Number.parseFloat(highSchoolPercentage) || 0;
-    const abilitiesPercent = Number.parseFloat(abilitiesScore) || 0;
-    const achievementPercent = Number.parseFloat(achievementScore) || 0;
-    const total = hsPercent + abilitiesPercent + achievementPercent;
+  const total =
+    (Number.parseFloat(value.highSchoolPercentage) || 0) +
+    (Number.parseFloat(value.abilitiesScore) || 0) +
+    (Number.parseFloat(value.achievementScore) || 0);
 
+  useEffect(() => {
     if (
       total !== 100 &&
-      (hsPercent > 0 || abilitiesPercent > 0 || achievementPercent > 0)
+      (value.highSchoolPercentage || value.abilitiesScore || value.achievementScore)
     ) {
-      setAlertMessage("مجموع متطلبات الجامعة يجب أن يكون 100٪ بالضبط");
       setShowAlert(true);
     } else {
       setShowAlert(false);
-      setAlertMessage("");
     }
-  };
-
-  const handleInputChange = (setter, value) => {
-    // This part of the logic had a slight bug where validateTotal
-    // would run on the old state. I've corrected it to be more reliable.
-    setter(value);
-  };
-
-  // Using useEffect to validate after state has updated.
-  React.useEffect(() => {
-    validateTotal();
-  }, [highSchoolPercentage, abilitiesScore, achievementScore]);
+  }, [total, value.highSchoolPercentage, value.abilitiesScore, value.achievementScore]);
 
   return (
     <div className="flex flex-col flex-1 items-start gap-8 px-4 py-8 md:px-6 md:py-12 relative bg-white rounded-[30px] border-[3px] border-solid border-variable-collection-stroke">
-      <header className="flex flex-col md:flex-row items-start md:items-center justify-start gap-2 md:gap-8 relative self-stretch w-full">
-        <h1 className="w-fit font-bold text-primary text-xl md:text-2xl relative tracking-[0] leading-[normal] [direction:rtl]">
+      <header className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-8 self-stretch w-full">
+        <h1 className="font-bold text-primary text-xl md:text-2xl [direction:rtl]">
           متطلبات الجامعة
         </h1>
-        <p className="flex-1 font-medium text-[#be1a1a] text-sm text-right md:text-right relative tracking-[0] leading-[normal] [direction:rtl]">
-          مهم جدا إن مجموع متطلبات الجامعة 100٪ إذا ادخل الطالب أقل من 100 أو
-          أكثر يظهر له رسالة تنبيه
+        <p className="flex-1 font-medium text-[#be1a1a] text-sm text-right [direction:rtl]">
+          مهم جدا إن مجموع متطلبات الجامعة 100٪
         </p>
       </header>
 
       {showAlert && (
         <div className="w-full p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-sm [direction:rtl]">{alertMessage}</p>
+          <p className="text-red-600 text-sm [direction:rtl]">
+            مجموع متطلبات الجامعة يجب أن يكون 100٪ بالضبط
+          </p>
         </div>
       )}
 
-      <form className="flex-col items-start justify-center gap-6 flex relative self-stretch w-full flex-[0_0_auto]">
-        <div className="flex-col items-start gap-2.5 flex relative self-stretch w-full">
-          <label
-            htmlFor="highSchoolPercentage"
-            className="relative [display:-webkit-box] items-center justify-center self-stretch mt-[-1.00px] text-zinc-950 text-base leading-[normal] whitespace-nowrap overflow-hidden text-ellipsis [-webkit-line-clamp:0] [-webkit-box-orient:vertical] [direction:rtl]"
-          >
-            النسبة المطلوبة للثانوية
+      <form className="flex-col items-start justify-center gap-6 flex self-stretch w-full">
+        {/* الثانوية */}
+        <div className="flex-col items-start gap-2.5 flex self-stretch w-full">
+          <label htmlFor="highSchoolPercentage" className="text-zinc-950 text-base [direction:rtl]">
+            النسبة المطلوبة للثانوية (%)
           </label>
-          <div className="items-start justify-start gap-2.5 p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex relative self-stretch w-full">
+          <div className="p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex self-stretch w-full">
             <input
               id="highSchoolPercentage"
               type="number"
               min="0"
               max="100"
               step="0.1"
-              value={highSchoolPercentage}
-              onChange={(e) =>
-                handleInputChange(setHighSchoolPercentage, e.target.value)
-              }
-              placeholder="ادخل النسبة المطلوبة للقبول"
-              className=" text-zinc-900 text-sm text-right relative w-full leading-[normal] [direction:rtl] placeholder:text-zinc-500"
-              aria-describedby="highSchoolPercentage-desc"
+              value={value.highSchoolPercentage}
+              onChange={(e) => onChange("highSchoolPercentage", e.target.value)}
+              placeholder="مثال: 40"
+              className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500"
             />
           </div>
-          <span id="highSchoolPercentage-desc" className="sr-only">
-            أدخل النسبة المطلوبة للثانوية العامة من 0 إلى 100
-          </span>
         </div>
 
-        {/* Abilities Score Input - No responsive changes needed here */}
-        <div className="flex-col items-start gap-2.5 flex relative self-stretch w-full">
-          <label
-            htmlFor="abilitiesScore"
-            className="relative [display:-webkit-box] items-center justify-center self-stretch mt-[-1.00px] text-zinc-950 text-base leading-[normal] whitespace-nowrap overflow-hidden text-ellipsis [-webkit-line-clamp:0] [-webkit-box-orient:vertical] [direction:rtl]"
-          >
-            درجة القدرات المطلوبة
+        {/* القدرات */}
+        <div className="flex-col items-start gap-2.5 flex self-stretch w-full">
+          <label htmlFor="abilitiesScore" className="text-zinc-950 text-base [direction:rtl]">
+            درجة القدرات المطلوبة (%)
           </label>
-          <div className="items-start justify-start gap-2.5 p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex relative self-stretch w-full">
+          <div className="p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex self-stretch w-full">
             <input
               id="abilitiesScore"
               type="number"
               min="0"
               max="100"
               step="0.1"
-              value={abilitiesScore}
-              onChange={(e) =>
-                handleInputChange(setAbilitiesScore, e.target.value)
-              }
-              placeholder="اكتب الحد الأدنى للقدرات"
-              className=" text-zinc-900 text-sm text-right relative w-full leading-[normal] [direction:rtl] placeholder:text-zinc-500"
-              aria-describedby="abilitiesScore-desc"
+              value={value.abilitiesScore}
+              onChange={(e) => onChange("abilitiesScore", e.target.value)}
+              placeholder="مثال: 30"
+              className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500"
             />
           </div>
-          <span id="abilitiesScore-desc" className="sr-only">
-            أدخل درجة القدرات المطلوبة من 0 إلى 100
-          </span>
         </div>
 
-        {/* Achievement Score Input - Responsive changes made here */}
-        <div className="flex-col items-start gap-2.5 flex relative self-stretch w-full">
-          {/* CHANGED: Stacked label and helper text on mobile (`flex-col`) and reverted to horizontal on medium screens (`md:flex-row`). */}
-          <div className="flex flex-col items-start gap-1 md:flex-row md:items-start md:justify-between relative self-stretch w-full">
-            <label
-              htmlFor="achievementScore"
-              className=" text-zinc-950 text-base relative [display:-webkit-box] items-center justify-center w-fit mt-[-1.00px] leading-[normal] overflow-hidden text-ellipsis [-webkit-line-clamp:1] [-webkit-box-orient:vertical] [direction:rtl]"
-            >
-              درجة التحصيلي المطلوبة
+        {/* التحصيلي */}
+        <div className="flex-col items-start gap-2.5 flex self-stretch w-full">
+          <div className="flex flex-col items-start gap-1 md:flex-row md:justify-between self-stretch w-full">
+            <label htmlFor="achievementScore" className="text-zinc-950 text-base [direction:rtl]">
+              درجة التحصيلي المطلوبة (%)
             </label>
-            {/* CHANGED: Made helper text slightly smaller for mobile. */}
-            <p className=" text-[#be1919] text-sm md:text-base relative [display:-webkit-box] items-center justify-center w-fit mt-[-1.00px] leading-[normal] overflow-hidden text-ellipsis [-webkit-line-clamp:1] [-webkit-box-orient:vertical] [direction:rtl]">
-              إذا كان التحصيلي غير مطلوب, اتركه فارغا
+            <p className="text-[#be1919] text-sm md:text-base [direction:rtl]">
+              إذا كان التحصيلي غير مطلوب, اتركه فارغا أو اجعله 0
             </p>
           </div>
-          <div className="items-start justify-start gap-2.5 p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex relative self-stretch w-full">
+
+          <div className="p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex self-stretch w-full">
             <input
               id="achievementScore"
               type="number"
               min="0"
               max="100"
               step="0.1"
-              value={achievementScore}
-              onChange={(e) =>
-                handleInputChange(setAchievementScore, e.target.value)
-              }
-              placeholder="اكتب الحد الأدنى للقدرات"
-              className=" text-zinc-900 text-sm text-right relative w-full leading-[normal] [direction:rtl] placeholder:text-zinc-500"
-              aria-describedby="achievementScore-desc"
+              value={value.achievementScore}
+              onChange={(e) => onChange("achievementScore", e.target.value)}
+              placeholder="مثال: 30"
+              className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500"
             />
           </div>
-          <span id="achievementScore-desc" className="sr-only">
-            أدخل درجة التحصيلي المطلوبة من 0 إلى 100، أو اتركه فارغا إذا لم يكن
-            مطلوبا
-          </span>
         </div>
       </form>
     </div>
   );
 };
 
-export const ProgressFrame = () => {
-  const progressData = {
-    percentage: 75,
-    label: "نسبتك الموزونة هي",
-  };
+export const ProgressFrame = ({ percentage = 0, show = false }) => {
+  const safe = Math.max(0, Math.min(100, Number(percentage) || 0));
 
   return (
-    // CHANGED: Reduced vertical padding on mobile (`pt-6 pb-10`)
-    // and restored the original padding on medium screens and up (`md:`).
-    <div className="flex flex-col items-start gap-4 pt-4 pb-6 px-4 md:pt-8 md:pb-14 relative bg-primary-light  rounded-xl md:rounded-[30px]">
-      <div className="items-start justify-between flex relative self-stretch w-full flex-[0_0_auto]">
-        <div className="relative w-fit mt-[-1.00px] z-0 font-medium text-text text-base tracking-[0] leading-[normal] [direction:rtl]">
-          {progressData.label}
+    <div className="flex flex-col items-start gap-4 pt-4 pb-6 px-4 md:pt-8 md:pb-14 relative bg-primary-light rounded-xl md:rounded-[30px]">
+      <div className="flex items-start justify-between self-stretch w-full">
+        <div className="font-medium text-text text-base [direction:rtl]">
+          نسبتك الموزونة هي
         </div>
-        <div className="relative w-fit mt-[-1.00px] z-[1] font-bold text-primary-dark text-base text-right tracking-[0] leading-[normal]">
-          {progressData.percentage}%
+        <div className="font-bold text-primary-dark text-base text-right">
+          {show ? `${safe}%` : "—"}
         </div>
       </div>
 
-      <div className="flex-col items-start bg-primary-bg rounded-[20px] flex relative self-stretch w-full flex-[0_0_auto]">
+      <div className="bg-primary-bg rounded-[20px] self-stretch w-full">
         <div
-          className="relative h-2  md:h-4 bg-primary rounded-[20px]"
-          style={{ width: `${progressData.percentage}%` }}
+          className="h-2 md:h-4 bg-primary rounded-[20px]"
+          style={{ width: `${show ? safe : 0}%` }}
         />
       </div>
     </div>
   );
 };
 
-const ActionsButtons = () => {
-  const handleRecalculate = () => {
-    // Handle recalculation logic
-    console.log("Recalculating...");
-  };
 
-  const handleDownloadPDF = () => {
-    // Handle PDF download logic
-    console.log("Downloading PDF...");
-  };
-
-  // A placeholder for the missing icon component
+const ActionsButtons = ({ onRecalculate, onReset, onDownload, canDownload }) => {
   const FileIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
       <polyline points="14 2 14 8 20 8" />
       <line x1="16" y1="13" x2="8" y2="13" />
@@ -432,27 +530,40 @@ const ActionsButtons = () => {
   );
 
   return (
-    <div className="flex flex-col md:flex-row  w-full max-w-[812px] mx-auto items-center justify-center gap-4 md:gap-12 relative mt-6 md:mt-[32px]  md:px-0">
+    <div className="flex flex-col md:flex-row w-full max-w-[812px] mx-auto items-center justify-center gap-4 md:gap-12 mt-6 md:mt-[32px]">
       <button
-        className="flex items-center px-10 md:px-20  py-4 md:py-6 justify-center gap-2 w-full md:w-auto  relative flex-1 grow bg-primary rounded-[20px] text-white hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
-        onClick={handleDownloadPDF}
+        className={`flex items-center px-10 md:px-20 py-4 md:py-6 justify-center gap-2 w-full md:w-auto flex-1 grow rounded-[20px] text-white transition
+          ${canDownload ? "bg-primary hover:bg-primary-dark" : "bg-gray-300 cursor-not-allowed"}`}
+        onClick={onDownload}
         type="button"
+        disabled={!canDownload}
         aria-label="تنزيل النتيجة PDF"
       >
         <FileIcon />
-        <span className="relative  whitespace-nowrap flex  items-center justify-center w-fit mt-[-1.00px] font-bold  text-sm md:text-base tracking-[0] leading-[normal] [direction:rtl]">
+        <span className="font-bold text-sm md:text-base [direction:rtl] whitespace-nowrap">
           تنزيل النتيجة PDF
         </span>
       </button>
 
       <button
-        className="flex items-center px-10 md:px-20  py-4 md:py-6 justify-center gap-2 w-full md:w-auto  relative flex-1 grow bg-white rounded-[20px] border-2 border-solid border-blue-500 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
-        onClick={handleRecalculate}
+        className="flex items-center px-10 md:px-20 py-4 md:py-6 justify-center gap-2 w-full md:w-auto flex-1 grow bg-white rounded-[20px] border-2 border-solid border-blue-500 hover:bg-gray-50 transition"
+        onClick={onRecalculate}
         type="button"
         aria-label="إعادة الحساب"
       >
-        <span className="relative whitespace-nowrap flex items-center justify-center w-fit mt-[-2.00px] font-bold text-blue-500 text-sm md:text-base tracking-[0] leading-[normal] [direction:rtl]">
+        <span className="font-bold text-blue-500 text-sm md:text-base [direction:rtl]">
           إعادة الحساب
+        </span>
+      </button>
+
+      <button
+        className="flex items-center px-6 py-4 md:py-6 justify-center w-full md:w-auto rounded-[20px] border border-zinc-200 hover:bg-zinc-50 transition"
+        onClick={onReset}
+        type="button"
+        aria-label="مسح البيانات"
+      >
+        <span className="font-bold text-zinc-700 text-sm md:text-base [direction:rtl]">
+          مسح البيانات
         </span>
       </button>
     </div>
