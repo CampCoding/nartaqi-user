@@ -1,25 +1,88 @@
+"use client";
 
-"use client"
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PagesBanner from "../../components/ui/PagesBanner";
 import { SendUsMessageForm } from "./../../components/ui/SendUsMessageForm";
 import Container from "../../components/ui/Container";
 import useSupportInfo from "../../components/shared/Hooks/getSupportInfo";
+import axios from "axios";
 
 const ComplaintsAndSuggestions = () => {
+  const { whatsappHref, emailText, phoneText, whatsappNumber, telHref } =
+    useSupportInfo();
 
+  const [complaintsData, setComplaintsData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const {
-    whatsappHref,
-    emailText,
-    phoneText,
-    whatsappNumber,
-    telHref,
-  } = useSupportInfo();
+  useEffect(() => {
+    fetchComplaints();
+  }, []);
 
+  const fetchComplaints = async () => {
+    try {
+      setLoading(true);
 
+      const token = localStorage.getItem("token");
 
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL || ""}/user/complaints/getUserComplaints`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response?.data?.status === "success") {
+        // Filter only complaints type and not hidden
+        const complaints = response.data.message.filter(
+          (item) => item.type === "complaints" && item.hidden === 0
+        );
+        setComplaintsData(complaints);
+      }
+    } catch (error) {
+      console.error("Error fetching complaints:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper function to extract text from HTML
+  const extractTextFromHTML = (html) => {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || "";
+  };
+
+  // Helper function to check if this is the last item with contact info
+  const isContactInfoSection = (question) => {
+    return question?.includes("آلية التعامل مع المقترحات");
+  };
+
+  // Render complaint content based on whether it has HTML or plain text
+  const renderComplaintContent = (complaint) => {
+    // Check if the answer contains HTML tags
+    const hasHTML = /<[^>]+>/.test(complaint.answer);
+
+    if (hasHTML) {
+      // Clean the HTML and display it
+      return (
+        <div
+          className="self-stretch text-right text-text-alt leading-loose text-base md:text-lg font-semibold whitespace-pre-line"
+          dangerouslySetInnerHTML={{ __html: complaint.answer }}
+          style={{ direction: "rtl" }}
+        />
+      );
+    } else {
+      // Display as plain text
+      return (
+        <p className="self-stretch text-right text-text-alt leading-loose text-base md:text-lg font-semibold whitespace-pre-line">
+          {complaint.answer}
+        </p>
+      );
+    }
+  };
 
   return (
     <div>
@@ -45,93 +108,108 @@ const ComplaintsAndSuggestions = () => {
         </div>
 
         <div className="flex flex-col gap-6 md:gap-[32px] mb-8 md:mb-[48px] px-4 md:px-0">
-          {/* آليه الشكاوي والمقترحات */}
-          <section className="self-stretch inline-flex flex-col items-end gap-3 md:gap-4">
-            <h2 className="self-stretch text-right text-text text-xl md:text-2xl font-bold">
-              آليه الشكاوي والمقترحات
-            </h2>
-            <p className="self-stretch text-right text-text-alt leading-loose text-base md:text-lg font-semibold">
-              انطلاقا من قيم المركز في خدمة والاهتمام بالمستفيدين وانسجاما مع
-              رؤية المركز القائمة على الفعالية والشفافية والجودة، تم فتح (إدارة
-              الشكاوى و المقترحات ) استجابة لتطلعات مختلف فئات المستفيدين
-              والتعامل مع مشكلاتهم ومتطلباتهم والتي نعتبرها فرصة لتحسين جودة
-              الخدمات المقدمة.
-            </p>
-          </section>
-
-          {/* آلية التعامل مع الشكاوي */}
-          <section className="self-stretch inline-flex flex-col items-end gap-3 md:gap-4">
-            <h2 className="self-stretch text-right text-text text-xl md:text-2xl font-bold">
-              آلية التعامل مع الشكاوي:
-            </h2>
-            <p className="self-stretch text-right text-text-alt leading-loose text-base md:text-lg font-semibold whitespace-pre-line">
-              {`1- يتم تقديم الشكوى من خلال القنوات المتاحة مع ضرورة ذكر البيانات المطلوبة وأرقام التواصل.
-2- يتم تسجيل الشكوى وإحالتها إلى الادارة المعنية.
-3- يقوم فريق مختص ببحث الشكوى من خلال التواصل مع مقدم الشكوى.
-4- يتم حل المشكلة واتخاذ الإجراءات اللازمة حال ثبوت صحة الشكوى , والتواصل مع مقدم الشكوى هاتفياً وإبلاغه بما تم لحل الشكوى .
-5- يتم إجراء مراجعة منتظمة لكافة الشكاوى وتحليلها ودراستها، وبيان فرص التحسين والتطوير المتصلة بها ومتابعتها مع وحدات العمل المعنية بتلك الفرص من قبل إدارة المركز.`}
-            </p>
-
-            {/* المدة المتوقعة */}
-            <div className="self-stretch inline-flex flex-col items-end gap-3 md:gap-4">
-              <h3 className="self-stretch text-right text-text text-lg md:text-2xl font-bold">
-                المدة المتوقعة لإغلاق الشكوى :
-              </h3>
-              <p className="self-stretch text-right text-text-alt leading-loose text-base md:text-lg font-semibold whitespace-pre-line">
-                {`يتم معالجة المشاكل الأساسية (غير التقنية) خلال 24 ساعة من وقت الرد
-بينما يتم معالجة المشاكل التقنية خلال أسبوع إلى أسبوعين
-وفي حال لم يتم الالتزام بالأوقات المذكورة، يتم رفع المشكلة مباشرة للمدير التقني`}
-              </p>
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
             </div>
-          </section>
+          ) : (
+            <>
+              {complaintsData.map((complaint, index) => (
+                <section
+                  key={complaint.id}
+                  className="self-stretch inline-flex flex-col items-end gap-3 md:gap-4"
+                >
+                  <h2 className="self-stretch text-right text-text text-xl md:text-2xl font-bold">
+                    {complaint.question}
+                  </h2>
 
-          {/* آلية التعامل مع المقترحات */}
-          <section className="self-stretch inline-flex flex-col items-end gap-3 md:gap-4">
-            <h2 className="self-stretch text-right text-text text-xl md:text-2xl font-bold">
-              آلية التعامل مع المقترحات:
-            </h2>
+                  {/* Check if this is the contact info section */}
+                  {isContactInfoSection(complaint.question) ? (
+                    <div className="self-stretch text-right">
+                      {renderComplaintContent(complaint)}
 
-            <div className="self-stretch text-right">
-              <p className="text-text-alt leading-loose text-base md:text-lg font-semibold whitespace-pre-line">
-                {`1- يتم تقديم المقترح من خلال القنوات المتاحة مع ضرورة ذكر البيانات المطلوبة وأرقام التواصل.
-2- يتم تسجيل المقترح وإحالته إلى الإدارة المعنية.
-3- يتم التواصل مع مقدم المقترح إذا تطلب الأمر للحصول على تفاصيل إضافية للمقترح.
-4- يتم دراسة إمكانية تطبيق المقترح من قبل ادارة المعنية، ومن ثم تنفيذه في حال كان مناسبا ويحقق أهداف المركز .
-5- يتم التواصل مع مقدم المقترح لشكره.
-قنوات التواصل بالمركز:`}
-              </p>
+                      {/* Add contact info after the content */}
+                      <div className="mt-4 space-y-2 text-base md:text-lg">
+                        <p className="text-text-alt font-semibold">
+                          قنوات التواصل بالمركز:
+                        </p>
+                        <div className="font-semibold text-text-alt">
+                          الواتس اب:{" "}
+                          <a
+                            dir="ltr"
+                            href={whatsappHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary font-bold underline underline-offset-2"
+                          >
+                            {whatsappNumber}
+                          </a>
+                        </div>
+                        <div className="font-semibold text-text-alt">
+                          البريد الالكتروني:{" "}
+                          <a
+                            dir="ltr"
+                            href={`mailto:${emailText}`}
+                            className="text-primary font-bold underline underline-offset-2 break-all"
+                          >
+                            {emailText}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    renderComplaintContent(complaint)
+                  )}
+                </section>
+              ))}
 
-              <div className="mt-2 space-y-1 text-base md:text-lg">
-                <div className="font-semibold text-text-alt">
-                  الواتس اب:{" "}
-                  <a
-                    dir="ltr"
-                    href={whatsappHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary font-bold underline underline-offset-2"
-                  >
-                    {whatsappNumber}
-                  </a>
+              {/* Fallback if no data */}
+              {complaintsData.length === 0 && (
+                <div className="text-center py-20">
+                  <p className="text-xl text-gray-500">
+                    لا توجد بيانات متاحة حالياً
+                  </p>
                 </div>
-
-                <div className="font-semibold text-text-alt">
-                  البريد الالكتروني:{" "}
-                  <a
-                    dir="ltr"
-                    href={`mailto:${emailText}`}
-                    className="text-primary font-bold underline underline-offset-2 break-all"
-                  >
-                    {emailText}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </section>
+              )}
+            </>
+          )}
         </div>
 
         <SendUsMessageForm />
       </Container>
+
+      {/* Custom styles for HTML content */}
+      <style jsx global>{`
+        /* Styles for rendered HTML content */
+        .self-stretch a {
+          color: #3b82f6;
+          text-decoration: underline;
+          font-weight: bold;
+        }
+
+        .self-stretch a:hover {
+          color: #2563eb;
+        }
+
+        /* Ensure RTL for all content */
+        section div[style*="direction"] {
+          direction: rtl !important;
+          text-align: right !important;
+        }
+
+        /* Style paragraphs inside HTML content */
+        section p {
+          direction: rtl;
+          text-align: right;
+          margin-bottom: 0.5rem;
+        }
+
+        /* Remove excessive inline styles from API HTML */
+        section [style*="--tw"] {
+          font-family: inherit !important;
+          color: inherit !important;
+        }
+      `}</style>
     </div>
   );
 };

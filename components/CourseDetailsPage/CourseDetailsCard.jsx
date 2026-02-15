@@ -1,3 +1,4 @@
+// components/CourseDetailsCard.jsx
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -19,8 +20,9 @@ import {
   getUserCart,
 } from "@/components/utils/Store/Slices/cartSlice";
 import useHandleFavoriteActions from "../shared/Hooks/useHandleFavoriteActions";
-import useEnrollInCourse from "../shared/Hooks/useEnroll";
+import usePayment, { PAYMENT_TYPES } from "@/hooks/usePayment";
 import cx from "../../lib/cx";
+import toast from "react-hot-toast";
 
 const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
   const dispatch = useDispatch();
@@ -29,20 +31,23 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
   const round = courseData?.round || courseData;
 
   const [isCartLoading, setIsCartLoading] = useState(false);
-  const [isEnrollLoading, setIsEnrollLoading] = useState(false);
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [isFavorited, setIsFavorited] = useState(!!round?.fav);
 
   const { items: cartItems } = useSelector((state) => state.cart);
   const { token, user } = useSelector((state) => state.auth);
 
-  const { enroll } = useEnrollInCourse();
+  useEffect(() => {
+    console.log(user, "user");
+  }, [user]);
+
+  const { initiatePayment } = usePayment();
   const { mutate: toggleFavorite, isLoading: isFavLoading } =
     useHandleFavoriteActions();
 
   const roundId = round?.id;
   const studentId = user?.id;
 
-  // ✅ Sync favorite state when API data changes
   useEffect(() => {
     setIsFavorited(!!round?.fav);
   }, [round?.fav]);
@@ -63,7 +68,6 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
         item.item_id === roundId ||
         item.round_id === roundId ||
         item.round?.id === roundId;
-
       return matchById && item.type === "rounds";
     });
   }, [cartItems, roundId]);
@@ -75,7 +79,6 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
         item.item_id === roundId ||
         item.round_id === roundId ||
         item.round?.id === roundId;
-
       return matchById && item.type === "rounds";
     });
   }, [cartItems, roundId]);
@@ -117,8 +120,6 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
           addToCart({ type: "rounds", item_id: roundId, quantity: 1 })
         ).unwrap();
       }
-
-      // لو عندك Slice بيعمل optimistic update، ممكن تستغني عن دي
       await dispatch(getUserCart()).unwrap();
     } catch (error) {
       console.error("Failed to toggle cart:", error);
@@ -131,63 +132,112 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
     if (!token) return goLogin();
     if (!roundId) return console.error("Round ID is undefined!");
 
-    // optimistic update
     setIsFavorited((prev) => !prev);
 
     toggleFavorite(
       { id: roundId, payload: { round_id: roundId } },
       {
         onError: () => {
-          // rollback
           setIsFavorited((prev) => !prev);
         },
       }
     );
   }, [token, roundId, toggleFavorite, goLogin]);
 
-  const handleSubscribe = useCallback(async () => {
-    const isFull = +round.capacity - +round.students_count == 0;
+  const handlePayNow = async () => {
+    if (!token) {
+      toast.error("يجب تسجيل الدخول أولاً");
+      router.push("/login");
+      return;
+    }
 
-    if (!token) return goLogin();
-    if (!roundId) return console.error("Round ID is undefined!");
-    if (!studentId) return console.error("Student ID is undefined!");
-    if (isFull) return console.error("هذه الدورة ممتلئة");
+    if (round.capacity - round?.students_count <= 0) {
+      toast.error("عذراً، هذه الدورة ممتلئة");
+      return;
+    }
 
+    setIsPaymentLoading(true);
 
-    setIsEnrollLoading(true);
     try {
-      const res = await enroll({
-        token,
-        round_id: roundId,
-        student_id: studentId,
-        payment_id: 1,
-        // ✅ الأفضل بدل تاريخ ثابت
-        end_date: round?.end_date || "2025-12-30",
+      // ✅ تحديد الدولة من رقم الموبايل
+      let phone = user?.phone || "";
+      let currency = "SAR";
+      let countryCode = "+966";
+
+      // تنظيف الرقم
+      phone = phone.replace(/\D/g, "");
+
+      // تحديد الدولة
+      if (phone.startsWith("20")) {
+        currency = "EGP";
+        countryCode = "+20";
+        phone = phone.substring(2);
+      } else if (phone.startsWith("966")) {
+        currency = "SAR";
+        countryCode = "+966";
+        phone = phone.substring(3);
+      } else if (phone.startsWith("0")) {
+        currency = "SAR";
+        countryCode = "+966";
+        phone = phone.substring(1);
+      }
+
+      const cleanPhone = phone.slice(-10);
+
+      // ✅ السعر بدون ضريبة
+      const price = parseFloat(round.price);
+
+      const paymentData = {
+        CustomerName: user?.name || "Customer",
+        CustomerMobile: cleanPhone,
+        InvoiceValue: price.toFixed(2),
+        currency: "SAR",
+        countryCode: countryCode,
+        productName: round?.title || round?.name || "دورة تدريبية",
+        roundId: roundId,
+        studentId: user?.id,
+        endDate: round?.end_date,
+      };
+
+      // حفظ بيانات الدفع
+      localStorage.setItem(
+        "pending_payment",
+        JSON.stringify({
+          roundId: roundId,
+          studentId: user?.id,
+          amount: price,
+          courseName: round?.title || round?.name,
+          endDate: round?.end_date,
+          token: token,
+        })
+      );
+
+      const response = await fetch("/api/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paymentData),
       });
 
-      if (res?.ok) onSubscribe?.(res);
-    } catch (e) {
-      console.error("Enroll failed:", e);
+      const data = await response.json();
+
+      if (data.IsSuccess && data.Data?.InvoiceURL) {
+        window.location.href = data.Data.InvoiceURL;
+      } else {
+        toast.error(data.Message || "فشل في إنشاء الفاتورة");
+        console.error("Payment Error:", data);
+      }
+    } catch (error) {
+      console.error("Payment Error:", error);
+      toast.error("حدث خطأ أثناء عملية الدفع");
     } finally {
-      setIsEnrollLoading(false);
+      setIsPaymentLoading(false);
     }
-  }, [
-    token,
-    roundId,
-    studentId,
-    enroll,
-    onSubscribe,
-    goLogin,
-    round?.end_date,
-  ]);
+  };
 
   if (!round || !roundId) {
     return (
       <div className="w-full max-w-[460px] px-5 pt-6 bg-white rounded-[28px] shadow-lg">
         <p className="text-red-500 text-sm">Error: No round data available</p>
-        <pre className="text-xs mt-2 bg-gray-100 p-2 rounded overflow-auto">
-          {JSON.stringify(courseData, null, 2)}
-        </pre>
       </div>
     );
   }
@@ -196,7 +246,10 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
     <div className="w-full lg:text-white max-w-[460px] px-4 sm:px-5 pt-5 sm:pt-6 relative bg-white rounded-[30px] sm:rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] overflow-hidden">
       {/* Image */}
       <div
-        className={cx("w-full h-52 sm:h-60 relative bg-black/20 rounded-[22px] sm:rounded-[28px] overflow-hidden", scrolled ? "hidden" : "visible")}
+        className={cx(
+          "w-full h-52 sm:h-60 relative bg-black/20 rounded-[22px] sm:rounded-[28px] overflow-hidden",
+          scrolled ? "hidden" : "visible"
+        )}
         style={{
           backgroundImage: `url('${round.image_url}')`,
           backgroundSize: "cover",
@@ -295,35 +348,31 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
 
       {/* Price + Actions */}
       <div className="pt-3 sm:pt-4 pb-8 sm:pb-10">
-        {/* <div className="justify-center text-text-alt line-through decoration-red-600 text-sm sm:text-base font-bold">
-          120 ر.س
-        </div> */}
-
         <div className="self-stretch inline-flex justify-end items-end gap-3 sm:gap-4 mt-1">
           <div className="justify-center text-primary text-xl sm:text-2xl font-bold">
             {round.price} ر.س
           </div>
-          {
-            round.round_book_url && 
+          {round.round_book_url && (
             <div className="justify-center text-text text-[11px] sm:text-xs font-medium">
               (شاملة كتاب الدورة بصيغة PDF)
             </div>
-          }
+          )}
         </div>
 
         <div className="mt-4 mb-4 sm:mb-5 w-full inline-flex justify-end items-center gap-3 sm:gap-4">
-          {/* Cart */}
+          {/* Cart Button */}
           <button
             type="button"
             onClick={handleToggleCart}
             disabled={isCartLoading}
             aria-label={isInCart ? "حذف من السلة" : "إضافة إلى السلة"}
             className={`flex-1 px-3 py-3 rounded-[14px] sm:rounded-[16px] border border-1 border-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200
-              ${isInCart && !isCartLoading
-                ? "bg-red-50 border-red-500 hover:bg-red-100 group"
-                : isCartLoading
-                  ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
-                  : "bg-white border-secondary hover:bg-secondary group"
+              ${
+                isInCart && !isCartLoading
+                  ? "bg-red-50 border-red-500 hover:bg-red-100 group"
+                  : isCartLoading
+                    ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
+                    : "bg-white border-secondary hover:bg-secondary group"
               }`}
           >
             {isCartLoading ? (
@@ -377,18 +426,19 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
             )}
           </button>
 
-          {/* Favorite */}
+          {/* Favorite Button */}
           <button
             type="button"
             onClick={handleToggleFavorite}
             disabled={isFavLoading}
             aria-label={isFavorited ? "إزالة من المفضلة" : "إضافة للمفضلة"}
             className={`flex px-3 py-3 rounded-[14px] sm:rounded-[16px] border border-1 border-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200
-              ${isFavorited && !isFavLoading
-                ? "bg-red-50 border-red-500 hover:bg-red-100 group"
-                : isFavLoading
-                  ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
-                  : "bg-white border-secondary hover:bg-secondary group"
+              ${
+                isFavorited && !isFavLoading
+                  ? "bg-red-50 border-red-500 hover:bg-red-100 group"
+                  : isFavLoading
+                    ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
+                    : "bg-white border-secondary hover:bg-secondary group"
               }`}
           >
             {isFavLoading ? (
@@ -419,32 +469,40 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
               </svg>
             )}
           </button>
-          {/* <button
-            className={` px-3 py-3 rounded-[14px] sm:rounded-[16px] border border-1 border-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200`}
-          ></button> */}
         </div>
 
-        {/* Subscribe */}
+        {/* ✅ NEW: Pay Now Button */}
         <button
           type="button"
-          onClick={handleSubscribe}
-          disabled={isEnrollLoading || round.capacity - round?.students_count <= 0}
-          // disabled={true}
-          className={` ${"disabled:!bg-gray-300 disabled:!cursor-not-allowed"}  w-full px-3.5 py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group
-            ${isEnrollLoading
-              ? "bg-gray-300 cursor-wait"
-              : "bg-secondary hover:bg-secondary-warm focus:bg-primary"
+          onClick={handlePayNow}
+          disabled={
+            isPaymentLoading || round.capacity - round?.students_count <= 0
+          }
+          className={`w-full px-3.5 py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group disabled:!bg-gray-300 disabled:!cursor-not-allowed
+            ${
+              isPaymentLoading
+                ? "bg-gray-300 cursor-wait"
+                : "bg-secondary hover:bg-secondary-warm focus:bg-primary"
             }`}
         >
-          {isEnrollLoading ? <div className="spinner" /> : null}
-          <span className="text-center justify-center text-slate-200 text-xs sm:text-[13px] font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
-            {isEnrollLoading ? "جاري الاشتراك..." : "اشترك الأن"}
-          </span>
+          {isPaymentLoading ? (
+            <>
+              <div className="spinner" />
+              <span className="text-white text-xs sm:text-[13px] font-bold">
+                جاري التحويل للدفع...
+              </span>
+            </>
+          ) : (
+            <span className="text-center justify-center text-slate-200 text-xs sm:text-[13px] font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
+              اشترك الآن - {round.price} ر.س
+            </span>
+          )}
         </button>
+
+        {/* Free Preview Link */}
         <Link
           href={`/course-preview/${roundId}`}
-          className={`w-full px-3.5 mt-3 bg-primary py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group
-           `}
+          className="w-full px-3.5 mt-3 bg-primary py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group"
         >
           <span className="text-center justify-center text-slate-200 text-xs sm:text-[13px] font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
             الشروحات المجانية

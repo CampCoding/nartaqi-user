@@ -55,20 +55,34 @@ const LiveCard = ({ liveData, courseData }) => {
 
       <section className="flex flex-col items-start gap-2.5 sm:gap-3 lg:gap-3.5 self-stretch w-full">
         <h2 className="self-stretch text-text text-[15px] sm:text-[17px] lg:text-[20px] font-bold text-center leading-snug">
-          { liveData.title || liveData.lessonTitle }
+          {liveData.title || liveData.lessonTitle}
         </h2>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-3.5 lg:p-4 self-stretch w-full bg-white rounded-[14px] sm:rounded-[16px] lg:rounded-[18px] border-2 border-solid border-variable-collection-stroke gap-2 sm:gap-0">
           <div className="inline-flex flex-col items-start gap-1 sm:gap-1.5 w-full sm:w-auto">
             <div className="font-semibold text-text text-[12px] sm:text-[13px] lg:text-[14px] leading-normal flex flex-wrap items-center">
               <span>رمز الدخول:</span>
-              <span className="mx-1.5 sm:mx-2" aria-label={`رمز الدخول ${accessCode}`}>
+              <span
+                className="mx-1.5 sm:mx-2"
+                aria-label={`رمز الدخول ${accessCode}`}
+              >
                 {accessCode}
               </span>
             </div>
 
             <div className="text-[11px] sm:text-[12px] lg:text-[13px] text-text-alt">
-              الوقت: {formatTime(liveData.time)} - {liveData.date}
+              الوقت:{" "}
+              {`${formatTime(liveData.time)} - ${formatTime(liveData.end_time)}`}{" "}
+              - {liveData.date}
+            </div>
+            <div className="font-semibold text-text text-[12px] sm:text-[13px] lg:text-[14px] leading-normal flex flex-wrap items-center">
+              <span>رقم الإجتماع : </span>
+              <span
+                className="mx-1.5 sm:mx-2"
+                aria-label={`رقم الإجتماع ${liveData.meeting_id}`}
+              >
+                {liveData.meeting_id}
+              </span>
             </div>
           </div>
 

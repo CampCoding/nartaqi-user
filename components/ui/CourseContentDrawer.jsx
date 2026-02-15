@@ -67,128 +67,141 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
     setInfoOpen(true);
   };
 
+  const formatTime = (timeString) => {
+    if (!timeString) return "";
+    const [hours, minutes] = timeString.split(":");
+    return `${hours}:${minutes}`;
+  };
+
   const closeInfo = () => setInfoOpen(false);
 
   return (
-    <CursorLabelSection stop={true} label={<div className="">
-      { isRegistered && own && !content?.was_opened && content?.show_date && (
-        <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
-          متاح في: {content.show_date}
+    <CursorLabelSection
+      stop={true}
+      label={
+        <div className="">
+          {isRegistered &&
+            own &&
+            !content?.was_opened &&
+            content?.show_date && (
+              <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
+                متاح في: {content.show_date}
+              </div>
+            )}
         </div>
-      )}
-    </div>}>
-
-    <div
-      className={cx(
-        "self-stretch w-full transition-all bg-white rounded-2xl md:rounded-[24px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] outline outline-2 outline-offset-[-1px] outline-neutral-300 inline-flex flex-col justify-start items-start",
-        !isOpen ? "hover:shadow-2xl" : "shadow-xl"
-      )}
+      }
     >
-      {/* Header */}
       <div
-        className="self-stretch px-5 md:px-7 py-5 md:py-7 inline-flex justify-between items-start cursor-pointer"
-        onClick={handleToggle}
+        className={cx(
+          "self-stretch w-full transition-all bg-white rounded-2xl md:rounded-[24px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] outline outline-2 outline-offset-[-1px] outline-neutral-300 inline-flex flex-col justify-start items-start",
+          !isOpen ? "hover:shadow-2xl" : "shadow-xl"
+        )}
       >
-        <div> 
-          <div className="text-right flex items-start gap-2 justify-center text-text text-base md:text-lg font-bold">
-            <button
-              type="button"
-              onClick={openInfo}
-              className="inline-flex items-center justify-center mt-1"
-              aria-label="عرض وصف المحتوى"
-            >
-              <InfoIcon />
-            </button>
+        {/* Header */}
+        <div
+          className="self-stretch px-5 md:px-7 py-5 md:py-7 inline-flex justify-between items-start cursor-pointer"
+          onClick={handleToggle}
+        >
+          <div>
+            <div className="text-right flex items-start gap-2 justify-center text-text text-base md:text-lg font-bold">
+              <button
+                type="button"
+                onClick={openInfo}
+                className="inline-flex items-center justify-center mt-1"
+                aria-label="عرض وصف المحتوى"
+              >
+                <InfoIcon />
+              </button>
 
-            <div className="">
-              <div>{content.content_title || "غير محدد"}</div>
-              { isRegistered && own && !content?.was_opened && content?.show_date && (
-                <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
-                  متاح في: {content.show_date}
-                </div>
+              <div className="">
+                <div>{content.content_title || "غير محدد"}</div>
+                {isRegistered &&
+                  own &&
+                  !content?.was_opened &&
+                  content?.show_date && (
+                    <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
+                      متاح في: {content.show_date}
+                    </div>
+                  )}
+              </div>
+            </div>
+          </div>
+
+          <div className="transition-transform duration-300">
+            <div className="flex justify-between items-center gap-4 md:gap-5">
+              <CourseChevronTopIcon
+                className={`w-[22px] h-[22px] md:w-[26px] md:h-[26px] ${
+                  !isOpen ? "rotate-180" : "rotate-0"
+                } transition-transform duration-300 !fill-primary`}
+              />
+              {!isRegistered && (
+                <CourseLockIcon className="w-[22px] h-[22px] md:w-[26px] md:h-[26px] !fill-primary" />
               )}
             </div>
           </div>
         </div>
 
-        <div className="transition-transform duration-300">
-          <div className="flex justify-between items-center gap-4 md:gap-5">
-            <CourseChevronTopIcon
-              className={`w-[22px] h-[22px] md:w-[26px] md:h-[26px] ${
-                !isOpen ? "rotate-180" : "rotate-0"
-              } transition-transform duration-300 !fill-primary`}
-            />
-            {!isRegistered && (
-              <CourseLockIcon className="w-[22px] h-[22px] md:w-[26px] md:h-[26px] !fill-primary" />
-            )}
-          </div>
-        </div>
-      </div>
+        <Modal
+          open={infoOpen}
+          onCancel={closeInfo}
+          footer={null}
+          centered
+          title={content.content_title || "وصف المحتوى"}
+        >
+          <div
+            className="text-right leading-relaxed prose prose-neutral text-text leading-7 md:leading-8 text-sm md:text-base font-normal"
+            dangerouslySetInnerHTML={{
+              __html:
+                content?.description ||
+                content?.content_description ||
+                "<p>لا يوجد وصف متاح</p>",
+            }}
+          />
+        </Modal>
 
-      <Modal
-        open={infoOpen}
-        onCancel={closeInfo}
-        footer={null}
-        centered
-        title={content.content_title || "وصف المحتوى"}
-      >
-        <div
-          className="text-right leading-relaxed prose prose-neutral text-text leading-7 md:leading-8 text-sm md:text-base font-normal"
-          dangerouslySetInnerHTML={{
-            __html:
-              content?.description ||
-              content?.content_description ||
-              "<p>لا يوجد وصف متاح</p>",
-          }}
-        />
-      </Modal>
-
-      {/* Body */}
-      {isOpen &&
-        (isRegistered ? (
-          <div className="w-full flex flex-col gap-4 md:gap-5 px-5 md:px-7 pb-5 md:pb-7">
-            {!content.lessons || content.lessons.length == 0 ? (
-              <span className="text-gray-500 text-xl"> لا يوجد بيانات </span>
-            ) : (
-              content.lessons.map((lesson) => (
+        {/* Body */}
+        {isOpen &&
+          (isRegistered ? (
+            <div className="w-full flex flex-col gap-4 md:gap-5 px-5 md:px-7 pb-5 md:pb-7">
+              {!content.lessons || content.lessons.length == 0 ? (
+                <span className="text-gray-500 text-xl"> لا يوجد بيانات </span>
+              ) : (
+                content.lessons.map((lesson) => (
+                  <RegLectureDrawer
+                    key={lesson.id}
+                    lesson={lesson}
+                    isDone={true}
+                    own={own}
+                    isSectionOpen={content.was_opened}
+                    isRegistered={isRegistered}
+                    token={token}
+                    studentId={user?.id}
+                    // ✅ round_id كان غلط/غير معرّف — لازم من الداتا
+                    roundId={content?.round_id}
+                  />
+                ))
+              )}
+            </div>
+          ) : (
+            <div className="w-full flex flex-col gap-4 md:gap-5 px-5 md:px-7 pb-5 md:pb-7">
+              {content.lessons.map((lesson) => (
                 <RegLectureDrawer
                   key={lesson.id}
                   lesson={lesson}
                   isDone={true}
-                  own={own}
                   isSectionOpen={content.was_opened}
-
+                  own={own}
+                  // ✅ كان غلط: isRegistered={!isRegistered}
                   isRegistered={isRegistered}
                   token={token}
                   studentId={user?.id}
-                  // ✅ round_id كان غلط/غير معرّف — لازم من الداتا
                   roundId={content?.round_id}
                 />
-              ))
-            )}
-          </div>
-        ) : (
-          <div className="w-full flex flex-col gap-4 md:gap-5 px-5 md:px-7 pb-5 md:pb-7">
-            {content.lessons.map((lesson) => (
-              <RegLectureDrawer
-                key={lesson.id}
-                lesson={lesson}
-                isDone={true}
-                isSectionOpen={content.was_opened}
-                own={own}
-                // ✅ كان غلط: isRegistered={!isRegistered}
-                isRegistered={isRegistered}
-                token={token}
-                studentId={user?.id}
-                roundId={content?.round_id}
-              />
-            ))}
-          </div>
-        ))}
-    </div>
-
+              ))}
+            </div>
+          ))}
+      </div>
     </CursorLabelSection>
-
   );
 };
 
@@ -490,17 +503,19 @@ export const RegLectureDrawer = ({
           >
             <InfoIcon />
           </button>
-        <div className="">
-
-          <h1 className="font-bold cursor-pointer flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
-            {lesson.lesson_title || "غير محدد"}
-          </h1>
-          { isRegistered && own && !lesson?.was_opened && lesson?.show_date && (
-            <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
+          <div className="">
+            <h1 className="font-bold cursor-pointer flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
+              {lesson.lesson_title || "غير محدد"}
+            </h1>
+            {isRegistered &&
+              own &&
+              !lesson?.was_opened &&
+              lesson?.show_date && (
+                <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
                   متاح في: {lesson.show_date}
                 </div>
               )}
-              </div>
+          </div>
         </div>
 
         <div
@@ -563,17 +578,25 @@ export const RegLectureDrawer = ({
                     )}
                   />
 
-                  <div className={cx("flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 self-stretch")}>
+                  <div
+                    className={cx(
+                      "flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 self-stretch"
+                    )}
+                  >
                     <div className="inline-flex items-center gap-3">
                       {item.type === "video" ? (
                         // ✅ المسجّل هو اللي يفتح الفيديو
                         isRegistered ? (
                           <Link
-                            href={ lesson.was_opened && isSectionOpen  ?{
-                              pathname,
-                              query: buildVideoQuery(item),
-                              hash: "player",
-                            } : "#"}
+                            href={
+                              lesson.was_opened && isSectionOpen
+                                ? {
+                                    pathname,
+                                    query: buildVideoQuery(item),
+                                    hash: "player",
+                                  }
+                                : "#"
+                            }
                             // onClick={async () => {
                             //   const key = `video-${item.id}`;
                             //   if (!checkedMap[key] && isRegistered) {
@@ -581,7 +604,12 @@ export const RegLectureDrawer = ({
                             //   }
                             // }}
                           >
-                            <h2 onClick={()=> console.log("isSectionOpen" , isSectionOpen)} className="cursor-pointer font-medium ...">
+                            <h2
+                              onClick={() =>
+                                console.log("isSectionOpen", isSectionOpen)
+                              }
+                              className="cursor-pointer font-medium ..."
+                            >
                               {item.title || "غير محدد"}
                             </h2>
                           </Link>
@@ -634,7 +662,7 @@ export const RegLectureDrawer = ({
                             )}
                           </span>
                           <time className="font-medium text-text-alt text-xs md:text-sm">
-                            {item.date} - {item.time}
+                            {item.date} - {item.time} - {item.end_time}
                           </time>
                         </div>
                       ) : (
@@ -695,12 +723,9 @@ export const ExerciseDropDown = ({
   const sectionId = useId();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { id } = useParams(); 
+  const { id } = useParams();
 
-
-
-  const isAvailable = isOpen && isSectionOpen
-
+  const isAvailable = isOpen && isSectionOpen;
 
   const getVideoPlatform = (videoUrl) => {
     if (!videoUrl) return null;
@@ -839,10 +864,13 @@ export const ExerciseDropDown = ({
               const examVideos = examData.videos || [];
               const examPdfs = examData.exam_pdfs || [];
               const isSolved = examData.is_solved === true;
-             
 
               return (
-                <div onClick={()=> console.log("isAvailable" , isAvailable )}  key={exam?.id} className="flex flex-col">
+                <div
+                  onClick={() => console.log("isAvailable", isAvailable)}
+                  key={exam?.id}
+                  className="flex flex-col"
+                >
                   {/* Exam Title Row */}
                   {exam && (
                     <div className="flex w-full flex-row justify-between  items-center  border-b-[2px] border-solid last:border-none pt-4 pb-5 bg-white">
@@ -861,7 +889,7 @@ export const ExerciseDropDown = ({
                                 {exam.title || "أسئلة الاختبار"}
                               </span>
                             </div>
-                            { isAvailable &&  isRegistered && (
+                            {isAvailable && isRegistered && (
                               <Link
                                 href={
                                   isDone
@@ -931,7 +959,8 @@ export const ExerciseDropDown = ({
                               {!isDone ? (
                                 <LockIcon2 className="fill-secondary w-6 h-6" />
                               ) : (
-                                isAvailable && isPlayable && (
+                                isAvailable &&
+                                isPlayable && (
                                   <Link
                                     href={{
                                       pathname,
@@ -986,7 +1015,7 @@ export const ExerciseDropDown = ({
                         </span> */}
                         </div>
 
-                        { isAvailable && isRegistered && (
+                        {isAvailable && isRegistered && (
                           <button
                             onClick={() =>
                               handleDownloadFile(pdf.pdf_url, pdf.title, "pdf")
