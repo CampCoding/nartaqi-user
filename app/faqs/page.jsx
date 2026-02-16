@@ -161,9 +161,8 @@ export const QuestionAccordion = ({ item }) => {
           style={{
             outlineTop: open ? "solid" : "none",
           }}
-        >
-          {item.answer}
-        </div>
+          dangerouslySetInnerHTML={{ __html: item.answer }}
+        />
       )}
     </div>
   );
