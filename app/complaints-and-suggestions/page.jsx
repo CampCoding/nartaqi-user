@@ -119,9 +119,10 @@ const ComplaintsAndSuggestions = () => {
                   key={complaint.id}
                   className="self-stretch inline-flex flex-col items-end gap-3 md:gap-4"
                 >
-                  <h2 className="self-stretch text-right text-text text-xl md:text-2xl font-bold">
-                    {complaint.question}
-                  </h2>
+                  <div
+                    className="self-stretch text-right text-text text-xl md:text-2xl font-bold"
+                    dangerouslySetInnerHTML={{ __html: complaint.question }}
+                  />
 
                   {/* Check if this is the contact info section */}
                   {isContactInfoSection(complaint.question) ? (

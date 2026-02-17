@@ -3,8 +3,8 @@
 import React, { useMemo, useState } from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
 import Container from "../../components/ui/Container";
-import { BadgesNavs } from "../(account)/my-badges/page";
 import useGetfaqs from "../../components/shared/Hooks/useGetfaqs";
+import LoadingPage from "../../components/shared/Loading";
 
 const categoryMap = {
   all: "الكل",
@@ -19,23 +19,52 @@ const FAQs = () => {
   const { data, error, isLoading } = useGetfaqs();
   const faqData = data?.message ?? [];
 
-  // Categories extracted from API
-  const categoriesFromAPI = [...new Set(faqData.map((item) => item.category))];
-
-  // Build Navigation Items the same shape as your design
-  const navigationItems = categoriesFromAPI.map((cat, index) => ({
-    id: index + 1,
-    key: cat,
-    text: categoryMap[cat] || cat,
-    active: cat === "all",
-  }));
-
   const [activeCategory, setActiveCategory] = useState("all");
 
+  // Categories extracted from API (unique values only)
+  const categoriesFromAPI = useMemo(() => {
+    const uniqueCategories = [...new Set(faqData.map((item) => item.category))];
+    return uniqueCategories;
+  }, [faqData]);
+
+  // Build Navigation Items - Add "all" first, then categories from API
+  const navigationItems = useMemo(() => {
+    const items = [
+      {
+        id: 0,
+        key: "all",
+        text: categoryMap["all"],
+      },
+    ];
+
+    categoriesFromAPI.forEach((cat, index) => {
+      items.push({
+        id: index + 1,
+        key: cat,
+        text: categoryMap[cat] || cat,
+      });
+    });
+
+    return items;
+  }, [categoriesFromAPI]);
+
+  // Filter FAQs based on active category
   const filteredFaqs = useMemo(() => {
     if (activeCategory === "all") return faqData;
     return faqData.filter((item) => item.category === activeCategory);
   }, [activeCategory, faqData]);
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-red-500 text-xl">حدث خطأ في تحميل البيانات</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -51,20 +80,28 @@ const FAQs = () => {
       />
 
       <Container className="mt-[48px]">
-        <div className="text-right justify-center text-primary  text-3xl md:text-5xl font-bold  mb-8">
+        <div className="text-right justify-center text-primary text-3xl md:text-5xl font-bold mb-8">
           الأسئلة الشائعة
         </div>
 
-        <NavigationItems
-          items={navigationItems}
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-        />
+        {navigationItems.length > 1 && (
+          <NavigationItems
+            items={navigationItems}
+            activeCategory={activeCategory}
+            setActiveCategory={setActiveCategory}
+          />
+        )}
 
         <div className="mt-8 flex flex-col gap-4 md:gap-6">
-          {filteredFaqs?.map((item) => (
-            <QuestionAccordion key={item.id} item={item} />
-          ))}
+          {filteredFaqs.length > 0 ? (
+            filteredFaqs.map((item) => (
+              <QuestionAccordion key={item.id} item={item} />
+            ))
+          ) : (
+            <div className="text-center py-10 text-gray-500 text-xl">
+              لا توجد أسئلة في هذا القسم
+            </div>
+          )}
         </div>
       </Container>
 
@@ -82,32 +119,31 @@ export const NavigationItems = ({
 }) => {
   return (
     <nav
-      className="flex h-[116px] items-center justify-center px-4 py-6 relative bg-primary-light rounded-[20px]"
+      className="flex flex-wrap h-auto min-h-[80px] md:h-[116px] items-center justify-center px-4 py-4 md:py-6 gap-2 relative bg-primary-light rounded-[20px]"
       role="navigation"
       aria-label="Navigation menu"
     >
-      {items
-        .slice()
-
-        .map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveCategory(item.key)}
-            className={`rounded-[20px] py-[24px] px-[64px] flex-[0_0_auto] ${
-              activeCategory === item.key ? "bg-primary" : ""
+      {items.map((item) => (
+        <button
+          key={item.id}
+          onClick={() => setActiveCategory(item.key)}
+          className={`rounded-[20px] py-3 px-6 md:py-[24px] md:px-[64px] transition-all duration-300 ${
+            activeCategory === item.key
+              ? "bg-primary shadow-lg"
+              : "bg-transparent hover:bg-primary/10"
+          }`}
+        >
+          <span
+            className={`text-base md:text-xl transition-colors duration-300 ${
+              activeCategory === item.key
+                ? "text-white font-bold"
+                : "text-text hover:text-primary"
             }`}
           >
-            <span
-              className={`text-xl ${
-                activeCategory === item.key
-                  ? "text-white font-bold"
-                  : "text-text"
-              }`}
-            >
-              {item.text}
-            </span>
-          </button>
-        ))}
+            {item.text}
+          </span>
+        </button>
+      ))}
     </nav>
   );
 };
@@ -116,25 +152,23 @@ export const QuestionAccordion = ({ item }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="w-full bg-white rounded-xl md:rounded-[30px] overflow-hidden">
+    <div className="w-full bg-white rounded-xl md:rounded-[30px] overflow-hidden shadow-sm">
       {/* Header */}
       <div
         onClick={() => setOpen(!open)}
-        // CHANGED: Reduced padding on mobile (`p-4`) and restored it for medium screens (`md:p-6`).
-        className={`self-stretch p-4 gap-3 md:p-6 transition  flex justify-between items-center cursor-pointer ${
+        className={`self-stretch p-4 gap-3 md:p-6 transition-all duration-300 flex justify-between items-center cursor-pointer ${
           open ? "bg-primary" : "bg-primary-light hover:!bg-primary-bg"
         }`}
       >
         <div
-          className="text-right text-sm leading-loose md:text-lg"
+          className="text-right text-sm leading-loose md:text-lg flex-1"
           style={{
             color: open ? "#fff" : "#2d2d2d",
           }}
-        >
-          {item.question}
-        </div>
+          dangerouslySetInnerHTML={{ __html: item.question }}
+        />
         <div
-          className={`size-10 md:size-12 flex items-center justify-center transition-transform ${
+          className={`size-10 md:size-12 flex items-center justify-center transition-transform duration-300 ${
             open ? "rotate-180" : ""
           }`}
         >
@@ -153,17 +187,17 @@ export const QuestionAccordion = ({ item }) => {
         </div>
       </div>
 
-      {/* Answer */}
-      {open && (
+      {/* Answer with animation */}
+      <div
+        className={`overflow-hidden transition-all duration-300 ${
+          open ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
         <div
-          // CHANGED: Reduced padding and line-height for mobile for better readability.
-          className="p-4 md:p-6 text-right text-text text-base font-medium leading-relaxed md:leading-[36px] border-2 border-t-0 border-zinc-500 overflow-hidden rounded-b-[30px]"
-          style={{
-            outlineTop: open ? "solid" : "none",
-          }}
+          className="p-4 md:p-6 text-right text-text text-base font-medium leading-relaxed md:leading-[36px] border-2 border-t-0 border-zinc-300 rounded-b-[30px]"
           dangerouslySetInnerHTML={{ __html: item.answer }}
         />
-      )}
+      </div>
     </div>
   );
 };
@@ -188,23 +222,15 @@ const AnswerNotFound = () => {
       <div className="w-full max-w-[202px]">
         <div
           className="
-          font-bold text-[#2d2d2d] leading-normal text-2xl md:text-[32px] text-center
-          overflow-hidden text-ellipsis whitespace-nowrap
-          [display:-webkit-box] sm:[-webkit-line-clamp:2] md:[-webkit-line-clamp:1] [-webkit-box-orient:vertical]
-        "
+            font-bold text-[#2d2d2d] leading-normal text-2xl md:text-[32px] text-center
+          "
         >
           لم تجد إجابتك؟
         </div>
       </div>
 
       <div className="w-full max-w-[307px] mt-3 md:mt-[24px] mb-6 md:mb-[32px]">
-        <p
-          className="
-          text-text-alt text-xl md:text-2xl text-center leading-normal
-          overflow-hidden text-ellipsis
-          [display:-webkit-box] sm:[-webkit-line-clamp:2] md:[-webkit-line-clamp:1] [-webkit-box-orient:vertical]
-        "
-        >
+        <p className="text-text-alt text-xl md:text-2xl text-center leading-normal">
           فريق الدعم لدينا هنا للمساعدة
         </p>
       </div>
@@ -214,20 +240,14 @@ const AnswerNotFound = () => {
         aria-label="الاتصال الدعم"
         className="
           inline-flex items-center justify-center gap-2
-         w-auto
+          w-auto
           px-6 md:px-8 py-3 md:py-4
           bg-primary rounded-[20px] cursor-pointer
           transition-colors hover:bg-secondary-dark
           focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2
         "
       >
-        <span
-          className="
-          text-neutral-50 text-sm md:text-base font-bold leading-5 text-center
-          overflow-hidden text-ellipsis whitespace-nowrap
-          [display:-webkit-box] sm:[-webkit-line-clamp:2] md:[-webkit-line-clamp:1] [-webkit-box-orient:vertical]
-        "
-        >
+        <span className="text-neutral-50 text-sm md:text-base font-bold leading-5 text-center">
           الاتصال بالدعم
         </span>
       </button>
