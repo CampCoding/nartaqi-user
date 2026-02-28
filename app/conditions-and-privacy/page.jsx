@@ -110,7 +110,12 @@ const ChevromLeft = (props) => (
 );
 
 // ✅ SideNav بقى بياخد menuItems من بره
-const SideNav = ({ selectedSection, setSelectedSection, rootClassName, menuItems }) => {
+const SideNav = ({
+  selectedSection,
+  setSelectedSection,
+  rootClassName,
+  menuItems,
+}) => {
   return (
     <nav
       className={cx(
@@ -136,7 +141,9 @@ const SideNav = ({ selectedSection, setSelectedSection, rootClassName, menuItems
 
           <div
             className={`cursor-pointer ${
-              selectedSection === item.id ? "font-bold !text-primary" : "text-text"
+              selectedSection === item.id
+                ? "font-bold !text-primary"
+                : "text-text"
             } tracking-[0] relative w-fit texst-lg md:text-xl leading-[normal] overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:1] [-webkit-box-orient:vertical]`}
           >
             {item.text}
@@ -194,7 +201,13 @@ const PoliciesSections = ({
           {!loading && !error && (
             <div className="font-medium text-text-alt text-lg md:text-xl leading-loose whitespace-pre-line">
               {/* ✅ لو رجع HTML من الـ backend وعايز تعرضه كـ HTML قولّي */}
-              {selectedItem?.content || "—"}
+
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: selectedItem?.content || "—",
+                }}
+              />
+              {/* {|| "—"} */}
             </div>
           )}
         </section>
