@@ -38,7 +38,7 @@ import {
 const ExamPage = () => {
   const dispatch = useDispatch();
   const { token, user } = useSelector((state) => state.auth);
-  const { id , examId , lessonId } = useParams();
+  const { id, examId, lessonId } = useParams();
 
   // Local state for loading/error
   const [examData, setExamData] = useState(null);
@@ -62,10 +62,9 @@ const ExamPage = () => {
 
   useEffect(() => {
     if (isSubmitted) {
-      
-      setOpenResult(isSubmitted)
+      setOpenResult(isSubmitted);
     }
-  },[isSubmitted])
+  }, [isSubmitted]);
   const submissionData = useSelector(selectSubmissionData);
   const answers = useSelector(selectAnswers);
 
@@ -152,7 +151,7 @@ const ExamPage = () => {
   // Calculate score from answers
   const calculateScore = () => {
     const correctAnswers = answers.filter((answer) => answer.is_correct).length;
-    console.log("correctAnswers" , answers)
+    console.log("correctAnswers", answers);
     const totalQuestions = questions.length;
     const percentage =
       totalQuestions > 0
@@ -174,7 +173,6 @@ const ExamPage = () => {
     try {
       setSubmitting(true);
 
-
       // Step 1: Store student answers
       const answersResponse = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/storeStudentAnswers`,
@@ -185,7 +183,6 @@ const ExamPage = () => {
           },
         }
       );
-
 
       // Calculate score
       const scoreData = calculateScore();
@@ -206,7 +203,6 @@ const ExamPage = () => {
           },
         }
       );
-
 
       // Store results in Redux
       dispatch(
@@ -307,9 +303,16 @@ const ExamPage = () => {
         onSubmitExam={handleSubmitTheExam}
         submitting={submitting}
       />
-      <FixedResultHero showDetailsButtonLink={`/course/${id}/lesson/${lessonId}/exam-details/${examId}`} courseId={id} id={examId} lessonId={lessonId} open={openResult} setOpen={() => {
-        setOpenResult(true)
-      }} />
+      <FixedResultHero
+        showDetailsButtonLink={`/course/${id}/lesson/${lessonId}/exam-details/${examId}`}
+        courseId={id}
+        id={examId}
+        lessonId={lessonId}
+        open={openResult}
+        setOpen={() => {
+          setOpenResult(true);
+        }}
+      />
     </Container>
   );
 };

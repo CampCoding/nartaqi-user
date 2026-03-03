@@ -200,15 +200,18 @@ const MobileCourseDetails = ({
     return (sum / rates.length).toFixed(1);
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("ar-EG", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  const formatDate = useCallback((dateString) => {
+    if (!dateString) return "غير محدد";
 
+    const d = new Date(dateString);
+    if (Number.isNaN(d.getTime())) return "غير محدد";
+
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  }, []);
   const genderMap = {
     male: "طلاب",
     female: "طالبات",
@@ -441,9 +444,11 @@ const MobileCourseDetails = ({
                 <div className="text-primary text-2xl md:text-[30px] font-bold text-left leading-normal whitespace-nowrap relative flex items-center justify-center w-fit mt-[-1.00px] [direction:rtl]">
                   {round.price} ر.س
                 </div>
-                <p className="relative flex items-center justify-center w-fit text-text-duplicate text-left whitespace-nowrap [direction:rtl]">
-                  (شاملة كتاب الدوره بصيغة PDF)
-                </p>
+                {round.round_book_url && (
+                  <p className="relative flex items-center justify-center w-fit text-text-duplicate text-left whitespace-nowrap [direction:rtl]">
+                    (شاملة كتاب الدوره بصيغة PDF)
+                  </p>
+                )}
               </div>
 
               <div className="flex-col w-full items-start justify-center gap-5 flex-[0_0_auto] flex relative">
@@ -456,8 +461,8 @@ const MobileCourseDetails = ({
                         isInCart && !isLoading
                           ? "bg-red-50 border-red-500 hover:bg-red-100"
                           : isLoading
-                          ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
-                          : "bg-white border-orange-500 hover:bg-orange-50"
+                            ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
+                            : "bg-white border-orange-500 hover:bg-orange-50"
                       }
                     `}
                     type="button"

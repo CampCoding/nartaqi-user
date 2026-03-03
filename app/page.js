@@ -1,4 +1,6 @@
 "use client";
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { TopServices } from "../components/Home/TopServices";
 import { HeaderHero } from "../components/Home/Hero";
 import { AboutUs } from "../components/Home/AboutUs";
@@ -15,17 +17,54 @@ import { Icon } from "@iconify/react";
 import LoadingPage from "../components/shared/Loading";
 import { useSelector } from "react-redux";
 import CursorLabelSection from "../components/ui/CursorLabelSection";
+
 export default function Home() {
   const user = useSelector((state) => state.auth);
-  const studentId = user?.user?.id || null; // Get student_id from Redux
+  const studentId = user?.user?.id || null;
   const { data, isLoading, isError, error, refetch } = useHomeData(studentId);
-  
+
+  // ✅ التعامل مع الـ hash بعد تحميل الصفحة
+  useEffect(() => {
+    // انتظر حتى تتحمل الصفحة بالكامل
+    const handleHashScroll = () => {
+      const hash = window.location.hash;
+      if (hash) {
+        // انتظر قليلاً حتى يتم رندر المحتوى
+        setTimeout(() => {
+          const element = document.querySelector(hash);
+          if (element) {
+            const headerHeight = 134; // ارتفاع الهيدر
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition =
+              elementPosition + window.pageYOffset - headerHeight;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth",
+            });
+          }
+        }, 100);
+      }
+    };
+
+    // تشغيل عند تحميل الصفحة
+    if (!isLoading) {
+      handleHashScroll();
+    }
+
+    // الاستماع لتغييرات الـ hash
+    window.addEventListener("hashchange", handleHashScroll);
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashScroll);
+    };
+  }, [isLoading]);
 
   // Loading State
   if (isLoading) {
     return <LoadingPage />;
   }
-  
+
   // Error State
   if (isError) {
     return (
@@ -67,7 +106,7 @@ export default function Home() {
       <TopServices />
       <div className="hidden md:block">
         <HeaderHero />
-      <CursorLabelSection />
+        <CursorLabelSection />
       </div>
 
       <div className="block md:hidden">

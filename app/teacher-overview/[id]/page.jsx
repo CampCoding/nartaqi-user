@@ -1,7 +1,8 @@
+// TecherOverviewPage.jsx
 "use client";
 
 import React, { useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useSelector } from "react-redux";
 
 import CourseTitle from "../../../components/CourseDetailsPage/CourseTitle";
@@ -19,14 +20,14 @@ import Container from "../../../components/ui/Container";
 import useTeacherData from "./../../../components/shared/Hooks/useTeacherData";
 
 const TecherOverviewPage = () => {
-  const searchParams = useSearchParams();
-  const teacherId = searchParams.get("teacherId") || "2"; // default
+  const { id } = useParams();
 
   // لو عندك token في redux
   const { token } = useSelector((state) => state.auth);
 
+  // ✅ الحل: غير id إلى teacherId
   const { teacher, rounds, loading, error } = useTeacherData({
-    teacherId,
+    teacherId: id, // ← هنا التعديل
     token,
   });
 
@@ -46,7 +47,13 @@ const TecherOverviewPage = () => {
         {loading ? (
           <TeacherOverviewSkeleton />
         ) : error ? (
-          <div className="text-right text-red-600">{error}</div>
+          <div className="text-right text-red-600 p-4 bg-red-50 rounded-xl">
+            {error}
+          </div>
+        ) : !teacher ? (
+          <div className="text-right text-text-alt p-4">
+            لم يتم العثور على بيانات المدرب
+          </div>
         ) : (
           <>
             <TeacherTopData teacher={teacher} />
@@ -64,37 +71,33 @@ const TecherOverviewPage = () => {
           {/* ✅ Courses Loading */}
           {loading ? (
             <CoursesRowSkeleton />
+          ) : CoursesCategoryCardData?.length > 0 ? (
+            <Swiper
+              slidesPerView="auto"
+              spaceBetween={24}
+              freeMode={{
+                enabled: true,
+                momentum: true,
+                momentumBounce: true,
+              }}
+              mousewheel={{ forceToAxis: true }}
+              navigation={{
+                prevEl: ".swiper-button-prev",
+                nextEl: ".swiper-button-next",
+              }}
+              modules={[FreeMode, Mousewheel, Navigation]}
+              className="w-full relative pb-8"
+            >
+              {CoursesCategoryCardData.map((item, index) => (
+                <SwiperSlide key={item.id || index} className="!w-fit">
+                  <CourseCard payload={item} color={"#3B82F6"} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           ) : (
-            <>
-              <Swiper
-                slidesPerView="auto"
-                spaceBetween={24}
-                freeMode={{
-                  enabled: true,
-                  momentum: true,
-                  momentumBounce: true,
-                }}
-                mousewheel={{ forceToAxis: true }}
-                navigation={{
-                  prevEl: ".swiper-button-prev",
-                  nextEl: ".swiper-button-next",
-                }}
-                modules={[FreeMode, Mousewheel, Navigation]}
-                className="w-full relative pb-8"
-              >
-                {CoursesCategoryCardData?.map((item, index) => (
-                  <SwiperSlide key={index} className="!w-fit">
-                    <CourseCard payload={item} color={"#3B82F6"} />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-
-              {!error && CoursesCategoryCardData?.length === 0 && (
-                <div className="text-right text-text-alt mt-4">
-                  لا توجد دورات لهذا المدرب حاليًا.
-                </div>
-              )}
-            </>
+            <div className="text-right text-text-alt p-4 bg-gray-50 rounded-xl">
+              لا توجد دورات لهذا المدرب حاليًا.
+            </div>
           )}
         </div>
       </div>

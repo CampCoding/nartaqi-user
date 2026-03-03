@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback } from "react";
 import {
   CalenderEndIcon,
   CalenderStartIcon,
@@ -18,11 +18,14 @@ import toast from "react-hot-toast";
 import buildShareUrl from "../../lib/buildShareUrl";
 import { useDispatch } from "react-redux";
 
-const MobileCoursePreview = ({ courseData, onClick = () => null , onShareClick = () => null}) => {
+const MobileCoursePreview = ({
+  courseData,
+  onClick = () => null,
+  onShareClick = () => null,
+}) => {
   const router = useRouter();
 
   const dispatch = useDispatch();
-
 
   const [openShareDrawer, setOpenShareDrawer] = React.useState(false);
 
@@ -75,15 +78,18 @@ const MobileCoursePreview = ({ courseData, onClick = () => null , onShareClick =
   };
 
   // تنسيق التاريخ
-  const formatDate = (dateString) => {
+  const formatDate = useCallback((dateString) => {
     if (!dateString) return "غير محدد";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("ar-EG", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+
+    const d = new Date(dateString);
+    if (Number.isNaN(d.getTime())) return "غير محدد";
+
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  }, []);
 
   // حساب المقاعد المتبقية
   const getRemainingSeats = () => {

@@ -99,7 +99,7 @@ const TeachersCourses = () => {
             <CourseCard freeWidth={true} type="teachers" />
           </div>
         </Container>
-        {/* <Testimonials title="أراء الطلاب" /> */}
+        {/* <Testimonials title="آراءالطلاب" /> */}
       </div>
     </div>
   );

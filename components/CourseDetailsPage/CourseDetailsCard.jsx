@@ -92,13 +92,15 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
 
   const formatDate = useCallback((dateString) => {
     if (!dateString) return "غير محدد";
+
     const d = new Date(dateString);
     if (Number.isNaN(d.getTime())) return "غير محدد";
-    return d.toLocaleDateString("ar-EG", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+
+    return `${day}/${month}/${year}`;
   }, []);
 
   const goLogin = useCallback(() => {

@@ -1,10 +1,9 @@
-// app/store/page.jsx
-
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import PagesBanner from "../../components/ui/PagesBanner";
 import { ProductCard } from "../../components/Store/ProductCard";
 import { FiltersIcon } from "../../public/svgs";
@@ -45,9 +44,8 @@ const Store = () => {
     return price ? parseFloat(price) : null;
   };
 
-  const [selectedCategoryId, setSelectedCategoryId] = useState(
-    getInitialCategory()
-  );
+  const [selectedCategoryId, setSelectedCategoryId] =
+    useState(getInitialCategory());
   const [priceRange, setPriceRange] = useState(getInitialPrice());
   const [sortBy, setSortBy] = useState(getInitialSort());
   const [currentPage, setCurrentPage] = useState(getInitialPage());
@@ -68,7 +66,6 @@ const Store = () => {
   const categories = [
     { id: "all", label: "الكل" },
     { id: "books", label: "الكتب" },
-    { id: "rounds", label: "الدورات" },
     { id: "bags", label: "الحقائب" },
     { id: "accessories", label: "الأدوات" },
   ];
@@ -98,11 +95,11 @@ const Store = () => {
         ) {
           params.delete(key);
         } else if (key === "sort" && value === "newest") {
-          params.delete(key); // Don't show default sort in URL
+          params.delete(key);
         } else if (key === "page" && value === 1) {
-          params.delete(key); // Don't show page 1 in URL
+          params.delete(key);
         } else if (key === "maxPrice" && value >= maxPrice) {
-          params.delete(key); // Don't show max price in URL
+          params.delete(key);
         } else {
           params.set(key, value.toString());
         }
@@ -168,7 +165,7 @@ const Store = () => {
     }
   }, [selectedCategoryId, sortBy]);
 
-  // ✅ Handle price change from slider (called only when drag ends)
+  // ✅ Handle price change from slider
   const handlePriceCommit = (newPrice) => {
     setPriceRange(newPrice);
     setCurrentPage(1);
@@ -267,6 +264,8 @@ const Store = () => {
       />
 
       <Container className="mt-[48px]">
+        {/* ✅ زر الانتقال لأحدث الدورات */}
+
         <StoreHeaderMobile
           rootClassName={"lg:hidden"}
           priceRange={priceRange ?? maxPrice}
@@ -366,7 +365,7 @@ const Store = () => {
             ) : (
               <>
                 {/* Products Grid */}
-                <section className="grid px-3 sm:px-0  sm:grid-cols-2 lg:grid-cols-2  2xl:grid-cols-3  xl:grid-cols-2 gap-x-4 gap-y-6">
+                <section className="grid px-3 sm:px-0 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 xl:grid-cols-2 gap-x-4 gap-y-6">
                   {items.map((item, index) => {
                     const normalizedItem = normalizeItem(item);
                     return (
@@ -432,6 +431,30 @@ const SideNav = ({
       />
 
       <SortBy sortBy={sortBy} setSortBy={setSortBy} />
+
+      <div className="flex items-center justify-center sm:justify-start mb-6">
+        <Link
+          href="/#latest-courses"
+          className="group inline-flex items-center gap-3 px-6 py-3 sm:px-8 sm:py-4 bg-primary text-white rounded-full font-bold text-sm sm:text-base hover:scale-105 transition-all duration-300"
+        >
+          <span>تصفح أحدث الدورات</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-4 h-4 sm:w-5 sm:h-5 rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1 transition-transform"
+          >
+            <path d="M5 12h14" />
+            <path d="m12 5 7 7-7 7" />
+          </svg>
+        </Link>
+      </div>
     </nav>
   );
 };

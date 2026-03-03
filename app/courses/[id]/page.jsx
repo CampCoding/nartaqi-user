@@ -9,13 +9,26 @@ import { useGetCourseRounds } from "../../../components/shared/Hooks/useGetCours
 import LoadingPage from "../../../components/shared/Loading";
 import LoadingContent from "../../../components/shared/LoadingContent";
 import TeachersTestimonials from "../../../components/Teachers/TeachersTestimonials";
-import { useParams, useSearchParams, usePathname, useRouter } from "next/navigation";
+import {
+  useParams,
+  useSearchParams,
+  usePathname,
+  useRouter,
+} from "next/navigation";
 import {
   buildFiltersQuery,
   normalizeFilters,
 } from "../../../components/utils/helpers/filter";
 
-const FILTER_KEYS = ["search", "category", "sort", "rating", "type", "gender", "level"];
+const FILTER_KEYS = [
+  "search",
+  "category",
+  "sort",
+  "rating",
+  "type",
+  "gender",
+  "level",
+];
 
 const DEFAULT_FILTERS = {
   search: "",
@@ -59,7 +72,9 @@ const TeachersCourses = () => {
   //////////////////////////////////////////////////////////////////////
   // FILTERS STATE (SYNCED WITH URL)
   //////////////////////////////////////////////////////////////////////
-  const [filters, setFilters] = useState(() => readFiltersFromSearchParams(searchParams));
+  const [filters, setFilters] = useState(() =>
+    readFiltersFromSearchParams(searchParams)
+  );
 
   //////////////////////////////////////////////////////////////////////
   // When URL changes (back/forward or direct open link) sync state
@@ -85,7 +100,11 @@ const TeachersCourses = () => {
         if (!v) return; // skip empty
 
         // skip defaults to keep URL clean
-        if (DEFAULT_FILTERS[key] !== undefined && v === String(DEFAULT_FILTERS[key])) return;
+        if (
+          DEFAULT_FILTERS[key] !== undefined &&
+          v === String(DEFAULT_FILTERS[key])
+        )
+          return;
 
         params.set(key, v);
       });
@@ -125,7 +144,6 @@ const TeachersCourses = () => {
 
     return q;
   }, [filters, id]);
-
 
   //////////////////////////////////////////////////////////////////////
   // AXIOS HOOK (NO REACT QUERY)
@@ -172,7 +190,10 @@ const TeachersCourses = () => {
             {error && (
               <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                 حدث خطأ أثناء تحميل الدورات. حاول مرة أخرى.
-                <button onClick={refetch} className="ms-3 underline font-semibold">
+                <button
+                  onClick={refetch}
+                  className="ms-3 underline font-semibold"
+                >
                   إعادة المحاولة
                 </button>
               </div>
@@ -222,7 +243,9 @@ const TeachersCourses = () => {
 
             {/* EMPTY */}
             {!loading && !rounds?.length && (
-              <p className="mt-6 text-center text-gray-400">لا توجد نتائج مطابقة.</p>
+              <p className="mt-6 text-center text-gray-400">
+                لا توجد نتائج مطابقة.
+              </p>
             )}
 
             {/* LOAD MORE */}
@@ -248,7 +271,7 @@ const TeachersCourses = () => {
             </div>
           </Container>
 
-          <TeachersTestimonials title="أراء الطلاب" />
+          <TeachersTestimonials title="آراء الطلاب" />
         </>
       )}
     </div>

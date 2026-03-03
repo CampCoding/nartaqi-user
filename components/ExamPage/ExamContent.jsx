@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setCurrentIndex,
@@ -8,6 +8,7 @@ import {
   prevQuestion,
   setAnswer,
   startExam,
+  toggleFlag,
   selectQuestions,
   selectSections,
   selectCurrentSection,
@@ -25,6 +26,7 @@ import { ExamQuesionsSummery } from "./examQuesionsSummery";
 import { McqQuestion } from "./McqQuestion";
 import { TrueFalseQuestion } from "./TrueFalseQuestion";
 import { TextQuestion } from "./TextQuestion";
+import { ConfirmSubmitModal } from "./ConfirmSubmitModal";
 
 const ExamContent = ({ onSubmitExam, submitting }) => {
   const dispatch = useDispatch();
@@ -33,7 +35,9 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
   const sections = useSelector(selectSections);
   const currentSection = useSelector(selectCurrentSection);
   const currentBlock = useSelector(selectCurrentBlock);
-  const currentQuestionInBlockIndex = useSelector(selectCurrentQuestionInBlockIndex);
+  const currentQuestionInBlockIndex = useSelector(
+    selectCurrentQuestionInBlockIndex
+  );
   const currentIndex = useSelector(selectCurrentIndex);
   const currentQuestion = useSelector(selectCurrentQuestion);
   const answeredMap = useSelector(selectAnsweredMap);
@@ -42,7 +46,15 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
   const isFirstQuestion = useSelector(selectIsFirstQuestion);
   const isLastQuestion = useSelector(selectIsLastQuestion);
 
-  const currentAnswer = currentQuestion ? answeredMap[currentQuestion.id] ?? null : null;
+  // Modal state
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  const currentAnswer = currentQuestion
+    ? (answeredMap[currentQuestion.id] ?? null)
+    : null;
+  const isCurrentFlagged = currentQuestion
+    ? (flaggedMap[currentQuestion.id] ?? false)
+    : false;
 
   const answeredMapByIndex = useMemo(() => {
     const map = {};
@@ -60,8 +72,29 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
     return map;
   }, [questions, flaggedMap]);
 
+  // Stats للأسئلة
+  const examStats = useMemo(() => {
+    const total = questions.length;
+    const answered = Object.keys(answeredMap).length;
+    const unanswered = total - answered;
+    const flagged = Object.values(flaggedMap).filter(Boolean).length;
+
+    // الأسئلة المعلمة ومتجاوبتش
+    const flaggedUnanswered = questions.filter(
+      (q) => flaggedMap[q.id] && answeredMap[q.id] === undefined
+    ).length;
+
+    return { total, answered, unanswered, flagged, flaggedUnanswered };
+  }, [questions, answeredMap, flaggedMap]);
+
   const handleSelectOption = (questionId, answer) => {
     dispatch(setAnswer({ questionId, answer }));
+  };
+
+  const handleToggleFlag = () => {
+    if (currentQuestion) {
+      dispatch(toggleFlag(currentQuestion.id));
+    }
   };
 
   const handleJumpTo = (targetIndex) => dispatch(setCurrentIndex(targetIndex));
@@ -69,8 +102,18 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
   const handleNext = () => dispatch(nextQuestion());
   const handleStart = () => dispatch(startExam());
 
+  // عند الضغط على إنهاء - نعرض Modal لو في مشاكل
+  const handleFinishClick = () => {
+    if (examStats.unanswered > 0 || examStats.flagged > 0) {
+      setShowConfirmModal(true);
+    } else {
+      handleSubmit();
+    }
+  };
+
   const handleSubmit = () => {
     if (!onSubmitExam) return;
+    setShowConfirmModal(false);
     onSubmitExam();
   };
 
@@ -87,11 +130,14 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
             imageUrl={currentQuestion.imageUrl}
             options={currentQuestion.options || []}
             selectedOptionId={currentAnswer}
-            onSelectOption={(optionId) => handleSelectOption(currentQuestion.id, optionId)}
+            onSelectOption={(optionId) =>
+              handleSelectOption(currentQuestion.id, optionId)
+            }
           />
         );
 
       case "boolean":
+      case "t_f":
         return (
           <TrueFalseQuestion
             questionText={currentQuestion.text}
@@ -122,7 +168,9 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
             imageUrl={currentQuestion.imageUrl}
             options={currentQuestion.options || []}
             selectedOptionId={currentAnswer}
-            onSelectOption={(optionId) => handleSelectOption(currentQuestion.id, optionId)}
+            onSelectOption={(optionId) =>
+              handleSelectOption(currentQuestion.id, optionId)
+            }
           />
         );
     }
@@ -134,20 +182,39 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
         <div className="w-full lg:flex-1">
           {isStarted && currentQuestion ? (
             <>
-              {/* {currentSection && (
-                <div className="mb-4">
-                  <h3
-                    className="text-lg font-bold text-text mb-2"
-                    dangerouslySetInnerHTML={{
-                      __html: currentSection.title?.replace(/&nbsp;/gi, " ") || "",
-                    }}
-                  />
+              {/* Question Header with Flag */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-text-alt">
+                    السؤال {currentIndex + 1} من {questions.length}
+                  </span>
+                  {isCurrentFlagged && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
+                      <FlagIcon className="w-3 h-3" />
+                      معلّم للمراجعة
+                    </span>
+                  )}
                 </div>
-              )} */}
 
-              {/* <div className="mb-4 text-sm text-text-alt">
-                السؤال {currentIndex + 1} من {questions.length}
-              </div> */}
+                {/* Flag Button */}
+                <button
+                  onClick={handleToggleFlag}
+                  className={`
+                    flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200
+                    ${
+                      isCurrentFlagged
+                        ? "bg-amber-500 text-white hover:bg-amber-600"
+                        : "bg-gray-100 text-gray-600 hover:bg-amber-100 hover:text-amber-600"
+                    }
+                  `}
+                  title={isCurrentFlagged ? "إزالة العلامة" : "تعليم للمراجعة"}
+                >
+                  <FlagIcon className="w-5 h-5" />
+                  <span className="text-sm font-medium hidden sm:inline">
+                    {isCurrentFlagged ? "إزالة العلامة" : "علّم للمراجعة"}
+                  </span>
+                </button>
+              </div>
 
               {currentBlock?.type === "paragraph" && currentBlock.passage && (
                 <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200 max-h-[300px] overflow-y-auto">
@@ -160,25 +227,14 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
                 </div>
               )}
 
-              {/* {currentQuestion.instructions && (
-                <div className="mb-4 p-3 bg-blue-50 rounded-lg text-blue-800 text-sm">
-                  {currentQuestion.instructions}
-                </div>
-              )} */}
-
-              {/* {currentBlock?.type === "paragraph" &&
-                currentBlock.questions.length > 1 && (
-                  <div className="mb-4 text-xs text-gray-500">
-                    سؤال {currentQuestionInBlockIndex + 1} من {currentBlock.questions.length} في هذه الفقرة
-                  </div>
-                )} */}
-
               {renderQuestion()}
             </>
           ) : sections.length > 0 ? (
             <VerbalSection
               sectionTitle={currentSection?.title || sections[0]?.title}
-              sectionDescription={currentSection?.description || sections[0]?.description}
+              sectionDescription={
+                currentSection?.description || sections[0]?.description
+              }
             />
           ) : (
             <VerbalSection />
@@ -198,6 +254,7 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
         )}
       </div>
 
+      {/* Navigation Buttons */}
       <div className="flex flex-col-reverse sm:flex-row mt-6 sm:mt-8 lg:mt-[64px] justify-between items-stretch sm:items-center gap-3 sm:gap-4">
         {isStarted ? (
           <>
@@ -205,7 +262,9 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
               onClick={handlePrev}
               disabled={isFirstQuestion}
               className={`cursor-pointer px-8 sm:px-12 lg:px-20 py-4 sm:py-5 bg-white hover:bg-primary group transition rounded-[15px] sm:rounded-[20px] outline outline-[3px] outline-offset-[-3px] outline-primary flex justify-center items-center gap-2.5 ${
-                isFirstQuestion ? "opacity-50 cursor-not-allowed hover:bg-white" : ""
+                isFirstQuestion
+                  ? "opacity-50 cursor-not-allowed hover:bg-white"
+                  : ""
               }`}
             >
               <span
@@ -218,14 +277,18 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
             </button>
 
             <button
-              onClick={isLastQuestion ? handleSubmit : handleNext}
+              onClick={isLastQuestion ? handleFinishClick : handleNext}
               disabled={submitting}
               className={`px-8 sm:px-12 lg:px-20 py-4 sm:py-5 bg-gradient-to-r from-primary to-secondary hover:scale-105 transition cursor-pointer rounded-[15px] sm:rounded-[20px] flex justify-center items-center gap-2.5 ${
                 submitting ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
               <span className="text-center text-white text-sm sm:text-base font-bold">
-                {submitting ? "جاري الإرسال..." : isLastQuestion ? "إنهاء" : "التالي"}
+                {submitting
+                  ? "جاري الإرسال..."
+                  : isLastQuestion
+                    ? "إنهاء"
+                    : "التالي"}
               </span>
             </button>
           </>
@@ -234,15 +297,42 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
             onClick={handleStart}
             className="px-8 ms-auto sm:px-12 lg:px-20 py-4 sm:py-5 bg-gradient-to-r from-primary to-secondary hover:scale-105 transition cursor-pointer rounded-[15px] sm:rounded-[20px] flex justify-center items-center gap-2.5"
           >
-            <span className="text-center text-white text-sm sm:text-base font-bold">ابدأ</span>
+            <span className="text-center text-white text-sm sm:text-base font-bold">
+              ابدأ
+            </span>
           </button>
         )}
       </div>
+
+      {/* Confirm Submit Modal */}
+      <ConfirmSubmitModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleSubmit}
+        stats={examStats}
+        submitting={submitting}
+      />
     </div>
   );
 };
 
 export default ExamContent;
+
+// Flag Icon Component
+const FlagIcon = ({ className = "w-5 h-5" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+  >
+    <path
+      fillRule="evenodd"
+      d="M3 2.25a.75.75 0 01.75.75v.54l1.838-.46a9.75 9.75 0 016.725.738l.108.054a8.25 8.25 0 005.58.652l3.109-.732a.75.75 0 01.917.81 47.784 47.784 0 00.005 10.337.75.75 0 01-.574.812l-3.114.733a9.75 9.75 0 01-6.594-.77l-.108-.054a8.25 8.25 0 00-5.69-.625l-2.202.55V21a.75.75 0 01-1.5 0V3A.75.75 0 013 2.25z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
 
 const VerbalSection = ({ sectionTitle, sectionDescription }) => {
   return (
@@ -267,8 +357,8 @@ const VerbalSection = ({ sectionTitle, sectionDescription }) => {
           <>
             <p>القسم اللفظي</p>
             <p>
-              يتكون القسم اللفظي من مجموعة من الأسئلة التي تقيس قدرة الطالب على فهم
-              المقروء، واستنتاج المعاني، وتحليل النصوص.
+              يتكون القسم اللفظي من مجموعة من الأسئلة التي تقيس قدرة الطالب على
+              فهم المقروء، واستنتاج المعاني، وتحليل النصوص.
             </p>
           </>
         )}

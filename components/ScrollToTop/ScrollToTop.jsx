@@ -6,11 +6,14 @@ const ScrollToTop = () => {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Smooth scroll to top
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    // ✅ تجاهل الـ scroll to top إذا كان هناك hash
+    const hash = window.location.hash;
+    if (!hash) {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
   }, [pathname]);
 
   return null;

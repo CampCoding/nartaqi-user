@@ -3,10 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
 import { QuestionAccordion } from "../faqs/page";
-
 import Container from "../../components/ui/Container";
-
-
 
 const clampNumber = (v, min = 0, max = 100) => {
   const n = Number.parseFloat(v);
@@ -18,7 +15,6 @@ const toNum = (v) => {
   const n = Number.parseFloat(v);
   return Number.isNaN(n) ? 0 : n;
 };
-
 
 const WeightedPercentageCalculator = () => {
   const faqs = [
@@ -42,27 +38,22 @@ const WeightedPercentageCalculator = () => {
     },
   ];
 
-
-  // درجات الطالب
   const [student, setStudent] = useState({
     highSchoolGrade: "",
     aptitudeScore: "",
     achievementScore: "",
   });
 
-  // أوزان الجامعة (بالـ %)
   const [weights, setWeights] = useState({
     highSchoolPercentage: "",
     abilitiesScore: "",
     achievementScore: "",
   });
 
-  const [result, setResult] = useState(null); // النسبة الموزونة الناتجة
+  const [result, setResult] = useState(null);
   const [globalError, setGlobalError] = useState("");
 
   const pdfRef = useRef(null);
-
-
 
   const weightsTotal = useMemo(() => {
     return (
@@ -83,104 +74,105 @@ const WeightedPercentageCalculator = () => {
     const abS = toNum(student.aptitudeScore);
     const acS = toNum(student.achievementScore);
 
-    // لازم مجموع الأوزان 100
     if (weightsTotal !== 100) {
       setGlobalError("مجموع متطلبات الجامعة يجب أن يكون 100٪ بالضبط");
       setResult(null);
       return;
     }
 
-    // لو وزن التحصيلي > 0 يبقى لازم الطالب يدخل التحصيلي
     if (acW > 0 && student.achievementScore === "") {
       setGlobalError("التحصيلي مطلوب لأن وزنه أكبر من 0٪. أدخل درجة التحصيلي.");
       setResult(null);
       return;
     }
 
-    // حساب المعادلة (نقسم على 100 لأن الأوزان %)
-    const weighted =
-      (abW * abS + acW * acS + hsW * hsS) / 100;
-
-    // تقفيل على رقمين عشريين
+    const weighted = (abW * abS + acW * acS + hsW * hsS) / 100;
     const rounded = Math.round(weighted * 100) / 100;
     setResult(rounded);
   };
 
   const resetAll = () => {
-    setStudent({ highSchoolGrade: "", aptitudeScore: "", achievementScore: "" });
-    setWeights({ highSchoolPercentage: "", abilitiesScore: "", achievementScore: "" });
+    setStudent({
+      highSchoolGrade: "",
+      aptitudeScore: "",
+      achievementScore: "",
+    });
+    setWeights({
+      highSchoolPercentage: "",
+      abilitiesScore: "",
+      achievementScore: "",
+    });
     setResult(null);
     setGlobalError("");
   };
+
   const downloadPDF = async () => {
     if (!pdfRef.current) return;
-  
-    // show pdf-only elements
-    const pdfOnlyNodes = pdfRef.current.querySelectorAll('[data-pdf-only="true"]');
-    const printContainer = document.querySelector('.print-container');
-    pdfOnlyNodes.forEach((el) => el.classList.remove("hidden"));
-    printContainer.classList.add('p-10');
-    console.log("printContainer" , printContainer)
 
-  
     try {
       const html2canvas = (await import("html2canvas")).default;
       const jsPDF = (await import("jspdf")).default;
-  
-      const canvas = await html2canvas(pdfRef.current, {
+
+      const clone = pdfRef.current.cloneNode(true);
+
+      clone.style.position = "fixed";
+      clone.style.left = "-9999px";
+      clone.style.top = "0";
+      clone.style.width = "700px";
+      clone.style.backgroundColor = "#ffffff";
+      clone.style.padding = "40px";
+
+      clone.querySelectorAll('[data-pdf-only="true"]').forEach((el) => {
+        el.style.display = "block";
+      });
+
+      clone.querySelectorAll('[data-screen-only="true"]').forEach((el) => {
+        el.style.display = "none";
+      });
+
+      document.body.appendChild(clone);
+
+      const canvas = await html2canvas(clone, {
         scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
+        logging: false,
       });
-  
+
+      document.body.removeChild(clone);
+
       const imgData = canvas.toDataURL("image/png");
-  
+
       const pdf = new jsPDF("p", "mm", "a4");
       const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-  
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-  
-      let heightLeft = imgHeight;
-      let position = 0;
-  
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-  
-      while (heightLeft > 0) {
-        position -= pageHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-  
-      pdf.save("weighted-percentage-result.pdf");
-    } finally {
-      // hide pdf-only elements again (even if error happens)
-      pdfOnlyNodes.forEach((el) => el.classList.add("hidden"));
-      printContainer.classList.remove('p-0');
 
+      const imgWidth = pageWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+
+      pdf.save("نتيجة-النسبة-الموزونة.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
     }
   };
-  
 
-
-
+  const getCurrentDate = () => {
+    const now = new Date();
+    return now.toLocaleDateString("ar-SA", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   return (
     <div>
       <PagesBanner
         title={"النسبة الموزونة"}
         breadcrumb={[
-          {
-            title: "الرئيسية",
-            link: "/",
-          },
-          {
-            title: "النسبة الموزونة",
-            link: "#",
-          },
+          { title: "الرئيسية", link: "/" },
+          { title: "النسبة الموزونة", link: "#" },
         ]}
         image={"/images/weighted-percentage-calculator.png"}
       />
@@ -192,12 +184,12 @@ const WeightedPercentageCalculator = () => {
           <h1 className="flex items-center justify-center font-bold text-text text-2xl md:text-[40px] text-center relative self-stretch tracking-[0] leading-tight md:leading-[normal] [direction:rtl]">
             حساب النسبة الموزونة
           </h1>
-
           <p className="font-normal text-text-alt text-base md:text-2xl text-center relative tracking-[0] leading-relaxed md:leading-[normal] [direction:rtl] px-4">
             استخدم هذه الأداة لحساب نسبتك الموزونة بناء على درجاتك ومقارنتها مع
             متطلبات الجامعات.
           </p>
         </header>
+
         <div className="flex flex-col md:flex-row gap-6">
           <StudentDataFrame
             value={student}
@@ -206,7 +198,6 @@ const WeightedPercentageCalculator = () => {
               setStudent((prev) => ({ ...prev, [field]: clampNumber(value) }));
             }}
           />
-
           <UniversityRequirementsFrame
             value={weights}
             onChange={(field, value) => {
@@ -214,15 +205,17 @@ const WeightedPercentageCalculator = () => {
               setWeights((prev) => ({ ...prev, [field]: clampNumber(value) }));
             }}
           />
-
         </div>
 
         {globalError ? (
           <div className="mt-4 w-full rounded-xl border border-red-200 bg-red-50 p-4">
-            <p className="text-red-700 text-sm [direction:rtl]">{globalError}</p>
+            <p className="text-red-700 text-sm [direction:rtl]">
+              {globalError}
+            </p>
           </div>
         ) : null}
-        <div className="flex items-center justify-center ">
+
+        <div className="flex items-center justify-center">
           <button
             type="button"
             onClick={calculate}
@@ -236,44 +229,332 @@ const WeightedPercentageCalculator = () => {
 
         {result !== null ? (
           <>
-            <div ref={pdfRef} className="w-full print-container">
-              <ProgressFrame percentage={result} show />
-              {/* لو عايز تضيف ملخص للبيانات داخل الـ PDF */}
+            {/* ===== PDF Container ===== */}
+            <div ref={pdfRef} className="w-full relative bg-white">
+              {/* للشاشة فقط */}
+              <div data-screen-only="true">
+                <ProgressFrame percentage={result} show />
+              </div>
+
+              {/* ===== للـ PDF فقط - تصميم بسيط ===== */}
               <div
                 data-pdf-only="true"
-                className="mt-4 rounded-xl border bg-white p-4 [direction:rtl] hidden"
+                className="hidden"
+                style={{
+                  direction: "rtl",
+                  fontFamily: "Arial, sans-serif",
+                  position: "relative",
+                  minHeight: "500px",
+                }}
               >
-                <p className="font-bold text-primary mb-2">ملخص البيانات</p>
+                {/* Content - الأول */}
+                <div style={{ position: "relative", zIndex: 1 }}>
+                  {/* Header */}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: "30px",
+                      paddingBottom: "20px",
+                      borderBottom: "2px solid #e5e7eb",
+                    }}
+                  >
+                    <div>
+                      <h1
+                        style={{
+                          fontSize: "24px",
+                          fontWeight: "bold",
+                          color: "#1f2937",
+                          margin: 0,
+                        }}
+                      >
+                        تقرير النسبة الموزونة
+                      </h1>
+                      <p
+                        style={{
+                          fontSize: "14px",
+                          color: "#6b7280",
+                          marginTop: "4px",
+                        }}
+                      >
+                        {getCurrentDate()}
+                      </p>
+                    </div>
+                    <img
+                      src="/images/logo.svg"
+                      alt="Logo"
+                      style={{ width: "80px", height: "auto" }}
+                    />
+                  </div>
 
-                <p className="text-sm text-text">الثانوية: {student.highSchoolGrade || "—"}%</p>
-                <p className="text-sm text-text">القدرات: {student.aptitudeScore || "—"}</p>
-                <p className="text-sm text-text">التحصيلي: {student.achievementScore || "—"}</p>
+                  {/* جدول المقارنة */}
+                  <table
+                    style={{
+                      width: "100%",
+                      borderCollapse: "collapse",
+                      marginBottom: "24px",
+                    }}
+                  >
+                    <thead>
+                      <tr>
+                        <th
+                          style={{
+                            border: "1px solid #d1d5db",
+                            padding: "12px 16px",
+                            backgroundColor: "#f9fafb",
+                            textAlign: "right",
+                            fontWeight: "bold",
+                            color: "#374151",
+                          }}
+                        >
+                          البيان
+                        </th>
+                        <th
+                          style={{
+                            border: "1px solid #d1d5db",
+                            padding: "12px 16px",
+                            backgroundColor: "#f9fafb",
+                            textAlign: "center",
+                            fontWeight: "bold",
+                            color: "#374151",
+                          }}
+                        >
+                          درجة الطالب
+                        </th>
+                        <th
+                          style={{
+                            border: "1px solid #d1d5db",
+                            padding: "12px 16px",
+                            backgroundColor: "#f9fafb",
+                            textAlign: "center",
+                            fontWeight: "bold",
+                            color: "#374151",
+                          }}
+                        >
+                          وزن الجامعة %
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td
+                          style={{
+                            border: "1px solid #d1d5db",
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            color: "#1f2937",
+                          }}
+                        >
+                          الثانوية العامة
+                        </td>
+                        <td
+                          style={{
+                            border: "1px solid #d1d5db",
+                            padding: "12px 16px",
+                            textAlign: "center",
+                            fontWeight: "600",
+                            color: "#1f2937",
+                          }}
+                        >
+                          {student.highSchoolGrade || "—"}
+                        </td>
+                        <td
+                          style={{
+                            border: "1px solid #d1d5db",
+                            padding: "12px 16px",
+                            textAlign: "center",
+                            fontWeight: "600",
+                            color: "#1f2937",
+                          }}
+                        >
+                          {weights.highSchoolPercentage || "—"}%
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          style={{
+                            border: "1px solid #d1d5db",
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            color: "#1f2937",
+                          }}
+                        >
+                          اختبار القدرات
+                        </td>
+                        <td
+                          style={{
+                            border: "1px solid #d1d5db",
+                            padding: "12px 16px",
+                            textAlign: "center",
+                            fontWeight: "600",
+                            color: "#1f2937",
+                          }}
+                        >
+                          {student.aptitudeScore || "—"}
+                        </td>
+                        <td
+                          style={{
+                            border: "1px solid #d1d5db",
+                            padding: "12px 16px",
+                            textAlign: "center",
+                            fontWeight: "600",
+                            color: "#1f2937",
+                          }}
+                        >
+                          {weights.abilitiesScore || "—"}%
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          style={{
+                            border: "1px solid #d1d5db",
+                            padding: "12px 16px",
+                            textAlign: "right",
+                            color: "#1f2937",
+                          }}
+                        >
+                          الاختبار التحصيلي
+                        </td>
+                        <td
+                          style={{
+                            border: "1px solid #d1d5db",
+                            padding: "12px 16px",
+                            textAlign: "center",
+                            fontWeight: "600",
+                            color: "#1f2937",
+                          }}
+                        >
+                          {student.achievementScore || "—"}
+                        </td>
+                        <td
+                          style={{
+                            border: "1px solid #d1d5db",
+                            padding: "12px 16px",
+                            textAlign: "center",
+                            fontWeight: "600",
+                            color: "#1f2937",
+                          }}
+                        >
+                          {weights.achievementScore || "—"}%
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
 
-                <hr className="my-3" />
+                  {/* النتيجة النهائية مع Progress Bar */}
+                  <div
+                    style={{
+                      backgroundColor: "#f3f4f6",
+                      borderRadius: "12px",
+                      padding: "20px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "18px",
+                          fontWeight: "bold",
+                          color: "#374151",
+                        }}
+                      >
+                        النسبة الموزونة النهائية
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "32px",
+                          fontWeight: "bold",
+                          color: "#3b82f6",
+                        }}
+                      >
+                        {result}%
+                      </span>
+                    </div>
 
-                <p className="text-sm text-text">وزن الثانوية: {weights.highSchoolPercentage || "—"}%</p>
-                <p className="text-sm text-text">وزن القدرات: {weights.abilitiesScore || "—"}%</p>
-                <p className="text-sm text-text">وزن التحصيلي: {weights.achievementScore || "—"}%</p>
+                    {/* Progress Bar */}
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "12px",
+                        backgroundColor: "#e5e7eb",
+                        borderRadius: "9999px",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${result}%`,
+                          height: "100%",
+                          backgroundColor: "#3b82f6",
+                          borderRadius: "9999px",
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div
+                    style={{
+                      marginTop: "30px",
+                      paddingTop: "16px",
+                      borderTop: "1px solid #e5e7eb",
+                      textAlign: "center",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "#9ca3af",
+                      }}
+                    >
+                      هذا التقرير تم إنشاؤه تلقائياً ولا يُعد وثيقة رسمية
+                    </p>
+                  </div>
+                </div>
+
+                {/* Watermark - فوق المحتوى */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    opacity: 0.1,
+                    pointerEvents: "none",
+                    zIndex: 10,
+                  }}
+                >
+                  <img
+                    src="/images/logo.svg"
+                    alt=""
+                    style={{ width: "300px", height: "auto" }}
+                  />
+                </div>
               </div>
+              {/* ===== نهاية PDF ===== */}
             </div>
-            {result !== null ? (
-              <ActionsButtons
-                onRecalculate={calculate}
-                onReset={resetAll}
-                canDownload={true}
-                onDownload={downloadPDF}
-              />
-            ) : null}
 
+            <ActionsButtons
+              onRecalculate={calculate}
+              onReset={resetAll}
+              canDownload={true}
+              onDownload={downloadPDF}
+            />
           </>
         ) : null}
 
-        <div className=" mt-[48px]">
-          <div className="text-right justify-center text-primary  text-xl md:text-3xl font-bold  mb-8">
+        <div className="mt-[48px]">
+          <div className="text-right justify-center text-primary text-xl md:text-3xl font-bold mb-8">
             الأسئلة الشائعة
           </div>
-
-          <div className="mt-8 flex flex-col gap-4  md:gap-6">
+          <div className="mt-8 flex flex-col gap-4 md:gap-6">
             {faqs.map((item) => (
               <QuestionAccordion key={item.id} item={item} />
             ))}
@@ -286,28 +567,7 @@ const WeightedPercentageCalculator = () => {
 
 export default WeightedPercentageCalculator;
 
-const Input = ({
-  label = "الاسم رباعي باللغة العربية",
-  subLabel = "(مطابق للهوية الوطنية)",
-  placeholder = "أدخل اسمك بالكامل",
-}) => {
-  return (
-    <div className="flex flex-col items-start gap-2 relative">
-      <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
-          {label}
-        </div>
-        <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-base tracking-[0] leading-[normal] ">
-          {subLabel}
-        </div>
-      </div>
-      <input
-        placeholder={placeholder}
-        className="justify-start h-[58px] gap-2.5 px-4  bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto]"
-      />
-    </div>
-  );
-};
+// ============ باقي الكومبوننتات ============
 
 export const StudentDataFrame = ({ value, onChange }) => {
   const formFields = [
@@ -333,22 +593,28 @@ export const StudentDataFrame = ({ value, onChange }) => {
 
       <div className="flex-col items-start justify-center gap-6 flex relative self-stretch w-full">
         {formFields.map((field) => (
-          <div key={field.id} className="flex-col items-start gap-2.5 flex self-stretch w-full">
-            <label htmlFor={field.id} className="text-zinc-950 text-base [direction:rtl]">
+          <div
+            key={field.id}
+            className="flex-col items-start gap-2.5 flex self-stretch w-full"
+          >
+            <label
+              htmlFor={field.id}
+              className="text-zinc-950 text-base [direction:rtl]"
+            >
               {field.label}
             </label>
-
             <div className="p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex self-stretch w-full">
               <input
                 id={field.id}
                 type="number"
+                onWheel={(e) => e.target.blur()}
                 min="0"
                 max="100"
                 step="0.1"
                 value={field.val}
                 onChange={(e) => onChange(field.id, e.target.value)}
                 placeholder={field.placeholder}
-                className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500"
+                className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500 outline-none"
               />
             </div>
           </div>
@@ -356,25 +622,28 @@ export const StudentDataFrame = ({ value, onChange }) => {
 
         <div className="flex-col items-start gap-2.5 flex self-stretch w-full">
           <div className="flex flex-col items-start gap-1 md:flex-row md:justify-between self-stretch w-full">
-            <label htmlFor="achievementScore" className="text-zinc-950 text-base [direction:rtl]">
+            <label
+              htmlFor="achievementScore"
+              className="text-zinc-950 text-base [direction:rtl]"
+            >
               درجة الاختبار التحصيلي
             </label>
             <p className="text-[#be1919] text-sm md:text-base [direction:rtl]">
               إذا كان التحصيلي غير مطلوب, اتركه فارغا
             </p>
           </div>
-
           <div className="p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex self-stretch w-full">
             <input
               id="achievementScore"
               type="number"
+              onWheel={(e) => e.target.blur()}
               min="0"
               max="100"
               step="0.1"
               value={value.achievementScore}
               onChange={(e) => onChange("achievementScore", e.target.value)}
               placeholder="ادخل درجتك في الاختبار التحصيلي (من 100)"
-              className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500"
+              className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500 outline-none"
             />
           </div>
         </div>
@@ -382,7 +651,6 @@ export const StudentDataFrame = ({ value, onChange }) => {
     </form>
   );
 };
-
 
 export const UniversityRequirementsFrame = ({ value, onChange }) => {
   const [showAlert, setShowAlert] = useState(false);
@@ -395,13 +663,20 @@ export const UniversityRequirementsFrame = ({ value, onChange }) => {
   useEffect(() => {
     if (
       total !== 100 &&
-      (value.highSchoolPercentage || value.abilitiesScore || value.achievementScore)
+      (value.highSchoolPercentage ||
+        value.abilitiesScore ||
+        value.achievementScore)
     ) {
       setShowAlert(true);
     } else {
       setShowAlert(false);
     }
-  }, [total, value.highSchoolPercentage, value.abilitiesScore, value.achievementScore]);
+  }, [
+    total,
+    value.highSchoolPercentage,
+    value.abilitiesScore,
+    value.achievementScore,
+  ]);
 
   return (
     <div className="flex flex-col flex-1 items-start gap-8 px-4 py-8 md:px-6 md:py-12 relative bg-white rounded-[30px] border-[3px] border-solid border-variable-collection-stroke">
@@ -417,74 +692,82 @@ export const UniversityRequirementsFrame = ({ value, onChange }) => {
       {showAlert && (
         <div className="w-full p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-red-600 text-sm [direction:rtl]">
-            مجموع متطلبات الجامعة يجب أن يكون 100٪ بالضبط
+            مجموع متطلبات الجامعة يجب أن يكون 100٪ بالضبط (الحالي: {total}%)
           </p>
         </div>
       )}
 
       <form className="flex-col items-start justify-center gap-6 flex self-stretch w-full">
-        {/* الثانوية */}
         <div className="flex-col items-start gap-2.5 flex self-stretch w-full">
-          <label htmlFor="highSchoolPercentage" className="text-zinc-950 text-base [direction:rtl]">
+          <label
+            htmlFor="highSchoolPercentage"
+            className="text-zinc-950 text-base [direction:rtl]"
+          >
             النسبة المطلوبة للثانوية (%)
           </label>
           <div className="p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex self-stretch w-full">
             <input
               id="highSchoolPercentage"
               type="number"
+              onWheel={(e) => e.target.blur()}
               min="0"
               max="100"
               step="0.1"
               value={value.highSchoolPercentage}
               onChange={(e) => onChange("highSchoolPercentage", e.target.value)}
               placeholder="مثال: 40"
-              className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500"
+              className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500 outline-none"
             />
           </div>
         </div>
 
-        {/* القدرات */}
         <div className="flex-col items-start gap-2.5 flex self-stretch w-full">
-          <label htmlFor="abilitiesScore" className="text-zinc-950 text-base [direction:rtl]">
+          <label
+            htmlFor="abilitiesScore"
+            className="text-zinc-950 text-base [direction:rtl]"
+          >
             درجة القدرات المطلوبة (%)
           </label>
           <div className="p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex self-stretch w-full">
             <input
               id="abilitiesScore"
               type="number"
+              onWheel={(e) => e.target.blur()}
               min="0"
               max="100"
               step="0.1"
               value={value.abilitiesScore}
               onChange={(e) => onChange("abilitiesScore", e.target.value)}
               placeholder="مثال: 30"
-              className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500"
+              className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500 outline-none"
             />
           </div>
         </div>
 
-        {/* التحصيلي */}
         <div className="flex-col items-start gap-2.5 flex self-stretch w-full">
           <div className="flex flex-col items-start gap-1 md:flex-row md:justify-between self-stretch w-full">
-            <label htmlFor="achievementScore" className="text-zinc-950 text-base [direction:rtl]">
+            <label
+              htmlFor="achievementScoreWeight"
+              className="text-zinc-950 text-base [direction:rtl]"
+            >
               درجة التحصيلي المطلوبة (%)
             </label>
             <p className="text-[#be1919] text-sm md:text-base [direction:rtl]">
               إذا كان التحصيلي غير مطلوب, اتركه فارغا أو اجعله 0
             </p>
           </div>
-
           <div className="p-4 bg-white rounded-[10px] border border-solid border-zinc-200 flex self-stretch w-full">
             <input
-              id="achievementScore"
+              id="achievementScoreWeight"
               type="number"
+              onWheel={(e) => e.target.blur()}
               min="0"
               max="100"
               step="0.1"
               value={value.achievementScore}
               onChange={(e) => onChange("achievementScore", e.target.value)}
               placeholder="مثال: 30"
-              className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500"
+              className="text-zinc-900 text-sm text-right w-full [direction:rtl] placeholder:text-zinc-500 outline-none"
             />
           </div>
         </div>
@@ -506,10 +789,9 @@ export const ProgressFrame = ({ percentage = 0, show = false }) => {
           {show ? `${safe}%` : "—"}
         </div>
       </div>
-
       <div className="bg-primary-bg rounded-[20px] self-stretch w-full">
         <div
-          className="h-2 md:h-4 bg-primary rounded-[20px]"
+          className="h-2 md:h-4 bg-primary rounded-[20px] transition-all duration-500"
           style={{ width: `${show ? safe : 0}%` }}
         />
       </div>
@@ -517,10 +799,24 @@ export const ProgressFrame = ({ percentage = 0, show = false }) => {
   );
 };
 
-
-const ActionsButtons = ({ onRecalculate, onReset, onDownload, canDownload }) => {
+const ActionsButtons = ({
+  onRecalculate,
+  onReset,
+  onDownload,
+  canDownload,
+}) => {
   const FileIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
       <polyline points="14 2 14 8 20 8" />
       <line x1="16" y1="13" x2="8" y2="13" />

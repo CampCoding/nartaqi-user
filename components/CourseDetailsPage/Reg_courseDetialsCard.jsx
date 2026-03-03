@@ -55,13 +55,15 @@ const RegCourseDetailsCard = ({
 
   const formatDate = useCallback((dateString) => {
     if (!dateString) return "غير محدد";
-    const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) return "غير محدد";
-    return date.toLocaleDateString("ar-EG", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+
+    const d = new Date(dateString);
+    if (Number.isNaN(d.getTime())) return "غير محدد";
+
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+
+    return `${day}/${month}/${year}`;
   }, []);
 
   const handleAddToFavorite = useCallback(
@@ -210,9 +212,12 @@ const RegCourseDetailsCard = ({
           <div className="w-full py-3 sm:py-3.5 border-b-2 border-zinc-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 sm:gap-4">
             <div className="flex w-full sm:w-[200px] items-center gap-2">
               <SeatsIcon className="w-5 h-5 flex-shrink-0" />
-              <div onClick={()=> console.log(+round.capacity)} className="text-text text-xs sm:text-[13px] font-medium leading-relaxed line-clamp-1">
+              <div
+                onClick={() => console.log(+round.capacity)}
+                className="text-text text-xs sm:text-[13px] font-medium leading-relaxed line-clamp-1"
+              >
                 المقاعد المتبقية:{" "}
-                {+round.capacity - +round?.students_count  ?? " 0 " }
+                {+round.capacity - +round?.students_count ?? " 0 "}
               </div>
             </div>
 

@@ -26,6 +26,7 @@ import CheckboxButton from "./CheckboxButton";
 import { InfoIcon } from "./../../public/svgs";
 import { Modal } from "antd";
 import CursorLabelSection from "./CursorLabelSection";
+import { formatDate } from "../utils/helpers/date";
 
 // ==================== ENCODING/DECODING HELPERS ====================
 export const encodeId = (value) => {
@@ -426,10 +427,11 @@ export const RegLectureDrawer = ({
 
     return query;
   };
-
   const allContent = [
     ...(lesson.videos || []).map((video) => ({ ...video, type: "video" })),
-    ...(lesson.live || []).map((live) => ({ ...live, type: "live" })),
+    ...(lesson.live || [])
+      .filter((live) => live.finished !== "1") // ✅ إخفاء الـ finished
+      .map((live) => ({ ...live, type: "live" })),
   ];
 
   const hasExams = lesson.exam_all_data && lesson.exam_all_data.length > 0;
@@ -662,7 +664,8 @@ export const RegLectureDrawer = ({
                             )}
                           </span>
                           <time className="font-medium text-text-alt text-xs md:text-sm">
-                            {item.date} - {item.time} - {item.end_time}
+                            {formatDate(item.date)} - {item.time} -{" "}
+                            {item.end_time}
                           </time>
                         </div>
                       ) : (

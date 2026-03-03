@@ -1,4 +1,5 @@
-import React from "react";
+// components/ui/Cards/TestimonialCard.jsx
+import React, { useEffect } from "react";
 
 const TestimonialCard = ({
   payload = {},
@@ -7,28 +8,84 @@ const TestimonialCard = ({
 }) => {
   const width = freeWidth ? "w-full" : "w-full max-w-[485px]";
 
-  // Extract data from payload with fallbacks
+  useEffect(() => {
+    console.log(payload, "payload");
+  }, [payload]);
+
+  // ✅ Extract data from payload with multiple fallback structures
   const testimonialData = {
-    studentName: payload?.student?.name || "مايكل براون",
-    studentImage: payload?.student?.image || "/images/Image-48.png",
-    studentType: type === "0" ? "طالب" : "معلم",
-    rating: payload?.rate || 4,
+    // Name: check different possible keys
+    studentName:
+      payload?.student?.name ||
+      payload?.user?.name ||
+      payload?.name ||
+      payload?.student_name ||
+      "مستخدم",
+
+    // Image: check different possible keys
+    studentImage:
+      payload?.student?.image_url ||
+      payload?.student?.image_url ||
+      payload?.user?.image ||
+      payload?.user?.image_url ||
+      payload?.image ||
+      payload?.image_url ||
+      "/images/Image-48.png",
+
+    // Type
+    studentType:
+      payload?.type === "0" || type === "0"
+        ? "طالب"
+        : payload?.type === "1" || type === "1"
+          ? "معلم"
+          : type === "students"
+            ? "طالب"
+            : "معلم",
+
+    // Rating - احتفظ بالقيمة العشرية
+    rating: parseFloat(payload?.rate || payload?.rating || payload?.stars || 5),
+
+    // Comment
     comment:
       payload?.comment ||
-      "لوريم ابسوم دولور سيت اميت، كونسيكتيتور اديبيسسينغ ايليت. كورابيتور ايجيت ايروس فيتاي اورنا فرمنتوم فاسيليسيس. سيد تريستيكوي، نيسل ان كورسوس تينكيدونت، جوستو لوريم فولوتبات سيم، فيل فيفيرا سابين اركو ات اورنا.",
-    createdAt: payload?.created_at || new Date().toISOString(),
+      payload?.review ||
+      payload?.content ||
+      payload?.text ||
+      payload?.feedback ||
+      "لا يوجد تعليق",
+
+    // Date
+    createdAt: payload?.created_at || payload?.date || new Date().toISOString(),
+
+    // Round/Course name (optional)
+    roundName: payload?.round?.name || payload?.course?.name || null,
   };
 
-  // Generate stars based on rating (max 5)
+  // ✅ Generate stars with half-star support
   const renderStars = () => {
     const stars = [];
     const maxStars = 5;
-    const rating = Math.min(Math.max(testimonialData.rating, 0), maxStars); // Clamp between 0-5
+    const rating = Math.min(Math.max(testimonialData.rating, 0), maxStars);
 
     for (let i = 1; i <= maxStars; i++) {
+      let starType;
+
+      if (i <= Math.floor(rating)) {
+        // نجمة كاملة
+        starType = "full";
+      } else if (i === Math.ceil(rating) && rating % 1 !== 0) {
+        // نجمة نصفية
+        starType = "half";
+      } else {
+        // نجمة فارغة
+        starType = "empty";
+      }
+
       stars.push(
         <div key={i} className="w-5 h-5 sm:w-6 sm:h-6">
-          {i <= rating ? <FilledStarIcon /> : <OutlinedStarIcon />}
+          {starType === "full" && <FilledStarIcon />}
+          {starType === "half" && <HalfStarIcon />}
+          {starType === "empty" && <OutlinedStarIcon />}
         </div>
       );
     }
@@ -73,7 +130,7 @@ const TestimonialCard = ({
           alt={testimonialData.studentName}
           className="w-20 h-20 sm:w-24 sm:h-24 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-full object-cover flex-shrink-0"
           onError={(e) => {
-            e.target.src = "/images/Image-48.png"; // Fallback image on error
+            e.target.src = "/images/Image-48.png";
           }}
         />
         <div className="flex flex-col items-center md:items-start gap-2 sm:gap-3 md:gap-1 relative flex-1 grow">
@@ -82,6 +139,11 @@ const TestimonialCard = ({
           </h3>
           <p className="text-text-alt text-center md:text-start text-xs sm:text-sm leading-4 sm:leading-5 relative self-stretch">
             {testimonialData.studentType}
+            {testimonialData.roundName && (
+              <span className="text-secondary ms-1">
+                • {testimonialData.roundName}
+              </span>
+            )}
           </p>
         </div>
       </div>
@@ -97,7 +159,7 @@ const TestimonialCard = ({
       </div>
 
       {/* نص الشهادة */}
-      <p className="text-xs sm:text-sm md:text-base text-text-alt text-center md:text-start leading-5 sm:leading-6 relative self-stretch z-10">
+      <p className="text-xs sm:text-sm md:text-base text-text-alt text-center md:text-start leading-5 sm:leading-6 relative self-stretch z-10 line-clamp-4">
         {testimonialData.comment}
       </p>
     </div>
@@ -106,6 +168,7 @@ const TestimonialCard = ({
 
 export default TestimonialCard;
 
+// ⭐ نجمة كاملة
 const FilledStarIcon = (props) => (
   <svg
     width="100%"
@@ -126,17 +189,45 @@ const FilledStarIcon = (props) => (
   </svg>
 );
 
+// ⭐ نجمة نصفية - جديدة!
+const HalfStarIcon = (props) => (
+  <svg
+    width="100%"
+    height="100%"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <defs>
+      <linearGradient id="halfStarGradient">
+        <stop offset="50%" stopColor="#F6CB17" />
+        <stop offset="50%" stopColor="transparent" />
+      </linearGradient>
+    </defs>
+    <path
+      d="M8.58699 8.23594L11.185 3.00394C11.2606 2.85253 11.3769 2.72517 11.5209 2.63616C11.6648 2.54715 11.8307 2.5 12 2.5C12.1692 2.5 12.3351 2.54715 12.4791 2.63616C12.6231 2.72517 12.7394 2.85253 12.815 3.00394L15.413 8.23594L21.221 9.07994C21.3885 9.10317 21.5461 9.17303 21.6759 9.28155C21.8056 9.39007 21.9022 9.53288 21.9546 9.69367C22.0071 9.85446 22.0133 10.0268 21.9725 10.1909C21.9317 10.355 21.8456 10.5044 21.724 10.6219L17.522 14.6919L18.514 20.4419C18.641 21.1799 17.861 21.7419 17.194 21.3939L12 18.6779L6.80499 21.3939C6.13899 21.7429 5.35899 21.1799 5.48599 20.4409L6.47799 14.6909L2.27599 10.6209C2.15498 10.5033 2.06939 10.3541 2.02896 10.1903C1.98852 10.0264 1.99487 9.85451 2.04726 9.69409C2.09966 9.53367 2.19601 9.39116 2.32536 9.28277C2.45471 9.17439 2.61188 9.10446 2.77899 9.08094L8.58699 8.23594Z"
+      fill="url(#halfStarGradient)"
+      stroke="#F6CB17"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// ⭐ نجمة فارغة
 const OutlinedStarIcon = (props) => (
   <svg
     width="100%"
     height="100%"
-    viewBox="0 0 22 22"
+    viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
     <path
-      d="M7.58699 7.23594L10.185 2.00394C10.2606 1.85253 10.3769 1.72517 10.5209 1.63616C10.6648 1.54715 10.8307 1.5 11 1.5C11.1692 1.5 11.3351 1.54715 11.4791 1.63616C11.6231 1.72517 11.7394 1.85253 11.815 2.00394L14.413 7.23594L20.221 8.07994C20.3885 8.10317 20.5461 8.17303 20.6759 8.28155C20.8056 8.39007 20.9022 8.53288 20.9546 8.69367C21.0071 8.85446 21.0133 9.02676 20.9725 9.19089C20.9317 9.35503 20.8456 9.5044 20.724 9.62194L16.522 13.6919L17.514 19.4419C17.641 20.1799 16.861 20.7419 16.194 20.3939L11 17.6779L5.80499 20.3939C5.13899 20.7429 4.35899 20.1799 4.48599 19.4409L5.47799 13.6909L1.27599 9.62094C1.15498 9.50332 1.06939 9.3541 1.02896 9.19026C0.988524 9.02641 0.994866 8.85451 1.04726 8.69409C1.09966 8.53367 1.19601 8.39116 1.32536 8.28277C1.45471 8.17439 1.61188 8.10446 1.77899 8.08094L7.58699 7.23594Z"
+      d="M8.58699 8.23594L11.185 3.00394C11.2606 2.85253 11.3769 2.72517 11.5209 2.63616C11.6648 2.54715 11.8307 2.5 12 2.5C12.1692 2.5 12.3351 2.54715 12.4791 2.63616C12.6231 2.72517 12.7394 2.85253 12.815 3.00394L15.413 8.23594L21.221 9.07994C21.3885 9.10317 21.5461 9.17303 21.6759 9.28155C21.8056 9.39007 21.9022 9.53288 21.9546 9.69367C22.0071 9.85446 22.0133 10.0268 21.9725 10.1909C21.9317 10.355 21.8456 10.5044 21.724 10.6219L17.522 14.6919L18.514 20.4419C18.641 21.1799 17.861 21.7419 17.194 21.3939L12 18.6779L6.80499 21.3939C6.13899 21.7429 5.35899 21.1799 5.48599 20.4409L6.47799 14.6909L2.27599 10.6209C2.15498 10.5033 2.06939 10.3541 2.02896 10.1903C1.98852 10.0264 1.99487 9.85451 2.04726 9.69409C2.09966 9.53367 2.19601 9.39116 2.32536 9.28277C2.45471 9.17439 2.61188 9.10446 2.77899 9.08094L8.58699 8.23594Z"
       stroke="#F6CB17"
       strokeWidth={1.5}
       strokeLinecap="round"

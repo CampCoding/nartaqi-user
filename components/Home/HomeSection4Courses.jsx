@@ -11,8 +11,6 @@ import Container from "../ui/Container";
 import ShareModal from "../shared/ShareModal";
 
 const HomeSection4Courses = ({ latestRounds = [] }) => {
-
-
   // Fallback data if API doesn't return data
   const fallbackData = [
     {
@@ -50,7 +48,7 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
     gender: item.gender,
     active: item.active,
     course_category_id: item.course_category_id,
-    remainingSets : +item.capacity  - +item.students_count,
+    remainingSets: +item.capacity - +item.students_count,
     // Transform course_categories to course
     course: {
       name: item.course_categories?.name || "غير محدد",
@@ -65,13 +63,13 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
           image_url: teacher.image_url,
         }))
       : item.teacher && typeof item.teacher === "object"
-      ? [
-          {
-            name: item.teacher.name,
-            image_url: item.teacher.image_url,
-          },
-        ]
-      : [],
+        ? [
+            {
+              name: item.teacher.name,
+              image_url: item.teacher.image_url,
+            },
+          ]
+        : [],
     is_favorite: item?.fav || false,
     enrolled: item.enrolled || false,
     teachers: item.teachers,
@@ -82,7 +80,11 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
     transformedData?.length > 0 ? transformedData : fallbackData;
 
   return (
-    <Container className="mt-6 md:mt-[74px]">
+    // ✅ أضفنا id="latest-courses" و scroll-mt-[134px]
+    <Container
+      id="latest-courses"
+      className="mt-6 md:mt-[74px] scroll-mt-[134px]"
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         {/* العنوان */}
@@ -180,7 +182,6 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
           </div>
         )}
       </div>
-     
     </Container>
   );
 };

@@ -52,7 +52,7 @@ export default function RootLayout({ children }) {
                   width: "min(420px, 100%)",
                   padding: 0,
                 },
-                
+
                 success: { className: "toast-card toast-success" },
                 error: { className: "toast-card toast-error" },
                 loading: { className: "toast-card toast-loading" },
@@ -64,10 +64,9 @@ export default function RootLayout({ children }) {
             <ScrollToTop />
             <div className="min-h-[100svh]">{children}</div>
             <Footer />
-        <FloatingCompletionRateButton  href="/course-rate" />
+            <FloatingCompletionRateButton href="/course-rate" />
           </UserProvider>
         </Providers>
-
       </body>
     </html>
   );

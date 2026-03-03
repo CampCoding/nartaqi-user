@@ -5,8 +5,7 @@ import React, { useMemo } from "react";
 // ✅ strip HTML tags safely (simple)
 const stripHtml = (html) => {
   if (!html) return "";
-  return String(html)
-  
+  return String(html);
 };
 
 const toArabicLevel = (level) => {
@@ -92,9 +91,10 @@ const ExamDetailsHeader = ({ title, examData }) => {
           {computed.headerTitle}
         </h1>
 
-        <p className="w-full text-center sm:text-right font-medium text-text-alt text-base md:text-xl leading-loose max-w-4xl">
-          {computed.desc}
-        </p>
+        <p
+          className="w-full text-center sm:text-right font-medium text-text-alt text-base md:text-xl leading-loose max-w-4xl"
+          dangerouslySetInnerHTML={{ __html: computed.desc }}
+        />
       </div>
 
       {/* Stats */}
@@ -168,7 +168,6 @@ const ExamDetailsHeader = ({ title, examData }) => {
 };
 
 export default ExamDetailsHeader;
-
 
 const QuestionsListIcon = (props) => (
   <svg
