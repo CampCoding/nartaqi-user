@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { CopyIcon, LiveIcon } from "../../../public/svgs";
 import { message } from "antd";
+import { formatDate } from "../../utils/helpers/date";
 
 const LiveCard = ({ liveData, courseData }) => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -24,11 +25,34 @@ const LiveCard = ({ liveData, courseData }) => {
       messageApi.error("تعذر نسخ الكود");
     }
   };
-
   const formatTime = (timeString) => {
     if (!timeString) return "";
-    const [hours, minutes] = timeString.split(":");
-    return `${hours}:${minutes}`;
+
+    // التحقق إذا كان الوقت يحتوي على AM/PM
+    const isPM = timeString.toUpperCase().includes("PM");
+    const isAM = timeString.toUpperCase().includes("AM");
+
+    // إزالة AM/PM والمسافات
+    const cleanTime = timeString.replace(/\s*(AM|PM)\s*/gi, "").trim();
+    const [hours, minutes] = cleanTime.split(":");
+
+    let hour = parseInt(hours, 10);
+
+    // إذا كان التنسيق 12 ساعة مع AM/PM
+    if (isPM || isAM) {
+      // تحويل لنظام 24 ساعة أولاً ثم للعربي
+      if (isPM && hour !== 12) {
+        hour = hour + 12;
+      } else if (isAM && hour === 12) {
+        hour = 0;
+      }
+    }
+
+    // تحويل لنظام 12 ساعة مع ص/م
+    const period = hour >= 12 ? "م" : "ص";
+    const hour12 = hour % 12 || 12;
+
+    return `${hour12}:${minutes} ${period}`;
   };
 
   return (
@@ -71,9 +95,11 @@ const LiveCard = ({ liveData, courseData }) => {
             </div>
 
             <div className="text-[11px] sm:text-[12px] lg:text-[13px] text-text-alt">
-              الوقت:{" "}
-              {`${formatTime(liveData.time)} - ${formatTime(liveData.end_time)}`}{" "}
-              - {liveData.date}
+              التاريخ: {formatDate(liveData.date)}
+            </div>
+            <div className="text-[11px] sm:text-[12px] lg:text-[13px] text-text-alt">
+              الوقت:
+              {` ${formatTime(liveData.time)} - ${formatTime(liveData.end_time)}`}{" "}
             </div>
             <div className="font-semibold text-text text-[12px] sm:text-[13px] lg:text-[14px] leading-normal flex flex-wrap items-center">
               <span>رقم الإجتماع : </span>

@@ -301,77 +301,34 @@ export const RegLectureDrawer = ({
   const toggleExpanded = () => setIsExpanded((v) => !v);
 
   // ✅ professional time formatter: supports seconds (number) or "mm:ss" / "hh:mm:ss"
-  const formatTime = (
-    input,
-    { style = "long", roundToMinute = false } = {}
-  ) => {
-    if (input === null || input === undefined || input === "" || input === 0) {
-      return "";
-    }
+  const formatTime = (timeString) => {
+    if (!timeString) return "";
 
-    let totalSeconds = 0;
+    // التحقق إذا كان الوقت يحتوي على AM/PM
+    const isPM = timeString.toUpperCase().includes("PM");
+    const isAM = timeString.toUpperCase().includes("AM");
 
-    // number seconds OR numeric string
-    if (
-      typeof input === "number" ||
-      (typeof input === "string" && /^\d+(\.\d+)?$/.test(input.trim()))
-    ) {
-      totalSeconds = Math.floor(Number(input));
-    }
-    // "mm:ss" or "hh:mm:ss"
-    else if (typeof input === "string") {
-      const parts = input
-        .trim()
-        .split(":")
-        .map((p) => p.trim());
-      if (parts.length === 2 || parts.length === 3) {
-        const nums = parts.map((p) => Number(p));
-        if (nums.some((n) => Number.isNaN(n) || n < 0)) return "غير محدد";
+    // إزالة AM/PM والمسافات
+    const cleanTime = timeString.replace(/\s*(AM|PM)\s*/gi, "").trim();
+    const [hours, minutes] = cleanTime.split(":");
 
-        if (parts.length === 2) {
-          const [m, s] = nums;
-          totalSeconds = m * 60 + s;
-        } else {
-          const [h, m, s] = nums;
-          totalSeconds = h * 3600 + m * 60 + s;
-        }
-      } else {
-        return "غير محدد";
+    let hour = parseInt(hours, 10);
+
+    // إذا كان التنسيق 12 ساعة مع AM/PM
+    if (isPM || isAM) {
+      // تحويل لنظام 24 ساعة أولاً ثم للعربي
+      if (isPM && hour !== 12) {
+        hour = hour + 12;
+      } else if (isAM && hour === 12) {
+        hour = 0;
       }
-    } else {
-      return "غير محدد";
     }
 
-    if (totalSeconds <= 0) return "غير محدد";
+    // تحويل لنظام 12 ساعة مع ص/م
+    const period = hour >= 12 ? "م" : "ص";
+    const hour12 = hour % 12 || 12;
 
-    if (roundToMinute) {
-      const mins = Math.round(totalSeconds / 60);
-      return `${mins} دقيقة`;
-    }
-
-    const hours = Math.floor(totalSeconds / 3600);
-    const mins = Math.floor((totalSeconds % 3600) / 60);
-    const secs = totalSeconds % 60;
-
-    if (style === "short") {
-      const mm = String(mins).padStart(2, "0");
-      const ss = String(secs).padStart(2, "0");
-      if (hours > 0) {
-        const hh = String(hours).padStart(2, "0");
-        return `${hh}:${mm}:${ss}`;
-      }
-      return `${mins}:${ss}`;
-    }
-
-    const parts = [];
-    if (hours) parts.push(`${hours} ساعة`);
-    if (mins) parts.push(`${mins} دقيقة`);
-    if (secs) parts.push(`${secs} ثانية`);
-
-    if (parts.length === 0) return "أقل من دقيقة";
-    if (parts.length === 1) return parts[0];
-    if (parts.length === 2) return `${parts[0]} و ${parts[1]}`;
-    return `${parts[0]} و ${parts[1]} و ${parts[2]}`;
+    return `${hour12}:${minutes} ${period}`;
   };
 
   const buildVideoQuery = (item) => {
@@ -664,8 +621,8 @@ export const RegLectureDrawer = ({
                             )}
                           </span>
                           <time className="font-medium text-text-alt text-xs md:text-sm">
-                            {formatDate(item.date)} - {item.time} -{" "}
-                            {item.end_time}
+                            {formatDate(item.date)} - {formatTime(item.time)} -{" "}
+                            {formatTime(item.end_time)}
                           </time>
                         </div>
                       ) : (
