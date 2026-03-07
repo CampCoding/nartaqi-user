@@ -384,12 +384,24 @@ export const RegLectureDrawer = ({
 
     return query;
   };
-  const allContent = [
-    ...(lesson.videos || []).map((video) => ({ ...video, type: "video" })),
-    ...(lesson.live || [])
-      .filter((live) => live.finished !== "1") // ✅ إخفاء الـ finished
-      .map((live) => ({ ...live, type: "live" })),
-  ];
+  const hasActiveLive = useMemo(() => {
+    return (lesson.live || []).some((live) => live.finished !== "1");
+  }, [lesson.live]);
+
+  const allContent = useMemo(() => {
+    if (hasActiveLive) {
+      return (lesson.live || [])
+        .filter((live) => live.finished !== "1")
+        .map((live) => ({ ...live, type: "live" }));
+    }
+
+    return [
+      ...(lesson.videos || []).map((video) => ({ ...video, type: "video" })),
+      ...(lesson.live || [])
+        .filter((live) => live.finished === "1")
+        .map((live) => ({ ...live, type: "live" })),
+    ];
+  }, [hasActiveLive, lesson.live, lesson.videos]);
 
   const hasExams = lesson.exam_all_data && lesson.exam_all_data.length > 0;
 
