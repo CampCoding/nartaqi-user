@@ -354,7 +354,7 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
           <div className="justify-center text-primary text-xl sm:text-2xl font-bold">
             {round.price} ر.س
           </div>
-          {round.round_book_url && (
+          {round.show_round_book == "1" && (
             <div className="justify-center text-text text-[11px] sm:text-xs font-medium">
               (شاملة كتاب الدورة بصيغة PDF)
             </div>

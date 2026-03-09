@@ -125,13 +125,13 @@ const CompetitionsSection = () => {
                 <div className="flex items-center justify-center gap-3 mt-3">
                   <Link
                     href={"/login"}
-                    className=" py-2 px-6 bg-primary rounded-full hover:bg-primary-dark transition-all text-white font-bold mt-3"
+                    className=" py-2 px-6 bg-primary rounded-full hover:bg-primary-dark transition-all text-white font-bold mt-3 text-[25px]"
                   >
                     تسجيل الدخول
                   </Link>
                   <Link
                     href={"/sign-up"}
-                    className="py-2 px-6 bg-primary rounded-full bg hover:bg-primary-dark transition-all text-white font-bold mt-3"
+                    className="py-2 px-6 bg-primary rounded-full bg hover:bg-primary-dark transition-all text-white font-bold mt-3 text-[25px]"
                   >
                     إنشاء حساب جديد
                   </Link>

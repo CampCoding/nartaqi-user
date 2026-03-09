@@ -51,9 +51,6 @@ const TeacherTopData = ({
             <div className="justify-center text-text text-2xl font-semibold leading-loose">
               {teacher.name || "—"}
             </div>
-            <div className="justify-center text-stone-600 text-base font-medium">
-              {teacher.description || "—"}
-            </div>
           </div>
         </div>
 
@@ -120,9 +117,7 @@ const TeacherTopData = ({
 
       {/* Long description */}
       <div className="text-right justify-center leading-loose">
-        <span className="text-text text-xl font-medium">
-          {teacher.description || "لا يوجد وصف متاح لهذا المدرب حاليًا."}
-        </span>
+        <span dangerouslySetInnerHTML={{ __html: teacher.description }} />
       </div>
     </div>
   );

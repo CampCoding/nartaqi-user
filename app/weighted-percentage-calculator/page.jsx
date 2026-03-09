@@ -230,7 +230,7 @@ const WeightedPercentageCalculator = () => {
         {result !== null ? (
           <>
             {/* ===== PDF Container ===== */}
-            <div ref={pdfRef} className="w-full relative bg-white">
+            <div ref={pdfRef} className="w-[30%] m-auto relative bg-white">
               {/* للشاشة فقط */}
               <div data-screen-only="true">
                 <ProgressFrame percentage={result} show />
@@ -586,7 +586,7 @@ export const StudentDataFrame = ({ value, onChange }) => {
   ];
 
   return (
-    <form className="flex flex-col flex-1 items-start gap-8 px-4 py-8 md:px-6 md:py-12 relative bg-white rounded-[30px] border-[3px] border-solid border-variable-collection-stroke">
+    <form className="flex flex-col flex-1 items-start gap-8 px-4 py-6 md:px-6  relative bg-white rounded-[30px] border-[3px] border-solid border-variable-collection-stroke">
       <h1 className="relative self-stretch mt-[-3.00px] font-bold text-primary text-xl md:text-2xl [direction:rtl]">
         بيانات الطالب
       </h1>
@@ -679,7 +679,7 @@ export const UniversityRequirementsFrame = ({ value, onChange }) => {
   ]);
 
   return (
-    <div className="flex flex-col flex-1 items-start gap-8 px-4 py-8 md:px-6 md:py-12 relative bg-white rounded-[30px] border-[3px] border-solid border-variable-collection-stroke">
+    <div className="flex flex-col flex-1 items-start gap-8 px-4 py-6 md:px-6 relative bg-white rounded-[30px] border-[3px] border-solid border-variable-collection-stroke">
       <header className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-8 self-stretch w-full">
         <h1 className="font-bold text-primary text-xl md:text-2xl [direction:rtl]">
           متطلبات الجامعة
@@ -785,7 +785,7 @@ export const ProgressFrame = ({ percentage = 0, show = false }) => {
         <div className="font-medium text-text text-base [direction:rtl]">
           نسبتك الموزونة هي
         </div>
-        <div className="font-bold text-primary-dark text-base text-right">
+        <div className="font-bold text-primary-dark text-xl text-right">
           {show ? `${safe}%` : "—"}
         </div>
       </div>

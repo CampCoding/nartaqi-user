@@ -347,20 +347,12 @@ const VerbalSection = ({ sectionTitle, sectionDescription }) => {
       </div>
 
       <div className="w-full prose prose-neutral flex-1 text-right text-sup-title text-base sm:text-lg lg:text-xl font-normal font-['Cairo'] leading-relaxed sm:leading-loose lg:leading-10 space-y-4">
-        {sectionDescription ? (
+        {sectionDescription && (
           <div
             dangerouslySetInnerHTML={{
               __html: sectionDescription.replace(/&nbsp;/gi, " "),
             }}
           />
-        ) : (
-          <>
-            <p>القسم اللفظي</p>
-            <p>
-              يتكون القسم اللفظي من مجموعة من الأسئلة التي تقيس قدرة الطالب على
-              فهم المقروء، واستنتاج المعاني، وتحليل النصوص.
-            </p>
-          </>
         )}
       </div>
     </div>

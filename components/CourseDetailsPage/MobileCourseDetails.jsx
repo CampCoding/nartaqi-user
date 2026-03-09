@@ -444,7 +444,7 @@ const MobileCourseDetails = ({
                 <div className="text-primary text-2xl md:text-[30px] font-bold text-left leading-normal whitespace-nowrap relative flex items-center justify-center w-fit mt-[-1.00px] [direction:rtl]">
                   {round.price} ر.س
                 </div>
-                {round.round_book_url && (
+                {round.show_round_book == "1" && (
                   <p className="relative flex items-center justify-center w-fit text-text-duplicate text-left whitespace-nowrap [direction:rtl]">
                     (شاملة كتاب الدوره بصيغة PDF)
                   </p>
