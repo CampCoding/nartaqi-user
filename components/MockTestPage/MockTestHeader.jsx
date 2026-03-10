@@ -13,6 +13,7 @@ export const MockExamHeader = ({
   drawerPlacement = "bottom", // 'bottom' feels natural on mobile; use 'left' if you prefer
   fontSize = "normal",
   onFontSizeChange,
+  currentSection,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isSelectOpen, setIsSelectOpen] = useState(false);
@@ -241,27 +242,45 @@ export const MockExamHeader = ({
       role="banner"
       dir="rtl"
     >
-      {/* Title + Student */}
-      <div
-        className="inline-flex flex-col md:flex-row md:items-center gap-1 min-w-0"
-        role="banner"
-      >
-        <h1
-          className="
+      <div className="flex flex-col gap-2">
+        <div
+          className="inline-flex flex-col md:flex-row md:items-center gap-1 min-w-0"
+          role="banner"
+        >
+          <h1
+            className="
              font-bold text-text
             text-xl sm:text-xl md:text-xl leading-[normal] tracking-[0] mt-[-1px]
             max-w-full truncate
           "
-          title={examData.examTitle}
-        >
-          {examData.examTitle}
-        </h1>
-        <div
-          className="font-medium text-text text-xl sm:text-xl md:text-xl  leading-[normal] tracking-[0] max-w-full truncate"
-          title={examData.studentName}
-        >
-          {examData.studentName}
+            title={examData.examTitle}
+          >
+            {examData.examTitle}
+          </h1>
+
+          <div
+            className="font-medium text-text text-xl sm:text-xl md:text-xl  leading-[normal] tracking-[0] max-w-full truncate"
+            title={examData.studentName}
+          >
+            {examData.studentName}
+          </div>
         </div>
+
+        {/* عنوان القسم (اختياري - يمكنك إزالته) */}
+        <h3
+          className={`prose prose-neutral ${
+            fontSize === "small"
+              ? "text-lg"
+              : fontSize === "large"
+                ? "text-xl"
+                : fontSize === "xlarge"
+                  ? "text-2xl"
+                  : "text-lg"
+          } font-bold w-fit border-b-2 border-[#ddd] text-[#ddd] grid grid-cols-1 pb-1 !whitespace-normal`}
+          dangerouslySetInnerHTML={{
+            __html: currentSection.title.replaceAll(/&nbsp;/gi, " "),
+          }}
+        />
       </div>
 
       {/* Inline controls on md+ (unchanged main design) */}

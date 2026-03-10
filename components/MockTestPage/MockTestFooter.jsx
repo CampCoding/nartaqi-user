@@ -233,7 +233,7 @@ export const ReviewFooter = ({
       >
         <ExitIcon />
         <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-[#be1919] text-sm sm:text-base tracking-[0] leading-[50px] whitespace-nowrap [direction:rtl]">
-          إنهاء المراجة
+          إنهاء المراجعة
         </span>
       </button>
     </header>

@@ -12,75 +12,119 @@ const MockTestReview = ({
   setActiveFilter,
   onSubmitExam,
   isSubmitting = false,
+  isFinalReview = false, // ✅ NEW
+  isLastSection = false, // ✅ NEW
+  onMoveToNextSection, // ✅ NEW
+  completedSections = new Set(), // ✅ NEW
 }) => {
   const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [isConfirmSubmit, setIsConfirmSubmit] = useState(false);
 
   // Get current section
-  const currentSection = sections && sections[currentSectionIndex] ? sections[currentSectionIndex] : null;
+  const currentSection =
+    sections && sections[currentSectionIndex]
+      ? sections[currentSectionIndex]
+      : null;
 
-  // Calculate totals for current section only
+  // ✅ Calculate stats for current section only (not completed sections)
   const totalQuestionsInSection = currentSection
-    ? currentSection.blocks.reduce((bSum, block) => bSum + block.questions.length, 0)
+    ? currentSection.blocks.reduce(
+        (bSum, block) => bSum + block.questions.length,
+        0
+      )
     : 0;
 
-  // Calculate totals for all sections (for display)
-  const totalQuestions = sections.reduce(
-    (sum, section) =>
-      sum +
-      section.blocks.reduce((bSum, block) => bSum + block.questions.length, 0),
-    0
-  );
-
-  // Count completed and flagged questions in current section only
   const completedQuestionsInSection = currentSection
     ? currentSection.blocks.reduce((count, block) => {
-        return count + block.questions.filter(q => answers[q.id] !== undefined).length;
+        return (
+          count +
+          block.questions.filter((q) => answers[q.id] !== undefined).length
+        );
       }, 0)
     : 0;
 
   const flaggedQuestionsInSection = currentSection
     ? currentSection.blocks.reduce((count, block) => {
-        return count + block.questions.filter(q => 
-          markedForReview.has(String(q.id)) || markedForReview.has(q.id)
-        ).length;
+        return (
+          count +
+          block.questions.filter(
+            (q) =>
+              markedForReview.has(String(q.id)) || markedForReview.has(q.id)
+          ).length
+        );
       }, 0)
     : 0;
 
-  const incompleteQuestionsInSection = totalQuestionsInSection - completedQuestionsInSection;
+  const incompleteQuestionsInSection =
+    totalQuestionsInSection - completedQuestionsInSection;
 
-  const completedQuestions = Object.keys(answers).length;
-  const flaggedQuestions = markedForReview.size;
-  const incompleteQuestions = totalQuestions - completedQuestions;
+  // ✅ For final review - calculate all sections stats
+  const totalQuestionsAll = sections.reduce(
+    (sum, section) =>
+      sum +
+      section.blocks.reduce((bSum, block) => bSum + block.questions.length, 0),
+    0
+  );
+  const completedQuestionsAll = Object.keys(answers).length;
+  const incompleteQuestionsAll = totalQuestionsAll - completedQuestionsAll;
 
   useEffect(() => {
     let questions = [];
     let questionNumber = 1;
 
-    // Process questions from ALL sections
-    sections.forEach((section, sectionIndex) => {
-      section.blocks.forEach((block, blockIndex) => {
-        block.questions.forEach((question) => {
-          const isAnswered = answers[question.id] !== undefined;
-          const isFlagged =
-            markedForReview.has(String(question.id)) ||
-            markedForReview.has(question.id);
+    if (isFinalReview) {
+      // ✅ Final review - show all sections
+      sections.forEach((section, sectionIndex) => {
+        section.blocks.forEach((block, blockIndex) => {
+          block.questions.forEach((question) => {
+            const isAnswered = answers[question.id] !== undefined;
+            const isFlagged =
+              markedForReview.has(String(question.id)) ||
+              markedForReview.has(question.id);
 
-          questions.push({
-            ...question,
-            questionNumber,
-            sectionIndex,
-            blockIndex,
-            isAnswered,
-            isFlagged,
-            sectionName: section.title,
+            questions.push({
+              ...question,
+              questionNumber,
+              sectionIndex,
+              blockIndex,
+              isAnswered,
+              isFlagged,
+              sectionName: section.title,
+              isCompleted: completedSections.has(sectionIndex),
+            });
+
+            questionNumber++;
           });
-
-          questionNumber++;
         });
       });
-    });
+    } else {
+      // ✅ Section review - show only current section
+      if (currentSection) {
+        currentSection.blocks.forEach((block, blockIndex) => {
+          block.questions.forEach((question) => {
+            const isAnswered = answers[question.id] !== undefined;
+            const isFlagged =
+              markedForReview.has(String(question.id)) ||
+              markedForReview.has(question.id);
 
+            questions.push({
+              ...question,
+              questionNumber,
+              sectionIndex: currentSectionIndex,
+              blockIndex,
+              isAnswered,
+              isFlagged,
+              sectionName: currentSection.title,
+              isCompleted: false,
+            });
+
+            questionNumber++;
+          });
+        });
+      }
+    }
+
+    // Apply filters
     switch (activeFilter) {
       case "flagged":
         questions = questions.filter((q) => q.isFlagged);
@@ -93,23 +137,46 @@ const MockTestReview = ({
     }
 
     setFilteredQuestions(questions);
-  }, [sections, answers, markedForReview, activeFilter]);
+  }, [
+    sections,
+    currentSection,
+    currentSectionIndex,
+    answers,
+    markedForReview,
+    activeFilter,
+    isFinalReview,
+    completedSections,
+  ]);
 
   const handleQuestionClick = (question) => {
-    // Allow navigation to current section or previous sections only (not next sections)
-    if (onNavigateToQuestion && question.sectionIndex <= currentSectionIndex) {
+    // ✅ Only allow navigation for current section questions (not completed sections)
+    if (
+      !question.isCompleted &&
+      question.sectionIndex === currentSectionIndex
+    ) {
       onNavigateToQuestion(question.sectionIndex, question.blockIndex);
     }
   };
 
   const getFilteredCount = () => {
-    switch (activeFilter) {
-      case "flagged":
-        return flaggedQuestions;
-      case "incomplete":
-        return incompleteQuestions;
-      default:
-        return totalQuestions;
+    if (isFinalReview) {
+      switch (activeFilter) {
+        case "flagged":
+          return markedForReview.size;
+        case "incomplete":
+          return incompleteQuestionsAll;
+        default:
+          return totalQuestionsAll;
+      }
+    } else {
+      switch (activeFilter) {
+        case "flagged":
+          return flaggedQuestionsInSection;
+        case "incomplete":
+          return incompleteQuestionsInSection;
+        default:
+          return totalQuestionsInSection;
+      }
     }
   };
 
@@ -127,31 +194,24 @@ const MockTestReview = ({
   return (
     <div className="min-h-screen bg-white pt-[48px] pb-[32px]">
       <div className="container max-w-[1312px] mx-auto px-4">
+        {/* ✅ Dynamic title based on review type */}
         <div className="text-center mb-[16px] justify-center text-text text-3xl font-bold leading-[50px]">
-          قسم المراجعة
+          {isFinalReview
+            ? "المراجعة النهائية"
+            : `مراجعة القسم ${currentSectionIndex + 1}`}
         </div>
 
-        {/* Stats Cards */}
-        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 text-center">
-            <div className="text-2xl font-bold text-blue-600">
-              {totalQuestions}
-            </div>
-            <div className="text-sm text-blue-800">إجمالي الأسئلة</div>
+        {/* ✅ Section info for section review */}
+        {!isFinalReview && currentSection && (
+          <div className="text-center mb-4">
+            <div
+              className="text-xl text-primary font-semibold prose prose-neutral inline"
+              dangerouslySetInnerHTML={{
+                __html: currentSection.title?.replaceAll(/&nbsp;/gi, " ") || "",
+              }}
+            />
           </div>
-          <div className="bg-green-50 p-4 rounded-xl border border-green-200 text-center">
-            <div className="text-2xl font-bold text-green-600">
-              {completedQuestions}
-            </div>
-            <div className="text-sm text-green-800">أسئلة مُجابة</div>
-          </div>
-          <div className="bg-red-50 p-4 rounded-xl border border-red-200 text-center">
-            <div className="text-2xl font-bold text-red-600">
-              {incompleteQuestions}
-            </div>
-            <div className="text-sm text-red-800">أسئلة غير مُجابة</div>
-          </div>
-        </div> */}
+        )}
 
         <div className="w-full px-6 py-4 bg-primary-light rounded-2xl inline-flex justify-start items-center gap-4 mb-[24px]">
           <div className="flex justify-start items-center gap-4">
@@ -164,22 +224,32 @@ const MockTestReview = ({
 
         <div className="text-right justify-center">
           <span className="text-black text-base font-bold">
-            فيما يلي ملخص الإجاباتك يمكنك مراجعة اسئلتك بثلاث (3) طرق مختلفة
+            {isFinalReview
+              ? "فيما يلي ملخص جميع إجاباتك في الاختبار"
+              : "فيما يلي ملخص إجاباتك في هذا القسم"}
           </span>
           <span className="text-black text-base font-medium leading-loose">
             <br />
-            الأزرار الموجودة في الركن السفلي الأيسر تطابق هذه الخيارات:
-            <br />
-            <br />
-            1- زر مراجعة الكل: قم بمراجعة كل أسئلتك وإجاباتك
-            <br />
-            2- زر مراجعة الغير مكتمل: قم بمراجعة الأسئلة غير المكتملة.
-            <br />
-            3- زر المميز بعلامة: قم بمراجعة الأسئلة المميزة بعلامة للمراجعة.
-            <br />
-            <br />
-            يمكنك أيضاً النقر فوق رقم السؤال للانتقال مباشرة إلى موقعه في
-            الاختبار.
+            {!isFinalReview && (
+              <>
+                يمكنك مراجعة الأسئلة والعودة لتعديل إجاباتك قبل الانتقال للقسم
+                التالي.
+                <br />
+                <span className="text-red-600 font-bold">
+                  تنبيه: بمجرد الانتقال للقسم التالي، لن تتمكن من العودة لهذا
+                  القسم.
+                </span>
+              </>
+            )}
+            {isFinalReview && (
+              <>
+                يمكنك مراجعة جميع إجاباتك قبل إرسال الاختبار.
+                <br />
+                <span className="text-amber-600 font-bold">
+                  ملاحظة: الأقسام المكتملة لا يمكن تعديلها.
+                </span>
+              </>
+            )}
           </span>
         </div>
 
@@ -187,7 +257,7 @@ const MockTestReview = ({
           <div className="flex justify-start items-center gap-4">
             <InfoIcon />
             <div className="text-right justify-center text-primary text-2xl font-semibold leading-[50px]">
-              الإمتحان
+              {isFinalReview ? "الاختبار" : "القسم"}
             </div>
           </div>
           <div className="text-right justify-center text-text text-2xl font-semibold leading-[50px]">
@@ -195,112 +265,192 @@ const MockTestReview = ({
           </div>
         </div>
 
-        {/* Group questions by section */}
-        {sections.map((section, sectionIdx) => {
-          const sectionQuestions = filteredQuestions.filter(
-            (q) => q.sectionIndex === sectionIdx
-          );
-          
-          if (sectionQuestions.length === 0) return null;
+        {/* ✅ Questions display */}
+        {isFinalReview ? (
+          // Final review - group by sections
+          sections.map((section, sectionIdx) => {
+            const sectionQuestions = filteredQuestions.filter(
+              (q) => q.sectionIndex === sectionIdx
+            );
 
-          const isCurrentSection = sectionIdx === currentSectionIndex;
-          const isPreviousSection = sectionIdx < currentSectionIndex;
-          const isNextSection = sectionIdx > currentSectionIndex;
-          const canNavigate = isCurrentSection || isPreviousSection;
+            if (sectionQuestions.length === 0) return null;
 
-          return (
-            <div key={sectionIdx} className="mb-8">
-              <div className="mb-4 px-4 py-2 bg-primary-light rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div
-                    className="text-right text-primary prose prose-neutral text-xl font-semibold"
-                    dangerouslySetInnerHTML={{
-                      __html: section.title
-                        ? section.title.replaceAll(/&nbsp;/ig, " ")
-                        : `القسم ${sectionIdx + 1}`,
-                    }}
-                  />
-                  <div className="text-sm text-gray-600">
-                    {isNextSection
-                      ? "غير متاح"
-                      : isCurrentSection
-                      ? "القسم الحالي"
-                      : "متاح"}
+            const isCompleted = completedSections.has(sectionIdx);
+            const isCurrent = sectionIdx === currentSectionIndex;
+
+            return (
+              <div key={sectionIdx} className="mb-8">
+                <div className="mb-4 px-4 py-2 bg-primary-light rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div
+                      className="text-right text-primary prose prose-neutral text-xl font-semibold"
+                      dangerouslySetInnerHTML={{
+                        __html: section.title
+                          ? section.title.replaceAll(/&nbsp;/gi, " ")
+                          : `القسم ${sectionIdx + 1}`,
+                      }}
+                    />
+                    <div
+                      className={`text-sm ${isCompleted ? "text-green-600" : isCurrent ? "text-blue-600" : "text-gray-600"}`}
+                    >
+                      {isCompleted
+                        ? "✓ مكتمل"
+                        : isCurrent
+                          ? "القسم الحالي"
+                          : ""}
+                    </div>
                   </div>
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-2 border-[#E4E4E7] rounded-[30px] overflow-hidden">
+                  {sectionQuestions.map((question) => (
+                    <Review
+                      key={question.id}
+                      question={question}
+                      onClick={() => handleQuestionClick(question)}
+                      isDisabled={isCompleted}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-2 border-[#E4E4E7] rounded-[30px] overflow-hidden">
-                {sectionQuestions.map((question) => (
-                  <Review
-                    key={question.id}
-                    question={question}
-                    onClick={() => handleQuestionClick(question)}
-                    isDisabled={!canNavigate}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })
+        ) : (
+          // Section review - single section
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-2 border-[#E4E4E7] rounded-[30px] overflow-hidden">
+            {filteredQuestions.map((question) => (
+              <Review
+                key={question.id}
+                question={question}
+                onClick={() => handleQuestionClick(question)}
+                isDisabled={false}
+              />
+            ))}
+          </div>
+        )}
 
-        {/* Submit Button */}
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={() => setIsConfirmSubmit(true)}
-            disabled={isSubmitting}
-            className="px-12 py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3"
-          >
-            {isSubmitting ? (
-              <>
-                <svg
-                  className="animate-spin h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
+        {/* ✅ Action Buttons */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+          {/* Back to questions button - only for section review */}
+          {!isFinalReview && (
+            <button
+              onClick={onBackToTest}
+              className="px-8 py-4 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors font-bold text-lg"
+            >
+              العودة للأسئلة
+            </button>
+          )}
+
+          {/* Next Section / Submit button */}
+          {isFinalReview ? (
+            // Final review - Submit button
+            <button
+              onClick={() => setIsConfirmSubmit(true)}
+              disabled={isSubmitting}
+              className="px-12 py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+            >
+              {isSubmitting ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  جاري الإرسال...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
                     stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                جاري الإرسال...
-              </>
-            ) : (
-              <>
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                إرسال الاختبار
-              </>
-            )}
-          </button>
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  إرسال الاختبار
+                </>
+              )}
+            </button>
+          ) : (
+            // Section review - Next section button
+            <button
+              onClick={onMoveToNextSection}
+              className="px-12 py-4 bg-primary text-white rounded-xl hover:opacity-90 transition-colors font-bold text-lg flex items-center justify-center gap-3"
+            >
+              {isLastSection ? (
+                <>
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    />
+                  </svg>
+                  الانتقال للمراجعة النهائية
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-6 h-6 rotate-180"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                  الانتقال للقسم التالي
+                </>
+              )}
+            </button>
+          )}
         </div>
 
-        {/* Warning if incomplete */}
-        {incompleteQuestions > 0 && (
+        {/* Warning message */}
+        {!isFinalReview && (
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-center">
+            <p className="text-amber-800 font-medium">
+              تأكد من مراجعة جميع إجاباتك قبل الانتقال. لن تتمكن من العودة لهذا
+              القسم.
+            </p>
+          </div>
+        )}
+
+        {/* Warning if incomplete in final review */}
+        {isFinalReview && incompleteQuestionsAll > 0 && (
           <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-center">
             <p className="text-yellow-800 font-medium">
-              ⚠️ لديك {incompleteQuestions} سؤال غير مُجاب. هل أنت متأكد من
-              إرسال الاختبار؟
+              لديك {incompleteQuestionsAll} سؤال غير مُجاب.
             </p>
           </div>
         )}
@@ -318,8 +468,8 @@ const MockTestReview = ({
               تأكيد إرسال الاختبار
             </h3>
             <p className="text-center text-gray-600 mb-6">
-              {incompleteQuestions > 0
-                ? `لديك ${incompleteQuestions} سؤال غير مُجاب. هل أنت متأكد من إرسال الاختبار؟`
+              {incompleteQuestionsAll > 0
+                ? `لديك ${incompleteQuestionsAll} سؤال غير مُجاب. هل أنت متأكد من إرسال الاختبار؟`
                 : "هل أنت متأكد من إرسال الاختبار؟ لن تتمكن من تعديل إجاباتك بعد الإرسال."}
             </p>
             <div className="flex gap-4">
@@ -334,7 +484,7 @@ const MockTestReview = ({
                   setIsConfirmSubmit(false);
                   onSubmitExam();
                 }}
-                disabled={isSubmitting || incompleteQuestions > 0}
+                disabled={isSubmitting || incompleteQuestionsAll > 0}
                 className="flex-1 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 تأكيد الإرسال
@@ -353,8 +503,8 @@ export const Review = ({ question, onClick, isDisabled = false }) => {
   return (
     <div
       className={`flex items-center justify-between border border-[#E4E4E7] !px-4 !py-6 transition-colors ${
-        isDisabled 
-          ? "opacity-50 cursor-not-allowed bg-gray-100" 
+        isDisabled
+          ? "opacity-50 cursor-not-allowed bg-gray-100"
           : "cursor-pointer hover:bg-gray-50"
       }`}
       onClick={isDisabled ? undefined : onClick}

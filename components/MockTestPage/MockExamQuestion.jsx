@@ -8,6 +8,7 @@ const MockExamQuestion = ({
   answers,
   onAnswerSelect,
   fontSize = "normal",
+  currentSection,
 }) => {
   if (!block) {
     return <div>جاري تحميل السؤال...</div>;
@@ -26,17 +27,22 @@ const MockExamQuestion = ({
   const textSizeClass = getFontSizeClass(fontSize);
 
   // For paragraph questions, show only the first question (since we split them into separate blocks)
-  const currentQuestion = block.questions && block.questions.length > 0 ? block.questions[0] : null;
+  const currentQuestion =
+    block.questions && block.questions.length > 0 ? block.questions[0] : null;
 
   return (
     <div>
       {/* Show passage if exists - fixed/sticky for paragraph questions */}
       {block.passage && (
-        <div className={`mb-6 ${block.type === "paragraph" ? "sticky top-0 bg-white z-10 pb-4 pt-2 border-b-2 border-gray-300 shadow-sm" : ""}`}>
+        <div
+          className={`mb-6 ${block.type === "paragraph" ? "sticky top-0 bg-white z-10 pb-4 pt-2 border-b-2 border-gray-300 shadow-sm" : ""}`}
+        >
           <div className="mb-3 text-sm font-bold text-primary">الفقرة:</div>
           <div
-            className={` prose prose-neutral flex items-center font-medium text-zinc-600 ${textSizeClass} tracking-[0] leading-relaxed [direction:rtl] ${block.type === "paragraph" ? "max-h-[250px] overflow-y-auto pr-2" : ""}`}
-            dangerouslySetInnerHTML={{ __html: block?.passage?.replaceAll(/&nbsp;/ig , " ") }}
+            className={`w-full flex items-center font-medium text-zinc-600 ${textSizeClass} tracking-[0] leading-relaxed [direction:rtl] ${block.type === "paragraph" ? "max-h-[250px] overflow-y-auto pr-2" : ""}`}
+            dangerouslySetInnerHTML={{
+              __html: block?.passage?.replaceAll(/&nbsp;/gi, " "),
+            }}
           />
         </div>
       )}
@@ -49,7 +55,9 @@ const MockExamQuestion = ({
             questionData={currentQuestion}
             questionNumber={questionNumberStart}
             selectedAnswer={answers[currentQuestion.id]}
-            onAnswerSelect={(optionId) => onAnswerSelect(currentQuestion.id, optionId)}
+            onAnswerSelect={(optionId) =>
+              onAnswerSelect(currentQuestion.id, optionId)
+            }
             fontSize={fontSize}
           />
         </div>
@@ -94,14 +102,15 @@ export const SingleQuestion = ({
             تم الإجابة
           </div>
         )} */}
-        
-        <p
-        >
-          {/* السؤال {questionNumber}: */}
-          {/* <br /> */}
-          <div className="mb-5 prose prose-neutral " dangerouslySetInnerHTML={{ __html: questionData.text }} />
-        </p>
-        
+
+      <p>
+        {/* السؤال {questionNumber}: */}
+        {/* <br /> */}
+        <div
+          className="mb-5 prose prose-neutral "
+          dangerouslySetInnerHTML={{ __html: questionData.text }}
+        />
+      </p>
 
       <fieldset className="flex-col items-start flex gap-4 relative self-stretch w-full flex-[0_0_auto]">
         <legend className="sr-only">اختر الإجابة الصحيحة</legend>
@@ -121,7 +130,7 @@ export const SingleQuestion = ({
             <span
               className={`relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-black ${textSizeClass} tracking-[0] leading-[normal] [direction:rtl]`}
             >
-              <div  dangerouslySetInnerHTML={{ __html: option.text }}  />
+              <div dangerouslySetInnerHTML={{ __html: option.text }} />
             </span>
           </label>
         ))}

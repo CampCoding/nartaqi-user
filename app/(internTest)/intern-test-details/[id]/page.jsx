@@ -86,8 +86,6 @@ const InternTestDetails = ({ params }) => {
     return <LoadingPage />;
   }
 
-
-
   if (error) {
     return (
       <div>
@@ -119,11 +117,8 @@ const InternTestDetails = ({ params }) => {
     );
   }
 
-
-
-  const isSuccess = +examData?.score_percentage >= +examData?.exam_info.success_percentage;
-
-
+  const isSuccess =
+    +examData?.score_percentage >= +examData?.exam_info.success_percentage;
 
   return (
     <div>
@@ -162,27 +157,32 @@ const InternTestDetails = ({ params }) => {
                   <div className="text-right text-primary text-xl sm:text-2xl lg:text-3xl font-semibold mb-6 sm:mb-8">
                     نتيجة الأختبار
                   </div>
-                  <CircularProgress value={+examData?.score_percentage.toFixed("2") ?? 0} />
+                  <CircularProgress
+                    value={+examData?.score_percentage.toFixed("2") ?? 0}
+                  />
                   <div
-                    className={`${isSuccess ? "text-green-600" : "text-red-600"
-                      } text-sm sm:text-base lg:text-lg font-bold bg-white mt-2 text-center px-4 py-2 rounded-lg`}
+                    className={`${
+                      isSuccess ? "text-green-600" : "text-red-600"
+                    } text-sm sm:text-base lg:text-lg font-bold bg-white mt-2 text-center px-4 py-2 rounded-lg`}
                   >
                     {isSuccess
                       ? "تهانينا! لقد نجحت في الأختبار"
                       : "للأسف، لم تنجح في الاختبار"}
                   </div>
-                  {
-                    +examData.student_max_score_percentage > 0 &&
-                    <div className=" text-sm sm:text-base lg:text-base mt-2 text-center px-4 backdrop-blur-sm  "> إنجازك الأفضل حتى الآن
-                      <div>( {examData.student_max_score_percentage}% )</div></div>
-                  }
+                  {+examData.student_max_score_percentage > 0 && (
+                    <div className=" text-sm sm:text-base lg:text-base mt-2 text-center px-4 backdrop-blur-sm  ">
+                      {" "}
+                      إنجازك الأفضل حتى الآن
+                      <div>( {examData.student_max_score_percentage}% )</div>
+                    </div>
+                  )}
                 </div>
               </>
             )}
           </div>
 
           <div className="flex flex-col sm:flex-row sm:justify-between gap-4 sm:gap-6">
-          <Link href={`/course/${examData?.round_id}`}>
+            <Link href={`/course/${examData?.round_id}`}>
               <button
                 type="button"
                 aria-label="الرجوع إلى الدورة"
@@ -216,9 +216,7 @@ const InternTestDetails = ({ params }) => {
 
             {endExam && (
               <>
-                <Link
-                  href={`/intern-test-details/${id}/exam`}
-                >
+                <Link href={`/intern-test-details/${id}/exam`}>
                   <button
                     type="button"
                     aria-label="إعادة الأختبار"

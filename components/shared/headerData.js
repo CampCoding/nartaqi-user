@@ -8,23 +8,19 @@ const headerData = [
     key: "courses",
     className: "text-text text-base leading-6 whitespace-nowrap",
     title: "الدورات",
-    
   },
   {
     key: "free",
     className: "text-text text-base leading-6 whitespace-nowrap",
     title: "الشروحات المجانية",
-    items: [
-     
-    ],
+    items: [],
   },
- 
 
   {
     key: "competitions",
     className: "text-text text-base leading-6 whitespace-nowrap",
     title: "المسابقات",
-    link:"/competitions"
+    link: "/competitions",
     // items: [
     //   {
     //     id: 1,
@@ -79,7 +75,7 @@ const headerData = [
     //     count: 6,
     //     link: "/competitions/quran",
     //   },
-    //   { 
+    //   {
     //     id: 9,
     //     title: "مسابقة التأهيل لاختبار CPC - ARAMCO",
     //     count: 25,
@@ -100,54 +96,8 @@ const headerData = [
       {
         id: 2,
         title: "اختبار تحديد المستوى",
-        // link: "/services/placement-test",
-        subItems: [
-          {
-            key: "general-aptitude",
-            title: "اختبار القدرات العامة",
-            link: "/exam-details/general-aptitude",
-          },
-          {
-            key: "achievement",
-            title: "اختبار التحصيلي",
-            link: "/exam-details/achievement",
-          },
-          {
-            key: "pro-license",
-            title: "اختبار الرخصة المهنية",
-            link: "/exam-details/pro-license",
-          },
-          {
-            key: "university-aptitude",
-            title: "اختبار قدرات الجامعيين",
-            link: "/exam-details/university-aptitude",
-          },
-          {
-            key: "cognitive",
-            title: "اختبار القدرة المعرفية",
-            link: "/exam-details/cognitive",
-          },
-          {
-            key: "step",
-            title: "اختبار STEP",
-            link: "/exam-details/step",
-          },
-          {
-            key: "languages-programming",
-            title: "اختبار اللغات و البرمجة",
-            link: "/exam-details/languages-programming",
-          },
-          {
-            key: "quran",
-            title: "اختبار حفظ القرآن الكريم",
-            link: "/exam-details/quran",
-          },
-          {
-            key: "cpc-aramco",
-            title: "اختبار التأهيل لاختبار CPC-ARAMCO",
-            link: "/exam-details/cpc-aramco",
-          },
-        ],
+        // ✅ subItems ستأتي من الـ API
+        subItems: [], // سيتم ملؤها من الـ API
       },
       {
         id: 3,
@@ -207,7 +157,7 @@ const headerData = [
     key: "my courses",
     className: "text-text text-base leading-6 whitespace-nowrap",
     title: "دوراتي",
-    link:"/my-courses",
+    link: "/my-courses",
     ifLoggedIn: true,
   },
 ];

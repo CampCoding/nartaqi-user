@@ -19,8 +19,9 @@ import cartSlice from "./Slices/cartSlice.jsx";
 import storeSlice from "./Slices/storeSlice.jsx";
 import examReducer from "./Slices/examSlice";
 import mockExamReducer from "./Slices/mockExamSlice.js";
-import shareReducer from "./Slices/shareSlice.js"
-import videoModalReducer from "./Slices/videoModalSlice.js"
+import shareReducer from "./Slices/shareSlice.js";
+import videoModalReducer from "./Slices/videoModalSlice.js";
+import placementTestReducer from "./Slices/placementTestSlice.js";
 
 const persistConfig = {
   key: "root",
@@ -39,7 +40,7 @@ const rootReducer = combineReducers({
   mockExam: mockExamReducer,
   share: shareReducer,
   videoModal: videoModalReducer,
-
+  placementTest: placementTestReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -7,7 +7,7 @@ import SearchBanner from "./SearchBanner";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Dropdown } from "antd";
-import { ChevronLeft, Menu, X, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, Menu, X, ChevronDown } from "lucide-react";
 import headerData from "./headerData";
 import Container from "../ui/Container";
 import { AnimatePresence } from "framer-motion";
@@ -15,6 +15,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getUserCart } from "../utils/Store/Slices/cartSlice";
 import useHeaderCoursesItems from "./Hooks/useHeaderCategoryParts";
 import useHeaderFreeVideosItems from "./Hooks/useHeaderFreeVideosItems";
+import useHeaderPlacementTests from "./Hooks/useHeaderPlacementTests"; // ✅ أضف هذا
 import toast from "react-hot-toast";
 import { logoutUser } from "../utils/Store/Slices/authntcationSlice";
 
@@ -42,17 +43,15 @@ export default function Header() {
     toast.success("تم تسجيل الخروج بنجاح", { duration: 3000 });
   };
 
-
   const onAccountMenuClick = ({ key }) => {
-    if (key === "my-courses") return router.push("/my-courses"); // عدّل اللينك
+    if (key === "my-courses") return router.push("/my-courses");
     if (key === "account")
-      return router.push(user?.type == "marketer" ? "/marketer-profile" : "/profile");
-    if (key === "progress") return router.push("/course-rate"); // عدّل اللينك
+      return router.push(
+        user?.type == "marketer" ? "/marketer-profile" : "/profile"
+      );
+    if (key === "progress") return router.push("/course-rate");
     if (key === "logout") {
-      // ✅ الأفضل لو عندك logout action
-      // dispatch(logout());
-      // ✅ حل عام (لو مفيش logout action): امسح التوكن/اليوزر من التخزين ثم روح للّوجين
-      handleLogout()
+      handleLogout();
     }
   };
 
@@ -64,108 +63,144 @@ export default function Header() {
     useHeaderCoursesItems(user?.id);
 
   // ✅ API items for "الشروحات المجانية"
-  const { freeitems: apiFreeItems, achievementsItem, loading: freeMenuLoading } =
-    useHeaderFreeVideosItems();
+  const {
+    freeitems: apiFreeItems,
+    achievementsItem,
+    loading: freeMenuLoading,
+  } = useHeaderFreeVideosItems();
 
+  // ✅ API items for "اختبار تحديد المستوى"
+  const { placementTests, loading: placementTestsLoading } =
+    useHeaderPlacementTests();
 
-  // ✅ build headerData exactly like old, but replace only courses.items + free.items
+  // ✅ build headerData exactly like old, but replace only courses.items + free.items + placement tests
   const finalHeaderData = useMemo(() => {
-    
-    return headerData.map((g) => {
-      // 1) Replace courses items
-      if (g.key === "courses") {
-        return {
-          ...g,
-          items: coursesMenuLoading
-            ? [
-              {
-                id: "loading-courses",
-                title: "جاري التحميل...",
-                count: null,
-                link: "#",
-              },
-            ]
-            : apiCoursesItems.length
-              ? apiCoursesItems
-              : [
-                {
-                  id: "empty-courses",
-                  title: "لا توجد أقسام",
-                  count: 0,
-                  link: "/courses",
-                },
-              ],
-        };
-      }
+    return headerData
+      .map((g) => {
+        // 1) Replace courses items
+        if (g.key === "courses") {
+          return {
+            ...g,
+            items: coursesMenuLoading
+              ? [
+                  {
+                    id: "loading-courses",
+                    title: "جاري التحميل...",
+                    count: null,
+                    link: "#",
+                  },
+                ]
+              : apiCoursesItems.length
+                ? apiCoursesItems
+                : [
+                    {
+                      id: "empty-courses",
+                      title: "لا توجد أقسام",
+                      count: 0,
+                      link: "/courses",
+                    },
+                  ],
+          };
+        }
 
-      // 2) Replace free items
-      if (g.key === "free") {
-        const moreItem = {
-          id: "more",
-          title: "عرض المزيد ....",
-          link: "/free-courses",
-        };
+        // 2) Replace free items
+        if (g.key === "free") {
+          return {
+            ...g,
+            items: freeMenuLoading
+              ? [
+                  {
+                    id: "loading-free",
+                    title: "جاري التحميل...",
+                    count: null,
+                    link: "#",
+                  },
+                ]
+              : apiFreeItems.length
+                ? [...apiFreeItems]
+                : [
+                    {
+                      id: "empty-free",
+                      title: "لا توجد أقسام",
+                      count: 0,
+                      link: "/free-courses",
+                    },
+                  ],
+          };
+        }
 
-        return {
-          ...g,
-          items: freeMenuLoading
-            ? [
-              {
-                id: "loading-free",
-                title: "جاري التحميل...",
-                count: null,
-                link: "#",
-              },
-            ]
-            : apiFreeItems.length
-              ? [...apiFreeItems] // ✅ add "more" only when data exists
-              : [
-                {
-                  id: "empty-free",
-                  title: "لا توجد أقسام",
-                  count: 0,
-                  link: "/free-courses",
-                },
-                // ✅ no moreItem here
-              ],
-        };
-      }
-      // 3) Replace grades items
-      if (g.key === "grades") {
+        // 3) Replace grades items
+        if (g.key === "grades") {
+          return {
+            ...g,
+            items: freeMenuLoading
+              ? [
+                  {
+                    id: "loading-free",
+                    title: "جاري التحميل...",
+                    count: null,
+                    link: "#",
+                  },
+                ]
+              : achievementsItem.length
+                ? [...achievementsItem]
+                : [
+                    {
+                      id: "empty-free",
+                      title: "لا توجد داتا",
+                      count: 0,
+                      link: "/free-courses",
+                    },
+                  ],
+          };
+        }
 
+        // ✅ 4) Replace services items - اختبار تحديد المستوى
+        if (g.key === "services" && g.title === "خدمات مجانية") {
+          return {
+            ...g,
+            items: g.items.map((item) => {
+              // فقط عدّل "اختبار تحديد المستوى"
+              if (item.id === 2 && item.title === "اختبار تحديد المستوى") {
+                return {
+                  ...item,
+                  subItems: placementTestsLoading
+                    ? [
+                        {
+                          key: "loading-placement",
+                          title: "جاري التحميل...",
+                          link: "#",
+                        },
+                      ]
+                    : placementTests.length
+                      ? placementTests
+                      : [
+                          {
+                            key: "empty-placement",
+                            title: "لا توجد اختبارات",
+                            link: "#",
+                          },
+                        ],
+                };
+              }
+              return item;
+            }),
+          };
+        }
 
-        return {
-          ...g,
-          items: freeMenuLoading
-            ? [
-              {
-                id: "loading-free",
-                title: "جاري التحميل...",
-                count: null,
-                link: "#",
-              },
-            ]
-            : achievementsItem.length
-              ? [...achievementsItem] // ✅ add "more" only when data exists
-              : [
-                {
-                  id: "empty-free",
-                  title: "لا توجد داتا",
-                  count: 0,
-                  link: "/free-courses",
-                },
-                // ✅ no moreItem here
-              ],
-        };
-      }
-
-
-
-      return g;
-    }).filter(item => !item.ifLoggedIn || token);
-  }, [apiCoursesItems, coursesMenuLoading, apiFreeItems, freeMenuLoading]);
-
-
+        return g;
+      })
+      .filter((item) => !item.ifLoggedIn || token);
+  }, [
+    apiCoursesItems,
+    coursesMenuLoading,
+    apiFreeItems,
+    freeMenuLoading,
+    achievementsItem,
+    placementTests,
+    placementTestsLoading,
+    token,
+  ]);
 
   // Cart State
   const { totalItems, isLoading } = useSelector((state) => state.cart);
@@ -183,7 +218,7 @@ export default function Header() {
 
   return (
     <header className="w-full sticky top-0 z-50 bg-white shadow-sm py-[20px] md:py-[35.5px] ">
-      <Container className="  flex items-center justify-between">
+      <Container className="flex items-center justify-between">
         {/* Logo */}
         <Link href={"/"} className="flex items-center space-x-2">
           <img
@@ -203,8 +238,9 @@ export default function Header() {
                   key={index}
                   href={group.link}
                   target={group.target == "_blank" ? "_blank" : "_self"}
-                  className={`${index == 0 ? "ml-5" : ""
-                    } cursor-pointer hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary`}
+                  className={`${
+                    index == 0 ? "ml-5" : ""
+                  } cursor-pointer hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary`}
                 >
                   {group.title}
                 </Link>
@@ -262,8 +298,6 @@ export default function Header() {
             )}
           </div>
 
-
-
           {token && (
             <Dropdown
               menu={{ items: accountItems, onClick: onAccountMenuClick }}
@@ -272,7 +306,7 @@ export default function Header() {
             >
               <button
                 type="button"
-                onClick={(e) => e.preventDefault()} // ✅ يمنع أي تنقل
+                onClick={(e) => e.preventDefault()}
                 className="px-12 py-4 bg-white transition-all rounded-[100px] outline outline-1 outline-offset-[-0.50px] outline-primary hover:bg-primary group hover:text-white inline-flex justify-center items-center gap-4"
               >
                 <span className="justify-center group-hover:text-white text-primary text-base font-bold font-['Cairo'] leading-normal">
@@ -280,17 +314,8 @@ export default function Header() {
                 </span>
                 <ChevronDown className="w-4 h-4 text-primary group-hover:text-white" />
               </button>
-
-
-
-
-
             </Dropdown>
           )}
-
-
-
-
         </div>
 
         {/* Mobile Actions */}
@@ -367,7 +392,7 @@ const CartBadge = ({ count, isLoading, size = "normal" }) => {
   );
 };
 
-// Mobile Menu Component - Updated with cart count
+// Mobile Menu Component
 const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
   const [expandedItem, setExpandedItem] = useState(null);
 
@@ -412,8 +437,9 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
               >
                 <span>{group.title}</span>
                 <ChevronDown
-                  className={`w-5 h-5 transition-transform ${expandedItem === index ? "rotate-180" : ""
-                    }`}
+                  className={`w-5 h-5 transition-transform ${
+                    expandedItem === index ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
@@ -473,14 +499,10 @@ const MobileSubMenu = ({ items, onClose }) => {
                 >
                   <span>{item.title}</span>
                   <div className="flex items-center gap-2">
-                    {/* {typeof item.count === "number" && (
-                      <span className="px-2 py-1 bg-primary-bg rounded-lg text-xs font-medium">
-                        {item.count}
-                      </span>
-                    )} */}
                     <ChevronDown
-                      className={`w-4 h-4 transition-transform ${expandedSubItem === index ? "rotate-180" : ""
-                        }`}
+                      className={`w-4 h-4 transition-transform ${
+                        expandedSubItem === index ? "rotate-180" : ""
+                      }`}
                     />
                   </div>
                 </button>
@@ -507,11 +529,6 @@ const MobileSubMenu = ({ items, onClose }) => {
                 className="flex items-center justify-between py-3 text-sm text-text"
               >
                 <span>{item.title}</span>
-                {/* {typeof item.count === "number" && (
-                  <span className="px-2 py-1 bg-primary-bg rounded-lg text-xs font-medium">
-                    {item.count}
-                  </span>
-                )} */}
               </Link>
             )}
           </div>
@@ -528,11 +545,10 @@ export const DropDownItems = ({ items }) => {
   const [openSub, setOpenSub] = useState(null);
 
   return (
-
     <nav
-      className="flex max-h-[500px] overflow-auto custom-scroll rounded-3xl flex-col items-start pt-2 pb-6 px-4 relative bg-white border-2 [border-top-style:solid]  border-variable-collection-stroke"
+      className="flex max-h-[500px] overflow-auto custom-scroll rounded-3xl flex-col items-start pt-2 pb-6 px-4 relative bg-white border-2 [border-top-style:solid] border-variable-collection-stroke"
       role="navigation"
-      aria-title="Course categories"
+      aria-label="Course categories"
       onMouseLeave={() => setOpenSub(null)}
     >
       {items?.map((course, index) => {
@@ -541,26 +557,30 @@ export const DropDownItems = ({ items }) => {
         const href = course.link || course.href;
         const rowId = `${course.title || course.id}-${index}`;
         const target = course.target || "_self";
+        const hasSubItems = course.subItems && course.subItems.length > 0;
 
         const rowContent = (
           <div
-            className={`flex w-[271px] cursor-pointer justify-between px-0 py-4 flex-[0_0_auto] ${isFirst ? "mt-[-1.00px]" : ""
-              } ${!isLast
+            className={`flex w-[271px] cursor-pointer justify-between px-0 py-4 flex-[0_0_auto] ${
+              isFirst ? "mt-[-1.00px]" : ""
+            } ${
+              !isLast
                 ? "ml-[-1.00px] mr-[-1.00px] bg-white border-b-2 [border-bottom-style:solid] border-variable-collection-stroke"
                 : "w-[269px] bg-white rounded-[0px_0px_30px_30px]"
-              } items-center relative cursor-pointer`}
+            } items-center relative cursor-pointer`}
             role="menuitem"
-            aria-haspopup={"menu"}
+            aria-haspopup={hasSubItems ? "menu" : undefined}
             aria-expanded={openSub === rowId ? "true" : "false"}
           >
             <div
-              className={`${isLast
+              className={`${
+                isLast
                   ? "flex h-6 items-center relative flex-1 grow"
                   : "inline-flex h-6 items-center relative flex-[0_0_auto]"
-                }`}
+              }`}
             >
               {isLast ? (
-                <p className="flex-1  font-cairo mt-[-12.00px] mb-[-12.00px] relative flex items-center  font-medium text-text text-base leading-6 [direction:rtl]">
+                <p className="flex-1 font-cairo mt-[-12.00px] mb-[-12.00px] relative flex items-center font-medium text-text text-base leading-6 [direction:rtl]">
                   {course.title}
                 </p>
               ) : (
@@ -571,47 +591,53 @@ export const DropDownItems = ({ items }) => {
             </div>
 
             <div className="inline-flex gap-2 flex-[0_0_auto] items-center relative">
-              {/* {typeof course.count === "number" ? (
-                <div className="flex flex-col w-6 h-6 justify-center gap-2.5 px-1 py-0 bg-primary-bg rounded-xl items-center relative">
-                  <span className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-text text-sm tracking-[0] leading-6 whitespace-nowrap">
-                    {course.count}
-                  </span>
-                </div>
-              ) : null} */}
-
-              {/* <span className="relative w-4 h-4  aspect-[1]" aria-hidden="true">
-                <ChevronLeft className="w-4 h-4" />
-              </span> */}
+              {/* ✅ غيّر الـ ChevronLeft لـ ChevronRight لأن الاتجاه اتغير */}
+              {hasSubItems && (
+                <span
+                  className="relative w-4 h-4 aspect-[1]"
+                  aria-hidden="true"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </span>
+              )}
             </div>
           </div>
         );
 
-        return (
-          <Dropdown
-            key={rowId}
-            dropdownRender={() => (
-              <SubMenu course={course} subItems={course.subItems} />
-            )}
-            placement="rightTop"
-            trigger={["click"]}
-            open={openSub === rowId}
-            onOpenChange={(v) => setOpenSub(v ? rowId : null)}
-            mouseEnterDelay={0.08}
-            mouseLeaveDelay={0.12}
-            destroyPopupOnHide
-            popupClassName="submenu-dropdown"
-            zIndex={1000}
-          >
-            <div onClick={() => setOpenSub(rowId)}>
-              {href && href !== "#" ? (
-                <Link href={href} target={target} className="block">
-                  {rowContent}
-                </Link>
-              ) : (
-                rowContent
+        // If has subItems, wrap with Dropdown
+        if (hasSubItems) {
+          return (
+            <Dropdown
+              key={rowId}
+              dropdownRender={() => (
+                <SubMenu course={course} subItems={course.subItems} />
               )}
-            </div>
-          </Dropdown>
+              placement="leftTop" // ✅ غيّر من rightTop لـ leftTop
+              trigger={["click"]}
+              open={openSub === rowId}
+              onOpenChange={(v) => setOpenSub(v ? rowId : null)}
+              mouseEnterDelay={0.08}
+              mouseLeaveDelay={0.12}
+              destroyPopupOnHide
+              popupClassName="submenu-dropdown"
+              zIndex={1000}
+            >
+              <div onClick={() => setOpenSub(rowId)}>{rowContent}</div>
+            </Dropdown>
+          );
+        }
+
+        // No subItems - just a link
+        return (
+          <div key={rowId}>
+            {href && href !== "#" ? (
+              <Link href={href} target={target} className="block">
+                {rowContent}
+              </Link>
+            ) : (
+              rowContent
+            )}
+          </div>
         );
       })}
     </nav>
@@ -622,16 +648,16 @@ const SubMenu = ({ course, subItems }) => {
   const links =
     Array.isArray(subItems) && subItems.length > 0
       ? subItems.map((s, idx) => ({
-        key: s.key || `sub-${idx}`,
-        href: s.link || "#",
-        title: s.title,
-      }))
+          key: s.key || `sub-${idx}`,
+          href: s.link || "#",
+          title: s.title,
+        }))
       : null;
 
   if (!links) return null;
 
   return (
-    <div className="bg-white border rounded-2xl shadow-md p-4 min-w-[220px] h-[400px] overflow-y-auto">
+    <div className="bg-white border rounded-2xl shadow-md p-4 min-w-[220px] max-h-[400px] overflow-y-auto">
       <ul className="flex flex-col gap-3">
         {links.map((l) => {
           const href = l.href || "#";

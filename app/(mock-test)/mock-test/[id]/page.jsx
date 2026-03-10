@@ -46,6 +46,7 @@ import {
   selectPercentage,
   selectExamId,
   selectStudentId,
+  selectSectionProgressText,
 } from "../../../../components/utils/Store/Slices/mockExamSlice";
 
 /* =========================
@@ -102,7 +103,7 @@ const NoAccessScreen = ({ onBack, onHome }) => {
   );
 };
 
-// Already Solved Popup (unchanged)
+// Already Solved Popup
 const AlreadySolvedPopup = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
@@ -158,9 +159,7 @@ const MockTest = () => {
   // Redux selectors
   const sections = useSelector(selectSections);
   const currentSection = useSelector(selectCurrentSection);
-  console.log("currentSection" , currentSection)
-
-
+  const sectionProgressText = useSelector(selectSectionProgressText);
   const currentBlock = useSelector(selectCurrentBlock);
   const currentSectionIndex = useSelector(selectCurrentSectionIndex);
   const currentBlockIndex = useSelector(selectCurrentBlockIndex);
@@ -176,24 +175,25 @@ const MockTest = () => {
   const isCurrentBlockMarked = useSelector(selectIsCurrentBlockMarked);
   const isLastBlockInSection = useSelector(selectIsLastBlockInSection);
   const isLastSection = useSelector(selectIsLastSection);
-  const canGoToPreviousSection = useSelector(selectCanGoToPreviousSection);
   const formattedAnswers = useSelector(selectFormattedAnswersForAPI);
   const stateForSave = useSelector(selectStateForSave);
   const examScore = useSelector(selectScore);
   const examPercentage = useSelector(selectPercentage);
   const examId = useSelector(selectExamId);
   const studentId = useSelector(selectStudentId);
-  // console.log("currentBlock" , currentBlock)
+
   // Local state
   const [isLoading, setIsLoading] = useState(true);
-  const [noAccess, setNoAccess] = useState(false); // ✅ NEW
+  const [noAccess, setNoAccess] = useState(false);
   const [isInReview, setIsInReview] = useState(false);
+  const [isFinalReview, setIsFinalReview] = useState(false); // ✅ NEW: للتفريق بين مراجعة القسم والمراجعة النهائية
   const [fontSize, setFontSize] = useState("normal");
   const [activeFilter, setActiveFilter] = useState("all");
   const [isConfirmSectionEnd, setIsConfirmSectionEnd] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [enteredSections, setEnteredSections] = useState(new Set()); // Track which sections have been entered
+  const [enteredSections, setEnteredSections] = useState(new Set());
+  const [completedSections, setCompletedSections] = useState(new Set()); // ✅ NEW: الأقسام المكتملة
 
   // Fetch exam data
   const fetchMockTestData = useCallback(async () => {
@@ -214,7 +214,6 @@ const MockTest = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // ✅ handle no_access from normal response
       if (
         response?.data?.status === "failed" &&
         response?.data?.message === "no_access"
@@ -240,13 +239,18 @@ const MockTest = () => {
             const parsed = JSON.parse(savedState);
             if (parsed.examId === id && parsed.timeRemaining > 0) {
               dispatch(restoreState(parsed));
-              // Restore entered sections - mark all sections up to current as entered
               if (parsed.currentSectionIndex !== undefined) {
                 const restoredEntered = new Set();
+                const restoredCompleted = new Set();
                 for (let i = 0; i <= parsed.currentSectionIndex; i++) {
                   restoredEntered.add(i);
                 }
+                // Mark previous sections as completed
+                for (let i = 0; i < parsed.currentSectionIndex; i++) {
+                  restoredCompleted.add(i);
+                }
                 setEnteredSections(restoredEntered);
+                setCompletedSections(restoredCompleted);
               }
             }
           } catch (e) {
@@ -255,17 +259,12 @@ const MockTest = () => {
         }
       }
     } catch (error) {
-      // ✅ handle no_access from axios error response (400)
       const msg = error?.response?.data?.message;
       if (msg === "no_access") {
         setNoAccess(true);
         return;
       }
-
       console.error("Error loading exam:", error);
-      // تقدر تعرض رسالة عامة لو حبيت
-      // alert("فشل تحميل الاختبار، تأكد من الاتصال بالإنترنت أو حاول مرة أخرى.");
-      // router.back();
     } finally {
       setIsLoading(false);
     }
@@ -279,7 +278,7 @@ const MockTest = () => {
     }
   }, [id, fetchMockTestData, dispatch]);
 
-  // Timer effect - updates when section changes
+  // Timer effect
   useEffect(() => {
     if (!isStarted || isInReview || isSubmitted) return;
 
@@ -290,26 +289,41 @@ const MockTest = () => {
     return () => clearInterval(timer);
   }, [isStarted, isInReview, isSubmitted, currentSectionIndex, dispatch]);
 
-  // Auto submit when time runs out
-  // useEffect(() => {
-  //   if (timeRemaining <= 0 && isStarted && !isSubmitted) {
-  //     handleSubmitExam();
-  //   }
-  // }, [timeRemaining, isStarted, isSubmitted]);
-
   // Save state to localStorage
   useEffect(() => {
     if (isStarted && !isSubmitted && sections.length > 0) {
       localStorage.setItem(
         `mock_exam_state_${id}`,
-        JSON.stringify(stateForSave)
+        JSON.stringify({
+          ...stateForSave,
+          completedSections: Array.from(completedSections),
+        })
       );
     }
-  }, [stateForSave, isStarted, isSubmitted, sections, id]);
+  }, [stateForSave, isStarted, isSubmitted, sections, id, completedSections]);
 
-  // Helper: check if ALL questions in exam are answered
+  // ✅ Check if all questions in CURRENT SECTION are answered
+  const areAllCurrentSectionQuestionsAnswered = () => {
+    if (!currentSection || !currentSection.blocks) return false;
+
+    const allQuestionIds = [];
+    currentSection.blocks.forEach((block) => {
+      block.questions?.forEach((q) => {
+        allQuestionIds.push(q.id);
+      });
+    });
+
+    if (allQuestionIds.length === 0) return false;
+
+    return allQuestionIds.every(
+      (questionId) =>
+        answeredMap[questionId] !== undefined &&
+        answeredMap[questionId] !== null
+    );
+  };
+
+  // ✅ Check if ALL exam questions are answered
   const areAllExamQuestionsAnswered = () => {
-    // Collect all question IDs from all sections/blocks
     const allQuestionIds = [];
     sections.forEach((section) => {
       section.blocks?.forEach((block) => {
@@ -323,11 +337,26 @@ const MockTest = () => {
 
     return allQuestionIds.every(
       (questionId) =>
-        answeredMap[questionId] !== undefined && answeredMap[questionId] !== null
+        answeredMap[questionId] !== undefined &&
+        answeredMap[questionId] !== null
     );
   };
 
-  // Submit exam to API (only after all questions are answered)
+  // ✅ Get unanswered count for current section
+  const getUnansweredCountInCurrentSection = () => {
+    if (!currentSection || !currentSection.blocks) return 0;
+
+    return currentSection.blocks.reduce((count, block) => {
+      return (
+        count +
+        (block.questions?.filter(
+          (q) => answeredMap[q.id] === undefined || answeredMap[q.id] === null
+        ).length || 0)
+      );
+    }, 0);
+  };
+
+  // Submit exam to API
   const handleSubmitExam = async () => {
     if (isSubmitting) return;
 
@@ -336,16 +365,16 @@ const MockTest = () => {
         sections?.reduce((count, section) => {
           return (
             count +
-              (section.blocks?.reduce((bCount, block) => {
-                return (
-                  bCount +
-                  (block.questions?.filter(
-                    (q) =>
-                      answeredMap[q.id] === undefined ||
-                      answeredMap[q.id] === null
-                  ).length || 0)
-                );
-              }, 0) || 0)
+            (section.blocks?.reduce((bCount, block) => {
+              return (
+                bCount +
+                (block.questions?.filter(
+                  (q) =>
+                    answeredMap[q.id] === undefined ||
+                    answeredMap[q.id] === null
+                ).length || 0)
+              );
+            }, 0) || 0)
           );
         }, 0) || 0;
 
@@ -400,12 +429,11 @@ const MockTest = () => {
     dispatch(setAnswer({ questionId, optionId }));
   };
 
-  // Navigation
+  // ✅ Navigation - Updated
   const handleNextBlock = () => {
-    // If at VerbalSection (section not entered yet), enter the section and show first block
+    // If at VerbalSection (section not entered yet), enter the section
     if (!enteredSections.has(currentSectionIndex)) {
       setEnteredSections((prev) => new Set(prev).add(currentSectionIndex));
-      // Block index is already 0, so currentBlock will be the first block
       return;
     }
 
@@ -413,56 +441,42 @@ const MockTest = () => {
     if (!isLastBlockInSection) {
       dispatch(setCurrentBlockIndex(currentBlockIndex + 1));
     } else {
+      // ✅ End of section - show section review
       setIsConfirmSectionEnd(true);
     }
   };
 
   const handlePreviousBlock = () => {
-    // Only allow navigation within current section - never go to previous sections
+    // Only allow navigation within current section
     if (currentBlockIndex > 0) {
       dispatch(setCurrentBlockIndex(currentBlockIndex - 1));
     }
-    // Removed logic to go to previous section - users cannot navigate back to previous sections
   };
 
-  // Check if all questions in current section are answered
-  const areAllQuestionsAnswered = () => {
-    if (!currentSection || !currentSection.blocks) return false;
+  // ✅ Handle moving to next section after review
+  const handleMoveToNextSection = () => {
+    if (!isLastSection) {
+      // Mark current section as completed
+      setCompletedSections((prev) => new Set(prev).add(currentSectionIndex));
 
-    // Get all question IDs in the current section
-    const allQuestionIds = [];
-    currentSection.blocks.forEach((block) => {
-      if (block.questions && block.questions.length > 0) {
-        block.questions.forEach((question) => {
-          allQuestionIds.push(question.id);
-        });
-      }
-    });
-
-    // Check if all questions are answered
-    return (
-      allQuestionIds.length > 0 &&
-      allQuestionIds.every(
-        (questionId) =>
-          answeredMap[questionId] !== undefined &&
-          answeredMap[questionId] !== null
-      )
-    );
+      const nextSectionIndex = currentSectionIndex + 1;
+      dispatch(setCurrentSectionIndex(nextSectionIndex));
+      dispatch(setCurrentBlockIndex(0));
+      setIsInReview(false);
+      setIsFinalReview(false);
+    } else {
+      // Last section - go to final review
+      setCompletedSections((prev) => new Set(prev).add(currentSectionIndex));
+      setIsFinalReview(true);
+      setIsInReview(true);
+    }
   };
 
+  // ✅ Confirm section end - go to section review
   const handleConfirmSectionEnd = () => {
-    // Check if all questions are answered before allowing section end
-    if (!areAllQuestionsAnswered()) {
-      const unansweredCount =
-        currentSection?.blocks?.reduce((count, block) => {
-          if (block.questions) {
-            return (
-              count + block.questions.filter((q) => !answeredMap[q.id]).length
-            );
-          }
-          return count;
-        }, 0) || 0;
-
+    // Check if all questions are answered
+    if (!areAllCurrentSectionQuestionsAnswered()) {
+      const unansweredCount = getUnansweredCountInCurrentSection();
       alert(
         `يجب الإجابة على جميع الأسئلة في هذا القسم قبل الانتقال. لديك ${unansweredCount} سؤال غير مُجاب.`
       );
@@ -471,14 +485,26 @@ const MockTest = () => {
     }
 
     setIsConfirmSectionEnd(false);
+    setIsInReview(true);
+    setIsFinalReview(false);
+  };
 
-    if (!isLastSection) {
-      const nextSectionIndex = currentSectionIndex + 1;
-      dispatch(setCurrentSectionIndex(nextSectionIndex));
-      dispatch(setCurrentBlockIndex(0));
-      // Don't mark next section as entered yet - show VerbalSection first
-    } else {
-      setIsInReview(true);
+  // ✅ Go back to questions from section review
+  const handleBackToQuestions = () => {
+    setIsInReview(false);
+    setIsFinalReview(false);
+  };
+
+  // ✅ Navigate to question from review (only within current section)
+  const handleNavigateToQuestion = (sectionIdx, blockIdx) => {
+    // Only allow navigation within current section (not completed sections)
+    if (
+      sectionIdx === currentSectionIndex &&
+      !completedSections.has(sectionIdx)
+    ) {
+      dispatch(setCurrentBlockIndex(blockIdx));
+      setIsInReview(false);
+      setIsFinalReview(false);
     }
   };
 
@@ -490,7 +516,6 @@ const MockTest = () => {
 
   const handleStartExam = () => {
     dispatch(startExam());
-    // Mark first section as entered when exam starts
     setEnteredSections((prev) => new Set(prev).add(0));
   };
 
@@ -522,7 +547,7 @@ const MockTest = () => {
     );
   }
 
-  // ✅ No access
+  // No access
   if (noAccess) {
     return (
       <NoAccessScreen
@@ -531,15 +556,6 @@ const MockTest = () => {
       />
     );
   }
-
-  // Already solved (optional)
-  // if (isSolved) {
-  //   return (
-  //     <div className="flex items-center justify-center h-screen bg-primary">
-  //       <AlreadySolvedPopup isOpen={true} onClose={() => router.back()} />
-  //     </div>
-  //   );
-  // }
 
   // No sections
   if (!sections || sections.length === 0) {
@@ -560,11 +576,12 @@ const MockTest = () => {
         isInReview={isInReview}
         setIsInReview={setIsInReview}
         timeRemaining={formatTime(timeRemaining)}
-        questionProgress={progressText}
+        questionProgress={sectionProgressText}
         onMarkForReview={handleMarkForReview}
         isMarkedForReview={isCurrentBlockMarked}
         fontSize={fontSize}
         onFontSizeChange={setFontSize}
+        currentSection={currentSection}
       />
 
       {isInReview ? (
@@ -580,18 +597,16 @@ const MockTest = () => {
                 .map((k) => parseInt(k))
             )
           }
-          onNavigateToQuestion={(sectionIdx, blockIdx) => {
-            dispatch(setCurrentSectionIndex(sectionIdx));
-            dispatch(setCurrentBlockIndex(blockIdx));
-            // Mark section as entered when navigating from review
-            setEnteredSections((prev) => new Set(prev).add(sectionIdx));
-            setIsInReview(false);
-          }}
-          onBackToTest={() => setIsInReview(false)}
+          onNavigateToQuestion={handleNavigateToQuestion}
+          onBackToTest={handleBackToQuestions}
           activeFilter={activeFilter}
           setActiveFilter={setActiveFilter}
           onSubmitExam={handleSubmitExam}
           isSubmitting={isSubmitting}
+          isFinalReview={isFinalReview}
+          isLastSection={isLastSection}
+          onMoveToNextSection={handleMoveToNextSection}
+          completedSections={completedSections}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 h-auto md:h-[calc(100vh-235px)]">
@@ -600,6 +615,7 @@ const MockTest = () => {
             currentBlock &&
             enteredSections.has(currentSectionIndex) ? (
               <MockExamQuestion
+                currentSection={currentSection}
                 block={currentBlock}
                 questionNumberStart={
                   parseInt(progressText.split(" ")[0].split("-")[0]) || 1
@@ -623,28 +639,73 @@ const MockTest = () => {
                   fontSize === "small"
                     ? "text-sm"
                     : fontSize === "large"
-                    ? "text-lg"
-                    : fontSize === "xlarge"
-                    ? "text-xl"
-                    : "text-base"
+                      ? "text-lg"
+                      : fontSize === "xlarge"
+                        ? "text-xl"
+                        : "text-base"
                 } leading-relaxed`}
               >
-                <h3
-                  className={` prose prose-neutral  ${
-                    fontSize === "small"
-                      ? "text-lg"
-                      : fontSize === "large"
-                      ? "text-xl"
-                      : fontSize === "xlarge"
-                      ? "text-2xl"
-                      : "text-lg"
-                  } font-bold  w-full grid grid-cols-1 mb-4 !whitespace-normal`}
-                  dangerouslySetInnerHTML={{
-                    __html: currentSection.title.replaceAll(/&nbsp;/gi, " "),
-                  }}
-                />
-                <p className="font-medium"  dangerouslySetInnerHTML={{__html:currentSection.description.replaceAll(/&nbsp;/gi, " ")}} />
-                  
+                {enteredSections.has(currentSectionIndex) &&
+                currentBlock?.questions?.[0] ? (
+                  <>
+                    {currentBlock.questions[0].description && (
+                      <p
+                        className="font-medium"
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            currentBlock.questions[0].description.replaceAll(
+                              /&nbsp;/gi,
+                              " "
+                            ),
+                        }}
+                      />
+                    )}
+
+                    {!currentBlock.questions[0].description &&
+                      currentBlock.questions[0].instructions && (
+                        <p
+                          className="font-medium"
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              currentBlock.questions[0].instructions.replaceAll(
+                                /&nbsp;/gi,
+                                " "
+                              ),
+                          }}
+                        />
+                      )}
+                  </>
+                ) : (
+                  <>
+                    <h3
+                      className={`prose prose-neutral ${
+                        fontSize === "small"
+                          ? "text-lg"
+                          : fontSize === "large"
+                            ? "text-xl"
+                            : fontSize === "xlarge"
+                              ? "text-2xl"
+                              : "text-lg"
+                      } font-bold w-full grid grid-cols-1 mb-4 !whitespace-normal`}
+                      dangerouslySetInnerHTML={{
+                        __html: currentSection.title.replaceAll(
+                          /&nbsp;/gi,
+                          " "
+                        ),
+                      }}
+                    />
+                    <p
+                      className="font-medium"
+                      dangerouslySetInnerHTML={{
+                        __html:
+                          currentSection.description?.replaceAll(
+                            /&nbsp;/gi,
+                            " "
+                          ) || "",
+                      }}
+                    />
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -658,11 +719,7 @@ const MockTest = () => {
         setIsStart={handleStartExam}
         onPrevious={handlePreviousBlock}
         onNext={handleNextBlock}
-        // onSubmit={handleSubmitExam}
-        canGoPrevious={
-          // Can only go back within current section - never to previous sections
-          currentBlockIndex > 0
-        }
+        canGoPrevious={currentBlockIndex > 0}
         canGoNext={true}
         isLastQuestion={isLastBlockInSection}
         isLastSection={isLastSection}
@@ -677,42 +734,20 @@ const MockTest = () => {
         onConfirm={handleConfirmSectionEnd}
         title="إنهاء القسم"
         message={(() => {
-          const unansweredCount =
-            currentSection?.blocks?.reduce((count, block) => {
-              if (block.questions) {
-                return (
-                  count +
-                  block.questions.filter((q) => !answeredMap[q.id]).length
-                );
-              }
-              return count;
-            }, 0) || 0;
+          const unansweredCount = getUnansweredCountInCurrentSection();
 
           if (unansweredCount > 0) {
             return `يجب الإجابة على جميع الأسئلة في هذا القسم قبل الانتقال. لديك ${unansweredCount} سؤال غير مُجاب.`;
           }
 
-          return isLastSection
-            ? "هل أنت متأكد من إنهاء هذا القسم والانتقال إلى صفحة المراجعة؟"
-            : "هل أنت متأكد من إنهاء هذا القسم والانتقال إلى القسم التالي؟";
+          return "هل أنت متأكد من إنهاء هذا القسم والانتقال إلى صفحة مراجعة القسم؟";
         })()}
         confirmText={(() => {
-          const unansweredCount =
-            currentSection?.blocks?.reduce((count, block) => {
-              if (block.questions) {
-                return (
-                  count +
-                  block.questions.filter((q) => !answeredMap[q.id]).length
-                );
-              }
-              return count;
-            }, 0) || 0;
-
+          const unansweredCount = getUnansweredCountInCurrentSection();
           if (unansweredCount > 0) {
             return "إغلاق";
           }
-
-          return isLastSection ? "الانتقال للمراجعة" : "الانتقال للقسم التالي";
+          return "الانتقال للمراجعة";
         })()}
         cancelText="إلغاء"
       />

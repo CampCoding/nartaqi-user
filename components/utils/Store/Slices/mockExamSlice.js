@@ -43,7 +43,7 @@ const initialState = {
 // Helper function to strip HTML tags
 const stripHtml = (html) => {
   if (!html) return "";
-  return html
+  return html;
 };
 
 // Helper to parse time string "HH:MM:SS" to seconds
@@ -77,7 +77,12 @@ const mockExamSlice = createSlice({
   reducers: {
     // Initialize exam with API data
     initializeExam: (state, action) => {
-      const { examId, studentId, sections: apiSections, examInfo } = action.payload;
+      const {
+        examId,
+        studentId,
+        sections: apiSections,
+        examInfo,
+      } = action.payload;
 
       state.examId = examId;
       state.studentId = studentId;
@@ -87,7 +92,7 @@ const mockExamSlice = createSlice({
       const allQuestions = [];
       let calculatedTotalTime = 0;
       let questionCounter = 0;
-      
+
       // Initialize section timers and limits objects
       state.sectionTimeLimits = {};
       state.sectionTimers = {};
@@ -98,7 +103,7 @@ const mockExamSlice = createSlice({
         const sectionTimeLimit = parseTimeToSeconds(section.time_if_free);
 
         calculatedTotalTime += sectionTimeLimit;
-        
+
         // Store section time limit and initialize timer
         state.sectionTimeLimits[sectionIndex] = sectionTimeLimit;
         state.sectionTimers[sectionIndex] = sectionTimeLimit;
@@ -132,6 +137,8 @@ const mockExamSlice = createSlice({
                 "لا يوجد تفسير متاح.",
               instructions: q.instructions || "",
               type: "paragraph",
+              description: q.description || "", // ✅ أضف هذا السطر
+
               globalIndex: questionCounter++,
             };
 
@@ -170,6 +177,8 @@ const mockExamSlice = createSlice({
               "لا يوجد تفسير متاح.",
             instructions: q.instructions || "",
             type: q.question_type || "mcq",
+            description: q.description || "", // ✅ أضف هذا السطر
+
             globalIndex: questionCounter++,
           };
 
@@ -231,7 +240,7 @@ const mockExamSlice = createSlice({
 
       state.sections = transformedSections;
       state.allQuestions = allQuestions;
-      
+
       // Use exam_info.time if available, otherwise use calculated time from sections
       let examTimeSeconds = 0;
       if (examInfo?.time) {
@@ -243,7 +252,7 @@ const mockExamSlice = createSlice({
         // Initialize timeRemaining with first section's timer
         state.timeRemaining = state.sectionTimers[0] || calculatedTotalTime;
       }
-      
+
       state.totalQuestions = allQuestions.length;
     },
 
@@ -281,17 +290,25 @@ const mockExamSlice = createSlice({
     setCurrentSectionIndex: (state, action) => {
       const newSectionIndex = action.payload;
       // Validate section index - prevent navigation to invalid sections
-      if (newSectionIndex < 0 || !state.sections || newSectionIndex >= state.sections.length) {
+      if (
+        newSectionIndex < 0 ||
+        !state.sections ||
+        newSectionIndex >= state.sections.length
+      ) {
         return; // Don't update if invalid
       }
-      
+
       // When changing sections, update timeRemaining to the new section's timer
       // Only if we're using per-section timers (not exam_info.time)
-      if (!state.examInfo?.time && state.sectionTimers && state.sectionTimers[newSectionIndex] !== undefined) {
+      if (
+        !state.examInfo?.time &&
+        state.sectionTimers &&
+        state.sectionTimers[newSectionIndex] !== undefined
+      ) {
         state.timeRemaining = state.sectionTimers[newSectionIndex];
       }
       state.currentSectionIndex = newSectionIndex;
-      
+
       // Validate and adjust block index for the new section
       const newSection = state.sections[newSectionIndex];
       if (newSection && newSection.blocks && newSection.blocks.length > 0) {
@@ -308,19 +325,32 @@ const mockExamSlice = createSlice({
     setCurrentBlockIndex: (state, action) => {
       const newBlockIndex = action.payload;
       // Validate section index first
-      if (state.currentSectionIndex < 0 || state.currentSectionIndex >= state.sections.length) {
+      if (
+        state.currentSectionIndex < 0 ||
+        state.currentSectionIndex >= state.sections.length
+      ) {
         return; // Don't update if section is invalid
       }
-      
+
       // Validate block index against current section
       const currentSection = state.sections[state.currentSectionIndex];
-      if (currentSection && currentSection.blocks && currentSection.blocks.length > 0) {
+      if (
+        currentSection &&
+        currentSection.blocks &&
+        currentSection.blocks.length > 0
+      ) {
         // Ensure block index is within bounds
-        if (newBlockIndex >= 0 && newBlockIndex < currentSection.blocks.length) {
+        if (
+          newBlockIndex >= 0 &&
+          newBlockIndex < currentSection.blocks.length
+        ) {
           state.currentBlockIndex = newBlockIndex;
         } else {
           // Out of bounds, set to last valid block or 0
-          state.currentBlockIndex = Math.max(0, Math.min(newBlockIndex, currentSection.blocks.length - 1));
+          state.currentBlockIndex = Math.max(
+            0,
+            Math.min(newBlockIndex, currentSection.blocks.length - 1)
+          );
         }
       } else if (newBlockIndex === 0) {
         // Allow setting to 0 even if section has no blocks (will show empty state)
@@ -393,26 +423,31 @@ const mockExamSlice = createSlice({
       const savedState = action.payload;
       state.currentSectionIndex = savedState.currentSectionIndex || 0;
       state.currentBlockIndex = savedState.currentBlockIndex || 0;
-      
+
       // Restore section timers if available
       if (savedState.sectionTimers) {
         state.sectionTimers = savedState.sectionTimers;
       }
-      
+
       // Restore time remaining
       // If using exam_info.time, use saved timeRemaining directly
       // Otherwise, use section-specific timer
       if (state.examInfo?.time) {
-        state.timeRemaining = savedState.timeRemaining || state.totalTimeInSeconds;
+        state.timeRemaining =
+          savedState.timeRemaining || state.totalTimeInSeconds;
       } else {
         const sectionIndex = savedState.currentSectionIndex || 0;
-        if (state.sectionTimers && state.sectionTimers[sectionIndex] !== undefined) {
+        if (
+          state.sectionTimers &&
+          state.sectionTimers[sectionIndex] !== undefined
+        ) {
           state.timeRemaining = state.sectionTimers[sectionIndex];
         } else {
-          state.timeRemaining = savedState.timeRemaining || state.totalTimeInSeconds;
+          state.timeRemaining =
+            savedState.timeRemaining || state.totalTimeInSeconds;
         }
       }
-      
+
       state.answeredMap = savedState.answeredMap || {};
       state.flaggedMap = savedState.flaggedMap || {};
       state.isStarted = savedState.isStarted || false;
@@ -462,6 +497,52 @@ export const selectCurrentBlockIndex = (state) =>
 export const selectCurrentSection = (state) => {
   const { sections, currentSectionIndex } = state.mockExam;
   return sections[currentSectionIndex] || null;
+};
+
+export const selectSectionProgressText = (state) => {
+  const { sections, currentSectionIndex, currentBlockIndex } = state.mockExam;
+  const currentSection = sections[currentSectionIndex];
+
+  if (!currentSection || !currentSection.blocks) return "0 من 0";
+
+  // عدد الأسئلة الكلي في القسم الحالي
+  const totalQuestionsInSection = currentSection.blocks.reduce(
+    (count, block) => {
+      return count + (block.questions?.length || 0);
+    },
+    0
+  );
+
+  // رقم السؤال الحالي داخل القسم
+  let currentQuestionInSection = 0;
+  for (let i = 0; i < currentBlockIndex; i++) {
+    currentQuestionInSection +=
+      currentSection.blocks[i]?.questions?.length || 0;
+  }
+  // أضف 1 للسؤال الحالي
+  currentQuestionInSection += 1;
+
+  const currentBlock = currentSection.blocks[currentBlockIndex];
+  const blockQuestionCount = currentBlock?.questions?.length || 1;
+
+  if (blockQuestionCount > 1) {
+    const endNum = currentQuestionInSection + blockQuestionCount - 1;
+    return `${currentQuestionInSection}-${endNum} من ${totalQuestionsInSection}`;
+  }
+
+  return `${currentQuestionInSection} من ${totalQuestionsInSection}`;
+};
+
+// عدد أسئلة القسم الحالي
+export const selectCurrentSectionTotalQuestions = (state) => {
+  const { sections, currentSectionIndex } = state.mockExam;
+  const currentSection = sections[currentSectionIndex];
+
+  if (!currentSection || !currentSection.blocks) return 0;
+
+  return currentSection.blocks.reduce((count, block) => {
+    return count + (block.questions?.length || 0);
+  }, 0);
 };
 
 export const selectCurrentBlock = (state) => {
@@ -578,16 +659,14 @@ export const selectFormattedAnswersForAPI = (state) => {
 
       // ✅ Get student answer text
       const studentAnswerText = selectedOption?.text || null;
-      
+
       // ✅ Get student answer ID
       const studentAnswerId = selectedOption?.id || null;
-
 
       // ✅ Get correct answer text
       const correctAnswerText = question.correctAnswerText;
       // ✅ Get correct answer ID
       const correctAnswerId = question.correctAnswer;
-
 
       // ✅ Check if correct
       const isCorrect = userAnswerId === question.correctAnswer;
