@@ -40,7 +40,6 @@ const CourseCard = ({
   const dispatch = useDispatch();
   const width = freeWidth ? "w-full" : "w-full lg:max-w-[351px]";
 
-
   // ✅ normalize values coming from backend
   const roundId = payload?.id;
   const isFree = useMemo(() => String(payload?.free) !== "0", [payload?.free]);
@@ -212,7 +211,7 @@ const CourseCard = ({
 
                 {!isFree && (
                   <div className="flex justify-center hover:bg-secondary hover:text-white transition-all cursor-default items-center bg-secondary-light px-3 py-1 rounded-lg whitespace-nowrap">
-                    {toNum(payload?.price, 0)} ريال
+                    {toNum(payload?.price, 0)} ج.م{" "}
                   </div>
                 )}
               </div>
@@ -239,7 +238,11 @@ const CourseCard = ({
                   payload.gender == "female" ? "!bg-[#F8B9D4]" : ""
                 )}
               >
-                {payload.gender == "female" ? "طالبات" : payload.gender == "both" ? "الجميع": "طلاب"}
+                {payload.gender == "female"
+                  ? "طالبات"
+                  : payload.gender == "both"
+                    ? "الجميع"
+                    : "طلاب"}
               </div>
             </div>
 
@@ -636,7 +639,7 @@ const FavIcon = ({
 //                   </span>
 //                 ) : (
 //                   <span className="rounded-xl bg-white/90 px-3 py-2 text-[11px] font-semibold text-gray-900 shadow">
-//                     {toNum(payload?.price, 0)} ريال
+//                     {toNum(payload?.price, 0)} ج.م
 //                   </span>
 //                 )}
 //               </div>

@@ -213,3 +213,33 @@ export const selectProgressText = (state) => {
   const { currentQuestionIndex, totalQuestions } = state.placementTest;
   return `${currentQuestionIndex + 1} من ${totalQuestions}`;
 };
+
+export const selectSectionResults = (state) => {
+  const { sections, answeredMap } = state.placementTest;
+
+  return sections.map((section) => {
+    const sectionQuestions = section.questions || [];
+    const totalInSection = sectionQuestions.length;
+
+    let correctInSection = 0;
+    sectionQuestions.forEach((question) => {
+      const userAnswer = answeredMap[question.id];
+      if (userAnswer === question.correctAnswer) {
+        correctInSection++;
+      }
+    });
+
+    const percentage =
+      totalInSection > 0
+        ? Math.round((correctInSection / totalInSection) * 100)
+        : 0;
+
+    return {
+      id: section.id,
+      title: section.title,
+      correct: correctInSection,
+      total: totalInSection,
+      percentage,
+    };
+  });
+};

@@ -1,5 +1,3 @@
-// app/placement-test/[id]/components/ResultsView.jsx
-
 "use client";
 
 import { useState } from "react";
@@ -14,6 +12,8 @@ import {
   Sparkles,
   BookOpen,
   ArrowLeft,
+  Trophy,
+  Target,
 } from "lucide-react";
 
 const ResultsView = ({
@@ -24,6 +24,7 @@ const ResultsView = ({
   allQuestions,
   answeredMap,
   suggestion,
+  sectionResults = [],
   onGoToRound,
   onGoHome,
 }) => {
@@ -43,9 +44,9 @@ const ResultsView = ({
                 }`}
               >
                 {percentage >= 60 ? (
-                  <Check className="w-12 h-12 text-green-500" />
+                  <Trophy className="w-12 h-12 text-green-500" />
                 ) : (
-                  <X className="w-12 h-12 text-red-500" />
+                  <Target className="w-12 h-12 text-red-500" />
                 )}
               </div>
 
@@ -55,7 +56,39 @@ const ResultsView = ({
               <p className="text-gray-500">تم إنهاء الاختبار بنجاح</p>
             </div>
 
-            {/* Score Circle */}
+            {/* Section Results */}
+            {sectionResults.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-primary" />
+                  نتائج الأقسام
+                </h2>
+
+                <div className="space-y-4">
+                  {sectionResults.map((section, index) => (
+                    <SectionResultCard
+                      key={section.id}
+                      section={section}
+                      index={index}
+                    />
+                  ))}
+                </div>
+
+                {/* Divider */}
+                <div className="relative my-8">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t-2 border-dashed border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-white px-4 text-sm font-bold text-gray-500">
+                      النتيجة الإجمالية
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Total Score Circle */}
             <div className="relative w-44 h-44 mx-auto mb-8">
               <svg className="w-full h-full transform -rotate-90">
                 <circle
@@ -75,17 +108,18 @@ const ResultsView = ({
                   strokeWidth="12"
                   strokeDasharray={`${(percentage / 100) * 490} 490`}
                   strokeLinecap="round"
+                  className="transition-all duration-1000 ease-out"
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-5xl font-bold text-gray-800">
                   {percentage}%
                 </span>
-                <span className="text-gray-500 text-sm">نسبة النجاح</span>
+                <span className="text-gray-500 text-sm">المجموع الكلي</span>
               </div>
             </div>
 
-            {/* Stats */}
+            {/* Total Stats */}
             <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="bg-green-50 rounded-2xl p-5 text-center">
                 <p className="text-3xl font-bold text-green-600">
@@ -137,6 +171,75 @@ const ResultsView = ({
           </button>
         </div>
       </Container>
+    </div>
+  );
+};
+
+// Section Result Card Component
+const SectionResultCard = ({ section, index }) => {
+  const getColorClass = (percentage) => {
+    if (percentage >= 80)
+      return {
+        bg: "bg-green-500",
+        light: "bg-green-100",
+        text: "text-green-600",
+      };
+    if (percentage >= 60)
+      return {
+        bg: "bg-yellow-500",
+        light: "bg-yellow-100",
+        text: "text-yellow-600",
+      };
+    return { bg: "bg-red-500", light: "bg-red-100", text: "text-red-600" };
+  };
+
+  const colors = getColorClass(section.percentage);
+
+  return (
+    <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <span
+            className={`w-8 h-8 rounded-full ${colors.light} ${colors.text} flex items-center justify-center text-sm font-bold`}
+          >
+            {index + 1}
+          </span>
+          <div>
+            <h3 className="font-bold text-gray-800 text-sm">
+              {section.title || `القسم ${index + 1}`}
+            </h3>
+            <p className="text-xs text-gray-500">
+              {section.total} {section.total === 1 ? "سؤال" : "أسئلة"}
+            </p>
+          </div>
+        </div>
+        <div className="text-left">
+          <p className={`text-lg font-bold ${colors.text}`}>
+            {section.correct}/{section.total}
+          </p>
+          <p className="text-xs text-gray-500">{section.percentage}%</p>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden">
+        <div
+          className={`absolute top-0 right-0 h-full ${colors.bg} rounded-full transition-all duration-700 ease-out`}
+          style={{ width: `${section.percentage}%` }}
+        />
+      </div>
+
+      {/* Mini Stats */}
+      <div className="flex items-center justify-between mt-2 text-xs">
+        <span className="text-green-600 flex items-center gap-1">
+          <CheckCircle2 className="w-3 h-3" />
+          {section.correct} صحيح
+        </span>
+        <span className="text-red-600 flex items-center gap-1">
+          <XCircle className="w-3 h-3" />
+          {section.total - section.correct} خطأ
+        </span>
+      </div>
     </div>
   );
 };

@@ -52,7 +52,7 @@ const CardSummery = () => {
               {isLoading ? (
                 <span className="animate-pulse">...</span>
               ) : (
-                `${totalPrice.toFixed(2)} ر.س`
+                `${totalPrice.toFixed(2)} ج.م`
               )}
             </div>
           </div>
@@ -65,7 +65,7 @@ const CardSummery = () => {
                 الخصم
               </div>
               <div className="text-right justify-center text-secondary text-sm font-bold">
-                - {discount.toFixed(2)} ر.س
+                - {discount.toFixed(2)} ج.م
               </div>
             </div>
           </div>
@@ -79,7 +79,7 @@ const CardSummery = () => {
             {isLoading ? (
               <span className="animate-pulse">...</span>
             ) : (
-              `${finalTotal.toFixed(2)} ر.س`
+              `${finalTotal.toFixed(2)} ج.م`
             )}
           </div>
         </div>

@@ -352,7 +352,7 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
       <div className="pt-3 sm:pt-4 pb-8 sm:pb-10">
         <div className="self-stretch inline-flex justify-end items-end gap-3 sm:gap-4 mt-1">
           <div className="justify-center text-primary text-xl sm:text-2xl font-bold">
-            {round.price} ر.س
+            {round.price} ج.م
           </div>
           {round.show_round_book == "1" && (
             <div className="justify-center text-text text-[11px] sm:text-xs font-medium">
@@ -496,7 +496,7 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
             </>
           ) : (
             <span className="text-center justify-center text-slate-200 text-xs sm:text-[13px] font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
-              اشترك الآن - {round.price} ر.س
+              اشترك الآن - {round.price} ج.م
             </span>
           )}
         </button>

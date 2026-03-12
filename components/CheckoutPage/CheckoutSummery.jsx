@@ -5,9 +5,9 @@ const CheckoutSummery = () => {
 
   const orderSummaryData = {
     title: "ملخص الطلب",
-    subtotal: { label: "المجموع الفرعي", amount: "475 ر.س" },
-    discount: { label: "الخصم", amount: "- 50 ر.س" },
-    total: { label: "المجموع", amount: "425 ر.س" },
+    subtotal: { label: "المجموع الفرعي", amount: "475 ج.م" },
+    discount: { label: "الخصم", amount: "- 50 ج.م" },
+    total: { label: "المجموع", amount: "425 ج.م" },
     coupon: {
       title: "إضافة كوبون",
       placeholder: "كود كوبون",

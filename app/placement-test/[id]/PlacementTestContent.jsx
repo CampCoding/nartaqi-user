@@ -23,6 +23,7 @@ import {
   selectCorrectAnswers,
   selectTestInfo,
   selectSections,
+  selectSectionResults,
 } from "@/components/utils/Store/Slices/placementTestSlice";
 
 import {
@@ -57,6 +58,7 @@ const PlacementTestContent = () => {
   const correctAnswers = useSelector(selectCorrectAnswers);
   const token = useSelector((state) => state.auth?.token);
   const user = useSelector((state) => state.auth?.user);
+  const sectionResults = useSelector(selectSectionResults);
 
   // Local state
   const [isLoading, setIsLoading] = useState(true);
@@ -297,16 +299,16 @@ const PlacementTestContent = () => {
     );
   }
 
-  // Already solved state
-  if (isSolved && currentView === "start" && !isStarted) {
-    return (
-      <AlreadySolvedView
-        testInfo={testInfo}
-        onGoHome={handleGoHome}
-        // onRetake={handleStartTest} // Uncomment if you want to allow retake
-      />
-    );
-  }
+  // // Already solved state
+  // if (isSolved && currentView === "start" && !isStarted) {
+  //   return (
+  //     <AlreadySolvedView
+  //       testInfo={testInfo}
+  //       onGoHome={handleGoHome}
+  //       // onRetake={handleStartTest} // Uncomment if you want to allow retake
+  //     />
+  //   );
+  // }
 
   // Results View
   if (currentView === "results" || isSubmitted) {
@@ -319,6 +321,7 @@ const PlacementTestContent = () => {
         allQuestions={allQuestions}
         answeredMap={answeredMap}
         suggestion={suggestion}
+        sectionResults={sectionResults} // أضف هذا
         onGoToRound={handleGoToRound}
         onGoHome={handleGoHome}
       />

@@ -39,7 +39,7 @@ export const NotificationRow = () => {
 
       <div className=" !leading-loose flex flex-col gap-2 items-end  w-[507px]  relative">
         <div className=" !leading-loose  text-black text-sm sm:text-base font-normal ">
-          تمت الموافقة على طلب سحب جديد بقيمة 500 ر.س.
+          تمت الموافقة على طلب سحب جديد بقيمة 500 ج.م.
         </div>{" "}
         <div className=" !leading-loose text-text-alt text-xs sm:text-sm font-normal ">
           منذ 10 دقائق

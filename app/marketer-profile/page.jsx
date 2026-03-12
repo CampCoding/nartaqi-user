@@ -148,7 +148,7 @@ const MarketerProfile = () => {
             <StartCard
               title="إجمإلى الأرباح"
               icon={<MoneyUp className="fill-primary shrink-0" />}
-              value={<div className="text-end w-full">9,250.00 ر.س</div>}
+              value={<div className="text-end w-full">9,250.00 ج.م</div>}
               description="إجمإلى أرباحك حتى الأن"
               rootClassName={"col-span-full md:col-span-1"}
             />
@@ -237,7 +237,7 @@ const MoneyInHand = (props) => (
 const LatestWithdrawals = ({ rootClassName }) => {
   // (Optional) keep UI identical while avoiding repetition
   const items = Array.from({ length: 5 }, () => ({
-    amount: "500 ر.س",
+    amount: "500 ج.م",
     time: "منذ 10 دقائق",
   }));
 
@@ -383,7 +383,7 @@ const Notifications = ({ rootClassName }) => {
             <NotificationsIcon className="shrink-0" />
             <div className="w-full sm:w-[507px] flex flex-col justify-end items-end gap-1.5 sm:gap-2">
               <div className="text-right text-black text-sm md:text-base font-normal break-words">
-                تمت الموافقة على طلب سحب جديد بقيمة 500 ر.س.
+                تمت الموافقة على طلب سحب جديد بقيمة 500 ج.م.
               </div>
               <div className="text-right text-text-alt text-xs md:text-sm font-normal">
                 منذ 10 دقائق

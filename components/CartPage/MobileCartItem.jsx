@@ -31,8 +31,6 @@ export const MobileCartItem = ({ data, onRemove }) => {
   }, [data.quantity]);
 
   const syncWithServer = async (qty) => {
-
-
     try {
       await dispatch(
         updateCartQuantity({
@@ -244,7 +242,7 @@ export const MobileCartItem = ({ data, onRemove }) => {
                 </div>
               )}
               <div className="font-bold text-blue-500 text-base">
-                {(data.price * quantity).toFixed(2)} ر.س
+                {(data.price * quantity).toFixed(2)} ج.م
               </div>
             </footer>
           </div>

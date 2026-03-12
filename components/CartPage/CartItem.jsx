@@ -23,8 +23,6 @@ const CartItem = ({ data, onRemove }) => {
   const typeRef = useRef(data.type);
   const itemIdRef = useRef(data.item_id);
 
-
-
   const isRound = data.type === "rounds";
 
   useEffect(() => {
@@ -39,8 +37,6 @@ const CartItem = ({ data, onRemove }) => {
 
   // ✅ Sync with server
   const syncWithServer = async (qty) => {
-   
-
     try {
       await dispatch(
         updateCartQuantity({
@@ -75,7 +71,6 @@ const CartItem = ({ data, onRemove }) => {
         pendingQuantity.current !== null &&
         pendingQuantity.current !== lastSyncedQuantity.current
       ) {
-       
         dispatch(
           updateCartQuantity({
             type: typeRef.current,
@@ -91,7 +86,6 @@ const CartItem = ({ data, onRemove }) => {
   const handleQuantityChange = (newQuantity) => {
     if (isRound) return; // Don't allow quantity change for rounds
     if (newQuantity < 1 || newQuantity > 99) return;
-
 
     setQuantity(newQuantity);
     pendingQuantity.current = newQuantity;
@@ -300,7 +294,7 @@ const CartItem = ({ data, onRemove }) => {
           {/* Price & Remove Button */}
           <div className="w-full px-4 md:px-0 md:w-36 md:self-stretch md:pl-4 flex flex-row-reverse md:flex-col justify-between items-center">
             <div className="self-stretch text-right md:text-center justify-center text-primary text-2xl font-bold">
-              {(data.price * quantity).toFixed(2)} ر.س
+              {(data.price * quantity).toFixed(2)} ج.م
             </div>
             <button
               onClick={onRemove}

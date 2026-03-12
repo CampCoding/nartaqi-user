@@ -160,11 +160,11 @@ export default function VideoPlayer({
   // Format time helper
   const formatTime = (seconds) => {
     const s = Math.max(0, Number(seconds) || 0);
-  
+
     const hours = Math.floor(s / 3600);
     const mins = Math.floor((s % 3600) / 60);
     const secs = Math.floor(s % 60);
-  
+
     return `${hours}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
   // Reset player state
@@ -682,7 +682,7 @@ export default function VideoPlayer({
     <div className={`w-full ${rootClassName}`}>
       {/* Platform Toggle Buttons */}
       {hasBothPlatforms && (
-      // {true && (
+        // {true && (
         <Container className="flex items-center justify-start gap-3 my-4">
           <button
             onClick={() => handlePlatformSwitch(PlayerType.VIMEO)}
@@ -710,7 +710,7 @@ export default function VideoPlayer({
             )}
           >
             <Play className="w-5 h-5" />
-            <span>مشغل  2</span>
+            <span>مشغل 2</span>
             {activePlatform === PlayerType.YOUTUBE && (
               <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
             )}
@@ -748,7 +748,7 @@ export default function VideoPlayer({
         ref={containerRef}
         onContextMenu={(e) => e.preventDefault()}
         className={cx(
-          "w-full relative  select-none flex items-center justify-center bg-black shadow-2xl",
+          "w-full relative  select-none flex items-center justify-center bg-black shadow-2xl h-full",
           iosRotateHack ? "ios-landscape-hack" : "",
           isFullScreen && "!fixed !inset-0 !z-[9999] !w-screen !h-screen"
         )}
