@@ -75,22 +75,6 @@ export const StudentResultCard = ({ item, onOpenImages }) => {
               alt={title}
               src={image}
             />
-
-            {/* Play Button Overlay */}
-            {canOpen && (
-              <button
-                onClick={handlePlayVideo}
-                className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors group"
-                aria-label="تشغيل الفيديو"
-              >
-                <div className="w-16 h-16 bg-white/90 group-hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
-                  <Play
-                    className="w-7 h-7 text-primary mr-[-3px]"
-                    fill="currentColor"
-                  />
-                </div>
-              </button>
-            )}
           </>
         )}
       </div>
