@@ -1,24 +1,15 @@
 "use client";
 
 import React, { useMemo, useEffect, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useDispatch } from "react-redux";
-import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { X, Play, VideoIcon } from "lucide-react";
 
 import Container from "../../components/ui/Container";
 import PagesBanner from "../../components/ui/PagesBanner";
 import LoadingPage from "../../components/shared/Loading";
 import FreeVideosFilters from "../../components/ui/FreeVideosFilters";
+import VideoPlayer from "../../components/ui/Video";
 
-import { openVideoModal } from "../../components/utils/Store/Slices/videoModalSlice";
-
-import {
-  encodeId,
-  extractVimeoId,
-  extractYoutubeId,
-} from "../../components/ui/CourseContentDrawer";
-
-// ✅ keep your hook import (but make sure it is the SIMPLE one)
 import { useGetFreeVideos } from "../../components/shared/Hooks/useGetFreeRounds";
 
 // ---------- helpers ----------
@@ -41,7 +32,9 @@ function isNumericId(v) {
 }
 
 function isDirectVideoUrl(url) {
-  const s = String(url || "").toLowerCase().trim();
+  const s = String(url || "")
+    .toLowerCase()
+    .trim();
   return s.endsWith(".mp4") || s.endsWith(".m3u8") || s.includes(".mp4?");
 }
 
@@ -53,6 +46,56 @@ function isYoutubeUrl(url) {
 function isVimeoUrl(url) {
   const s = String(url || "").toLowerCase();
   return s.includes("vimeo.com") || s.includes("player.vimeo.com");
+}
+
+// ✅ دالة محسنة لاستخراج YouTube ID من جميع أنواع الروابط
+function extractYoutubeId(url) {
+  if (!url) return "";
+  const str = String(url).trim();
+
+  // إذا كان الـ ID مباشرة (11 حرف)
+  if (/^[a-zA-Z0-9_-]{11}$/.test(str)) {
+    return str;
+  }
+
+  // youtu.be/VIDEO_ID أو youtu.be/VIDEO_ID?si=xxx
+  const shortMatch = str.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  if (shortMatch) return shortMatch[1];
+
+  // youtube.com/watch?v=VIDEO_ID
+  const watchMatch = str.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+  if (watchMatch) return watchMatch[1];
+
+  // youtube.com/embed/VIDEO_ID
+  const embedMatch = str.match(/embed\/([a-zA-Z0-9_-]{11})/);
+  if (embedMatch) return embedMatch[1];
+
+  // youtube.com/v/VIDEO_ID
+  const vMatch = str.match(/\/v\/([a-zA-Z0-9_-]{11})/);
+  if (vMatch) return vMatch[1];
+
+  // youtube.com/shorts/VIDEO_ID
+  const shortsMatch = str.match(/shorts\/([a-zA-Z0-9_-]{11})/);
+  if (shortsMatch) return shortsMatch[1];
+
+  return "";
+}
+
+// ✅ دالة محسنة لاستخراج Vimeo ID
+function extractVimeoId(url) {
+  if (!url) return "";
+  const str = String(url).trim();
+
+  // إذا كان رقم مباشرة
+  if (/^[0-9]+$/.test(str)) {
+    return str;
+  }
+
+  // vimeo.com/VIDEO_ID أو player.vimeo.com/video/VIDEO_ID
+  const match = str.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (match) return match[1];
+
+  return "";
 }
 
 function buildYoutubeUrl(youtube_link) {
@@ -114,7 +157,6 @@ function classifyPlatform(item) {
       };
     }
 
-    // direct mp4 / m3u8 in vimeo_link field
     if (isDirectVideoUrl(vimeoSource)) {
       return {
         platform: "direct",
@@ -141,8 +183,8 @@ export function normalizeVideo(item, categoryMeta) {
   const durationSecRaw = item?.time;
   const durationSec =
     durationSecRaw === null ||
-      durationSecRaw === undefined ||
-      durationSecRaw === ""
+    durationSecRaw === undefined ||
+    durationSecRaw === ""
       ? null
       : toInt(durationSecRaw, 0);
 
@@ -151,6 +193,7 @@ export function normalizeVideo(item, categoryMeta) {
   const youtubeUrl = buildYoutubeUrl(item?.youtube_link);
   const vimeoUrl = buildVimeoPlayerUrl(item?.vimeo_link || vimeoId);
 
+  // ✅ إذا لم تكن هناك صورة، استخدم thumbnail من YouTube
   const thumb =
     item?.image_url ||
     (item?.image && item?.image !== "0" ? item.image : "") ||
@@ -181,152 +224,196 @@ export function normalizeVideo(item, categoryMeta) {
 }
 
 // ---------- Card UI ----------
-function PlatformBadge({ platform }) {
-  const map = {
-    youtube: { label: "YouTube", cls: "bg-red-600/90" },
-    vimeo: { label: "Vimeo", cls: "bg-sky-600/90" },
-    direct: { label: "Video", cls: "bg-emerald-600/90" },
-    unknown: { label: "Unknown", cls: "bg-neutral-700/80" },
-  };
-  const meta = map[platform] || map.unknown;
-  return (
-    <div
-      className={`absolute top-2 left-2 px-2 py-1 text-xs rounded-md text-white ${meta.cls}`}
-    >
-      {meta.label}
-    </div>
-  );
-}
-
 function FreeVideoCard({ video }) {
-  const dispatch = useDispatch();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const [showVideo, setShowVideo] = useState(false);
 
-  const mergedParams = {
-    ...Object.fromEntries(searchParams.entries()),
-    watch: "true",
+  // ✅ Helper function لعمل encode (نفس الطريقة المستخدمة في المشروع)
+  const encodeId = (value) => {
+    if (!value) return "";
+    try {
+      return encodeURIComponent(btoa(String(value)));
+    } catch (e) {
+      return value;
+    }
   };
 
-  const buildVideoQuery = () => {
-    const query = { ...mergedParams, video: String(video.id) };
-
-    if (video.platform === "vimeo" && (video.vimeoId || video.vimeo)) {
-      query.vimeo_id = encodeId(video.vimeoId || video.vimeo);
-      return query;
-    }
-    if (video.platform === "youtube" && (video.youtubeId || video.youtube)) {
-      query.youtube_id = encodeId(video.youtubeId || video.youtube);
-      return query;
-    }
-    if (video.platform === "direct" && video.directUrl) {
-      query.vimeo_id = encodeId(video.directUrl);
-      return query;
-    }
-
-    const raw = video.vimeo || video.youtube || video.directUrl || "";
-    if (raw) query.vimeo_id = encodeId(raw);
-    return query;
-  };
-
-  const playable =
-    (video.platform === "youtube" && (video.youtubeId || video.youtube)) ||
-    (video.platform === "vimeo" && (video.vimeoId || video.vimeo)) ||
+  const canPlay =
+    (video.platform === "youtube" && video.youtubeId) ||
+    (video.platform === "vimeo" && video.vimeoId) ||
     (video.platform === "direct" && video.directUrl);
 
-  const openModal = () => {
-    dispatch(
-      openVideoModal({
-        title: (video.title || "").trim(),
-        vimeoId: video.vimeo || video.vimeoId || video.directUrl || "",
-        youtubeId: video.youtube || video.youtubeId || "",
-        autoplay: true,
-      })
-    );
+  // ✅ Get ENCODED video IDs for player
+  const getVideoIds = () => {
+    if (video.platform === "youtube" && video.youtubeId) {
+      return {
+        youtube_id: encodeId(video.youtubeId), // ✅ Encoded
+        vimeo_id: "",
+      };
+    }
+    if (video.platform === "vimeo" && video.vimeoId) {
+      return {
+        youtube_id: "",
+        vimeo_id: encodeId(video.vimeoId), // ✅ Encoded
+      };
+    }
+    if (video.platform === "direct" && video.directUrl) {
+      return {
+        youtube_id: "",
+        vimeo_id: encodeId(video.directUrl), // ✅ Encoded
+      };
+    }
+    return { youtube_id: "", vimeo_id: "" };
+  };
+
+  const { youtube_id, vimeo_id } = getVideoIds();
+
+  const handleToggleVideo = (e) => {
+    e.stopPropagation();
+    if (!canPlay) return;
+    setShowVideo(!showVideo);
+  };
+
+  const handleCloseVideo = (e) => {
+    e.stopPropagation();
+    setShowVideo(false);
   };
 
   return (
-    <Link 
-    href={ playable ?  { pathname, query: buildVideoQuery(), hash: "player" } : "#"}
-
-    onClick={(e) => {
-      e.stopPropagation();
-      openModal();
-    }}
-    className="group rounded-2xl border border-neutral-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition">
+    <div className="group rounded-2xl border border-neutral-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
+      {/* Image/Video Container */}
       <div className="relative w-full aspect-video bg-neutral-100 overflow-hidden">
-        {video.thumb ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={video.thumb}
-            alt={video.title}
-            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-            onError={(e) => {
-              e.currentTarget.src = "/images/logo.svg";   // your local fallback
-              e.currentTarget.onerror = null;             // prevent infinite loop if fallback also fails
-            }}
-          />
+        {showVideo ? (
+          <div className="relative w-full h-full">
+            {/* Close Button */}
+            <button
+              onClick={handleCloseVideo}
+              className="absolute top-2 right-2 z-30 w-8 h-8 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-colors"
+              aria-label="إغلاق الفيديو"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Video Player - with encoded IDs */}
+            <VideoPlayer
+              vimeo_id={vimeo_id}
+              youtube_id={youtube_id}
+              defaultPlay={true}
+              rootClassName="rounded-none overflow-hidden h-full w-full"
+            />
+          </div>
         ) : (
-          <img
-            src="/images/logo.svg"
-            alt={video.title}
-            className="w-full h-full object-contain  group-hover:scale-[1.02] transition-transform duration-300"
-          />
-          // <div className="w-full h-full flex items-center justify-center text-neutral-500 text-sm">
-          //   {video.platform === "direct" ? "Video File" : "No Thumbnail"}
-          // </div>
+          <>
+            {/* Thumbnail Image */}
+            {video.thumb ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={video.thumb}
+                alt={video.title}
+                className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                onError={(e) => {
+                  e.currentTarget.src = "/images/logo.svg";
+                  e.currentTarget.onerror = null;
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                <img
+                  src="/images/logo.svg"
+                  alt={video.title}
+                  className="w-20 h-20 object-contain opacity-50"
+                />
+              </div>
+            )}
+
+            {/* Platform Badge */}
+            <div
+              className={`absolute top-2 left-2 px-2 py-1 text-xs rounded-md text-white ${
+                video.platform === "youtube"
+                  ? "bg-red-600/90"
+                  : video.platform === "vimeo"
+                    ? "bg-sky-600/90"
+                    : "bg-emerald-600/90"
+              }`}
+            >
+              {video.platform === "youtube"
+                ? "YouTube"
+                : video.platform === "vimeo"
+                  ? "Vimeo"
+                  : "Video"}
+            </div>
+
+            {/* Duration Badge */}
+            {!!formatDuration(video.durationSec) && (
+              <div className="absolute bottom-2 right-2 px-2 py-1 text-xs rounded-md bg-black/70 text-white">
+                {formatDuration(video.durationSec)}
+              </div>
+            )}
+
+            {/* Play Overlay on Hover */}
+            {canPlay && (
+              <div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex items-center justify-center bg-black/20 cursor-pointer"
+                onClick={handleToggleVideo}
+              >
+                <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                  <Play className="w-8 h-8 text-primary fill-primary ml-1" />
+                </div>
+              </div>
+            )}
+          </>
         )}
-
-        {/* <PlatformBadge platform={video.platform} /> */}
-
-        {!!formatDuration(video.durationSec) && (
-          <div className="absolute bottom-2 right-2 px-2 py-1 text-xs rounded-md bg-black/70 text-white">
-            {formatDuration(video.durationSec)}
-          </div>
-        )}
-
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-          <div className="px-4 py-2 rounded-full bg-black/60 text-white text-sm">
-            ▶ تشغيل
-          </div>
-        </div>
       </div>
 
-      <div className="p-4 flex flex-col gap-2">
+      {/* Card Content */}
+      <div className="p-4 flex flex-col gap-3 flex-1">
         <h3 className="font-bold text-text text-base leading-snug line-clamp-2">
           {video.title}
         </h3>
 
-        {video.description ? (
+        {video.description && (
           <p className="text-sm text-text-alt leading-relaxed line-clamp-2">
             {video.description}
           </p>
-        ) : null}
+        )}
 
-        {video.categoryName ? (
+        {video.categoryName && (
           <div className="flex items-center gap-2 text-xs text-neutral-500">
             <span className="px-2 py-1 rounded-lg bg-neutral-100">
               {video.categoryName}
             </span>
           </div>
-        ) : null}
-
-        {playable ? (
-          <Link
-            href={{ pathname, query: buildVideoQuery(), hash: "player" }}
-            className="mt-2 inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm bg-primary text-white"
-            onClick={(e) => {
-              e.stopPropagation();
-              openModal();
-            }}
-          >
-            مشاهدة الفيديو
-          </Link>
-        ) : (
-          <div className="mt-2 text-sm text-neutral-500">لا يوجد رابط فيديو</div>
         )}
+
+        <div className="flex-1" />
+
+        <button
+          className={`flex items-center text-white justify-center gap-2.5 px-4 py-3 w-full rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 ${
+            canPlay
+              ? showVideo
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-primary hover:opacity-90"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
+          type="button"
+          disabled={!canPlay}
+          onClick={handleToggleVideo}
+        >
+          {showVideo ? (
+            <>
+              <X className="w-5 h-5" />
+              <span className="text-sm font-semibold">إغلاق الفيديو</span>
+            </>
+          ) : (
+            <>
+              <VideoIcon className="w-5 h-5" />
+              <span className="text-sm font-semibold">
+                {canPlay ? "مشاهدة الفيديو" : "لا يوجد رابط فيديو"}
+              </span>
+            </>
+          )}
+        </button>
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -341,10 +428,9 @@ export default function FreeVideosPage() {
     searchParams.get("category") ||
     "";
 
-  // ✅ removed sort (to avoid any sorting)
   const [filters, setFilters] = useState({
     search: "",
-    platform: "all", // all | youtube | vimeo | direct
+    platform: "all",
     minSec: "",
     maxSec: "",
   });
@@ -361,7 +447,6 @@ export default function FreeVideosPage() {
   });
 
   const api = useMemo(() => {
-    // supports old react-query shape just in case
     if (data?.pages?.length) return data.pages?.[0]?.data || null;
     return data || null;
   }, [data]);
@@ -379,18 +464,19 @@ export default function FreeVideosPage() {
 
   const categoryTitle = useMemo(() => {
     return (
-      categoryMeta?.name || allItems?.[0]?.categoryName || courseCategoryId || ""
+      categoryMeta?.name ||
+      allItems?.[0]?.categoryName ||
+      courseCategoryId ||
+      ""
     );
   }, [categoryMeta, allItems, courseCategoryId]);
 
-  // ✅ NO SORT HERE (keeps API order)
   const filtered = useMemo(() => {
     const q = (filters.search || "").trim().toLowerCase();
     const min = filters.minSec === "" ? null : toInt(filters.minSec, 0);
     const max = filters.maxSec === "" ? null : toInt(filters.maxSec, 0);
 
     let res = allItems;
-    console.log("allItems" , allItems)
 
     if (q) {
       res = res.filter((v) => {
@@ -407,7 +493,7 @@ export default function FreeVideosPage() {
     if (min !== null) res = res.filter((v) => (v.durationSec ?? 0) >= min);
     if (max !== null) res = res.filter((v) => (v.durationSec ?? 0) <= max);
 
-    return res; // ✅ keep original order
+    return res;
   }, [allItems, filters]);
 
   if (!courseCategoryId) {
@@ -510,11 +596,11 @@ export default function FreeVideosPage() {
           </div>
         )}
 
-        {filtered.length > 0 ? (
+        {filtered.length > 0 && (
           <div className="py-6 text-center text-sm text-gray-400">
             تم عرض جميع النتائج
           </div>
-        ) : null}
+        )}
       </Container>
     </div>
   );
