@@ -299,16 +299,16 @@ const PlacementTestContent = () => {
     );
   }
 
-  // // Already solved state
-  // if (isSolved && currentView === "start" && !isStarted) {
-  //   return (
-  //     <AlreadySolvedView
-  //       testInfo={testInfo}
-  //       onGoHome={handleGoHome}
-  //       // onRetake={handleStartTest} // Uncomment if you want to allow retake
-  //     />
-  //   );
-  // }
+  // Already solved state
+  if (isSolved && currentView === "start" && !isStarted) {
+    return (
+      <AlreadySolvedView
+        testInfo={testInfo}
+        onGoHome={handleGoHome}
+        // onRetake={handleStartTest} // Uncomment if you want to allow retake
+      />
+    );
+  }
 
   // Results View
   if (currentView === "results" || isSubmitted) {
