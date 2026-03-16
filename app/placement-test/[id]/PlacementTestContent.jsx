@@ -64,6 +64,8 @@ const PlacementTestContent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingSolved, setIsCheckingSolved] = useState(true);
   const [isSolved, setIsSolved] = useState(false);
+  const [previousScore, setPreviousScore] = useState(null); // ✅ جديد
+  const [previousSuggestion, setPreviousSuggestion] = useState(null); // ✅ جديد
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -95,7 +97,7 @@ const PlacementTestContent = () => {
     });
   };
 
-  // Check if already solved
+  // ✅ Check if already solved - محدث
   const checkIfSolved = useCallback(async () => {
     try {
       setIsCheckingSolved(true);
@@ -114,11 +116,23 @@ const PlacementTestContent = () => {
       );
 
       if (response.data.status === "success") {
-        setIsSolved(response.data.message?.is_solved || false);
+        const data = response.data.message;
+
+        // ✅ حفظ حالة الحل
+        setIsSolved(data?.is_solved || false);
+
+        // ✅ حفظ الدرجة السابقة
+        if (data?.score) {
+          setPreviousScore(data.score);
+        }
+
+        // ✅ حفظ الاقتراح السابق
+        if (data?.suggestion) {
+          setPreviousSuggestion(data.suggestion);
+        }
       }
     } catch (err) {
       console.error("Error checking if solved:", err);
-      // Don't block if check fails, allow user to proceed
       setIsSolved(false);
     } finally {
       setIsCheckingSolved(false);
@@ -196,6 +210,17 @@ const PlacementTestContent = () => {
     navigateTo("test");
   };
 
+  // ✅ إعادة الاختبار (مسح البيانات السابقة)
+  const handleRetakeTest = () => {
+    setIsSolved(false);
+    setPreviousScore(null);
+    setPreviousSuggestion(null);
+    dispatch(resetTest());
+    fetchTestData().then(() => {
+      handleStartTest();
+    });
+  };
+
   const handleAnswerSelect = (questionId, optionId) => {
     dispatch(setAnswer({ questionId, optionId }));
   };
@@ -262,9 +287,16 @@ const PlacementTestContent = () => {
     }
   };
 
+  // ✅ الذهاب للدورة المقترحة - محدث ليدعم كلا الحالتين
   const handleGoToRound = () => {
-    if (suggestion?.suggestion_round_id) {
-      router.push(`/course/${suggestion.suggestion_round_id}`);
+    const roundId =
+      suggestion?.suggestion_round_id ||
+      suggestion?.suggestion_round?.id ||
+      previousSuggestion?.suggestion_round_id ||
+      previousSuggestion?.suggestion_round?.id;
+
+    if (roundId) {
+      router.push(`/course/${roundId}`);
     }
   };
 
@@ -299,13 +331,16 @@ const PlacementTestContent = () => {
     );
   }
 
-  // Already solved state
+  // ✅ Already solved state - محدث
   if (isSolved && currentView === "start" && !isStarted) {
     return (
       <AlreadySolvedView
         testInfo={testInfo}
+        scoreData={previousScore}
+        suggestion={previousSuggestion}
         onGoHome={handleGoHome}
-        // onRetake={handleStartTest} // Uncomment if you want to allow retake
+        onGoToRound={handleGoToRound}
+        onRetake={handleRetakeTest} // أو null إذا لا تريد السماح بإعادة الاختبار
       />
     );
   }
@@ -321,7 +356,7 @@ const PlacementTestContent = () => {
         allQuestions={allQuestions}
         answeredMap={answeredMap}
         suggestion={suggestion}
-        sectionResults={sectionResults} // أضف هذا
+        sectionResults={sectionResults}
         onGoToRound={handleGoToRound}
         onGoHome={handleGoHome}
       />
