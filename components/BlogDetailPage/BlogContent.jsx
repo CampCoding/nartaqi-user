@@ -124,11 +124,11 @@ export const BlogContent = ({ blog }) => {
           className="text-text-alt text-sm leading-7 sm:text-[15px] sm:leading-8 md:text-base md:leading-9 lg:text-lg lg:leading-[42px] xl:leading-[50px] text-right"
           lang="ar"
           dir="rtl"
-        >
-          {blog?.content}
-          <br />
-          <br />
-        </article>
+          dangerouslySetInnerHTML={{ __html: blog?.content }}
+        />
+
+        {/* <br />
+        <br /> */}
       </section>
     </main>
   );

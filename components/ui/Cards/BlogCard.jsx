@@ -1,4 +1,3 @@
-
 import React from "react";
 import { EyeIcon, MessageIcon } from "../../../public/svgs";
 import { formatDate } from "../../utils/helpers/date.js";
@@ -45,14 +44,15 @@ export const BlogCard = ({
             type="button"
             onClick={onClick ?? (() => handleBlogClick(id))} // ⬅ priority for parent click
           >
-            <h1 className="font-bold text-primary text-base sm:text-lg md:text-xl leading-6 line-clamp-2">
+            <h1 className="font-bold text-primary text-base sm:text-lg md:text-xl leading-6 line-clamp-1">
               {title}
             </h1>
           </button>
 
-          <p className="text-text-alt text-sm sm:text-[15px] md:text-base leading-5 line-clamp-2 md:line-clamp-3">
-            {content}
-          </p>
+          <p
+            className="text-text-alt text-sm sm:text-[15px] md:text-base leading-5 line-clamp-2 md:line-clamp-3"
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
         </div>
 
         {/* Footer */}
@@ -77,4 +77,3 @@ export const BlogCard = ({
     </article>
   );
 };
-
