@@ -16,6 +16,7 @@ import {
   Target,
   Download,
   Loader2,
+  Check,
 } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -90,11 +91,6 @@ const ResultsView = ({
       const date = new Date().toLocaleDateString("en-GB").replace(/\//g, "-");
       const testName = testInfo?.name || "placement-test";
 
-      // useEffect(() => {
-      //   console.log(testInfo, "testInfo?.name");
-      // }, [testInfo?.name]);
-
-      // return;
       pdf.save(`${testName}-result-${date}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -249,6 +245,7 @@ const ResultsView = ({
             />
           </button>
 
+          {/* شكل مصغر للامتحان */}
           {showDetails && (
             <AnswerDetails
               allQuestions={allQuestions}
@@ -364,79 +361,146 @@ const SectionResultCard = ({ section, index }) => {
   );
 };
 
-// Answer Details Component - بدون تغيير
-const AnswerDetails = ({ allQuestions, answeredMap }) => (
-  <div className="border rounded-2xl overflow-hidden bg-white">
-    <div className="max-h-96 overflow-y-auto">
-      {allQuestions.map((q, index) => {
-        const selectedOptionId = answeredMap[q.id];
-        const selectedOption = q.options?.find(
-          (opt) => opt.id === selectedOptionId
-        );
-        const correctOption = q.options?.find((opt) => opt.isCorrect);
-        const isCorrect = selectedOption?.isCorrect;
+// Answer Details Component (الشكل المصغر)
+const AnswerDetails = ({ allQuestions, answeredMap }) => {
+  const letters = ["أ", "ب", "ج", "د", "هـ", "و"];
 
-        return (
-          <div
-            key={q.id}
-            className={`p-4 border-b last:border-b-0 ${
-              isCorrect ? "bg-green-50" : "bg-red-50"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <span
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
-                  isCorrect
-                    ? "bg-green-500 text-white"
-                    : "bg-red-500 text-white"
+  return (
+    <div className="border border-gray-200 rounded-3xl overflow-hidden bg-[#f8f9fa] shadow-inner">
+      <div className="max-h-[600px] overflow-y-auto custom-scroll p-3 md:p-5 space-y-4">
+        {allQuestions.map((q, index) => {
+          const selectedOptionId = answeredMap[q.id];
+          const isCorrect = q.options?.find(
+            (opt) => opt.id === selectedOptionId
+          )?.isCorrect;
+          const hasAnswered = selectedOptionId !== undefined;
+
+          // التحقق إذا كان السؤال على فقرة
+          const isParagraphQuestion = q.type === "paragraph_mcq" || q.passage;
+
+          return (
+            <div
+              key={q.id}
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+            >
+              {/* رأس الكارد المصغر */}
+              <div
+                className={`px-4 py-3 flex items-center justify-between border-b border-gray-100 ${
+                  !hasAnswered
+                    ? "bg-gray-100"
+                    : isCorrect
+                      ? "bg-green-50"
+                      : "bg-red-50"
                 }`}
               >
-                {index + 1}
-              </span>
-              <div className="flex-1">
-                <div
-                  className="text-gray-800 text-sm mb-2"
-                  dangerouslySetInnerHTML={{ __html: q.text }}
-                />
-                <div className="text-xs space-y-1">
-                  {selectedOption ? (
-                    <p
-                      className={isCorrect ? "text-green-700" : "text-red-700"}
-                    >
-                      إجابتك:{" "}
-                      <span
-                        dangerouslySetInnerHTML={{
-                          __html: selectedOption.text,
-                        }}
-                      />
-                    </p>
-                  ) : (
-                    <p className="text-gray-500">لم تتم الإجابة</p>
-                  )}
-                  {!isCorrect && correctOption && (
-                    <p className="text-green-700">
-                      الإجابة الصحيحة:{" "}
-                      <span
-                        dangerouslySetInnerHTML={{
-                          __html: correctOption.text,
-                        }}
-                      />
-                    </p>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-sm ${
+                      !hasAnswered
+                        ? "bg-gray-500"
+                        : isCorrect
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                    }`}
+                  >
+                    {index + 1}
+                  </span>
+                  <span className="font-bold text-sm text-gray-700">
+                    {!hasAnswered
+                      ? "لم تتم الإجابة"
+                      : isCorrect
+                        ? "إجابة صحيحة"
+                        : "إجابة خاطئة"}
+                  </span>
+
+                  {/* === التعديل 1: إضافة بادج "سؤال على فقرة" === */}
+                  {isParagraphQuestion && (
+                    <span className="bg-purple-100 text-purple-700 text-xs font-medium px-2 py-0.5 rounded-full border border-purple-200">
+                      سؤال على فقرة
+                    </span>
                   )}
                 </div>
+                {hasAnswered && (
+                  <div>
+                    {isCorrect ? (
+                      <CheckCircle2 className="text-green-500 w-5 h-5" />
+                    ) : (
+                      <XCircle className="text-red-500 w-5 h-5" />
+                    )}
+                  </div>
+                )}
               </div>
-              {isCorrect ? (
-                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-              ) : (
-                <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-              )}
+
+              {/* جسم السؤال (بدون فقرة) */}
+              <div className="p-4 md:p-5">
+                {/* نص السؤال */}
+                <div
+                  className="text-base text-gray-800 font-medium prose prose-sm max-w-none leading-relaxed mb-4 [&_p]:m-0"
+                  dangerouslySetInnerHTML={{ __html: q.text }}
+                />
+
+                {/* الاختيارات */}
+                <div className="space-y-2.5">
+                  {q.options?.map((option, optIndex) => {
+                    const isSelected = selectedOptionId === option.id;
+                    const isActualCorrect = option.isCorrect;
+
+                    let optionStyle = "border-gray-200 bg-white";
+                    let letterStyle = "border-gray-300 text-gray-500";
+                    let Icon = null;
+
+                    if (isSelected && isActualCorrect) {
+                      optionStyle = "border-green-500 bg-green-50";
+                      letterStyle = "border-green-500 bg-green-500 text-white";
+                      Icon = (
+                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      );
+                    } else if (isSelected && !isActualCorrect) {
+                      optionStyle = "border-red-500 bg-red-50";
+                      letterStyle = "border-red-500 bg-red-500 text-white";
+                      Icon = (
+                        <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                      );
+                    } else if (!isSelected && isActualCorrect) {
+                      // === التعديل 2: إزالة border-dashed من الإجابة الصحيحة وجعلها صلبة ===
+                      optionStyle = "border-green-500 bg-green-50/40";
+                      letterStyle = "border-green-500 text-green-600";
+                      Icon = (
+                        <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={option.id}
+                        className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${optionStyle}`}
+                      >
+                        <div
+                          className={`w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 font-bold text-sm ${letterStyle}`}
+                        >
+                          {letters[optIndex] || optIndex + 1}
+                        </div>
+                        <span
+                          className={`flex-1 text-sm md:text-base ${
+                            isActualCorrect || isSelected
+                              ? "font-semibold text-gray-800"
+                              : "text-gray-600"
+                          } [&_p]:m-0`}
+                          dangerouslySetInnerHTML={{ __html: option.text }}
+                        />
+                        {Icon}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Suggestion Card Component - بدون تغيير
 const SuggestionCard = ({ suggestion, onGoToRound }) => (
