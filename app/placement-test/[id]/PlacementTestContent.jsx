@@ -340,7 +340,7 @@ const PlacementTestContent = () => {
         suggestion={previousSuggestion}
         onGoHome={handleGoHome}
         onGoToRound={handleGoToRound}
-        onRetake={handleRetakeTest} // أو null إذا لا تريد السماح بإعادة الاختبار
+        onRetake={handleRetakeTest}
       />
     );
   }

@@ -12,21 +12,19 @@ const MockTestReview = ({
   setActiveFilter,
   onSubmitExam,
   isSubmitting = false,
-  isFinalReview = false, // ✅ NEW
-  isLastSection = false, // ✅ NEW
-  onMoveToNextSection, // ✅ NEW
-  completedSections = new Set(), // ✅ NEW
+  isFinalReview = false,
+  isLastSection = false,
+  onMoveToNextSection,
+  completedSections = new Set(),
 }) => {
   const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [isConfirmSubmit, setIsConfirmSubmit] = useState(false);
 
-  // Get current section
   const currentSection =
     sections && sections[currentSectionIndex]
       ? sections[currentSectionIndex]
       : null;
 
-  // ✅ Calculate stats for current section only (not completed sections)
   const totalQuestionsInSection = currentSection
     ? currentSection.blocks.reduce(
         (bSum, block) => bSum + block.questions.length,
@@ -58,7 +56,6 @@ const MockTestReview = ({
   const incompleteQuestionsInSection =
     totalQuestionsInSection - completedQuestionsInSection;
 
-  // ✅ For final review - calculate all sections stats
   const totalQuestionsAll = sections.reduce(
     (sum, section) =>
       sum +
@@ -73,7 +70,6 @@ const MockTestReview = ({
     let questionNumber = 1;
 
     if (isFinalReview) {
-      // ✅ Final review - show all sections
       sections.forEach((section, sectionIndex) => {
         section.blocks.forEach((block, blockIndex) => {
           block.questions.forEach((question) => {
@@ -98,7 +94,6 @@ const MockTestReview = ({
         });
       });
     } else {
-      // ✅ Section review - show only current section
       if (currentSection) {
         currentSection.blocks.forEach((block, blockIndex) => {
           block.questions.forEach((question) => {
@@ -124,7 +119,6 @@ const MockTestReview = ({
       }
     }
 
-    // Apply filters
     switch (activeFilter) {
       case "flagged":
         questions = questions.filter((q) => q.isFlagged);
@@ -149,7 +143,6 @@ const MockTestReview = ({
   ]);
 
   const handleQuestionClick = (question) => {
-    // ✅ Only allow navigation for current section questions (not completed sections)
     if (
       !question.isCompleted &&
       question.sectionIndex === currentSectionIndex
@@ -192,20 +185,20 @@ const MockTestReview = ({
   };
 
   return (
-    <div className="min-h-screen bg-white pt-[48px] pb-[32px]">
-      <div className="container max-w-[1312px] mx-auto px-4">
-        {/* ✅ Dynamic title based on review type */}
-        <div className="text-center mb-[16px] justify-center text-text text-3xl font-bold leading-[50px]">
+    <div className="min-h-screen bg-white pt-6 sm:pt-8 md:pt-12 pb-4 sm:pb-6 md:pb-8 landscape:pt-3 landscape:pb-2 md:landscape:pt-8 md:landscape:pb-6">
+      <div className="container max-w-[1312px] mx-auto px-2 sm:px-4 md:px-6">
+        {/* Title */}
+        <div className="text-center mb-2 sm:mb-3 md:mb-4 text-text text-lg sm:text-2xl md:text-3xl landscape:text-base md:landscape:text-3xl font-bold leading-tight sm:leading-normal">
           {isFinalReview
             ? "المراجعة النهائية"
             : `مراجعة القسم ${currentSectionIndex + 1}`}
         </div>
 
-        {/* ✅ Section info for section review */}
+        {/* Section Title */}
         {!isFinalReview && currentSection && (
-          <div className="text-center mb-4">
+          <div className="text-center mb-2 sm:mb-3 md:mb-4 landscape:mb-1 md:landscape:mb-4">
             <div
-              className="text-xl text-primary font-semibold prose prose-neutral inline"
+              className="text-sm sm:text-lg md:text-xl landscape:text-xs md:landscape:text-xl text-primary font-semibold prose prose-neutral inline"
               dangerouslySetInnerHTML={{
                 __html: currentSection.title?.replaceAll(/&nbsp;/gi, " ") || "",
               }}
@@ -213,22 +206,26 @@ const MockTestReview = ({
           </div>
         )}
 
-        <div className="w-full px-6 py-4 bg-primary-light rounded-2xl inline-flex justify-start items-center gap-4 mb-[24px]">
-          <div className="flex justify-start items-center gap-4">
-            <InfoIcon />
-            <div className="text-right justify-center text-primary text-2xl font-semibold leading-[50px]">
+        {/* Instructions Box */}
+        <div className="w-full px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4 landscape:px-3 landscape:py-1.5 md:landscape:px-6 md:landscape:py-4 bg-primary-light rounded-xl sm:rounded-2xl inline-flex justify-start items-center gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 md:mb-6 landscape:mb-2 md:landscape:mb-6">
+          <div className="flex justify-start items-center gap-2 sm:gap-3 md:gap-4">
+            <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 landscape:w-3.5 landscape:h-3.5 md:landscape:w-6 md:landscape:h-6 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full">
+              <InfoIcon />
+            </div>
+            <div className="text-right text-primary text-sm sm:text-lg md:text-2xl landscape:text-xs md:landscape:text-2xl font-semibold leading-tight sm:leading-normal whitespace-nowrap">
               التعليمات
             </div>
           </div>
         </div>
 
-        <div className="text-right justify-center">
-          <span className="text-black text-base font-bold">
+        {/* Instructions Text */}
+        <div className="text-right mb-4 sm:mb-6 md:mb-8 landscape:mb-3 md:landscape:mb-8">
+          <span className="text-black text-xs sm:text-sm md:text-base landscape:text-[10px] md:landscape:text-base font-bold">
             {isFinalReview
               ? "فيما يلي ملخص جميع إجاباتك في الاختبار"
               : "فيما يلي ملخص إجاباتك في هذا القسم"}
           </span>
-          <span className="text-black text-base font-medium leading-loose">
+          <span className="text-black text-xs sm:text-sm md:text-base landscape:text-[10px] md:landscape:text-base font-medium leading-relaxed">
             <br />
             {!isFinalReview && (
               <>
@@ -253,21 +250,23 @@ const MockTestReview = ({
           </span>
         </div>
 
-        <div className="w-full px-6 py-4 bg-primary-light rounded-2xl inline-flex justify-between mt-[32px] items-center gap-4 mb-[24px]">
-          <div className="flex justify-start items-center gap-4">
-            <InfoIcon />
-            <div className="text-right justify-center text-primary text-2xl font-semibold leading-[50px]">
+        {/* Stats Box */}
+        <div className="w-full px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4 landscape:px-3 landscape:py-1.5 md:landscape:px-6 md:landscape:py-4 bg-primary-light rounded-xl sm:rounded-2xl inline-flex justify-between items-center gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 md:mb-6 landscape:mb-2 md:landscape:mb-6">
+          <div className="flex justify-start items-center gap-2 sm:gap-3 md:gap-4">
+            <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 landscape:w-3.5 landscape:h-3.5 md:landscape:w-6 md:landscape:h-6 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full">
+              <InfoIcon />
+            </div>
+            <div className="text-right text-primary text-sm sm:text-lg md:text-2xl landscape:text-xs md:landscape:text-2xl font-semibold leading-tight sm:leading-normal whitespace-nowrap">
               {isFinalReview ? "الاختبار" : "القسم"}
             </div>
           </div>
-          <div className="text-right justify-center text-text text-2xl font-semibold leading-[50px]">
+          <div className="text-right text-text text-sm sm:text-lg md:text-2xl landscape:text-xs md:landscape:text-2xl font-semibold leading-tight sm:leading-normal whitespace-nowrap">
             {getFilteredCount()} {getFilteredLabel()}
           </div>
         </div>
 
-        {/* ✅ Questions display */}
+        {/* Questions Grid */}
         {isFinalReview ? (
-          // Final review - group by sections
           sections.map((section, sectionIdx) => {
             const sectionQuestions = filteredQuestions.filter(
               (q) => q.sectionIndex === sectionIdx
@@ -279,11 +278,14 @@ const MockTestReview = ({
             const isCurrent = sectionIdx === currentSectionIndex;
 
             return (
-              <div key={sectionIdx} className="mb-8">
-                <div className="mb-4 px-4 py-2 bg-primary-light rounded-lg">
+              <div
+                key={sectionIdx}
+                className="mb-4 sm:mb-6 md:mb-8 landscape:mb-3 md:landscape:mb-8"
+              >
+                <div className="mb-2 sm:mb-3 md:mb-4 landscape:mb-1.5 md:landscape:mb-4 px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 landscape:py-0.5 md:landscape:py-2 bg-primary-light rounded-lg">
                   <div className="flex items-center justify-between">
                     <div
-                      className="text-right text-primary prose prose-neutral text-xl font-semibold"
+                      className="text-right text-primary prose prose-neutral text-sm sm:text-base md:text-xl landscape:text-xs md:landscape:text-xl font-semibold"
                       dangerouslySetInnerHTML={{
                         __html: section.title
                           ? section.title.replaceAll(/&nbsp;/gi, " ")
@@ -291,7 +293,13 @@ const MockTestReview = ({
                       }}
                     />
                     <div
-                      className={`text-sm ${isCompleted ? "text-green-600" : isCurrent ? "text-blue-600" : "text-gray-600"}`}
+                      className={`text-[10px] sm:text-xs md:text-sm landscape:text-[9px] md:landscape:text-sm ${
+                        isCompleted
+                          ? "text-green-600"
+                          : isCurrent
+                            ? "text-blue-600"
+                            : "text-gray-600"
+                      }`}
                     >
                       {isCompleted
                         ? "✓ مكتمل"
@@ -301,7 +309,7 @@ const MockTestReview = ({
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-2 border-[#E4E4E7] rounded-[30px] overflow-hidden">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 border-2 border-[#E4E4E7] rounded-2xl sm:rounded-[25px] md:rounded-[30px] overflow-hidden">
                   {sectionQuestions.map((question) => (
                     <Review
                       key={question.id}
@@ -315,8 +323,7 @@ const MockTestReview = ({
             );
           })
         ) : (
-          // Section review - single section
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-2 border-[#E4E4E7] rounded-[30px] overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 border-2 border-[#E4E4E7] rounded-2xl sm:rounded-[25px] md:rounded-[30px] overflow-hidden">
             {filteredQuestions.map((question) => (
               <Review
                 key={question.id}
@@ -328,30 +335,27 @@ const MockTestReview = ({
           </div>
         )}
 
-        {/* ✅ Action Buttons */}
-        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-          {/* Back to questions button - only for section review */}
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 md:gap-4 mt-4 sm:mt-6 md:mt-8 landscape:mt-3 md:landscape:mt-8">
           {!isFinalReview && (
             <button
               onClick={onBackToTest}
-              className="px-8 py-4 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors font-bold text-lg"
+              className="px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 landscape:px-4 landscape:py-1.5 md:landscape:px-8 md:landscape:py-4 bg-gray-200 text-gray-700 rounded-lg sm:rounded-xl hover:bg-gray-300 transition-colors font-bold text-sm sm:text-base md:text-lg landscape:text-xs md:landscape:text-lg"
             >
               العودة للأسئلة
             </button>
           )}
 
-          {/* Next Section / Submit button */}
           {isFinalReview ? (
-            // Final review - Submit button
             <button
               onClick={() => setIsConfirmSubmit(true)}
               disabled={isSubmitting}
-              className="px-12 py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              className="px-6 py-2 sm:px-8 sm:py-3 md:px-12 md:py-4 landscape:px-6 landscape:py-1.5 md:landscape:px-12 md:landscape:py-4 bg-green-600 text-white rounded-lg sm:rounded-xl hover:bg-green-700 transition-colors font-bold text-sm sm:text-base md:text-lg landscape:text-xs md:landscape:text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3"
             >
               {isSubmitting ? (
                 <>
                   <svg
-                    className="animate-spin h-5 w-5 text-white"
+                    className="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -375,7 +379,7 @@ const MockTestReview = ({
               ) : (
                 <>
                   <svg
-                    className="w-6 h-6"
+                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 landscape:w-3.5 landscape:h-3.5 md:landscape:w-6 md:landscape:h-6"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -392,15 +396,14 @@ const MockTestReview = ({
               )}
             </button>
           ) : (
-            // Section review - Next section button
             <button
               onClick={onMoveToNextSection}
-              className="px-12 py-4 bg-primary text-white rounded-xl hover:opacity-90 transition-colors font-bold text-lg flex items-center justify-center gap-3"
+              className="px-6 py-2 sm:px-8 sm:py-3 md:px-12 md:py-4 landscape:px-6 landscape:py-1.5 md:landscape:px-12 md:landscape:py-4 bg-primary text-white rounded-lg sm:rounded-xl hover:opacity-90 transition-colors font-bold text-sm sm:text-base md:text-lg landscape:text-xs md:landscape:text-lg flex items-center justify-center gap-2 sm:gap-3"
             >
               {isLastSection ? (
                 <>
                   <svg
-                    className="w-6 h-6"
+                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 landscape:w-3.5 landscape:h-3.5 md:landscape:w-6 md:landscape:h-6"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -417,7 +420,7 @@ const MockTestReview = ({
               ) : (
                 <>
                   <svg
-                    className="w-6 h-6 rotate-180"
+                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 landscape:w-3.5 landscape:h-3.5 md:landscape:w-6 md:landscape:h-6 rotate-180"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -436,20 +439,19 @@ const MockTestReview = ({
           )}
         </div>
 
-        {/* Warning message */}
+        {/* Warning Messages */}
         {!isFinalReview && (
-          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-center">
-            <p className="text-amber-800 font-medium">
+          <div className="mt-2 sm:mt-3 md:mt-4 landscape:mt-1.5 md:landscape:mt-4 p-2 sm:p-3 md:p-4 landscape:p-2 md:landscape:p-4 bg-amber-50 border border-amber-200 rounded-lg sm:rounded-xl text-center">
+            <p className="text-amber-800 font-medium text-xs sm:text-sm md:text-base landscape:text-[10px] md:landscape:text-base">
               تأكد من مراجعة جميع إجاباتك قبل الانتقال. لن تتمكن من العودة لهذا
               القسم.
             </p>
           </div>
         )}
 
-        {/* Warning if incomplete in final review */}
         {isFinalReview && incompleteQuestionsAll > 0 && (
-          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-center">
-            <p className="text-yellow-800 font-medium">
+          <div className="mt-2 sm:mt-3 md:mt-4 landscape:mt-1.5 md:landscape:mt-4 p-2 sm:p-3 md:p-4 landscape:p-2 md:landscape:p-4 bg-yellow-50 border border-yellow-200 rounded-lg sm:rounded-xl text-center">
+            <p className="text-yellow-800 font-medium text-xs sm:text-sm md:text-base landscape:text-[10px] md:landscape:text-base">
               لديك {incompleteQuestionsAll} سؤال غير مُجاب.
             </p>
           </div>
@@ -458,24 +460,24 @@ const MockTestReview = ({
 
       {/* Confirm Submit Modal */}
       {isConfirmSubmit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setIsConfirmSubmit(false)}
           />
-          <div className="relative bg-white rounded-[20px] p-8 max-w-md w-[90%] mx-auto shadow-2xl">
-            <h3 className="text-xl font-bold text-center mb-4">
+          <div className="relative bg-white rounded-2xl sm:rounded-[20px] p-4 sm:p-6 md:p-8 max-w-md w-full mx-auto shadow-2xl">
+            <h3 className="text-base sm:text-lg md:text-xl font-bold text-center mb-2 sm:mb-3 md:mb-4">
               تأكيد إرسال الاختبار
             </h3>
-            <p className="text-center text-gray-600 mb-6">
+            <p className="text-center text-gray-600 mb-4 sm:mb-5 md:mb-6 text-xs sm:text-sm md:text-base">
               {incompleteQuestionsAll > 0
                 ? `لديك ${incompleteQuestionsAll} سؤال غير مُجاب. هل أنت متأكد من إرسال الاختبار؟`
                 : "هل أنت متأكد من إرسال الاختبار؟ لن تتمكن من تعديل إجاباتك بعد الإرسال."}
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-2 sm:gap-3 md:gap-4">
               <button
                 onClick={() => setIsConfirmSubmit(false)}
-                className="flex-1 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50"
+                className="flex-1 py-2 sm:py-2.5 md:py-3 border-2 border-gray-300 text-gray-700 rounded-lg sm:rounded-xl font-medium hover:bg-gray-50 text-xs sm:text-sm md:text-base"
               >
                 إلغاء
               </button>
@@ -485,7 +487,7 @@ const MockTestReview = ({
                   onSubmitExam();
                 }}
                 disabled={isSubmitting || incompleteQuestionsAll > 0}
-                className="flex-1 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-2 sm:py-2.5 md:py-3 bg-green-600 text-white rounded-lg sm:rounded-xl font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm md:text-base"
               >
                 تأكيد الإرسال
               </button>
@@ -502,21 +504,23 @@ export default MockTestReview;
 export const Review = ({ question, onClick, isDisabled = false }) => {
   return (
     <div
-      className={`flex items-center justify-between border border-[#E4E4E7] !px-4 !py-6 transition-colors ${
+      className={`flex items-center justify-between border border-[#E4E4E7] px-2 py-3 sm:px-3 sm:py-4 md:!px-4 md:!py-6 landscape:px-2 landscape:py-2 md:landscape:!px-4 md:landscape:!py-6 transition-colors ${
         isDisabled
           ? "opacity-50 cursor-not-allowed bg-gray-100"
           : "cursor-pointer hover:bg-gray-50"
       }`}
       onClick={isDisabled ? undefined : onClick}
     >
-      <div className="flex items-center justify-start gap-2 relative">
-        {question.isFlagged ? <FilledFlagIcon /> : <OutlinedFlagIcon />}
-        <div className="relative w-fit font-medium text-text text-base text-right tracking-[0] leading-[normal] whitespace-nowrap [direction:rtl]">
+      <div className="flex items-center justify-start gap-1 sm:gap-1.5 md:gap-2 relative">
+        <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 landscape:w-3.5 landscape:h-3.5 md:landscape:w-6 md:landscape:h-6 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shrink-0">
+          {question.isFlagged ? <FilledFlagIcon /> : <OutlinedFlagIcon />}
+        </div>
+        <div className="font-medium text-text text-xs sm:text-sm md:text-base landscape:text-[10px] md:landscape:text-base text-right whitespace-nowrap [direction:rtl]">
           سؤال {question.questionNumber}
         </div>
       </div>
       <div
-        className={`justify-start text-base font-medium ${
+        className={`text-xs sm:text-sm md:text-base landscape:text-[10px] md:landscape:text-base font-medium whitespace-nowrap ${
           question.isAnswered ? "text-green-700" : "text-red-700"
         }`}
       >
@@ -527,7 +531,7 @@ export const Review = ({ question, onClick, isDisabled = false }) => {
 };
 
 const FilledFlagIcon = () => (
-  <svg width={24} height={24} viewBox="0 0 24 24" fill="none">
+  <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
     <path
       d="M5.5 3V21"
       stroke="#3B82F6"
@@ -553,7 +557,7 @@ const FilledFlagIcon = () => (
 );
 
 const OutlinedFlagIcon = () => (
-  <svg width={24} height={24} viewBox="0 0 24 24" fill="none">
+  <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none">
     <path
       d="M5.5 3V21"
       stroke="#3B82F6"

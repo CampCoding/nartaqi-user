@@ -11,35 +11,45 @@ const MockExamQuestion = ({
   currentSection,
 }) => {
   if (!block) {
-    return <div>جاري تحميل السؤال...</div>;
+    return <div className="text-[10px] sm:text-sm">جاري تحميل السؤال...</div>;
   }
 
+  // تصغير مقاسات الخطوط قليلاً للـ Landscape لتناسب الشاشة بالعرض
   const getFontSizeClass = (size) => {
     const sizeMap = {
-      small: "text-sm",
-      normal: "text-base",
-      large: "text-lg",
-      xlarge: "text-xl",
+      small: "text-[8px] sm:text-sm landscape:text-[8px]",
+      normal: "text-[9px] sm:text-base landscape:text-[9px]",
+      large: "text-[11px] sm:text-lg landscape:text-[11px]",
+      xlarge: "text-[12px] sm:text-xl landscape:text-[12px]",
     };
     return sizeMap[size] || sizeMap.normal;
   };
 
   const textSizeClass = getFontSizeClass(fontSize);
 
-  // For paragraph questions, show only the first question (since we split them into separate blocks)
   const currentQuestion =
     block.questions && block.questions.length > 0 ? block.questions[0] : null;
 
   return (
-    <div>
-      {/* Show passage if exists - fixed/sticky for paragraph questions */}
+    <div className="w-full">
+      {/* Show passage if exists */}
       {block.passage && (
         <div
-          className={`mb-6 ${block.type === "paragraph" ? "sticky top-0 bg-white z-10 pb-4 pt-2 border-b-2 border-gray-300 shadow-sm" : ""}`}
+          className={`mb-2 sm:mb-6 landscape:mb-1 ${
+            block.type === "paragraph"
+              ? "sticky top-0 bg-white z-10 pb-1 sm:pb-4 pt-1 sm:pt-2 border-b sm:border-b-2 border-gray-300 shadow-sm"
+              : ""
+          }`}
         >
-          <div className="mb-3 text-sm font-bold text-primary">الفقرة:</div>
+          <div className="mb-1 sm:mb-3 text-[9px] sm:text-sm landscape:text-[8px] font-bold text-primary">
+            الفقرة:
+          </div>
           <div
-            className={`w-full flex items-center font-medium text-zinc-600 ${textSizeClass} tracking-[0] leading-relaxed [direction:rtl] ${block.type === "paragraph" ? "max-h-[250px] overflow-y-auto pr-2" : ""}`}
+            className={`w-full font-medium text-zinc-600 ${textSizeClass} tracking-[0] leading-tight sm:leading-relaxed landscape:leading-snug [direction:rtl] block ${
+              block.type === "paragraph"
+                ? "max-h-[100px] sm:max-h-[250px] landscape:max-h-[80px] overflow-y-auto pr-1 sm:pr-2 custom-scroll"
+                : ""
+            }`}
             dangerouslySetInnerHTML={{
               __html: block?.passage?.replaceAll(/&nbsp;/gi, " "),
             }}
@@ -49,7 +59,7 @@ const MockExamQuestion = ({
 
       {/* Show only one question at a time */}
       {currentQuestion ? (
-        <div className="mt-6">
+        <div className="mt-1 sm:mt-6 landscape:mt-1 w-full">
           <SingleQuestion
             key={currentQuestion.id}
             questionData={currentQuestion}
@@ -62,7 +72,7 @@ const MockExamQuestion = ({
           />
         </div>
       ) : (
-        <div>لا يوجد سؤال متاح</div>
+        <div className="text-[10px] sm:text-sm">لا يوجد سؤال متاح</div>
       )}
     </div>
   );
@@ -83,10 +93,10 @@ export const SingleQuestion = ({
 
   const getFontSizeClass = (size) => {
     const sizeMap = {
-      small: "text-sm",
-      normal: "text-base",
-      large: "text-lg",
-      xlarge: "text-xl",
+      small: "text-[8px] sm:text-sm landscape:text-[7px]",
+      normal: "text-[9px] sm:text-base landscape:text-[8px]",
+      large: "text-[11px] sm:text-lg landscape:text-[10px]",
+      xlarge: "text-[12px] sm:text-xl landscape:text-[11px]",
     };
     return sizeMap[size] || sizeMap.normal;
   };
@@ -94,30 +104,18 @@ export const SingleQuestion = ({
   const textSizeClass = getFontSizeClass(fontSize);
 
   return (
-    <div className="py-2.5 relative">
-      {/* {selectedAnswer && (
-          <div
-            className={`bg-green-100 w-fit whitespace-nowrap text-green-800 px-3 py-1 rounded-full ${textSizeClass} font-medium`}
-          >
-            تم الإجابة
-          </div>
-        )} */}
+    <div className="relative w-full">
+      <div
+        className={`mb-2 sm:mb-5 landscape:mb-1 prose prose-neutral max-w-none ${textSizeClass} [&_p]:text-inherit [&_span]:text-inherit leading-tight sm:leading-normal landscape:leading-snug`}
+        dangerouslySetInnerHTML={{ __html: questionData.text }}
+      />
 
-      <p>
-        {/* السؤال {questionNumber}: */}
-        {/* <br /> */}
-        <div
-          className="mb-5 prose prose-neutral "
-          dangerouslySetInnerHTML={{ __html: questionData.text }}
-        />
-      </p>
-
-      <fieldset className="flex-col items-start flex gap-4 relative self-stretch w-full flex-[0_0_auto]">
+      <fieldset className="flex-col items-start flex gap-1.5 sm:gap-4 landscape:gap-1 relative self-stretch w-full flex-[0_0_auto]">
         <legend className="sr-only">اختر الإجابة الصحيحة</legend>
         {questionData.options.map((option) => (
           <label
             key={option.id}
-            className="items-center justify-start px-0 py-2 flex gap-4 relative self-stretch w-full flex-[0_0_auto] cursor-pointer hover:bg-gray-50 transition-colors duration-200"
+            className="items-start sm:items-center justify-start px-1 sm:px-0 py-1 sm:py-2 landscape:py-0.5 flex gap-1.5 sm:gap-4 landscape:gap-1 relative self-stretch w-full flex-[0_0_auto] cursor-pointer hover:bg-gray-50 transition-colors duration-200 rounded sm:rounded-none"
           >
             <input
               type="radio"
@@ -125,10 +123,10 @@ export const SingleQuestion = ({
               value={option.id}
               checked={selectedAnswer === option.id}
               onChange={() => handleOptionChange(option.id)}
-              className="w-5 h-5 border-2 border-text-alt checked:bg-primary rounded-full checked:border-primary cursor-pointer"
+              className="w-3 h-3 sm:w-5 sm:h-5 landscape:w-2.5 landscape:h-2.5 mt-0.5 sm:mt-0 shrink-0 border-[1.5px] sm:border-2 border-text-alt checked:bg-primary rounded-full checked:border-primary cursor-pointer"
             />
             <span
-              className={`relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-black ${textSizeClass} tracking-[0] leading-[normal] [direction:rtl]`}
+              className={`relative flex items-center justify-start w-fit font-medium text-black ${textSizeClass} tracking-[0] leading-tight sm:leading-[normal] landscape:leading-snug [direction:rtl] [&_p]:text-inherit [&_span]:text-inherit`}
             >
               <div dangerouslySetInnerHTML={{ __html: option.text }} />
             </span>

@@ -48,6 +48,7 @@ import {
   selectStudentId,
   selectSectionProgressText,
 } from "../../../../components/utils/Store/Slices/mockExamSlice";
+import toast from "react-hot-toast";
 
 /* =========================
    UI: No Access Screen
@@ -73,7 +74,6 @@ const NoAccessScreen = ({ onBack, onHome }) => {
             </svg>
           </div>
         </div>
-
         <h2 className="text-2xl font-bold text-text mb-3">
           لا تملك صلاحية الوصول
         </h2>
@@ -83,7 +83,6 @@ const NoAccessScreen = ({ onBack, onHome }) => {
           قد يكون السبب أنك غير مشترك في الدورة أو ليس لديك تصريح للوصول
           للاختبار.
         </p>
-
         <div className="flex flex-col gap-3">
           <button
             onClick={onBack}
@@ -106,7 +105,6 @@ const NoAccessScreen = ({ onBack, onHome }) => {
 // Already Solved Popup
 const AlreadySolvedPopup = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
@@ -186,20 +184,18 @@ const MockTest = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [noAccess, setNoAccess] = useState(false);
   const [isInReview, setIsInReview] = useState(false);
-  const [isFinalReview, setIsFinalReview] = useState(false); // ✅ NEW: للتفريق بين مراجعة القسم والمراجعة النهائية
+  const [isFinalReview, setIsFinalReview] = useState(false);
   const [fontSize, setFontSize] = useState("normal");
   const [activeFilter, setActiveFilter] = useState("all");
   const [isConfirmSectionEnd, setIsConfirmSectionEnd] = useState(false);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [enteredSections, setEnteredSections] = useState(new Set());
-  const [completedSections, setCompletedSections] = useState(new Set()); // ✅ NEW: الأقسام المكتملة
+  const [completedSections, setCompletedSections] = useState(new Set());
 
-  // Fetch exam data
   const fetchMockTestData = useCallback(async () => {
     setIsLoading(true);
     setNoAccess(false);
-
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -207,13 +203,11 @@ const MockTest = () => {
         router.back();
         return;
       }
-
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/get_mock_exam_sectionsWithQuestions`,
         { exam_id: id, student_id: user?.user?.id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       if (
         response?.data?.status === "failed" &&
         response?.data?.message === "no_access"
@@ -221,7 +215,6 @@ const MockTest = () => {
         setNoAccess(true);
         return;
       }
-
       if (response.data.status === "success") {
         dispatch(
           initializeExam({
@@ -231,8 +224,6 @@ const MockTest = () => {
             examInfo: response.data.message.exam_info,
           })
         );
-
-        // Try to restore saved state
         const savedState = localStorage.getItem(`mock_exam_state_${id}`);
         if (savedState) {
           try {
@@ -242,13 +233,10 @@ const MockTest = () => {
               if (parsed.currentSectionIndex !== undefined) {
                 const restoredEntered = new Set();
                 const restoredCompleted = new Set();
-                for (let i = 0; i <= parsed.currentSectionIndex; i++) {
+                for (let i = 0; i <= parsed.currentSectionIndex; i++)
                   restoredEntered.add(i);
-                }
-                // Mark previous sections as completed
-                for (let i = 0; i < parsed.currentSectionIndex; i++) {
+                for (let i = 0; i < parsed.currentSectionIndex; i++)
                   restoredCompleted.add(i);
-                }
                 setEnteredSections(restoredEntered);
                 setCompletedSections(restoredCompleted);
               }
@@ -259,18 +247,15 @@ const MockTest = () => {
         }
       }
     } catch (error) {
-      const msg = error?.response?.data?.message;
-      if (msg === "no_access") {
+      if (error?.response?.data?.message === "no_access") {
         setNoAccess(true);
         return;
       }
-      console.error("Error loading exam:", error);
     } finally {
       setIsLoading(false);
     }
   }, [id, user?.user?.id, dispatch, router]);
 
-  // Initial fetch
   useEffect(() => {
     if (id) {
       dispatch(resetExam());
@@ -278,18 +263,12 @@ const MockTest = () => {
     }
   }, [id, fetchMockTestData, dispatch]);
 
-  // Timer effect
   useEffect(() => {
     if (!isStarted || isInReview || isSubmitted) return;
-
-    const timer = setInterval(() => {
-      dispatch(decrementTime());
-    }, 1000);
-
+    const timer = setInterval(() => dispatch(decrementTime()), 1000);
     return () => clearInterval(timer);
   }, [isStarted, isInReview, isSubmitted, currentSectionIndex, dispatch]);
 
-  // Save state to localStorage
   useEffect(() => {
     if (isStarted && !isSubmitted && sections.length > 0) {
       localStorage.setItem(
@@ -302,19 +281,13 @@ const MockTest = () => {
     }
   }, [stateForSave, isStarted, isSubmitted, sections, id, completedSections]);
 
-  // ✅ Check if all questions in CURRENT SECTION are answered
   const areAllCurrentSectionQuestionsAnswered = () => {
     if (!currentSection || !currentSection.blocks) return false;
-
     const allQuestionIds = [];
-    currentSection.blocks.forEach((block) => {
-      block.questions?.forEach((q) => {
-        allQuestionIds.push(q.id);
-      });
-    });
-
+    currentSection.blocks.forEach((block) =>
+      block.questions?.forEach((q) => allQuestionIds.push(q.id))
+    );
     if (allQuestionIds.length === 0) return false;
-
     return allQuestionIds.every(
       (questionId) =>
         answeredMap[questionId] !== undefined &&
@@ -322,19 +295,14 @@ const MockTest = () => {
     );
   };
 
-  // ✅ Check if ALL exam questions are answered
   const areAllExamQuestionsAnswered = () => {
     const allQuestionIds = [];
-    sections.forEach((section) => {
-      section.blocks?.forEach((block) => {
-        block.questions?.forEach((q) => {
-          allQuestionIds.push(q.id);
-        });
-      });
-    });
-
+    sections.forEach((section) =>
+      section.blocks?.forEach((block) =>
+        block.questions?.forEach((q) => allQuestionIds.push(q.id))
+      )
+    );
     if (allQuestionIds.length === 0) return false;
-
     return allQuestionIds.every(
       (questionId) =>
         answeredMap[questionId] !== undefined &&
@@ -342,162 +310,117 @@ const MockTest = () => {
     );
   };
 
-  // ✅ Get unanswered count for current section
   const getUnansweredCountInCurrentSection = () => {
     if (!currentSection || !currentSection.blocks) return 0;
-
-    return currentSection.blocks.reduce((count, block) => {
-      return (
+    return currentSection.blocks.reduce(
+      (count, block) =>
         count +
         (block.questions?.filter(
           (q) => answeredMap[q.id] === undefined || answeredMap[q.id] === null
-        ).length || 0)
-      );
-    }, 0);
+        ).length || 0),
+      0
+    );
   };
 
-  // Submit exam to API
   const handleSubmitExam = async () => {
     if (isSubmitting) return;
-
     if (!areAllExamQuestionsAnswered()) {
       const unansweredCount =
-        sections?.reduce((count, section) => {
-          return (
+        sections?.reduce(
+          (count, section) =>
             count +
-            (section.blocks?.reduce((bCount, block) => {
-              return (
+            (section.blocks?.reduce(
+              (bCount, block) =>
                 bCount +
                 (block.questions?.filter(
                   (q) =>
                     answeredMap[q.id] === undefined ||
                     answeredMap[q.id] === null
-                ).length || 0)
-              );
-            }, 0) || 0)
-          );
-        }, 0) || 0;
-
+                ).length || 0),
+              0
+            ) || 0),
+          0
+        ) || 0;
       alert(
         `لا يمكنك إرسال الاختبار قبل حل جميع الأسئلة. لديك ${unansweredCount} سؤال غير مُجاب.`
       );
       return;
     }
-
     setIsSubmitting(true);
-
     try {
       dispatch(submitExam());
-
       const token = localStorage.getItem("token");
-
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/storeStudentAnswers`,
-        {
-          student_id: studentId,
-          exam_id: examId,
-          answers: formattedAnswers,
-        },
+        { student_id: studentId, exam_id: examId, answers: formattedAnswers },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      const scoreToSubmit = `${
-        formattedAnswers.filter((a) => a.is_correct).length
-      }/${totalQuestions}`;
-
+      const scoreToSubmit = `${formattedAnswers.filter((a) => a.is_correct).length}/${totalQuestions}`;
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/storeStudentScore`,
-        {
-          student_id: studentId,
-          exam_id: examId,
-          score: scoreToSubmit,
-        },
+        { student_id: studentId, exam_id: examId, score: scoreToSubmit },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       localStorage.removeItem(`mock_exam_state_${id}`);
       setIsSuccessOpen(true);
     } catch (error) {
-      console.error("Error submitting exam:", error);
       alert("حدث خطأ أثناء حفظ الإجابات. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleAnswerSelect = (questionId, optionId) => {
+  const handleAnswerSelect = (questionId, optionId) =>
     dispatch(setAnswer({ questionId, optionId }));
-  };
 
-  // ✅ Navigation - Updated
   const handleNextBlock = () => {
-    // If at VerbalSection (section not entered yet), enter the section
     if (!enteredSections.has(currentSectionIndex)) {
       setEnteredSections((prev) => new Set(prev).add(currentSectionIndex));
       return;
     }
-
-    // Normal navigation between blocks
-    if (!isLastBlockInSection) {
+    if (!isLastBlockInSection)
       dispatch(setCurrentBlockIndex(currentBlockIndex + 1));
-    } else {
-      // ✅ End of section - show section review
-      setIsConfirmSectionEnd(true);
-    }
+    else setIsConfirmSectionEnd(true);
   };
 
   const handlePreviousBlock = () => {
-    // Only allow navigation within current section
-    if (currentBlockIndex > 0) {
+    if (currentBlockIndex > 0)
       dispatch(setCurrentBlockIndex(currentBlockIndex - 1));
-    }
   };
 
-  // ✅ Handle moving to next section after review
   const handleMoveToNextSection = () => {
     if (!isLastSection) {
-      // Mark current section as completed
       setCompletedSections((prev) => new Set(prev).add(currentSectionIndex));
-
-      const nextSectionIndex = currentSectionIndex + 1;
-      dispatch(setCurrentSectionIndex(nextSectionIndex));
+      dispatch(setCurrentSectionIndex(currentSectionIndex + 1));
       dispatch(setCurrentBlockIndex(0));
       setIsInReview(false);
       setIsFinalReview(false);
     } else {
-      // Last section - go to final review
       setCompletedSections((prev) => new Set(prev).add(currentSectionIndex));
       setIsFinalReview(true);
       setIsInReview(true);
     }
   };
 
-  // ✅ Confirm section end - go to section review
   const handleConfirmSectionEnd = () => {
-    // Check if all questions are answered
     if (!areAllCurrentSectionQuestionsAnswered()) {
-      const unansweredCount = getUnansweredCountInCurrentSection();
-      alert(
-        `يجب الإجابة على جميع الأسئلة في هذا القسم قبل الانتقال. لديك ${unansweredCount} سؤال غير مُجاب.`
+      toast.error(
+        `يجب الإجابة على جميع الأسئلة في هذا القسم قبل الانتقال. لديك ${getUnansweredCountInCurrentSection()} سؤال غير مُجاب.`
       );
       setIsConfirmSectionEnd(false);
       return;
     }
-
     setIsConfirmSectionEnd(false);
     setIsInReview(true);
     setIsFinalReview(false);
   };
 
-  // ✅ Go back to questions from section review
   const handleBackToQuestions = () => {
     setIsInReview(false);
     setIsFinalReview(false);
   };
 
-  // ✅ Navigate to question from review (only within current section)
   const handleNavigateToQuestion = (sectionIdx, blockIdx) => {
-    // Only allow navigation within current section (not completed sections)
     if (
       sectionIdx === currentSectionIndex &&
       !completedSections.has(sectionIdx)
@@ -510,8 +433,7 @@ const MockTest = () => {
 
   const handleMarkForReview = () => {
     if (!currentBlock) return;
-    const questionIds = currentBlock.questions.map((q) => q.id);
-    dispatch(toggleBlockFlag(questionIds));
+    dispatch(toggleBlockFlag(currentBlock.questions.map((q) => q.id)));
   };
 
   const handleStartExam = () => {
@@ -523,17 +445,11 @@ const MockTest = () => {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
-
-    if (h > 0) {
-      return `${String(h).padStart(2, "0")}:${String(m).padStart(
-        2,
-        "0"
-      )}:${String(s).padStart(2, "0")}`;
-    }
+    if (h > 0)
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-primary">
@@ -547,18 +463,14 @@ const MockTest = () => {
     );
   }
 
-  // No access
-  if (noAccess) {
+  if (noAccess)
     return (
       <NoAccessScreen
         onBack={() => router.back()}
         onHome={() => router.push("/")}
       />
     );
-  }
-
-  // No sections
-  if (!sections || sections.length === 0) {
+  if (!sections || sections.length === 0)
     return (
       <div className="flex items-center justify-center h-screen bg-primary">
         <div className="text-white text-2xl font-bold">
@@ -566,51 +478,54 @@ const MockTest = () => {
         </div>
       </div>
     );
-  }
 
   return (
-    <div className="bg-primary min-h-screen">
-      <MockExamHeader
-        examInfo={examInfo}
-        drawerPlacement="right"
-        isInReview={isInReview}
-        setIsInReview={setIsInReview}
-        timeRemaining={formatTime(timeRemaining)}
-        questionProgress={sectionProgressText}
-        onMarkForReview={handleMarkForReview}
-        isMarkedForReview={isCurrentBlockMarked}
-        fontSize={fontSize}
-        onFontSizeChange={setFontSize}
-        currentSection={currentSection}
-      />
+    <div className="bg-[#f8f9fa] flex flex-col h-[100dvh] overflow-hidden w-full">
+      <div className="shrink-0 w-full z-20">
+        <MockExamHeader
+          examInfo={examInfo}
+          drawerPlacement="right"
+          isInReview={isInReview}
+          setIsInReview={setIsInReview}
+          timeRemaining={formatTime(timeRemaining)}
+          questionProgress={sectionProgressText}
+          onMarkForReview={handleMarkForReview}
+          isMarkedForReview={isCurrentBlockMarked}
+          fontSize={fontSize}
+          onFontSizeChange={setFontSize}
+          currentSection={currentSection}
+        />
+      </div>
 
       {isInReview ? (
-        <MockTestReview
-          sections={sections}
-          currentSectionIndex={currentSectionIndex}
-          answers={answeredMap}
-          setIsInReview={setIsInReview}
-          markedForReview={
-            new Set(
-              Object.keys(flaggedMap)
-                .filter((k) => flaggedMap[k])
-                .map((k) => parseInt(k))
-            )
-          }
-          onNavigateToQuestion={handleNavigateToQuestion}
-          onBackToTest={handleBackToQuestions}
-          activeFilter={activeFilter}
-          setActiveFilter={setActiveFilter}
-          onSubmitExam={handleSubmitExam}
-          isSubmitting={isSubmitting}
-          isFinalReview={isFinalReview}
-          isLastSection={isLastSection}
-          onMoveToNextSection={handleMoveToNextSection}
-          completedSections={completedSections}
-        />
+        <div className="flex-1 overflow-y-auto w-full bg-white">
+          <MockTestReview
+            sections={sections}
+            currentSectionIndex={currentSectionIndex}
+            answers={answeredMap}
+            setIsInReview={setIsInReview}
+            markedForReview={
+              new Set(
+                Object.keys(flaggedMap)
+                  .filter((k) => flaggedMap[k])
+                  .map((k) => parseInt(k))
+              )
+            }
+            onNavigateToQuestion={handleNavigateToQuestion}
+            onBackToTest={handleBackToQuestions}
+            activeFilter={activeFilter}
+            setActiveFilter={setActiveFilter}
+            onSubmitExam={handleSubmitExam}
+            isSubmitting={isSubmitting}
+            isFinalReview={isFinalReview}
+            isLastSection={isLastSection}
+            onMoveToNextSection={handleMoveToNextSection}
+            completedSections={completedSections}
+          />
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 h-auto md:h-[calc(100vh-235px)]">
-          <div className="bg-white px-6 md:px-16 overflow-y-auto custom-scroll py-8">
+        <div className="flex flex-row w-full flex-1 overflow-hidden" dir="rtl">
+          <div className="w-[49%] h-full bg-white px-2 py-2 sm:px-4 landscape:py-0.5 md:landscape:py-6 sm:py-6 md:px-12 overflow-y-auto custom-scroll">
             {isStarted &&
             currentBlock &&
             enteredSections.has(currentSectionIndex) ? (
@@ -632,18 +547,22 @@ const MockTest = () => {
             )}
           </div>
 
-          <div className="bg-white p-8 md:p-16 flex items-start">
+          <div className="w-[2%] max-w-[8px] min-w-[3px] sm:min-w-[6px] bg-[#00A1E4] shrink-0 h-full"></div>
+
+          <div className="w-[49%] h-full bg-white px-2 py-2 sm:px-4 landscape:py-0.5 md:landscape:py-6 sm:py-6 md:px-12 overflow-y-auto custom-scroll flex flex-col items-start">
             {isStarted && currentSection && (
               <div
-                className={`text-right text-[#be1919] ${
-                  fontSize === "small"
-                    ? "text-sm"
-                    : fontSize === "large"
-                      ? "text-lg"
-                      : fontSize === "xlarge"
-                        ? "text-xl"
-                        : "text-base"
-                } leading-relaxed`}
+                className={`text-right text-[#be1919] w-full 
+                  ${
+                    fontSize === "small"
+                      ? "text-[8px] sm:text-[10px] md:text-xs lg:text-sm landscape:text-[7px] md:landscape:text-xs"
+                      : fontSize === "large"
+                        ? "text-[10px] sm:text-xs md:text-lg lg:text-xl landscape:text-[9px] md:landscape:text-lg"
+                        : fontSize === "xlarge"
+                          ? "text-[12px] sm:text-sm md:text-xl lg:text-2xl landscape:text-[10px] md:landscape:text-xl"
+                          : "text-[9px] sm:text-[11px] md:text-base lg:text-lg landscape:text-[8px] md:landscape:text-base"
+                  } 
+                  leading-tight sm:leading-snug md:leading-relaxed landscape:leading-tight md:landscape:leading-relaxed`}
               >
                 {enteredSections.has(currentSectionIndex) &&
                 currentBlock?.questions?.[0] ? (
@@ -660,7 +579,6 @@ const MockTest = () => {
                         }}
                       />
                     )}
-
                     {!currentBlock.questions[0].description &&
                       currentBlock.questions[0].instructions && (
                         <p
@@ -678,15 +596,17 @@ const MockTest = () => {
                 ) : (
                   <>
                     <h3
-                      className={`prose prose-neutral ${
-                        fontSize === "small"
-                          ? "text-lg"
-                          : fontSize === "large"
-                            ? "text-xl"
-                            : fontSize === "xlarge"
-                              ? "text-2xl"
-                              : "text-lg"
-                      } font-bold w-full grid grid-cols-1 mb-4 !whitespace-normal`}
+                      className={`prose prose-neutral font-bold w-full grid grid-cols-1 mb-1 sm:mb-4 landscape:mb-0.5 md:landscape:mb-4 !whitespace-normal
+                        ${
+                          fontSize === "small"
+                            ? "text-[10px] sm:text-xs md:text-lg landscape:text-[9px] md:landscape:text-lg"
+                            : fontSize === "large"
+                              ? "text-[12px] sm:text-sm md:text-xl landscape:text-[11px] md:landscape:text-xl"
+                              : fontSize === "xlarge"
+                                ? "text-[14px] sm:text-base md:text-2xl landscape:text-[12px] md:landscape:text-2xl"
+                                : "text-[11px] sm:text-[13px] md:text-lg lg:text-xl landscape:text-[10px] md:landscape:text-lg"
+                        }
+                      `}
                       dangerouslySetInnerHTML={{
                         __html: currentSection.title.replaceAll(
                           /&nbsp;/gi,
@@ -712,46 +632,41 @@ const MockTest = () => {
         </div>
       )}
 
-      <MockTestFooter
-        isStart={isStarted}
-        isInReview={isInReview}
-        setIsInReview={setIsInReview}
-        setIsStart={handleStartExam}
-        onPrevious={handlePreviousBlock}
-        onNext={handleNextBlock}
-        canGoPrevious={currentBlockIndex > 0}
-        canGoNext={true}
-        isLastQuestion={isLastBlockInSection}
-        isLastSection={isLastSection}
-        fontSize={fontSize}
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
-      />
+      <div className="shrink-0 w-full z-10 border-t border-white/20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <MockTestFooter
+          isStart={isStarted}
+          isInReview={isInReview}
+          setIsInReview={setIsInReview}
+          setIsStart={handleStartExam}
+          onPrevious={handlePreviousBlock}
+          onNext={handleNextBlock}
+          canGoPrevious={currentBlockIndex > 0}
+          canGoNext={true}
+          isLastQuestion={isLastBlockInSection}
+          isLastSection={isLastSection}
+          fontSize={fontSize}
+          activeFilter={activeFilter}
+          setActiveFilter={setActiveFilter}
+        />
+      </div>
 
       <ConfirmationPopup
         isOpen={isConfirmSectionEnd}
         onClose={() => setIsConfirmSectionEnd(false)}
         onConfirm={handleConfirmSectionEnd}
         title="إنهاء القسم"
-        message={(() => {
-          const unansweredCount = getUnansweredCountInCurrentSection();
-
-          if (unansweredCount > 0) {
-            return `يجب الإجابة على جميع الأسئلة في هذا القسم قبل الانتقال. لديك ${unansweredCount} سؤال غير مُجاب.`;
-          }
-
-          return "هل أنت متأكد من إنهاء هذا القسم والانتقال إلى صفحة مراجعة القسم؟";
-        })()}
-        confirmText={(() => {
-          const unansweredCount = getUnansweredCountInCurrentSection();
-          if (unansweredCount > 0) {
-            return "إغلاق";
-          }
-          return "الانتقال للمراجعة";
-        })()}
+        message={
+          getUnansweredCountInCurrentSection() > 0
+            ? `يجب الإجابة على جميع الأسئلة في هذا القسم قبل الانتقال. لديك ${getUnansweredCountInCurrentSection()} سؤال غير مُجاب.`
+            : "هل أنت متأكد من إنهاء هذا القسم والانتقال إلى صفحة مراجعة القسم؟"
+        }
+        confirmText={
+          getUnansweredCountInCurrentSection() > 0
+            ? "إغلاق"
+            : "الانتقال للمراجعة"
+        }
         cancelText="إلغاء"
       />
-
       <SuccessPopup
         isOpen={isSuccessOpen}
         onClose={() => {
