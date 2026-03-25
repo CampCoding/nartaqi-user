@@ -1,22 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
-import CourseTitle from "./../../components/CourseDetailsPage/CourseTitle";
-import CheckoutSummery from "../../components/CheckoutPage/CheckoutSummery";
-import { CheckoutTabs } from "../../components/CheckoutPage/CheckoutTabs";
+import CourseTitle from "./../../../components/CourseDetailsPage/CourseTitle";
+import CheckoutSummery from "../../../components/CheckoutPage/CheckoutSummery";
+import { CheckoutTabs } from "../../../components/CheckoutPage/CheckoutTabs";
 import {
   ApplePayIcon,
   CrditIcon,
   DisabledRadioButton,
   EnabledRadioButton,
-} from "../../public/svgs";
+} from "../../../public/svgs";
 import { Check } from "lucide-react";
-import { ElectronicPayment } from "../../components/CheckoutPage/ElectronicPayment";
-import InstallmentCheckout from "../../components/CheckoutPage/InstallmentCheckout";
-import BankCard from "../../components/CheckoutPage/BankCard";
-import CheckoutBanksSection from "../../components/CheckoutPage/CheckoutBanksSection";
+import { ElectronicPayment } from "../../../components/CheckoutPage/ElectronicPayment";
+import InstallmentCheckout from "../../../components/CheckoutPage/InstallmentCheckout";
+import BankCard from "../../../components/CheckoutPage/BankCard";
+import CheckoutBanksSection from "../../../components/CheckoutPage/CheckoutBanksSection";
 import Link from "next/link";
-import Container from "../../components/ui/Container";
+import Container from "../../../components/ui/Container";
 
 const CheckoutPage = () => {
   const [selectedTab, setSelectedTap] = useState("");
