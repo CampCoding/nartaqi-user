@@ -199,7 +199,7 @@ const PoliciesSections = ({
           )}
 
           {!loading && !error && (
-            <div className="font-medium text-text-alt text-lg md:text-xl leading-loose whitespace-pre-line">
+            <div className="font-medium w-full text-text-alt text-lg md:text-xl leading-loose">
               {/* ✅ لو رجع HTML من الـ backend وعايز تعرضه كـ HTML قولّي */}
 
               <div

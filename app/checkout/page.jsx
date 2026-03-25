@@ -1,294 +1,487 @@
 "use client";
 
-import React, { useState } from "react";
-import CourseTitle from "./../../components/CourseDetailsPage/CourseTitle";
-import CheckoutSummery from "../../components/CheckoutPage/CheckoutSummery";
-import { CheckoutTabs } from "../../components/CheckoutPage/CheckoutTabs";
-import {
-  ApplePayIcon,
-  CrditIcon,
-  DisabledRadioButton,
-  EnabledRadioButton,
-} from "../../public/svgs";
-import { Check } from "lucide-react";
-import { ElectronicPayment } from "../../components/CheckoutPage/ElectronicPayment";
-import InstallmentCheckout from "../../components/CheckoutPage/InstallmentCheckout";
-import BankCard from "../../components/CheckoutPage/BankCard";
-import CheckoutBanksSection from "../../components/CheckoutPage/CheckoutBanksSection";
-import Link from "next/link";
-import Container from "../../components/ui/Container";
+import React, { useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import { EgyptianIcon, SaudiIcon } from "../../public/svgs";
 
-const CheckoutPage = () => {
-  const [selectedTab, setSelectedTap] = useState("");
+export default function CheckoutPage() {
+  const router = useRouter();
 
-  return (
-    <Container className="!mx-auto">
-      <CourseTitle
-        title={"الدفع"}
-        breadcrumbs={[
-          { title: "الرئيسية", link: "/" },
-          { title: "السلة", link: "/cart" },
-          { title: "الدفع", link: "/#" },
-        ]}
-      />
-      <CheckoutSummery />
-      <div className="mt-[48px] flex flex-col gap-[24px] mb-[88px]">
-        <CheckoutTabs onChange={(val) => setSelectedTap(val)} />
-        <div className="flex flex-col ">
-          {(() => {
-            switch (selectedTab) {
-              case "electronic":
-                return <ElectronicPayment />;
-              case "installment":
-                return <InstallmentCheckout />;
-              case "bank":
-                return <CheckoutBanksSection />;
-            }
-          })()}
-          <Link
-            href={"/success-checkout"}
-            className="flex items-center justify-center px-6 sm:px-8 md:px-12 lg:px-16 py-3 sm:py-4 md:py-5 cursor-pointer transition hover:bg-secondary-dark bg-secondary rounded-[15px] sm:rounded-[20px] md:rounded-[25px] focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 w-full max-w-sm sm:max-w-md md:max-w-lg mx-auto"
-          >
-            <h1 className="font-bold text-white text-base sm:text-lg md:text-xl lg:text-2xl tracking-[0] leading-normal whitespace-nowrap">
-              تأكيد الدفع
-            </h1>
-          </Link>
-        </div>
-      </div>
-    </Container>
-  );
-};
+  // جلب التوكن من الـ Redux
+  const { token: reduxToken } = useSelector((state) => state.auth);
 
-export default CheckoutPage;
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [courseData, setCourseData] = useState(null);
+  const [userToken, setUserToken] = useState(null);
 
-// import image from "./image.svg";
-// import vector2 from "./vector-2.svg";
+  // States for the form
+  const [activeTab, setActiveTab] = useState("bank"); // 'electronic' | 'bank' | 'installment'
+  const [accountName, setAccountName] = useState("");
+  const [selectedBank, setSelectedBank] = useState("");
+  const [receiptImage, setReceiptImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null); // ✅ حالة لمعاينة الصورة
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-export const CriditFrame = () => {
-  const [formData, setFormData] = useState({
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-    cardholderName: "",
-    saveCard: false,
-  });
+  // States for API Data
+  const [banks, setBanks] = useState([]);
+  const [isBanksLoading, setIsBanksLoading] = useState(true);
 
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const formatCardNumber = (value) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || "";
-    const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-    if (parts.length) {
-      return parts.join(" ");
+  // 1. جلب بيانات الكورس من الـ LocalStorage وإعداد التوكن
+  useEffect(() => {
+    const data = localStorage.getItem("checkout_data");
+    if (data) {
+      const parsedData = JSON.parse(data);
+      setCourseData(parsedData);
+      setUserToken(reduxToken || parsedData.token);
+      setIsLoaded(true);
     } else {
-      return v;
+      toast.error("لم يتم العثور على بيانات الدورة، جاري العودة...");
+      router.push("/");
+    }
+  }, [router, reduxToken]);
+
+  // 2. جلب الحسابات البنكية من الـ API
+  useEffect(() => {
+    if (!userToken) return;
+
+    const fetchBanks = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/payment-confirmations/getAllBankAccounts`,
+          {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+
+        if (response.data?.status === "success") {
+          setBanks(response.data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching banks:", error);
+        toast.error("حدث خطأ أثناء جلب الحسابات البنكية");
+      } finally {
+        setIsBanksLoading(false);
+      }
+    };
+
+    fetchBanks();
+  }, [userToken]);
+
+  // ==========================================
+  // استخراج كود الدولة ورقم الجوال للتصميم
+  // ==========================================
+  const phoneDetails = useMemo(() => {
+    if (!courseData?.phone)
+      return { code: "+966", number: "", icon: SaudiIcon };
+
+    let phoneStr = courseData.phone.replace(/\D/g, "");
+
+    if (phoneStr.startsWith("20")) {
+      return { code: "+20", number: phoneStr.substring(2), icon: EgyptianIcon };
+    } else if (phoneStr.startsWith("966")) {
+      return { code: "+966", number: phoneStr.substring(3), icon: SaudiIcon };
+    } else if (phoneStr.startsWith("0")) {
+      return { code: "+966", number: phoneStr.substring(1), icon: SaudiIcon };
+    }
+
+    return { code: "+966", number: phoneStr, icon: SaudiIcon };
+  }, [courseData?.phone]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      setReceiptImage(file);
+      // إنشاء رابط لمعاينة الصورة
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
     }
   };
 
-  const formatExpiryDate = (value) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
-    if (v.length >= 2) {
-      return v.substring(0, 2) + "/" + v.substring(2, 4);
+  // 3. إرسال بيانات الدفع للـ API
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (activeTab === "bank") {
+      if (!accountName || !selectedBank || !receiptImage) {
+        toast.error("يرجى تعبئة جميع الحقول الإلزامية وإرفاق الإيصال");
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      const formData = new FormData();
+      formData.append("image", receiptImage);
+      formData.append("receiver_bank", selectedBank);
+      formData.append("sender_name", accountName);
+      formData.append("amount", courseData.price);
+      formData.append("phone", courseData.phone);
+      formData.append("round_id", courseData.roundId);
+
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/payment-confirmations/storePaymentConfirmation`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        if (response.status === 200 || response.data?.status === "success") {
+          toast.success("تم إرسال الإيصال بنجاح، سيتم مراجعته قريباً");
+          localStorage.removeItem("checkout_data");
+          router.push("/");
+        } else {
+          toast.error(response.data?.message || "حدث خطأ أثناء إرسال الطلب");
+        }
+      } catch (error) {
+        console.error("Submission Error:", error);
+        toast.error(
+          error.response?.data?.message || "حدث خطأ في الاتصال بالخادم"
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      toast.info("جاري التحويل لبوابة الدفع...");
     }
-    return v;
   };
 
-  return (
-    <form className="flex flex-col items-start gap-4 px-4 py-6 relative bg-white rounded-[30px] border-[3px] border-solid border-[#c8c9d5]">
-      <header className="flex items-center justify-between w-full relative self-stretch flex-[0_0_auto]">
-        <div className="inline-flex items-center gap-2 relative self-stretch flex-[0_0_auto]">
-          <div className="relative w-8 h-8 aspect-[1]">
-            <div className="relative w-[27px] h-[27px] top-[3px] left-[3px] bg-[url(/vector.svg)] bg-[100%_100%]">
-              <div className="" alt="Vector" src={""}>
-                {/* <DisabledRadioButton /> */}
-                <EnabledRadioButton />
-              </div>
-            </div>
-          </div>
-          <div className="relative w-fit  font-normal text-text-alt text-2xl leading-6 whitespace-nowrap">
-            Visa / Mastercard accepted
-          </div>
-        </div>
-        <div className="relative w-14 h-14 aspect-[1]" alt="Card">
-          <CrditIcon />
-        </div>
-      </header>
-
-      <main className="flex flex-col items-start gap-8 w-full relative self-stretch flex-[0_0_auto]">
-        <div className="flex flex-col items-start gap-2 w-full relative self-stretch flex-[0_0_auto]">
-          <label
-            htmlFor="cardNumber"
-            className="relative self-stretch mt-[-1.00px]  font-bold text-text-duplicate text-base tracking-[0] leading-6 "
-          >
-            رقم البطاقة
-          </label>
-
-          <div className="flex items-center justify-end gap-2.5 px-4 py-6 w-full bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] relative self-stretch flex-[0_0_auto]">
-            <input
-              id="cardNumber"
-              type="text"
-              value={formData.cardNumber}
-              onChange={(e) =>
-                handleInputChange(
-                  "cardNumber",
-                  formatCardNumber(e.target.value)
-                )
-              }
-              placeholder="1234 5678 9012 3456"
-              maxLength="19"
-              className="relative w-full mt-[-2.00px]  font-normal text-text-duplicate text-base text-right tracking-[0] leading-6 placeholder:text-[#c8c9d5] bg-transparent border-none outline-none"
-              aria-label="رقم البطاقة"
-              required
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-8 w-full relative self-stretch flex-[0_0_auto]">
-          <div className="flex flex-col items-start gap-2 relative flex-1 grow">
-            <label
-              htmlFor="expiryDate"
-              className="relative self-stretch mt-[-1.00px]  font-bold text-text-duplicate text-base tracking-[0] leading-6 "
-            >
-              تاريخ الانتهاء
-            </label>
-
-            <div className="flex items-center justify-end gap-2.5 px-4 py-6 w-full bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] relative self-stretch flex-[0_0_auto]">
-              <input
-                id="expiryDate"
-                type="text"
-                value={formData.expiryDate}
-                onChange={(e) =>
-                  handleInputChange(
-                    "expiryDate",
-                    formatExpiryDate(e.target.value)
-                  )
-                }
-                placeholder="MM/YY"
-                maxLength="5"
-                className="relative w-full mt-[-2.00px]  font-normal text-text-duplicate text-base text-right tracking-[0] leading-6 placeholder:text-[#c8c9d5] bg-transparent border-none outline-none"
-                aria-label="تاريخ الانتهاء"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col items-start gap-2 relative flex-1 grow">
-            <label
-              htmlFor="cvv"
-              className="relative self-stretch mt-[-1.00px]  font-bold text-text-duplicate text-base text-right tracking-[0] leading-6"
-            >
-              CVV
-            </label>
-
-            <div className="flex items-center justify-end gap-2.5 px-4 py-6 w-full bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] relative self-stretch flex-[0_0_auto]">
-              <input
-                id="cvv"
-                type="text"
-                value={formData.cvv}
-                onChange={(e) =>
-                  handleInputChange(
-                    "cvv",
-                    e.target.value.replace(/[^0-9]/g, "")
-                  )
-                }
-                placeholder="CVV"
-                maxLength="4"
-                className="relative w-full mt-[-2.00px]  font-normal text-text-duplicate text-base text-right tracking-[0] leading-6 placeholder:text-[#c8c9d5] bg-transparent border-none outline-none"
-                aria-label="CVV"
-                required
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-start gap-2 w-full relative self-stretch flex-[0_0_auto]">
-          <label
-            htmlFor="cardholderName"
-            className="relative self-stretch mt-[-1.00px]  font-bold text-text-duplicate text-base tracking-[0] leading-6 "
-          >
-            الاسم على البطاقة
-          </label>
-
-          <div className="flex items-center justify-end gap-2.5 px-4 py-6 w-full bg-white rounded-[20px] border-2 border-solid border-[#c8c9d5] relative self-stretch flex-[0_0_auto]">
-            <input
-              id="cardholderName"
-              type="text"
-              value={formData.cardholderName}
-              onChange={(e) =>
-                handleInputChange("cardholderName", e.target.value)
-              }
-              placeholder="يوسف شفيق"
-              className="mt-[-2.00px] relative w-full  font-normal text-text-duplicate text-base tracking-[0] leading-6 placeholder:text-[#c8c9d5]  bg-transparent border-none outline-none"
-              aria-label="الاسم على البطاقة"
-              required
-            />
-          </div>
-        </div>
-      </main>
-
-      <div className="flex items-start justify-start gap-4 w-full relative self-stretch flex-[0_0_auto]">
-        <div className="relative w-6 h-6 aspect-[1]">
-          <input
-            id="saveCard"
-            type="checkbox"
-            checked={formData.saveCard}
-            onChange={(e) => handleInputChange("saveCard", e.target.checked)}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            aria-label="احفظ هذه البطاقة بأمان لشرائي لاحقا"
-          />
-          <div
-            onClick={() => handleInputChange("saveCard", !formData.saveCard)}
-            className={` cursor-pointer absolute inset-0 w-6 h-6 rounded border-2 border-[#c8c9d5] ${
-              formData.saveCard ? "bg-primary border-secondary" : "bg-white"
-            } flex items-center justify-center`}
-          >
-            {formData.saveCard && (
-              <Check className="w-[18px] h-[18px] text-white" />
-            )}
-          </div>
-        </div>
-        <label
-          htmlFor="saveCard"
-          className="mt-[-1.00px] select-none text-text-duplicate relative w-fit  font-normal text-base tracking-[0] leading-6 whitespace-nowrap  cursor-pointer"
-        >
-          احفظ هذه البطاقة بأمان لشرائي لاحقا
-        </label>
+  if (!isLoaded || !courseData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
-    </form>
-  );
-};
+    );
+  }
 
-export const ApplePayFrame = () => {
   return (
-    <form className="flex flex-col items-start gap-4 px-4 py-6 relative bg-white rounded-[30px] border-[3px] border-solid border-[#c8c9d5]">
-      <header className="flex items-center justify-between w-full relative self-stretch flex-[0_0_auto]">
-        <div className="inline-flex items-center gap-2 relative self-stretch flex-[0_0_auto]">
-          <div className="relative w-8 h-8 aspect-[1]">
-            <div className="relative w-[27px] h-[27px] top-[3px] left-[3px] bg-[url(/vector.svg)] bg-[100%_100%]">
-              <div className="" alt="Vector" src={""}>
-                <DisabledRadioButton />
-                {/* <EnabledRadioButton /> */}
+    <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 font-['Cairo']">
+      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-lg p-6 sm:p-10 border border-gray-100">
+        {/* Header */}
+        <h1 className="text-2xl sm:text-3xl font-bold text-center text-text mb-8">
+          تأكيد الدفع
+        </h1>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Read-only Field: Course Name */}
+          <div className="flex flex-col items-start gap-2 relative w-full">
+            <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
+              <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
+                الدورة
+              </div>
+            </div>
+            <input
+              type="text"
+              disabled
+              value={courseData.courseName}
+              className="justify-start h-12 sm:h-14 md:h-[62px] gap-2.5 px-3 sm:px-4 bg-gray-50 rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base opacity-60 cursor-not-allowed focus:outline-none transition-colors"
+            />
+          </div>
+
+          {/* حقل رقم الجوال المطابق لـ TelephoneInput */}
+          <div className="flex flex-col items-start gap-2 relative w-full">
+            <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
+              <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
+                رقم الجوال
+              </div>
+              <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
+                (إلزامي)
+              </div>
+            </div>
+            <div className="h-12 sm:h-14 md:h-[62px] justify-between overflow-hidden py-0 bg-gray-50 rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative w-full transition-colors opacity-60">
+              <input
+                className="justify-center w-full px-3 sm:px-4 h-full font-normal text-text bg-transparent text-sm sm:text-base text-right tracking-[0] leading-[normal] flex items-center relative focus:outline-none cursor-not-allowed"
+                type="text"
+                disabled
+                value={phoneDetails.number}
+                dir="ltr"
+              />
+              <div className="inline-flex items-center gap-1 sm:gap-2.5 px-2 sm:px-4 relative flex-[0_0_auto] border-r-2 [border-right-style:solid] border-variable-collection-stroke h-full cursor-not-allowed">
+                <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold text-text text-sm sm:text-base text-right tracking-[0] leading-[normal]">
+                  {phoneDetails.code}
+                </div>
+                <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6">
+                  {phoneDetails.icon && <phoneDetails.icon />}
+                </div>
               </div>
             </div>
           </div>
-          <div className="relative w-fit  font-normal text-text-alt text-2xl leading-6 whitespace-nowrap">
-            Apple pay
+
+          {/* Read-only Field: Price */}
+          <div className="flex flex-col items-start gap-2 relative w-full">
+            <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
+              <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
+                المبلغ المحول
+              </div>
+              <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
+                (إلزامي)
+              </div>
+            </div>
+            <input
+              type="text"
+              disabled
+              value={`${courseData.price} ريال`}
+              className="justify-start h-12 sm:h-14 md:h-[62px] gap-2.5 px-3 sm:px-4 bg-gray-50 rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base opacity-60 cursor-not-allowed focus:outline-none transition-colors"
+            />
           </div>
-        </div>
-        <div className="relative w-14 h-14 aspect-[1]" alt="Card">
-          <ApplePayIcon />
-        </div>
-      </header>
-    </form>
+
+          {/* Tabs */}
+          <div className="border-b border-gray-200 mt-8">
+            <div className="flex justify-center gap-4 sm:gap-8">
+              <button
+                type="button"
+                onClick={() => setActiveTab("bank")}
+                className={`pb-4 px-2 font-bold transition-colors border-b-2 text-sm sm:text-base ${
+                  activeTab === "bank"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                التحويل البنكي
+              </button>
+            </div>
+          </div>
+
+          {/* Bank Transfer Section */}
+          {activeTab === "bank" && (
+            <div className="space-y-8 mt-8 animate-fadeIn">
+              <h3 className="text-center text-xl font-bold text-text mb-6">
+                حساباتنا البنكية
+              </h3>
+
+              {isBanksLoading ? (
+                <div className="flex justify-center items-center py-6">
+                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : banks.length === 0 ? (
+                <div className="text-center text-gray-500 py-4">
+                  لا توجد حسابات بنكية متاحة حالياً
+                </div>
+              ) : (
+                /* Dynamic Bank Cards Grid */
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {banks.map((bank) => (
+                    <div
+                      key={bank.id}
+                      className={`border-2 ${selectedBank === bank.bank_name ? "border-primary" : ""} border-gray-200 rounded-[20px] p-4 bg-white hover:border-primary/50 transition cursor-pointer`}
+                      onClick={() => setSelectedBank(bank.bank_name)}
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="text-sm space-y-2 text-gray-600">
+                          <p>
+                            <span className="font-bold text-text">
+                              اسم البنك:
+                            </span>{" "}
+                            {bank.bank_name}
+                          </p>
+                          <p>
+                            <span className="font-bold text-text">
+                              اسم الحساب:
+                            </span>{" "}
+                            {bank.account_holder_name}
+                          </p>
+                          <p>
+                            <span className="font-bold text-text">
+                              رقم الحساب:
+                            </span>{" "}
+                            {bank.account_number}
+                          </p>
+                          <p>
+                            <span className="font-bold text-text">
+                              رقم الايبان:
+                            </span>{" "}
+                            {bank.iban}
+                          </p>
+                        </div>
+                        <div className="w-12 h-12 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-gray-600 font-bold text-[10px] text-center overflow-hidden">
+                          {bank.image_url ? (
+                            <img
+                              src={bank.image_url}
+                              alt={bank.bank_name}
+                              className="w-full h-full object-contain p-1"
+                            />
+                          ) : (
+                            bank.bank_name.substring(0, 4)
+                          )}
+                        </div>
+                      </div>
+
+                      {selectedBank === bank.bank_name && (
+                        <div className="mt-2 text-xs text-primary font-bold flex items-center gap-1">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M5 13l4 4L19 7"
+                            ></path>
+                          </svg>
+                          تم اختياره كبنك محول إليه
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* User Inputs */}
+              <div className="flex flex-col items-start gap-2 relative w-full">
+                <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
+                  <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
+                    اسم صاحب الحساب المحول منه
+                  </div>
+                  <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
+                    (إلزامي)
+                  </div>
+                </div>
+                <input
+                  type="text"
+                  placeholder="برجاء إدخال اسم صاحب الحساب"
+                  value={accountName}
+                  onChange={(e) => setAccountName(e.target.value)}
+                  className="justify-start h-12 sm:h-14 md:h-[62px] gap-2.5 px-3 sm:px-4 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base focus:border-primary focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div className="flex flex-col items-start gap-2 relative w-full">
+                <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
+                  <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
+                    البنك المحول إليه
+                  </div>
+                  <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
+                    (إلزامي)
+                  </div>
+                </div>
+                <div className="relative w-full">
+                  <select
+                    value={selectedBank}
+                    onChange={(e) => setSelectedBank(e.target.value)}
+                    className="justify-start h-12 sm:h-14 md:h-[62px] gap-2.5 px-3 sm:px-4 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative self-stretch w-full flex-[0_0_auto] text-sm sm:text-base appearance-none focus:border-primary focus:outline-none transition-colors"
+                  >
+                    <option value="" disabled>
+                      اختر البنك
+                    </option>
+                    {banks.map((bank) => (
+                      <option key={bank.id} value={bank.bank_name}>
+                        {bank.bank_name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-gray-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* File Uploader - تم حل مشكلة الحجم هنا ✅ */}
+              <div className="mt-8 w-full">
+                <label className="cursor-pointer block w-full">
+                  <div className="w-full min-h-[200px] border-2 border-dashed border-[#c8c9d5] hover:border-primary bg-gray-50/50 hover:bg-primary/5 transition-colors rounded-[20px] p-4 flex flex-col items-center justify-center gap-3 relative overflow-hidden">
+                    {/* ✅ Image Preview */}
+                    {imagePreview ? (
+                      <div className="absolute inset-0 w-full h-full p-2 flex items-center justify-center bg-white">
+                        <img
+                          src={imagePreview}
+                          alt="Receipt Preview"
+                          className="max-h-[180px] w-auto max-w-full object-contain rounded-xl shadow-sm"
+                        />
+                        {/* Overlay on hover to change image */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl m-2 cursor-pointer">
+                          <span className="text-white font-bold bg-black/60 px-4 py-2 rounded-lg pointer-events-none">
+                            تغيير الصورة
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-primary">
+                          <svg
+                            className="w-7 h-7"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                        </div>
+                        <div className="text-center px-4">
+                          <p className="text-sm font-bold text-text mb-2">
+                            أرفق صورة الإيصال أو رسالة الخصم من البنك
+                          </p>
+                          <p className="text-xs text-danger font-medium">
+                            الصيغ المسموحة للصورة: JPG, JPEG, PNG, GIF
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                </label>
+              </div>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`w-full h-14 sm:h-[62px] rounded-2xl md:rounded-[20px] text-white font-bold text-base sm:text-lg transition-all
+              ${isSubmitting ? "bg-gray-400 cursor-not-allowed opacity-70" : "bg-primary hover:opacity-90 active:scale-[0.99]"}`}
+          >
+            {isSubmitting ? "جاري الإرسال..." : "إرسال الإيصال"}
+          </button>
+        </form>
+      </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+      `}</style>
+    </div>
   );
-};
+}

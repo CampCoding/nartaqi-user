@@ -146,6 +146,96 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
     );
   }, [token, roundId, toggleFavorite, goLogin]);
 
+  // const handlePayNow = async () => {
+  //   if (!token) {
+  //     toast.error("يجب تسجيل الدخول أولاً");
+  //     router.push("/login");
+  //     return;
+  //   }
+
+  //   if (round.capacity - round?.students_count <= 0) {
+  //     toast.error("عذراً، هذه الدورة ممتلئة");
+  //     return;
+  //   }
+
+  //   setIsPaymentLoading(true);
+
+  //   try {
+  //     // ✅ تحديد الدولة من رقم الموبايل
+  //     let phone = user?.phone || "";
+  //     let currency = "SAR";
+  //     let countryCode = "+966";
+
+  //     // تنظيف الرقم
+  //     phone = phone.replace(/\D/g, "");
+
+  //     // تحديد الدولة
+  //     if (phone.startsWith("20")) {
+  //       currency = "EGP";
+  //       countryCode = "+20";
+  //       phone = phone.substring(2);
+  //     } else if (phone.startsWith("966")) {
+  //       currency = "SAR";
+  //       countryCode = "+966";
+  //       phone = phone.substring(3);
+  //     } else if (phone.startsWith("0")) {
+  //       currency = "SAR";
+  //       countryCode = "+966";
+  //       phone = phone.substring(1);
+  //     }
+
+  //     const cleanPhone = phone.slice(-10);
+
+  //     // ✅ السعر بدون ضريبة
+  //     const price = parseFloat(round.price);
+
+  //     const paymentData = {
+  //       CustomerName: user?.name || "Customer",
+  //       CustomerMobile: cleanPhone,
+  //       InvoiceValue: price.toFixed(2),
+  //       currency: "SAR",
+  //       countryCode: countryCode,
+  //       productName: round?.title || round?.name || "دورة تدريبية",
+  //       roundId: roundId,
+  //       studentId: user?.id,
+  //       endDate: round?.end_date,
+  //     };
+
+  //     // حفظ بيانات الدفع
+  //     localStorage.setItem(
+  //       "pending_payment",
+  //       JSON.stringify({
+  //         roundId: roundId,
+  //         studentId: user?.id,
+  //         amount: price,
+  //         courseName: round?.title || round?.name,
+  //         endDate: round?.end_date,
+  //         token: token,
+  //       })
+  //     );
+
+  //     const response = await fetch("/api/pay", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(paymentData),
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (data.IsSuccess && data.Data?.InvoiceURL) {
+  //       window.location.href = data.Data.InvoiceURL;
+  //     } else {
+  //       toast.error(data.Message || "فشل في إنشاء الفاتورة");
+  //       console.error("Payment Error:", data);
+  //     }
+  //   } catch (error) {
+  //     console.error("Payment Error:", error);
+  //     toast.error("حدث خطأ أثناء عملية الدفع");
+  //   } finally {
+  //     setIsPaymentLoading(false);
+  //   }
+  // };
+
   const handlePayNow = async () => {
     if (!token) {
       toast.error("يجب تسجيل الدخول أولاً");
@@ -161,76 +251,23 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
     setIsPaymentLoading(true);
 
     try {
-      // ✅ تحديد الدولة من رقم الموبايل
-      let phone = user?.phone || "";
-      let currency = "SAR";
-      let countryCode = "+966";
-
-      // تنظيف الرقم
-      phone = phone.replace(/\D/g, "");
-
-      // تحديد الدولة
-      if (phone.startsWith("20")) {
-        currency = "EGP";
-        countryCode = "+20";
-        phone = phone.substring(2);
-      } else if (phone.startsWith("966")) {
-        currency = "SAR";
-        countryCode = "+966";
-        phone = phone.substring(3);
-      } else if (phone.startsWith("0")) {
-        currency = "SAR";
-        countryCode = "+966";
-        phone = phone.substring(1);
-      }
-
-      const cleanPhone = phone.slice(-10);
-
-      // ✅ السعر بدون ضريبة
-      const price = parseFloat(round.price);
-
-      const paymentData = {
-        CustomerName: user?.name || "Customer",
-        CustomerMobile: cleanPhone,
-        InvoiceValue: price.toFixed(2),
-        currency: "SAR",
-        countryCode: countryCode,
-        productName: round?.title || round?.name || "دورة تدريبية",
+      // تجهيز بيانات الكورس والدفع لحفظها وتمريرها للصفحة الجديدة
+      const checkoutData = {
         roundId: roundId,
         studentId: user?.id,
+        price: parseFloat(round.price).toFixed(2),
+        courseName: round?.title || round?.name || "دورة تدريبية",
+        phone: user?.phone || "",
         endDate: round?.end_date,
       };
 
-      // حفظ بيانات الدفع
-      localStorage.setItem(
-        "pending_payment",
-        JSON.stringify({
-          roundId: roundId,
-          studentId: user?.id,
-          amount: price,
-          courseName: round?.title || round?.name,
-          endDate: round?.end_date,
-          token: token,
-        })
-      );
+      // حفظ البيانات في localStorage عشان نقرأها في صفحة الدفع
+      localStorage.setItem("checkout_data", JSON.stringify(checkoutData));
 
-      const response = await fetch("/api/pay", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(paymentData),
-      });
-
-      const data = await response.json();
-
-      if (data.IsSuccess && data.Data?.InvoiceURL) {
-        window.location.href = data.Data.InvoiceURL;
-      } else {
-        toast.error(data.Message || "فشل في إنشاء الفاتورة");
-        console.error("Payment Error:", data);
-      }
+      // الانتقال لصفحة تأكيد الدفع الجديدة
+      router.push(`/checkout`);
     } catch (error) {
-      console.error("Payment Error:", error);
-      toast.error("حدث خطأ أثناء عملية الدفع");
+      console.error("Navigation Error:", error);
     } finally {
       setIsPaymentLoading(false);
     }

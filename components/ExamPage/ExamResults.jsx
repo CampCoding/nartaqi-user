@@ -23,10 +23,11 @@ const Nanigation = ({ activeTab, setActiveTab }) => {
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
-          className={`snap-center flex-shrink-0 min-w-fit sm:min-w-0 sm:w-auto px-6 sm:px-10 md:px-16 py-3 sm:py-3.5 md:py-4 rounded-[15px] sm:rounded-[20px] transition-colors text-sm sm:text-base ${activeTab === tab.id
+          className={`snap-center flex-shrink-0 min-w-fit sm:min-w-0 sm:w-auto px-6 sm:px-10 md:px-16 py-3 sm:py-3.5 md:py-4 rounded-[15px] sm:rounded-[20px] transition-colors text-sm sm:text-base ${
+            activeTab === tab.id
               ? "bg-primary text-white font-bold"
               : "hover:bg-blue-100 text-gray-800"
-            }`}
+          }`}
         >
           {tab.label}
         </button>
@@ -38,16 +39,13 @@ const Nanigation = ({ activeTab, setActiveTab }) => {
 // =====================
 // Helpers
 // =====================
-const stripHtml = (html = "") => html
+const stripHtml = (html = "") => html;
 
-const normalize = (v) => stripHtml(String(v ?? "")).toLowerCase().trim();
+const normalize = (v) =>
+  stripHtml(String(v ?? ""))
+    .toLowerCase()
+    .trim();
 
-/**
- * ✅ يحول response.sections إلى شكل يناسب UI
- * - يدعم section.mcq
- * - ويدعم section.paragraphs[].questions[]
- * - student_answer جاية كنص => بنحوّله لـ option.id
- */
 const toAnsweredQuestions = (sections = []) => {
   const out = [];
   let idx = 1;
@@ -67,11 +65,12 @@ const toAnsweredQuestions = (sections = []) => {
       const correctId =
         q?.correct_option_id != null
           ? Number(q.correct_option_id)
-          : options.find((o) => o.isCorrect)?.id ?? null;
+          : (options.find((o) => o.isCorrect)?.id ?? null);
 
       const studentAnswerText = normalize(q?.student_answer);
       const studentAnswerId =
-        options.find((o) => normalize(o.text) === studentAnswerText)?.id ?? null;
+        options.find((o) => normalize(o.text) === studentAnswerText)?.id ??
+        null;
 
       out.push({
         id: q?.id,
@@ -107,11 +106,12 @@ const toAnsweredQuestions = (sections = []) => {
         const correctId =
           q?.correct_option_id != null
             ? Number(q.correct_option_id)
-            : options.find((o) => o.isCorrect)?.id ?? null;
+            : (options.find((o) => o.isCorrect)?.id ?? null);
 
         const studentAnswerText = normalize(q?.student_answer);
         const studentAnswerId =
-          options.find((o) => normalize(o.text) === studentAnswerText)?.id ?? null;
+          options.find((o) => normalize(o.text) === studentAnswerText)?.id ??
+          null;
 
         out.push({
           id: q?.id,
@@ -146,8 +146,15 @@ const ExamResults = ({ show, setShow, examId }) => {
   const { user } = useSelector((state) => state.auth);
   const studentId = user?.id;
 
-  const { sections, isSolved, lastStudentScore, examInfo, loading, error, refetch } =
-    useGetStudentExamAnswers({ studentId, examId });
+  const {
+    sections,
+    isSolved,
+    lastStudentScore,
+    examInfo,
+    loading,
+    error,
+    refetch,
+  } = useGetStudentExamAnswers({ studentId, examId });
 
   const answeredQuestions = useMemo(() => {
     return toAnsweredQuestions(sections);
@@ -172,7 +179,8 @@ const ExamResults = ({ show, setShow, examId }) => {
     return answeredQuestions.filter((q) => {
       if (activeTab === "correct")
         return q.answer != null && q.answer === q.correctId;
-      if (activeTab === "wrong") return q.answer != null && q.answer !== q.correctId;
+      if (activeTab === "wrong")
+        return q.answer != null && q.answer !== q.correctId;
       return true;
     });
   }, [answeredQuestions, activeTab]);
@@ -181,60 +189,14 @@ const ExamResults = ({ show, setShow, examId }) => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-[64px] py-4 sm:py-6 md:py-8">
-      {/* ✅ Summary Card */}
-      {/* <div className="mb-6 bg-white rounded-2xl border p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <h2 className="font-bold text-lg sm:text-xl text-text">ملخص النتيجة</h2>
-            <p className="text-sm text-text-alt mt-1">
-              حالة الامتحان: {isSolved ? "تم الحل" : "لم يتم الحل بعد"}
-            </p>
-          </div>
-
-          <div className="text-sm font-bold">
-            <span className="px-3 py-2 rounded-xl bg-[#ebf3fe]">
-              Score: {lastStudentScore?.score ?? "-"}
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-          <div className="rounded-xl bg-[#ebf3fe] p-3">
-            <div className="text-xs text-text-alt">إجمالي الأسئلة</div>
-            <div className="text-lg font-bold">{summary.total}</div>
-          </div>
-          <div className="rounded-xl bg-[#c9ffca] p-3">
-            <div className="text-xs text-[#24ab28]">الصحيحة</div>
-            <div className="text-lg font-bold text-[#24ab28]">{summary.correct}</div>
-          </div>
-          <div className="rounded-xl bg-[#FFC4C4] p-3">
-            <div className="text-xs text-red-700">الخاطئة</div>
-            <div className="text-lg font-bold text-red-700">{summary.wrong}</div>
-          </div>
-          <div className="rounded-xl bg-gray-50 p-3">
-            <div className="text-xs text-text-alt">غير مُجابة</div>
-            <div className="text-lg font-bold">{summary.unanswered}</div>
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <div className="text-sm text-text-alt mb-2">النسبة</div>
-          <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary"
-              style={{ width: `${summary.percentage}%` }}
-            />
-          </div>
-          <div className="mt-2 text-sm font-bold">{summary.percentage}%</div>
-        </div>
-      </div> */}
-
       {/* Tabs */}
       <Nanigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Loading */}
       {loading && (
-        <div className="mt-6 text-center text-text-alt">جاري تحميل النتائج...</div>
+        <div className="mt-6 text-center text-text-alt">
+          جاري تحميل النتائج...
+        </div>
       )}
 
       {/* Error */}
@@ -252,18 +214,44 @@ const ExamResults = ({ show, setShow, examId }) => {
 
       {/* Not solved */}
       {!loading && !error && !isSolved && (
-        <div className="mt-6 text-center text-text-alt">الامتحان لم يتم حله بعد.</div>
+        <div className="mt-6 text-center text-text-alt">
+          الامتحان لم يتم حله بعد.
+        </div>
       )}
 
-      {/* Data */}
+      {/* ✅ Data with Section Dividers */}
       {!loading && !error && isSolved && (
         <div className="flex flex-col gap-6 sm:gap-8 md:gap-12 mt-4 sm:mt-6 md:mt-8">
           {filteredQuestions.length === 0 ? (
             <p className="text-center text-text-alt">لا توجد أسئلة.</p>
           ) : (
-            filteredQuestions.map((q, i) => (
-              <AnsweredQuestion key={`${q.id}-${i}`} questionData={q} />
-            ))
+            filteredQuestions.map((q, i) => {
+              const prevQuestion = filteredQuestions[i - 1];
+              const isNewSection =
+                i === 0 || q.sectionTitle !== prevQuestion?.sectionTitle;
+
+              return (
+                <React.Fragment key={`${q.id}-${i}`}>
+                  {/* ✅ فاصل القسم */}
+                  {isNewSection && q.sectionTitle && (
+                    <div className="flex items-center gap-4 py-2 sm:py-4">
+                      <div className="flex-1 h-[2px] bg-gradient-to-r from-transparent via-primary/30 to-primary/50"></div>
+                      <div className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-primary/10 rounded-full">
+                        <span
+                          className="font-bold text-primary text-sm sm:text-base lg:text-lg"
+                          dangerouslySetInnerHTML={{
+                            __html: q.sectionTitle.replace(/&nbsp;/gi, " "),
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1 h-[2px] bg-gradient-to-l from-transparent via-primary/30 to-primary/50"></div>
+                    </div>
+                  )}
+
+                  <AnsweredQuestion questionData={q} />
+                </React.Fragment>
+              );
+            })
           )}
         </div>
       )}
@@ -283,7 +271,7 @@ const ExamResults = ({ show, setShow, examId }) => {
 export default ExamResults;
 
 // =====================
-// AnsweredQuestion Card
+// AnsweredQuestion Card (بدون تغيير)
 // =====================
 export const AnsweredQuestion = ({ questionData }) => {
   const correctId = questionData.correctId;
@@ -293,41 +281,42 @@ export const AnsweredQuestion = ({ questionData }) => {
       {/* Header */}
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-3 sm:gap-4">
         <div className="flex flex-col gap-2">
-          <h1 className="font-bold text-secondary text-lg sm:text-xl md:text-2xl" dangerouslySetInnerHTML={{ __html: questionData.title }} />
-
-
-          {/* ✅ Section title */}
-          {questionData.sectionTitle ? (
-            <div className="text-sm text-text-alt">
-              {/* <span className="font-bold">القسم:</span>  */}
-              <span className="" dangerouslySetInnerHTML={{ __html: questionData.sectionTitle }} />
-            </div>
-          ) : null}
+          <h1
+            className="font-bold text-secondary text-lg sm:text-xl md:text-2xl"
+            dangerouslySetInnerHTML={{ __html: questionData.title }}
+          />
         </div>
 
         <div
-          className={`inline-flex items-center justify-center gap-2 px-6 sm:px-8 md:px-12 py-2 sm:py-3 md:py-4 rounded-[10px] sm:rounded-[15px] text-sm sm:text-base whitespace-nowrap ${questionData.answer === correctId
+          className={`inline-flex items-center justify-center gap-2 px-6 sm:px-8 md:px-12 py-2 sm:py-3 md:py-4 rounded-[10px] sm:rounded-[15px] text-sm sm:text-base whitespace-nowrap ${
+            questionData.answer === correctId
               ? "bg-[#c9ffca] text-[#24ab28]"
               : "bg-[#FFC4C4] text-red-700"
-            }`}
+          }`}
         >
           {questionData.answer === correctId ? "صحيح" : "خطأ"}
         </div>
       </header>
 
-      {/* ✅ Passage */}
+      {/* Passage */}
       {questionData.passage ? (
         <div className="w-full p-4 bg-gray-50 rounded-xl border text-sm leading-relaxed">
           <div className="font-bold mb-2">الفقرة:</div>
-          <p dangerouslySetInnerHTML={{ __html: questionData.passage.replaceAll(/&nbsp;/ig, " ") }} />
+          <p
+            dangerouslySetInnerHTML={{
+              __html: questionData.passage.replaceAll(/&nbsp;/gi, " "),
+            }}
+          />
         </div>
       ) : null}
 
       {/* Question */}
       <section className="flex flex-col items-start gap-4 sm:gap-5 md:gap-6 w-full">
         <div className="flex flex-col w-full gap-2">
-          <div  dangerouslySetInnerHTML={{ __html: questionData.question }} className="richtext w-full" />
-
+          <div
+            dangerouslySetInnerHTML={{ __html: questionData.question }}
+            className="richtext w-full"
+          />
 
           <fieldset className="flex flex-col w-full gap-3 sm:gap-4">
             <legend className="sr-only">خيارات الإجابة</legend>
@@ -342,12 +331,13 @@ export const AnsweredQuestion = ({ questionData }) => {
                   className="flex items-center gap-2 sm:gap-3 md:gap-4 w-full"
                 >
                   <label
-                    className={`flex-1 flex items-center gap-2 sm:gap-3 p-3 sm:p-3.5 md:p-4 rounded-[15px] sm:rounded-[20px] transition-all ${isCorrect
+                    className={`flex-1 flex items-center gap-2 sm:gap-3 p-3 sm:p-3.5 md:p-4 rounded-[15px] sm:rounded-[20px] transition-all ${
+                      isCorrect
                         ? "bg-[#c9ffca]"
                         : isStudentAnswer
                           ? "bg-[#FFC4C4] text-red-700"
                           : "border-2 md:border-[3px] border-solid"
-                      }`}
+                    }`}
                   >
                     <div className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0">
                       {isCorrect ? (
@@ -361,18 +351,24 @@ export const AnsweredQuestion = ({ questionData }) => {
 
                     <span
                       dangerouslySetInnerHTML={{ __html: answer.text }}
-                      className={` prose prose-neutral text-sm sm:text-base leading-normal sm:leading-relaxed md:leading-[50px] ${isCorrect
+                      className={`prose prose-neutral text-sm sm:text-base leading-normal sm:leading-relaxed md:leading-[50px] ${
+                        isCorrect
                           ? "font-semibold text-[#24ab28]"
                           : isStudentAnswer
                             ? "font-semibold text-red-700"
                             : "text-text"
-                        }`}
+                      }`}
                     />
-
                   </label>
 
                   <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 flex-shrink-0">
-                    {isCorrect ? <CheckIcon /> : isStudentAnswer ? <div className="border-[3px] rounded-full  border-danger"><RoundedX className='' /></div> : null}
+                    {isCorrect ? (
+                      <CheckIcon />
+                    ) : isStudentAnswer ? (
+                      <div className="border-[3px] rounded-full border-danger">
+                        <RoundedX />
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               );
@@ -381,22 +377,25 @@ export const AnsweredQuestion = ({ questionData }) => {
         </div>
 
         {/* Explanation */}
-        {
-          questionData.explanation &&
-        <aside className="w-full">
-          <p className="text-sm sm:text-base text-text flex gap-2 leading-normal sm:leading-relaxed" >
-            <span className="font-bold"> الشرح: </span>
-            <span className="" dangerouslySetInnerHTML={{ __html: questionData.explanation.replaceAll(/&nbsp;/ig, " ") }} />
-          </p>
-        </aside>
-        }
+        {questionData.explanation && (
+          <aside className="w-full">
+            <p className="text-sm sm:text-base text-text flex gap-2 leading-normal sm:leading-relaxed">
+              <span className="font-bold">الشرح:</span>
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: questionData.explanation.replaceAll(/&nbsp;/gi, " "),
+                }}
+              />
+            </p>
+          </aside>
+        )}
       </section>
     </main>
   );
 };
 
 // =====================
-// Icons (كما هي عندك)
+// Icons
 // =====================
 const CheckIcon = (props) => (
   <svg

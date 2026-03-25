@@ -9,6 +9,7 @@ import Container from "../../../components/ui/Container";
 
 import useGetStudentAchievementResults from "../../../components/shared/Hooks/useGetStudentAchievementResults";
 import ResultsImagesSliderModal from "../../../components/ui/Modals/ResultsImagesSliderModal";
+
 const StudentsResults = () => {
   const { id: categoryPartId } = useParams();
 
@@ -21,7 +22,7 @@ const StudentsResults = () => {
     return categoryPart?.name || "درجات الطلاب بالقدرات";
   }, [categoryPart?.name]);
 
-  // ✅ modal state
+  // ✅ modal state for images
   const [sliderOpen, setSliderOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -37,7 +38,6 @@ const StudentsResults = () => {
           ]}
           image={"/images/students-results.png"}
         />
-
         <Container className="my-[32px]">
           <div className="py-16 text-center text-neutral-600">
             من فضلك افتح الصفحة مع باراميتر{" "}
@@ -74,7 +74,6 @@ const StudentsResults = () => {
               <span className="font-semibold text-text">{results.length}</span>
             </p>
           </div>
-
           <button
             onClick={() => refetch()}
             className="px-4 py-2 rounded-xl border border-neutral-200 hover:border-neutral-300 text-sm"
@@ -122,7 +121,7 @@ const StudentsResults = () => {
         )}
       </Container>
 
-      {/* ✅ modal */}
+      {/* ✅ Image Slider Modal */}
       <ResultsImagesSliderModal
         open={sliderOpen}
         onClose={() => setSliderOpen(false)}

@@ -26,6 +26,10 @@ const initialState = {
   startTime: null,
   endTime: null,
 
+  // ✅ جديد: حالة عرض القسم
+  showSectionIntro: true, // عرض مقدمة القسم
+  currentSectionStarted: false, // هل بدأ القسم الحالي
+
   score: null,
   percentage: null,
   resultData: null,
@@ -61,7 +65,6 @@ const mapQuestionType = (apiType) => {
   return typeMap[apiType] || "mcq";
 };
 
-// ✅ Normalize boolean answer to "true"/"false"
 const normalizeBooleanValue = (val) => {
   if (val === true) return "true";
   if (val === false) return "false";
@@ -102,6 +105,7 @@ const examSlice = createSlice({
         const sectionTitle = section.title || "";
         const sectionDescription = section.description || "";
         const blocks = [];
+        const sectionQuestionIds = []; // ✅ تتبع أسئلة كل قسم
 
         // 1) Paragraphs
         if (section.paragraphs?.length) {
@@ -128,19 +132,23 @@ const examSlice = createSlice({
                 textHtml: q.question_text,
                 options: formattedOptions,
                 correctAnswer: correctOption?.id || null,
-                correctAnswerText: stripHtml(correctOption?.option_text) || null,
+                correctAnswerText:
+                  stripHtml(correctOption?.option_text) || null,
                 explanation:
-                  stripHtml(correctOption?.question_explanation) || "لا يوجد تفسير متاح.",
+                  stripHtml(correctOption?.question_explanation) ||
+                  "لا يوجد تفسير متاح.",
                 instructions: q.instructions || "",
                 type: "paragraph",
                 sectionId: section.id,
                 sectionTitle: stripHtml(sectionTitle),
+                sectionIndex: transformedSections.length, // ✅ إضافة index القسم
                 globalIndex: globalQuestionIndex++,
                 passage,
               };
 
               paragraphQuestions.push(questionData);
               allQuestions.push(questionData);
+              sectionQuestionIds.push(q.id);
             });
 
             if (paragraphQuestions.length) {
@@ -153,29 +161,44 @@ const examSlice = createSlice({
           });
         }
 
-        // 2) MCQ array (includes paragraph_mcq duplicated)
+        // 2) MCQ array
         if (section.mcq?.length) {
           section.mcq.forEach((q) => {
             if (processedParagraphQuestionIds.has(q.id)) return;
             if (!q.options?.length) return;
-            
+
             const questionType = mapQuestionType(q.question_type);
 
-            // ✅ FIX: boolean always "true"/"false"
             let formattedOptions = [];
             let correctAnswer = null;
             let correctAnswerText = null;
 
             if (questionType === "t_f") {
-              const trueOpt = q.options.find((o) => ["صحيح", "صح" , "true" , true].includes(stripHtml(o.option_text)));
-              const falseOpt = q.options.find((o) => ["خطأ", "خاطئ"  , "false" , false].includes(stripHtml(o.option_text)));
+              const trueOpt = q.options.find((o) =>
+                ["صحيح", "صح", "true", true].includes(stripHtml(o.option_text))
+              );
+              const falseOpt = q.options.find((o) =>
+                ["خطأ", "خاطئ", "false", false].includes(
+                  stripHtml(o.option_text)
+                )
+              );
 
               const trueCorrect = trueOpt?.is_correct === 1;
               const falseCorrect = falseOpt?.is_correct === 1;
 
               formattedOptions = [
-                { id: "true", text: "صح", textHtml: "صح", isCorrect: trueCorrect },
-                { id: "false", text: "خطأ", textHtml: "خطأ", isCorrect: falseCorrect },
+                {
+                  id: "true",
+                  text: "صح",
+                  textHtml: "صح",
+                  isCorrect: trueCorrect,
+                },
+                {
+                  id: "false",
+                  text: "خطأ",
+                  textHtml: "خطأ",
+                  isCorrect: falseCorrect,
+                },
               ];
 
               if (trueCorrect) {
@@ -184,9 +207,6 @@ const examSlice = createSlice({
               } else if (falseCorrect) {
                 correctAnswer = "خطأ";
                 correctAnswerText = "خطأ";
-              } else {
-                correctAnswer = null;
-                correctAnswerText = null;
               }
             } else {
               const correctOption = q.options.find((o) => o.is_correct === 1);
@@ -202,7 +222,9 @@ const examSlice = createSlice({
               correctAnswerText = stripHtml(correctOption?.option_text) || null;
             }
 
-            const correctOptionForExplanation = q.options.find((o) => o.is_correct === 1);
+            const correctOptionForExplanation = q.options.find(
+              (o) => o.is_correct === 1
+            );
 
             const questionData = {
               id: q.id,
@@ -212,11 +234,13 @@ const examSlice = createSlice({
               correctAnswer,
               correctAnswerText,
               explanation:
-                stripHtml(correctOptionForExplanation?.question_explanation) || "لا يوجد تفسير متاح.",
+                stripHtml(correctOptionForExplanation?.question_explanation) ||
+                "لا يوجد تفسير متاح.",
               instructions: q.instructions || "",
               type: questionType,
               sectionId: section.id,
               sectionTitle: stripHtml(sectionTitle),
+              sectionIndex: transformedSections.length, // ✅ إضافة index القسم
               globalIndex: globalQuestionIndex++,
             };
 
@@ -227,6 +251,7 @@ const examSlice = createSlice({
             });
 
             allQuestions.push(questionData);
+            sectionQuestionIds.push(q.id);
           });
         }
 
@@ -236,6 +261,8 @@ const examSlice = createSlice({
             title: sectionTitle,
             description: sectionDescription,
             blocks,
+            questionIds: sectionQuestionIds, // ✅ أسئلة القسم
+            questionCount: sectionQuestionIds.length, // ✅ عدد أسئلة القسم
           });
         }
       });
@@ -248,11 +275,43 @@ const examSlice = createSlice({
       state.currentBlockIndex = 0;
       state.currentQuestionInBlockIndex = 0;
       state.currentIndex = 0;
+
+      // ✅ جديد
+      state.showSectionIntro = true;
+      state.currentSectionStarted = false;
+    },
+
+    // ✅ بدء القسم الحالي
+    startCurrentSection: (state) => {
+      state.showSectionIntro = false;
+      state.currentSectionStarted = true;
+    },
+
+    // ✅ الانتقال للقسم التالي
+    moveToNextSection: (state) => {
+      if (state.currentSectionIndex < state.sections.length - 1) {
+        state.currentSectionIndex += 1;
+        state.currentBlockIndex = 0;
+        state.currentQuestionInBlockIndex = 0;
+
+        // حساب الـ global index للسؤال الأول في القسم الجديد
+        const newSection = state.sections[state.currentSectionIndex];
+        if (newSection?.blocks?.[0]?.questions?.[0]) {
+          const qId = newSection.blocks[0].questions[0].id;
+          const gIdx = state.questions.findIndex((q) => q.id === qId);
+          if (gIdx >= 0) state.currentIndex = gIdx;
+        }
+
+        // ✅ عرض مقدمة القسم الجديد
+        state.showSectionIntro = true;
+        state.currentSectionStarted = false;
+      }
     },
 
     setCurrentSectionIndex: (state, action) => {
       const newSectionIndex = action.payload;
-      if (newSectionIndex < 0 || newSectionIndex >= state.sections.length) return;
+      if (newSectionIndex < 0 || newSectionIndex >= state.sections.length)
+        return;
 
       state.currentSectionIndex = newSectionIndex;
       state.currentBlockIndex = 0;
@@ -264,12 +323,20 @@ const examSlice = createSlice({
         const gIdx = state.questions.findIndex((q) => q.id === qId);
         if (gIdx >= 0) state.currentIndex = gIdx;
       }
+
+      state.showSectionIntro = true;
+      state.currentSectionStarted = false;
     },
 
     setCurrentBlockIndex: (state, action) => {
       const newBlockIndex = action.payload;
       const section = state.sections[state.currentSectionIndex];
-      if (!section || newBlockIndex < 0 || newBlockIndex >= section.blocks.length) return;
+      if (
+        !section ||
+        newBlockIndex < 0 ||
+        newBlockIndex >= section.blocks.length
+      )
+        return;
 
       state.currentBlockIndex = newBlockIndex;
       state.currentQuestionInBlockIndex = 0;
@@ -284,7 +351,10 @@ const examSlice = createSlice({
 
     setCurrentQuestionInBlockIndex: (state, action) => {
       const newIndex = action.payload;
-      const block = state.sections[state.currentSectionIndex]?.blocks[state.currentBlockIndex];
+      const block =
+        state.sections[state.currentSectionIndex]?.blocks[
+          state.currentBlockIndex
+        ];
       if (!block || newIndex < 0 || newIndex >= block.questions.length) return;
 
       state.currentQuestionInBlockIndex = newIndex;
@@ -312,7 +382,9 @@ const examSlice = createSlice({
         const section = state.sections[sIdx];
         for (let bIdx = 0; bIdx < section.blocks.length; bIdx++) {
           const block = section.blocks[bIdx];
-          const qInBlockIdx = block.questions.findIndex((q) => q.id === targetQuestion.id);
+          const qInBlockIdx = block.questions.findIndex(
+            (q) => q.id === targetQuestion.id
+          );
           if (qInBlockIdx >= 0) {
             state.currentSectionIndex = sIdx;
             state.currentBlockIndex = bIdx;
@@ -328,7 +400,8 @@ const examSlice = createSlice({
       const block = section?.blocks[state.currentBlockIndex];
 
       if (!block) {
-        if (state.currentIndex < state.questions.length - 1) state.currentIndex += 1;
+        if (state.currentIndex < state.questions.length - 1)
+          state.currentIndex += 1;
         return;
       }
 
@@ -345,12 +418,7 @@ const examSlice = createSlice({
         return;
       }
 
-      if (state.currentSectionIndex < state.sections.length - 1) {
-        state.currentSectionIndex += 1;
-        state.currentBlockIndex = 0;
-        state.currentQuestionInBlockIndex = 0;
-        state.currentIndex += 1;
-      }
+      // ✅ لا ننتقل تلقائياً للقسم التالي - سيتم التحكم بهذا من الـ component
     },
 
     prevQuestion: (state) => {
@@ -376,14 +444,7 @@ const examSlice = createSlice({
         return;
       }
 
-      if (state.currentSectionIndex > 0) {
-        state.currentSectionIndex -= 1;
-        const prevSection = state.sections[state.currentSectionIndex];
-        state.currentBlockIndex = prevSection.blocks.length - 1;
-        const prevBlock = prevSection.blocks[state.currentBlockIndex];
-        state.currentQuestionInBlockIndex = prevBlock.questions.length - 1;
-        state.currentIndex -= 1;
-      }
+      // ✅ لا نرجع للقسم السابق
     },
 
     setAnswer: (state, action) => {
@@ -394,13 +455,15 @@ const examSlice = createSlice({
 
       state.answeredMap[questionId] = answer;
 
-      const existingIdx = state.answers.findIndex((a) => a.question_id === questionId);
+      const existingIdx = state.answers.findIndex(
+        (a) => a.question_id === questionId
+      );
 
       let studentAnswerText = null;
       let correctAnswerText = null;
       let isCorrect = false;
 
-      if (question.type === "mcq" || question.type === "paragraph" ) {
+      if (question.type === "mcq" || question.type === "paragraph") {
         const selected = question.options?.find((opt) => opt.id === answer);
         studentAnswerText = selected ? selected.text : null;
         correctAnswerText = question.correctAnswerText;
@@ -408,7 +471,7 @@ const examSlice = createSlice({
       } else if (question.type === "t_f") {
         const normalized = normalizeBooleanValue(answer);
         studentAnswerText = normalized;
-        correctAnswerText = question.correctAnswer; // "true"/"false"
+        correctAnswerText = question.correctAnswer;
         isCorrect = normalized === question.correctAnswer;
       } else if (question.type === "text") {
         studentAnswerText = answer;
@@ -443,6 +506,9 @@ const examSlice = createSlice({
     startExam: (state) => {
       state.isStarted = true;
       state.startTime = new Date().toISOString();
+      // ✅ القسم الأول يبدأ مباشرة - مش محتاج intro تاني
+      state.showSectionIntro = false;
+      state.currentSectionStarted = true;
     },
 
     submitExam: (state) => {
@@ -469,6 +535,8 @@ export const {
   setStudentId,
   setExamId,
   initializeExam,
+  startCurrentSection,
+  moveToNextSection,
   setCurrentSectionIndex,
   setCurrentBlockIndex,
   setCurrentQuestionInBlockIndex,
@@ -496,10 +564,17 @@ export const selectExamInfo = (state) => state.exam.examInfo;
 export const selectSections = (state) => state.exam.sections;
 export const selectQuestions = (state) => state.exam.questions;
 
-export const selectCurrentSectionIndex = (state) => state.exam.currentSectionIndex;
+export const selectCurrentSectionIndex = (state) =>
+  state.exam.currentSectionIndex;
 export const selectCurrentBlockIndex = (state) => state.exam.currentBlockIndex;
-export const selectCurrentQuestionInBlockIndex = (state) => state.exam.currentQuestionInBlockIndex;
+export const selectCurrentQuestionInBlockIndex = (state) =>
+  state.exam.currentQuestionInBlockIndex;
 export const selectCurrentIndex = (state) => state.exam.currentIndex;
+
+// ✅ جديد
+export const selectShowSectionIntro = (state) => state.exam.showSectionIntro;
+export const selectCurrentSectionStarted = (state) =>
+  state.exam.currentSectionStarted;
 
 export const selectCurrentSection = (state) => {
   const { sections, currentSectionIndex } = state.exam;
@@ -537,11 +612,75 @@ export const selectSubmissionData = (state) => ({
 
 export const selectAnswers = (state) => state.exam.answers;
 
+// ✅ تعديل: السؤال الأول في القسم الحالي (ليس في كل الامتحان)
+export const selectIsFirstQuestionInSection = (state) => {
+  return (
+    state.exam.currentBlockIndex === 0 &&
+    state.exam.currentQuestionInBlockIndex === 0
+  );
+};
+
+// ✅ تعديل: السؤال الأخير في القسم الحالي
+export const selectIsLastQuestionInSection = (state) => {
+  const section = state.exam.sections[state.exam.currentSectionIndex];
+  if (!section) return true;
+
+  const isLastBlock =
+    state.exam.currentBlockIndex === section.blocks.length - 1;
+  const block = section.blocks[state.exam.currentBlockIndex];
+  const isLastQuestionInBlock =
+    state.exam.currentQuestionInBlockIndex ===
+    (block?.questions?.length || 1) - 1;
+
+  return isLastBlock && isLastQuestionInBlock;
+};
+
+// ✅ هل هذا آخر قسم؟
+export const selectIsLastSection = (state) => {
+  return state.exam.currentSectionIndex === state.exam.sections.length - 1;
+};
+
 export const selectIsFirstQuestion = (state) => state.exam.currentIndex === 0;
 export const selectIsLastQuestion = (state) =>
   state.exam.currentIndex === state.exam.questions.length - 1;
 
-
 export const selectExamScore = (state) => state.exam.score;
 export const selectExamPercentage = (state) => state.exam.percentage;
 export const selectExamResultData = (state) => state.exam.resultData;
+
+// ✅ جديد: احصائيات القسم الحالي
+export const selectCurrentSectionStats = (state) => {
+  const section = state.exam.sections[state.exam.currentSectionIndex];
+  if (!section) return { total: 0, answered: 0, unanswered: 0, flagged: 0 };
+
+  const sectionQuestions = state.exam.questions.filter(
+    (q) => q.sectionIndex === state.exam.currentSectionIndex
+  );
+  const total = sectionQuestions.length;
+  const answered = sectionQuestions.filter(
+    (q) => state.exam.answeredMap[q.id] !== undefined
+  ).length;
+  const unanswered = total - answered;
+  const flagged = sectionQuestions.filter(
+    (q) => state.exam.flaggedMap[q.id]
+  ).length;
+
+  return { total, answered, unanswered, flagged };
+};
+
+// ✅ أسئلة القسم الحالي فقط
+export const selectCurrentSectionQuestions = (state) => {
+  return state.exam.questions.filter(
+    (q) => q.sectionIndex === state.exam.currentSectionIndex
+  );
+};
+
+// ✅ index السؤال داخل القسم الحالي
+export const selectCurrentIndexInSection = (state) => {
+  const sectionQuestions = state.exam.questions.filter(
+    (q) => q.sectionIndex === state.exam.currentSectionIndex
+  );
+  const currentQ = state.exam.questions[state.exam.currentIndex];
+  if (!currentQ) return 0;
+  return sectionQuestions.findIndex((q) => q.id === currentQ.id);
+};

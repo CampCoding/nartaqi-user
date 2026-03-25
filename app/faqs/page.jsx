@@ -8,12 +8,22 @@ import LoadingPage from "../../components/shared/Loading";
 
 const categoryMap = {
   all: "الكل",
-  general_aptitude: "القدرات العامة",
-  technical_support: "الدعم الفني",
-  payment: "التسجيل والدفع",
-  courses: "دورات",
   general: "عام",
+  professional_license: "الرخصة المهنية",
+  support: "الدعم الفني",
+  courses: "الدورات",
+  enroll: "التسجيل والدفع",
 };
+
+// ترتيب الـ categories
+const categoryOrder = [
+  "all",
+  "general",
+  "professional_license",
+  "support",
+  "courses",
+  "enroll",
+];
 
 const FAQs = () => {
   const { data, error, isLoading } = useGetfaqs();
@@ -27,7 +37,7 @@ const FAQs = () => {
     return uniqueCategories;
   }, [faqData]);
 
-  // Build Navigation Items - Add "all" first, then categories from API
+  // Build Navigation Items - Add "all" first, then categories from API (sorted)
   const navigationItems = useMemo(() => {
     const items = [
       {
@@ -37,11 +47,16 @@ const FAQs = () => {
       },
     ];
 
-    categoriesFromAPI.forEach((cat, index) => {
+    // فلترة وترتيب الـ categories حسب الترتيب المحدد
+    const sortedCategories = categoriesFromAPI
+      .filter((cat) => categoryMap[cat]) // فقط الـ categories الموجودة في الـ map
+      .sort((a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b));
+
+    sortedCategories.forEach((cat, index) => {
       items.push({
         id: index + 1,
         key: cat,
-        text: categoryMap[cat] || cat,
+        text: categoryMap[cat],
       });
     });
 
@@ -112,6 +127,7 @@ const FAQs = () => {
 
 export default FAQs;
 
+// باقي الـ components زي ما هي...
 export const NavigationItems = ({
   items,
   activeCategory,
@@ -153,7 +169,6 @@ export const QuestionAccordion = ({ item }) => {
 
   return (
     <div className="w-full bg-white rounded-xl md:rounded-[30px] overflow-hidden shadow-sm">
-      {/* Header */}
       <div
         onClick={() => setOpen(!open)}
         className={`self-stretch p-4 gap-3 md:p-6 transition-all duration-300 flex justify-between items-center cursor-pointer ${
@@ -187,7 +202,6 @@ export const QuestionAccordion = ({ item }) => {
         </div>
       </div>
 
-      {/* Answer with animation */}
       <div
         className={`overflow-hidden transition-all duration-300 ${
           open ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
@@ -205,13 +219,7 @@ export const QuestionAccordion = ({ item }) => {
 const AnswerNotFound = () => {
   return (
     <div
-      className="
-        flex flex-col items-center justify-center
-        px-4
-        h-auto py-10 md:py-0 md:h-[276px]
-        mt-10 md:mt-[64px]
-        mb-16 md:mb-[105px]
-      "
+      className="flex flex-col items-center justify-center px-4 h-auto py-10 md:py-0 md:h-[276px] mt-10 md:mt-[64px] mb-16 md:mb-[105px]"
       style={{
         backgroundImage: `url('/images/FRAME (3).png')`,
         backgroundRepeat: "no-repeat",
@@ -220,11 +228,7 @@ const AnswerNotFound = () => {
       }}
     >
       <div className="w-full max-w-[202px]">
-        <div
-          className="
-            font-bold text-[#2d2d2d] leading-normal text-2xl md:text-[32px] text-center
-          "
-        >
+        <div className="font-bold text-[#2d2d2d] leading-normal text-2xl md:text-[32px] text-center">
           لم تجد إجابتك؟
         </div>
       </div>
@@ -238,14 +242,7 @@ const AnswerNotFound = () => {
       <button
         type="button"
         aria-label="الاتصال الدعم"
-        className="
-          inline-flex items-center justify-center gap-2
-          w-auto
-          px-6 md:px-8 py-3 md:py-4
-          bg-primary rounded-[20px] cursor-pointer
-          transition-colors hover:bg-secondary-dark
-          focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2
-        "
+        className="inline-flex items-center justify-center gap-2 w-auto px-6 md:px-8 py-3 md:py-4 bg-primary rounded-[20px] cursor-pointer transition-colors hover:bg-secondary-dark focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
       >
         <span className="text-neutral-50 text-sm md:text-base font-bold leading-5 text-center">
           الاتصال بالدعم

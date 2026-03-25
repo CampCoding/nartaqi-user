@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useMemo, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { X, Play, VideoIcon } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Play, VideoIcon } from "lucide-react";
 
 import Container from "../../components/ui/Container";
 import PagesBanner from "../../components/ui/PagesBanner";
 import LoadingPage from "../../components/shared/Loading";
 import FreeVideosFilters from "../../components/ui/FreeVideosFilters";
-import VideoPlayer from "../../components/ui/Video";
 
 import { useGetFreeVideos } from "../../components/shared/Hooks/useGetFreeRounds";
 
@@ -48,53 +47,29 @@ function isVimeoUrl(url) {
   return s.includes("vimeo.com") || s.includes("player.vimeo.com");
 }
 
-// ✅ دالة محسنة لاستخراج YouTube ID من جميع أنواع الروابط
 function extractYoutubeId(url) {
   if (!url) return "";
   const str = String(url).trim();
-
-  // إذا كان الـ ID مباشرة (11 حرف)
-  if (/^[a-zA-Z0-9_-]{11}$/.test(str)) {
-    return str;
-  }
-
-  // youtu.be/VIDEO_ID أو youtu.be/VIDEO_ID?si=xxx
+  if (/^[a-zA-Z0-9_-]{11}$/.test(str)) return str;
   const shortMatch = str.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
   if (shortMatch) return shortMatch[1];
-
-  // youtube.com/watch?v=VIDEO_ID
   const watchMatch = str.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
   if (watchMatch) return watchMatch[1];
-
-  // youtube.com/embed/VIDEO_ID
   const embedMatch = str.match(/embed\/([a-zA-Z0-9_-]{11})/);
   if (embedMatch) return embedMatch[1];
-
-  // youtube.com/v/VIDEO_ID
   const vMatch = str.match(/\/v\/([a-zA-Z0-9_-]{11})/);
   if (vMatch) return vMatch[1];
-
-  // youtube.com/shorts/VIDEO_ID
   const shortsMatch = str.match(/shorts\/([a-zA-Z0-9_-]{11})/);
   if (shortsMatch) return shortsMatch[1];
-
   return "";
 }
 
-// ✅ دالة محسنة لاستخراج Vimeo ID
 function extractVimeoId(url) {
   if (!url) return "";
   const str = String(url).trim();
-
-  // إذا كان رقم مباشرة
-  if (/^[0-9]+$/.test(str)) {
-    return str;
-  }
-
-  // vimeo.com/VIDEO_ID أو player.vimeo.com/video/VIDEO_ID
+  if (/^[0-9]+$/.test(str)) return str;
   const match = str.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (match) return match[1];
-
   return "";
 }
 
@@ -108,15 +83,12 @@ function buildYoutubeUrl(youtube_link) {
 function buildVimeoPlayerUrl(vimeo_link) {
   if (!vimeo_link) return "";
   const s = String(vimeo_link).trim();
-
   if (isNumericId(s)) return `https://player.vimeo.com/video/${s}`;
-
   if (s.startsWith("http")) {
     const id = extractVimeoId(s);
     if (id && isNumericId(id)) return `https://player.vimeo.com/video/${id}`;
     return s;
   }
-
   return "";
 }
 
@@ -124,7 +96,6 @@ function classifyPlatform(item) {
   const youtubeSource = item?.youtube_link;
   const vimeoSource = item?.vimeo_link;
 
-  // YouTube
   if (youtubeSource) {
     const youtubeId = extractYoutubeId(String(youtubeSource));
     if (youtubeId || isYoutubeUrl(youtubeSource)) {
@@ -137,7 +108,6 @@ function classifyPlatform(item) {
     }
   }
 
-  // Vimeo
   if (vimeoSource) {
     const vimeoId = extractVimeoId(String(vimeoSource));
     if (
@@ -156,7 +126,6 @@ function classifyPlatform(item) {
         directUrl: "",
       };
     }
-
     if (isDirectVideoUrl(vimeoSource)) {
       return {
         platform: "direct",
@@ -179,7 +148,6 @@ export function normalizeVideo(item, categoryMeta) {
   const id = item?.id;
   const title = item?.title || "فيديو مجاني";
   const description = item?.description || "";
-
   const durationSecRaw = item?.time;
   const durationSec =
     durationSecRaw === null ||
@@ -189,11 +157,9 @@ export function normalizeVideo(item, categoryMeta) {
       : toInt(durationSecRaw, 0);
 
   const { platform, youtubeId, vimeoId, directUrl } = classifyPlatform(item);
-
   const youtubeUrl = buildYoutubeUrl(item?.youtube_link);
   const vimeoUrl = buildVimeoPlayerUrl(item?.vimeo_link || vimeoId);
 
-  // ✅ إذا لم تكن هناك صورة، استخدم thumbnail من YouTube
   const thumb =
     item?.image_url ||
     (item?.image && item?.image !== "0" ? item.image : "") ||
@@ -223,11 +189,12 @@ export function normalizeVideo(item, categoryMeta) {
   };
 }
 
-// ---------- Card UI ----------
+// =============================================
+// ✅ الكارد الجديد - يفتح صفحة مشاهدة منفصلة
+// =============================================
 function FreeVideoCard({ video }) {
-  const [showVideo, setShowVideo] = useState(false);
+  const router = useRouter();
 
-  // ✅ Helper function لعمل encode (نفس الطريقة المستخدمة في المشروع)
   const encodeId = (value) => {
     if (!value) return "";
     try {
@@ -242,125 +209,89 @@ function FreeVideoCard({ video }) {
     (video.platform === "vimeo" && video.vimeoId) ||
     (video.platform === "direct" && video.directUrl);
 
-  // ✅ Get ENCODED video IDs for player
-  const getVideoIds = () => {
-    if (video.platform === "youtube" && video.youtubeId) {
-      return {
-        youtube_id: encodeId(video.youtubeId), // ✅ Encoded
-        vimeo_id: "",
-      };
+  // ✅ بناء رابط صفحة المشاهدة
+  const handleWatch = () => {
+    if (!canPlay) return;
+
+    const params = new URLSearchParams();
+
+    if (video.youtubeId) {
+      params.set("youtube_id", encodeId(video.youtubeId));
     }
-    if (video.platform === "vimeo" && video.vimeoId) {
-      return {
-        youtube_id: "",
-        vimeo_id: encodeId(video.vimeoId), // ✅ Encoded
-      };
+    if (video.vimeoId) {
+      params.set("vimeo_id", encodeId(video.vimeoId));
     }
     if (video.platform === "direct" && video.directUrl) {
-      return {
-        youtube_id: "",
-        vimeo_id: encodeId(video.directUrl), // ✅ Encoded
-      };
+      params.set("vimeo_id", encodeId(video.directUrl));
     }
-    return { youtube_id: "", vimeo_id: "" };
-  };
+    if (video.title) {
+      params.set("title", video.title);
+    }
+    if (video.categoryName) {
+      params.set("category", video.categoryName);
+    }
 
-  const { youtube_id, vimeo_id } = getVideoIds();
-
-  const handleToggleVideo = (e) => {
-    e.stopPropagation();
-    if (!canPlay) return;
-    setShowVideo(!showVideo);
-  };
-
-  const handleCloseVideo = (e) => {
-    e.stopPropagation();
-    setShowVideo(false);
+    router.push(`/free-courses/watch?${params.toString()}`);
   };
 
   return (
     <div className="group rounded-2xl border border-neutral-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
-      {/* Image/Video Container */}
-      <div className="relative w-full aspect-video bg-neutral-100 overflow-hidden">
-        {showVideo ? (
-          <div className="relative w-full h-full">
-            {/* Close Button */}
-            <button
-              onClick={handleCloseVideo}
-              className="absolute top-2 right-2 z-30 w-8 h-8 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-colors"
-              aria-label="إغلاق الفيديو"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            {/* Video Player - with encoded IDs */}
-            <VideoPlayer
-              vimeo_id={vimeo_id}
-              youtube_id={youtube_id}
-              defaultPlay={true}
-              rootClassName="rounded-none overflow-hidden h-full w-full"
+      {/* ✅ Thumbnail فقط - بدون فيديو داخل الكارد */}
+      <div
+        className="relative w-full aspect-video bg-neutral-100 overflow-hidden cursor-pointer"
+        onClick={handleWatch}
+      >
+        {video.thumb ? (
+          <img
+            src={video.thumb}
+            alt={video.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              e.currentTarget.src = "/images/logo.svg";
+              e.currentTarget.onerror = null;
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+            <img
+              src="/images/logo.svg"
+              alt={video.title}
+              className="w-20 h-20 object-contain opacity-50"
             />
           </div>
-        ) : (
-          <>
-            {/* Thumbnail Image */}
-            {video.thumb ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={video.thumb}
-                alt={video.title}
-                className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-                onError={(e) => {
-                  e.currentTarget.src = "/images/logo.svg";
-                  e.currentTarget.onerror = null;
-                }}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-                <img
-                  src="/images/logo.svg"
-                  alt={video.title}
-                  className="w-20 h-20 object-contain opacity-50"
-                />
-              </div>
-            )}
+        )}
 
-            {/* Platform Badge */}
-            <div
-              className={`absolute top-2 left-2 px-2 py-1 text-xs rounded-md text-white ${
-                video.platform === "youtube"
-                  ? "bg-red-600/90"
-                  : video.platform === "vimeo"
-                    ? "bg-sky-600/90"
-                    : "bg-emerald-600/90"
-              }`}
-            >
-              {video.platform === "youtube"
-                ? "YouTube"
-                : video.platform === "vimeo"
-                  ? "Vimeo"
-                  : "Video"}
+        {/* Platform Badge */}
+        <div
+          className={`absolute top-3 left-3 px-2.5 py-1 text-xs font-medium rounded-lg text-white ${
+            video.platform === "youtube"
+              ? "bg-red-600/90"
+              : video.platform === "vimeo"
+                ? "bg-sky-600/90"
+                : "bg-emerald-600/90"
+          }`}
+        >
+          {video.platform === "youtube"
+            ? "YouTube"
+            : video.platform === "vimeo"
+              ? "Vimeo"
+              : "Video"}
+        </div>
+
+        {/* Duration Badge */}
+        {!!formatDuration(video.durationSec) && (
+          <div className="absolute bottom-3 right-3 px-2.5 py-1 text-xs font-medium rounded-lg bg-black/70 text-white">
+            {formatDuration(video.durationSec)}
+          </div>
+        )}
+
+        {/* ✅ Play Overlay on Hover */}
+        {canPlay && (
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center bg-black/30">
+            <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform duration-300">
+              <Play className="w-8 h-8 text-primary fill-primary ml-1" />
             </div>
-
-            {/* Duration Badge */}
-            {!!formatDuration(video.durationSec) && (
-              <div className="absolute bottom-2 right-2 px-2 py-1 text-xs rounded-md bg-black/70 text-white">
-                {formatDuration(video.durationSec)}
-              </div>
-            )}
-
-            {/* Play Overlay on Hover */}
-            {canPlay && (
-              <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition flex items-center justify-center bg-black/20 cursor-pointer"
-                onClick={handleToggleVideo}
-              >
-                <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                  <Play className="w-8 h-8 text-primary fill-primary ml-1" />
-                </div>
-              </div>
-            )}
-          </>
+          </div>
         )}
       </div>
 
@@ -386,31 +317,21 @@ function FreeVideoCard({ video }) {
 
         <div className="flex-1" />
 
+        {/* ✅ زر المشاهدة - يفتح صفحة جديدة */}
         <button
-          className={`flex items-center text-white justify-center gap-2.5 px-4 py-3 w-full rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 ${
+          className={`flex items-center text-white justify-center gap-2.5 px-4 py-3 w-full rounded-xl transition-all duration-200 ${
             canPlay
-              ? showVideo
-                ? "bg-red-500 hover:bg-red-600"
-                : "bg-primary hover:opacity-90"
+              ? "bg-primary hover:opacity-90 cursor-pointer"
               : "bg-gray-400 cursor-not-allowed"
           }`}
           type="button"
           disabled={!canPlay}
-          onClick={handleToggleVideo}
+          onClick={handleWatch}
         >
-          {showVideo ? (
-            <>
-              <X className="w-5 h-5" />
-              <span className="text-sm font-semibold">إغلاق الفيديو</span>
-            </>
-          ) : (
-            <>
-              <VideoIcon className="w-5 h-5" />
-              <span className="text-sm font-semibold">
-                {canPlay ? "مشاهدة الفيديو" : "لا يوجد رابط فيديو"}
-              </span>
-            </>
-          )}
+          <VideoIcon className="w-5 h-5" />
+          <span className="text-sm font-semibold">
+            {canPlay ? "مشاهدة الفيديو" : "لا يوجد رابط فيديو"}
+          </span>
         </button>
       </div>
     </div>
@@ -477,7 +398,6 @@ export default function FreeVideosPage() {
     const max = filters.maxSec === "" ? null : toInt(filters.maxSec, 0);
 
     let res = allItems;
-
     if (q) {
       res = res.filter((v) => {
         const t = (v.title || "").toLowerCase();
@@ -485,14 +405,11 @@ export default function FreeVideosPage() {
         return t.includes(q) || d.includes(q);
       });
     }
-
     if (filters.platform !== "all") {
       res = res.filter((v) => v.platform === filters.platform);
     }
-
     if (min !== null) res = res.filter((v) => (v.durationSec ?? 0) >= min);
     if (max !== null) res = res.filter((v) => (v.durationSec ?? 0) <= max);
-
     return res;
   }, [allItems, filters]);
 
@@ -505,7 +422,6 @@ export default function FreeVideosPage() {
           breadcrumb={[
             { title: "الرئيسية", link: "/" },
             { title: "الشروحات المجانية", link: "#" },
-            { title: categoryTitle, link: "#" },
           ]}
           image="/images/Frame 1000005155.png"
         />
