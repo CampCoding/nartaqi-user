@@ -11,7 +11,9 @@ export default function CheckoutPage() {
   const router = useRouter();
 
   // جلب التوكن من الـ Redux
-  const { token: reduxToken } = useSelector((state) => state.auth);
+  const { token: reduxToken, user } = useSelector((state) => state.auth);
+
+  // console.log(user, "user");
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [courseData, setCourseData] = useState(null);
@@ -120,6 +122,7 @@ export default function CheckoutPage() {
       formData.append("amount", courseData.price);
       formData.append("phone", courseData.phone);
       formData.append("round_id", courseData.roundId);
+      formData.append("student_id", user?.id);
 
       try {
         const response = await axios.post(
