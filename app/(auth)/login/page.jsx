@@ -44,7 +44,7 @@ const LoginPage = () => {
     id: "student",
     label: "متدرب",
     icon: "ph:student",
-  },);
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -223,7 +223,8 @@ const LoginPage = () => {
                     <div className="col-span-3">
                       <TelephoneInput
                         label="رقم الجوال"
-                        placeholder="ادخل رقم جوالك"
+                        subLabel="بدون صفر"
+                        placeholder="مثال (50xxxxxxx)"
                         selectedCountry={selectedCountry}
                         setSelectedCountry={setSelectedCountry}
                         errors={errors.phone}
@@ -365,8 +366,8 @@ export const Input = memo(function Input({
 
 export const TelephoneInput = memo(function TelephoneInput({
   label = "رقم الجوال",
-  subLabel = "",
-  placeholder = "123456789",
+  subLabel = "بدون صفر",
+  placeholder = "مثال (50xxxxxxx)",
   register,
   errors,
   selectedCountry,
@@ -430,7 +431,6 @@ export const TelephoneInput = memo(function TelephoneInput({
     </Menu>
   );
 
-  // Handle input to allow only numbers
   const handleInput = useCallback((e) => {
     const onlyNums = e.target.value.replace(/\D/g, "");
     e.target.value = onlyNums;
@@ -439,14 +439,16 @@ export const TelephoneInput = memo(function TelephoneInput({
   return (
     <div className="flex flex-col items-start gap-2 relative w-full">
       <div className="justify-between flex items-center relative self-stretch w-full flex-[0_0_auto]">
-        <div className="mt-[-1.00px] font-bold text-text relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
-          {label}
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-text text-sm sm:text-base">
+            {label}
+          </span>
+          {subLabel && (
+            <span className="font-medium text-gray-400 text-sm sm:text-base">
+              ({subLabel})
+            </span>
+          )}
         </div>
-        {subLabel && (
-          <div className="mt-[-1.00px] font-medium text-danger relative flex items-center justify-center w-fit text-sm sm:text-base tracking-[0] leading-[normal]">
-            {subLabel}
-          </div>
-        )}
       </div>
       <div
         className={`h-12 sm:h-14 md:h-[62px] justify-between overflow-hidden py-0 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid flex items-center relative w-full transition-colors ${

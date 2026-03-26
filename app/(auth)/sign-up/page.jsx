@@ -85,7 +85,6 @@ const SignUpPage = () => {
       router.push("/verification-code");
     } catch (error) {
       toast.error(error.response.data.message);
-
     } finally {
       setLoading(false);
     }
@@ -161,10 +160,10 @@ const SignUpPage = () => {
             <div className="col-span-1 md:col-span-3">
               <TelephoneInput
                 label="رقم الجوال"
-                subLabel=""
+                subLabel="بدون صفر"
                 selectedCountry={selectedCountry}
                 setSelectedCountry={setSelectedCountry}
-                placeholder="ادخل رقم جوالك"
+                placeholder="مثال (50xxxxxxx)"
                 {...register("phone", {
                   required: "رقم الجوال مطلوب",
                   pattern: {

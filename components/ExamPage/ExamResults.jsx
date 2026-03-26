@@ -312,37 +312,6 @@ export const AnsweredQuestion = ({ questionData }) => {
         </div>
       </header>
 
-      {/* ✅ Instructions - يظهر قبل الفقرة */}
-      {hasInstructions(questionData.instructions) && (
-        <div className="w-full p-4 sm:p-5 md:p-6 bg-amber-50 rounded-xl sm:rounded-2xl border-2 border-amber-200">
-          <div className="flex items-center gap-2 mb-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span className="font-bold text-amber-800 text-sm sm:text-base">
-              تعليمات السؤال:
-            </span>
-          </div>
-          <div
-            className="richtext text-amber-900 text-sm sm:text-base leading-relaxed"
-            dangerouslySetInnerHTML={{
-              __html: questionData.instructions.replace(/&nbsp;/gi, " "),
-            }}
-          />
-        </div>
-      )}
-
       {/* Passage */}
       {questionData.passage && (
         <div className="w-full p-4 sm:p-5 md:p-6 bg-gray-50 rounded-xl sm:rounded-2xl border-2 border-gray-200">
@@ -439,6 +408,36 @@ export const AnsweredQuestion = ({ questionData }) => {
             })}
           </fieldset>
         </div>
+
+        {hasInstructions(questionData.instructions) && (
+          <div className="w-full p-4 my-2 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl">
+            <div className="flex items-center gap-2 mb-3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span className="font-bold text-amber-800 text-sm sm:text-base">
+                الشرح :
+              </span>
+            </div>
+            <div
+              className="richtext text-amber-900 text-sm sm:text-base leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: questionData.instructions.replace(/&nbsp;/gi, " "),
+              }}
+            />
+          </div>
+        )}
 
         {/* Explanation */}
         {questionData.explanation && (

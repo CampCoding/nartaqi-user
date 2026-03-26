@@ -28,7 +28,7 @@ const BlogDetails = () => {
         image={blog?.image_cover_url || "/images/Frame 1000004929.png"}
         objectPosition={"100%_100%"}
         variant="large"
-        title={blog?.title}
+        title={"تفاصيل المدونة"}
         breadcrumb={[
           {
             title: "الرئيسية",
