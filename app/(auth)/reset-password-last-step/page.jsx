@@ -15,26 +15,13 @@ import { clearResetPasswordData } from "../../../components/utils/Store/Slices/a
 import LoadingPage from "../../../components/shared/Loading.jsx";
 import { getExecutionDateTime } from "../../../components/utils/helpers/GetDeviceTime";
 
-// ✅ Schema التحقق من الباسورد
-
 const ResetPasswordLastStep = () => {
   const { resetPassword } = useSelector((state) => state.auth);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
-  if (!resetPassword?.code || !resetPassword?.phone) {
-    useEffect(() => {
-      router.push("/reset-password-code");
-    }, []);
-
-    return (
-      <Container>
-        <LoadingPage />
-      </Container>
-    );
-  }
-
+  // ✅ Move useForm BEFORE any conditional returns
   const {
     register,
     handleSubmit,
@@ -57,10 +44,21 @@ const ResetPasswordLastStep = () => {
 
       toast.success(res.data.message, { duration: 2000 });
     } catch (error) {
-
       toast.error(error?.response?.data?.message);
     }
   };
+
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  useEffect(() => {
+    // ✅ لو في navigation جاري، متعملش حاجة
+    if (isNavigating) return;
+
+    if (!resetPassword?.code || !resetPassword?.phone) {
+      router.push("/reset-password-code");
+    }
+  }, [resetPassword?.code, resetPassword?.phone, router, isNavigating]);
+
   const onSubmit = async (data) => {
     setLoading(true);
     const payload = {
@@ -70,19 +68,22 @@ const ResetPasswordLastStep = () => {
       password_confirmation: data?.confirmPassword,
     };
     try {
-
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/authentication/forgot/reset`,
         payload
       );
-      if (res.data.statusCode === 200) {
+
+      if (res.data.status === "success") {
         toast.success(res.data.message, { duration: 2000 });
+
+        // ✅ علّم إن في navigation جاري
+        setIsNavigating(true);
         dispatch(clearResetPasswordData());
-        router.push("/login");
+        router.replace("/login");
       }
     } catch (error) {
       toast.error(error?.response?.data?.message);
-      if (error.response.data.statusCode === 408) {
+      if (error?.response?.data?.statusCode === 408) {
         resendCode();
         router.push("/reset-password-code");
       }
@@ -91,91 +92,91 @@ const ResetPasswordLastStep = () => {
     }
   };
 
+  // ✅ Conditional return AFTER all hooks
+  if (!resetPassword?.code || !resetPassword?.phone) {
+    return (
+      <Container>
+        <LoadingPage />
+      </Container>
+    );
+  }
+
   return (
-    <>
-      {resetPassword ? (
-        <Container>
-          <div className="flex mx-auto my-6 sm:my-8 md:my-10 lg:my-[40px] flex-col w-full max-w-[638px] items-center gap-6 sm:gap-7 lg:gap-8 px-4 sm:px-6 md:px-8 lg:px-12 py-8 sm:py-12 md:py-16 lg:py-20 relative bg-white rounded-3xl sm:rounded-[40px] lg:rounded-[50px] border-2 lg:border-[3px] border-solid border-variable-collection-stroke">
-            <header className="flex flex-col items-center justify-center gap-4 sm:gap-5 lg:gap-6 relative w-full flex-[0_0_auto]">
-              <div className="flex flex-col items-center gap-2 relative w-full flex-[0_0_auto]">
-                <h1 className="relative flex items-center justify-center w-fit mt-[-1.00px] font-bold text-text text-lg sm:text-xl md:text-2xl tracking-[0] leading-[normal] text-center px-2">
-                  إعادة تعيين كلمة المرور
-                </h1>
+    <Container>
+      <div className="flex mx-auto my-6 sm:my-8 md:my-10 lg:my-[40px] flex-col w-full max-w-[638px] items-center gap-6 sm:gap-7 lg:gap-8 px-4 sm:px-6 md:px-8 lg:px-12 py-8 sm:py-12 md:py-16 lg:py-20 relative bg-white rounded-3xl sm:rounded-[40px] lg:rounded-[50px] border-2 lg:border-[3px] border-solid border-variable-collection-stroke">
+        <header className="flex flex-col items-center justify-center gap-4 sm:gap-5 lg:gap-6 relative w-full flex-[0_0_auto]">
+          <div className="flex flex-col items-center gap-2 relative w-full flex-[0_0_auto]">
+            <h1 className="relative flex items-center justify-center w-fit mt-[-1.00px] font-bold text-text text-lg sm:text-xl md:text-2xl tracking-[0] leading-[normal] text-center px-2">
+              إعادة تعيين كلمة المرور
+            </h1>
 
-                <p className="font-medium text-text-alt text-center relative flex items-center justify-center text-sm sm:text-base tracking-[0] leading-[normal] px-2">
-                  الرجاء تعيين كلمة مرور جديدة لحسابك.
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center gap-3 lg:gap-4 relative w-full flex-[0_0_auto]">
-                <div className="mt-[-1.00px] font-medium text-text-alt text-center relative flex items-center justify-center text-sm sm:text-base tracking-[0] leading-[normal]">
-                  الخطوة 3 من 3
-                </div>
-
-                <div
-                  className="relative w-full h-3 sm:h-4 lg:h-[18px] bg-primary-bg rounded-[50px] overflow-hidden"
-                  role="progressbar"
-                  aria-valuenow="100"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                  aria-label="Progress: Step 3 of 3"
-                >
-                  <div className="relative -top-px w-full h-3 sm:h-4 lg:h-[18px] bg-primary rounded-[50px]" />
-                </div>
-              </div>
-            </header>
-
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col items-start gap-4 relative w-full flex-[0_0_auto]"
-            >
-              <div className="flex flex-col items-start gap-4 relative w-full flex-[0_0_auto]">
-                <PasswordInput
-                  name="password"
-                  label="كلمة المرور الجديدة"
-                  subLabel={errors.password?.message}
-                  placeholder="أدخل كلمة المرور الجديدة"
-                  {...register("password")}
-                  trigger={trigger}
-                />
-                <PasswordInput
-                  name="confirmPassword"
-                  label="تأكيد كلمة المرور الجديدة"
-                  subLabel={errors.confirmPassword?.message}
-                  placeholder="أدخل تأكيد كلمة المرور"
-                  {...register("confirmPassword")}
-                />
-              </div>
-
-              <div className="flex flex-col items-center justify-center gap-4 relative w-full flex-[0_0_auto]">
-                <button
-                  type="submit"
-                  className={`self-stretch ${
-                    loading ? "cursor-not-allowed opacity-50" : ""
-                  }  px-6 sm:px-8 md:px-10 lg:px-12 py-3 sm:py-3.5 lg:py-4 bg-primary rounded-2xl lg:rounded-[20px] inline-flex justify-center items-center gap-2.5`}
-                >
-                  <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
-                    {loading
-                      ? "جاري تغيير كلمة المرور..."
-                      : "تغيير كلمة المرور"}
-                  </div>
-                </button>
-              </div>
-            </form>
+            <p className="font-medium text-text-alt text-center relative flex items-center justify-center text-sm sm:text-base tracking-[0] leading-[normal] px-2">
+              الرجاء تعيين كلمة مرور جديدة لحسابك.
+            </p>
           </div>
-        </Container>
-      ) : (
-        <Container>
-          <div className="h-screen bg-white"></div>
-        </Container>
-      )}
-    </>
+
+          <div className="flex flex-col items-center gap-3 lg:gap-4 relative w-full flex-[0_0_auto]">
+            <div className="mt-[-1.00px] font-medium text-text-alt text-center relative flex items-center justify-center text-sm sm:text-base tracking-[0] leading-[normal]">
+              الخطوة 3 من 3
+            </div>
+
+            <div
+              className="relative w-full h-3 sm:h-4 lg:h-[18px] bg-primary-bg rounded-[50px] overflow-hidden"
+              role="progressbar"
+              aria-valuenow="100"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-label="Progress: Step 3 of 3"
+            >
+              <div className="relative -top-px w-full h-3 sm:h-4 lg:h-[18px] bg-primary rounded-[50px]" />
+            </div>
+          </div>
+        </header>
+
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col items-start gap-4 relative w-full flex-[0_0_auto]"
+        >
+          <div className="flex flex-col items-start gap-4 relative w-full flex-[0_0_auto]">
+            <PasswordInput
+              name="password"
+              label="كلمة المرور الجديدة"
+              subLabel={errors.password?.message}
+              placeholder="أدخل كلمة المرور الجديدة"
+              {...register("password")}
+              trigger={trigger}
+            />
+            <PasswordInput
+              name="confirmPassword"
+              label="تأكيد كلمة المرور الجديدة"
+              subLabel={errors.confirmPassword?.message}
+              placeholder="أدخل تأكيد كلمة المرور"
+              {...register("confirmPassword")}
+            />
+          </div>
+
+          <div className="flex flex-col items-center justify-center gap-4 relative w-full flex-[0_0_auto]">
+            <button
+              type="submit"
+              disabled={loading}
+              className={`self-stretch ${
+                loading ? "cursor-not-allowed opacity-50" : ""
+              } px-6 sm:px-8 md:px-10 lg:px-12 py-3 sm:py-3.5 lg:py-4 bg-primary rounded-2xl lg:rounded-[20px] inline-flex justify-center items-center gap-2.5`}
+            >
+              <div className="text-right justify-center text-white text-sm sm:text-base font-bold">
+                {loading ? "جاري تغيير كلمة المرور..." : "تغيير كلمة المرور"}
+              </div>
+            </button>
+          </div>
+        </form>
+      </div>
+    </Container>
   );
 };
 
 export default ResetPasswordLastStep;
 
-// ✅ نفس الـ design بالضبط، مع إضافة الفاليديشن
+// ✅ PasswordInput component remains the same
 export const PasswordInput = ({
   name,
   label = "الاسم رباعي باللغة العربية",
@@ -206,8 +207,8 @@ export const PasswordInput = ({
           className="justify-start h-16 sm:h-18 md:h-20 lg:h-[78px] gap-2.5 px-3 sm:px-4 pr-6 sm:pr-12 bg-white rounded-2xl lg:rounded-[20px] border-2 border-solid border-[#c8c9d5] flex items-center relative w-full flex-[0_0_auto] text-sm sm:text-base focus:border-primary focus:outline-none"
           {...props}
           onBlur={(e) => {
-            props.onBlur?.(e); // ✅ يخلي RHF يحافظ على شغله
-            trigger?.(name); // ✅ يشغّل التحقق لما المستخدم يسيب الحقل
+            props.onBlur?.(e);
+            trigger?.(name);
           }}
         />
         <div

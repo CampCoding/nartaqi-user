@@ -74,18 +74,6 @@ export const StudentResultCard = ({ item, onOpenImages }) => {
             e.currentTarget.onerror = null;
           }}
         />
-
-        {/* ✅ Play Overlay on Hover - فقط لو فيه فيديو */}
-        {canOpen && (
-          <div
-            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center bg-black/30 cursor-pointer"
-            onClick={handleWatch}
-          >
-            <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform duration-300">
-              <Play className="w-7 h-7 text-primary fill-primary ml-0.5" />
-            </div>
-          </div>
-        )}
       </div>
 
       {/* ✅ زر المشاهدة - يفتح صفحة جديدة */}

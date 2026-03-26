@@ -78,6 +78,8 @@ const toAnsweredQuestions = (sections = []) => {
         passage: null,
         title: `السؤال ${idx++}`,
         question: stripHtml(q?.question_text),
+        // ✅ إضافة الـ instructions
+        instructions: q?.instructions || null,
         answer: studentAnswerId,
         correctId,
         isSolved: !!q?.is_solved,
@@ -119,6 +121,8 @@ const toAnsweredQuestions = (sections = []) => {
           passage,
           title: `السؤال ${idx++}`,
           question: stripHtml(q?.question_text),
+          // ✅ إضافة الـ instructions
+          instructions: q?.instructions || null,
           answer: studentAnswerId,
           correctId,
           isSolved: !!q?.is_solved,
@@ -136,7 +140,6 @@ const toAnsweredQuestions = (sections = []) => {
 
   return out;
 };
-
 // =====================
 // Page
 // =====================
@@ -276,6 +279,17 @@ export default ExamResults;
 export const AnsweredQuestion = ({ questionData }) => {
   const correctId = questionData.correctId;
 
+  // ✅ دالة للتحقق إذا الـ instructions فيها محتوى فعلي
+  const hasInstructions = (html) => {
+    if (!html) return false;
+    // إزالة الـ HTML tags والمسافات للتحقق من وجود نص فعلي
+    const text = html
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/gi, " ")
+      .trim();
+    return text.length > 0;
+  };
+
   return (
     <main className="flex flex-col items-start gap-6 sm:gap-8 md:gap-14 px-4 sm:px-8 md:px-12 lg:px-20 py-6 sm:py-7 md:py-8 bg-white rounded-[20px] sm:rounded-[30px] md:rounded-[40px] border-2 md:border-[3px] border-solid border-variable-collection-stroke">
       {/* Header */}
@@ -298,17 +312,67 @@ export const AnsweredQuestion = ({ questionData }) => {
         </div>
       </header>
 
-      {/* Passage */}
-      {questionData.passage ? (
-        <div className="w-full p-4 bg-gray-50 rounded-xl border text-sm leading-relaxed">
-          <div className="font-bold mb-2">الفقرة:</div>
-          <p
+      {/* ✅ Instructions - يظهر قبل الفقرة */}
+      {hasInstructions(questionData.instructions) && (
+        <div className="w-full p-4 sm:p-5 md:p-6 bg-amber-50 rounded-xl sm:rounded-2xl border-2 border-amber-200">
+          <div className="flex items-center gap-2 mb-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span className="font-bold text-amber-800 text-sm sm:text-base">
+              تعليمات السؤال:
+            </span>
+          </div>
+          <div
+            className="richtext text-amber-900 text-sm sm:text-base leading-relaxed"
             dangerouslySetInnerHTML={{
-              __html: questionData.passage.replaceAll(/&nbsp;/gi, " "),
+              __html: questionData.instructions.replace(/&nbsp;/gi, " "),
             }}
           />
         </div>
-      ) : null}
+      )}
+
+      {/* Passage */}
+      {questionData.passage && (
+        <div className="w-full p-4 sm:p-5 md:p-6 bg-gray-50 rounded-xl sm:rounded-2xl border-2 border-gray-200">
+          <div className="flex items-center gap-2 mb-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            <span className="font-bold text-gray-700 text-sm sm:text-base">
+              الفقرة:
+            </span>
+          </div>
+          <div
+            className="richtext text-gray-700 text-sm sm:text-base leading-relaxed"
+            dangerouslySetInnerHTML={{
+              __html: questionData.passage.replace(/&nbsp;/gi, " "),
+            }}
+          />
+        </div>
+      )}
 
       {/* Question */}
       <section className="flex flex-col items-start gap-4 sm:gap-5 md:gap-6 w-full">
@@ -378,15 +442,34 @@ export const AnsweredQuestion = ({ questionData }) => {
 
         {/* Explanation */}
         {questionData.explanation && (
-          <aside className="w-full">
-            <p className="text-sm sm:text-base text-text flex gap-2 leading-normal sm:leading-relaxed">
-              <span className="font-bold">الشرح:</span>
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: questionData.explanation.replaceAll(/&nbsp;/gi, " "),
-                }}
-              />
-            </p>
+          <aside className="w-full p-4 sm:p-5 bg-blue-50 rounded-xl sm:rounded-2xl border-2 border-blue-200">
+            <div className="flex items-start gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0 mt-0.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                />
+              </svg>
+              <div className="flex flex-col gap-1">
+                <span className="font-bold text-blue-800 text-sm sm:text-base">
+                  الشرح:
+                </span>
+                <span
+                  className="text-blue-900 text-sm sm:text-base leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html: questionData.explanation.replace(/&nbsp;/gi, " "),
+                  }}
+                />
+              </div>
+            </div>
           </aside>
         )}
       </section>
