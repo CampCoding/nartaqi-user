@@ -1,28 +1,32 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import Image from "next/image";
 import { RatingStarIcon } from "../../../public/svgs";
 import { useRouter } from "next/navigation";
 
-const FALLBACK_AVATAR = "https://avatars.hsoubcdn.com/default";
+const FALLBACK_AVATAR = "/images/Image-12422.png";
 
 export const LecturerCard = ({ lecturer }) => {
-  const name = lecturer?.name || "—";
-  const title = lecturer?.description || lecturer?.gender || "—";
-  const initialSrc =
-    lecturer?.image || lecturer?.image_url || "/images/Image-12422.png";
-
-  console.log(initialSrc, "initialSrc");
-
   const router = useRouter();
 
-  const [imgSrc, setImgSrc] = useState(initialSrc);
-  const [imgLoading, setImgLoading] = useState(true);
+  const name = lecturer?.name || "—";
+  const title = lecturer?.description || lecturer?.gender || "—";
 
-  // لو الـ lecturer اتغير (كارت جديد) لازم نرجّع الصورة للحالة الطبيعية
-  React.useEffect(() => {
-    setImgSrc(initialSrc);
-    setImgLoading(true);
-  }, [initialSrc]);
+  // ✅ التحقق من وجود صورة صالحة
+  const getImageSrc = () => {
+    const img = lecturer?.image_url || lecturer?.image;
+    if (img && typeof img === "string" && img.trim() !== "") {
+      return img;
+    }
+    return FALLBACK_AVATAR;
+  };
+
+  const [imgSrc, setImgSrc] = useState(getImageSrc);
+
+  // ✅ لو الـ lecturer اتغير
+  useEffect(() => {
+    setImgSrc(getImageSrc());
+  }, [lecturer?.id, lecturer?.image, lecturer?.image_url]);
 
   const socialLinks = useMemo(() => {
     const links = [];
@@ -70,33 +74,19 @@ export const LecturerCard = ({ lecturer }) => {
 
   return (
     <article
-      onClick={() => router.push(`/teacher-overview/${lecturer.id}`)}
+      onClick={() => router.push(`/teacher-overview/${lecturer?.id}`)}
       className="inline-flex cursor-pointer w-full md:max-w-sm flex-col items-center gap-6 rounded-[30px] border-2 border-solid border-neutral-300 bg-white p-4 md:p-8"
     >
       {/* Avatar wrapper */}
-      <div className="relative h-28 w-28 md:h-[124px] md:w-[124px]">
-        {/* ✅ Skeleton أثناء التحميل */}
-        {imgLoading ? (
-          <div className="absolute inset-0 rounded-full bg-gray-200 animate-pulse" />
-        ) : null}
-
-        <img
+      <div className="relative h-28 w-28 md:h-[124px] md:w-[124px] rounded-full overflow-hidden border border-neutral-200">
+        <Image
           src={imgSrc}
           alt={`${name} profile picture`}
-          className={`h-full w-full rounded-full object-cover border border-neutral-200 transition-opacity duration-300 ${
-            imgLoading ? "opacity-0" : "opacity-100"
-          }`}
-          loading="lazy"
-          onLoad={() => setImgLoading(false)}
-          onError={() => {
-            // لو فشلنا مرة، بدّل للفولباك فقط (علشان ما تعملش loop)
-            if (imgSrc !== FALLBACK_AVATAR) {
-              setImgSrc(FALLBACK_AVATAR);
-              setImgLoading(false);
-            } else {
-              setImgLoading(false);
-            }
-          }}
+          fill
+          className="object-cover"
+          sizes="124px"
+          onError={() => setImgSrc(FALLBACK_AVATAR)}
+          unoptimized={imgSrc.startsWith("http")} // ✅ للصور الخارجية
         />
       </div>
 
@@ -111,8 +101,8 @@ export const LecturerCard = ({ lecturer }) => {
           </p>
         </header>
 
-        {/* Rating (اختياري) */}
-        {rating !== null ? (
+        {/* Rating */}
+        {rating !== null && (
           <div className="inline-flex flex-col items-center gap-3">
             <div
               className="inline-flex items-center gap-2"
@@ -126,13 +116,14 @@ export const LecturerCard = ({ lecturer }) => {
               </div>
             </div>
           </div>
-        ) : null}
+        )}
 
         {/* Social */}
-        {socialLinks.length ? (
+        {socialLinks.length > 0 && (
           <nav
             aria-label="Social media links"
             className="flex items-center gap-2 flex-wrap justify-center"
+            onClick={(e) => e.stopPropagation()}
           >
             {socialLinks.map((social) => (
               <a
@@ -148,12 +139,11 @@ export const LecturerCard = ({ lecturer }) => {
               </a>
             ))}
           </nav>
-        ) : null}
+        )}
       </div>
     </article>
   );
 };
-
 /** ✅ أضف أيقونات ناقصة (YouTube/Twitter/Website) */
 const YouTubeIcon = (props) => (
   <svg
