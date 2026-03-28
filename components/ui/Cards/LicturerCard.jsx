@@ -1,5 +1,7 @@
+"use client";
 import React, { useMemo, useState } from "react";
 import { RatingStarIcon } from "../../../public/svgs";
+import { useRouter } from "next/navigation";
 
 const FALLBACK_AVATAR = "https://avatars.hsoubcdn.com/default";
 
@@ -8,6 +10,10 @@ export const LecturerCard = ({ lecturer }) => {
   const title = lecturer?.description || lecturer?.gender || "—";
   const initialSrc =
     lecturer?.image || lecturer?.image_url || "/images/Image-12422.png";
+
+  console.log(initialSrc, "initialSrc");
+
+  const router = useRouter();
 
   const [imgSrc, setImgSrc] = useState(initialSrc);
   const [imgLoading, setImgLoading] = useState(true);
@@ -21,17 +27,41 @@ export const LecturerCard = ({ lecturer }) => {
   const socialLinks = useMemo(() => {
     const links = [];
     if (lecturer?.instagram)
-      links.push({ name: "Instagram", url: lecturer.instagram, icon: <InstagramIcon /> });
+      links.push({
+        name: "Instagram",
+        url: lecturer.instagram,
+        icon: <InstagramIcon />,
+      });
     if (lecturer?.linkedin)
-      links.push({ name: "LinkedIn", url: lecturer.linkedin, icon: <LinkedInIcon /> });
+      links.push({
+        name: "LinkedIn",
+        url: lecturer.linkedin,
+        icon: <LinkedInIcon />,
+      });
     if (lecturer?.facebook)
-      links.push({ name: "Facebook", url: lecturer.facebook, icon: <FacebookIcon /> });
+      links.push({
+        name: "Facebook",
+        url: lecturer.facebook,
+        icon: <FacebookIcon />,
+      });
     if (lecturer?.youtube)
-      links.push({ name: "YouTube", url: lecturer.youtube, icon: <YouTubeIcon /> });
+      links.push({
+        name: "YouTube",
+        url: lecturer.youtube,
+        icon: <YouTubeIcon />,
+      });
     if (lecturer?.twitter)
-      links.push({ name: "Twitter", url: lecturer.twitter, icon: <TwitterIcon /> });
+      links.push({
+        name: "Twitter",
+        url: lecturer.twitter,
+        icon: <TwitterIcon />,
+      });
     if (lecturer?.website)
-      links.push({ name: "Website", url: lecturer.website, icon: <WebsiteIcon /> });
+      links.push({
+        name: "Website",
+        url: lecturer.website,
+        icon: <WebsiteIcon />,
+      });
     return links;
   }, [lecturer]);
 
@@ -39,7 +69,10 @@ export const LecturerCard = ({ lecturer }) => {
   const reviews = lecturer?.reviews ?? null;
 
   return (
-    <article className="inline-flex w-full md:max-w-sm flex-col items-center gap-6 rounded-[30px] border-2 border-solid border-neutral-300 bg-white p-4 md:p-8">
+    <article
+      onClick={() => router.push(`/teacher-overview/${lecturer.id}`)}
+      className="inline-flex cursor-pointer w-full md:max-w-sm flex-col items-center gap-6 rounded-[30px] border-2 border-solid border-neutral-300 bg-white p-4 md:p-8"
+    >
       {/* Avatar wrapper */}
       <div className="relative h-28 w-28 md:h-[124px] md:w-[124px]">
         {/* ✅ Skeleton أثناء التحميل */}
@@ -121,24 +154,53 @@ export const LecturerCard = ({ lecturer }) => {
   );
 };
 
-
 /** ✅ أضف أيقونات ناقصة (YouTube/Twitter/Website) */
 const YouTubeIcon = (props) => (
-  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" {...props} xmlns="http://www.w3.org/2000/svg">
-    <path d="M21.8 8.001a2.75 2.75 0 0 0-1.94-1.95C18.15 5.5 12 5.5 12 5.5s-6.15 0-7.86.551A2.75 2.75 0 0 0 2.2 8.001 28.6 28.6 0 0 0 2 12a28.6 28.6 0 0 0 .2 3.999 2.75 2.75 0 0 0 1.94 1.95C5.85 18.5 12 18.5 12 18.5s6.15 0 7.86-.551a2.75 2.75 0 0 0 1.94-1.95A28.6 28.6 0 0 0 22 12a28.6 28.6 0 0 0-.2-3.999Z" fill="#3B82F6"/>
-    <path d="M10.5 14.75v-5.5L15.25 12l-4.75 2.75Z" fill="#fff"/>
+  <svg
+    width={20}
+    height={20}
+    viewBox="0 0 24 24"
+    fill="none"
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M21.8 8.001a2.75 2.75 0 0 0-1.94-1.95C18.15 5.5 12 5.5 12 5.5s-6.15 0-7.86.551A2.75 2.75 0 0 0 2.2 8.001 28.6 28.6 0 0 0 2 12a28.6 28.6 0 0 0 .2 3.999 2.75 2.75 0 0 0 1.94 1.95C5.85 18.5 12 18.5 12 18.5s6.15 0 7.86-.551a2.75 2.75 0 0 0 1.94-1.95A28.6 28.6 0 0 0 22 12a28.6 28.6 0 0 0-.2-3.999Z"
+      fill="#3B82F6"
+    />
+    <path d="M10.5 14.75v-5.5L15.25 12l-4.75 2.75Z" fill="#fff" />
   </svg>
 );
 
 const TwitterIcon = (props) => (
-  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" {...props} xmlns="http://www.w3.org/2000/svg">
-    <path d="M18.9 2H22l-6.8 7.8L23.4 22h-6.6l-5.2-6.7L5.8 22H2.6l7.3-8.4L.9 2h6.8l4.7 6.1L18.9 2Zm-1.2 18h1.7L8.2 3.9H6.3L17.7 20Z" fill="#3B82F6"/>
+  <svg
+    width={20}
+    height={20}
+    viewBox="0 0 24 24"
+    fill="none"
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M18.9 2H22l-6.8 7.8L23.4 22h-6.6l-5.2-6.7L5.8 22H2.6l7.3-8.4L.9 2h6.8l4.7 6.1L18.9 2Zm-1.2 18h1.7L8.2 3.9H6.3L17.7 20Z"
+      fill="#3B82F6"
+    />
   </svg>
 );
 
 const WebsiteIcon = (props) => (
-  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" {...props} xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm7.8 9H16.9a16 16 0 0 0-1.2-6 8.03 8.03 0 0 1 4.1 6ZM12 4c1 1.4 1.8 3.6 2.2 7H9.8C10.2 7.6 11 5.4 12 4Zm-3.7 1a16 16 0 0 0-1.2 6H4.2a8.03 8.03 0 0 1 4.1-6ZM4.2 13h2.9a16 16 0 0 0 1.2 6 8.03 8.03 0 0 1-4.1-6Zm5.6 0h4.4c-.4 3.4-1.2 5.6-2.2 7-1-1.4-1.8-3.6-2.2-7Zm6 6a16 16 0 0 0 1.2-6h2.9a8.03 8.03 0 0 1-4.1 6Z" fill="#3B82F6"/>
+  <svg
+    width={20}
+    height={20}
+    viewBox="0 0 24 24"
+    fill="none"
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm7.8 9H16.9a16 16 0 0 0-1.2-6 8.03 8.03 0 0 1 4.1 6ZM12 4c1 1.4 1.8 3.6 2.2 7H9.8C10.2 7.6 11 5.4 12 4Zm-3.7 1a16 16 0 0 0-1.2 6H4.2a8.03 8.03 0 0 1 4.1-6ZM4.2 13h2.9a16 16 0 0 0 1.2 6 8.03 8.03 0 0 1-4.1-6Zm5.6 0h4.4c-.4 3.4-1.2 5.6-2.2 7-1-1.4-1.8-3.6-2.2-7Zm6 6a16 16 0 0 0 1.2-6h2.9a8.03 8.03 0 0 1-4.1 6Z"
+      fill="#3B82F6"
+    />
   </svg>
 );
 
