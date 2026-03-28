@@ -1,6 +1,6 @@
 "use client";
 
-import { VideoIcon, Play } from "lucide-react";
+import { VideoIcon } from "lucide-react";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { detectVideoType } from "../../../lib/parseVideoLink";
@@ -11,20 +11,18 @@ export const StudentResultCard = ({ item, onOpenImages }) => {
   const title = item?.title || "نتيجة طالب";
   const image = item?.image_url || "/images/resultImage.png";
   const videoLink = item?.video_link || "";
-  const canOpen = !!videoLink;
 
-  // استخراج نوع الفيديو والـ ID
-  const { link, type } = detectVideoType(videoLink);
+  // ✅ استخراج نوع الفيديو والـ Video ID
+  const { videoId, type: videoType } = detectVideoType(videoLink);
+  const canOpen = !!(
+    (videoId && videoType === "youtube") ||
+    videoType === "vimeo"
+  );
 
-  // ✅ Helper لعمل encode
-  const encodeId = (value) => {
-    if (!value) return "";
-    try {
-      return encodeURIComponent(btoa(String(value)));
-    } catch (e) {
-      return value;
-    }
-  };
+  // ✅ Debug - شيله بعد التأكد
+  console.log("Video Link:", videoLink);
+  console.log("Video ID:", videoId);
+  console.log("Video Type:", videoType);
 
   // ✅ فتح صفحة مشاهدة منفصلة
   const handleWatch = (e) => {
@@ -33,17 +31,18 @@ export const StudentResultCard = ({ item, onOpenImages }) => {
 
     const params = new URLSearchParams();
 
-    if (type === "youtube" && link) {
-      params.set("youtube_id", encodeId(link));
+    if (videoType === "youtube") {
+      params.set("youtube_id", videoId);
     }
-    if (type === "vimeo" && link) {
-      params.set("vimeo_id", encodeId(link));
+    if (videoType === "vimeo") {
+      params.set("vimeo_id", videoId);
     }
-    if (title) {
-      params.set("title", title);
-    }
+    params.set("title", title);
 
-    router.push(`/student-results/watch?${params.toString()}`);
+    const url = `/student-results/watch?${params.toString()}`;
+    console.log("Navigating to:", url); // Debug
+
+    router.push(url);
   };
 
   // ✅ الضغط على الكارد يفتح الصور
@@ -61,9 +60,8 @@ export const StudentResultCard = ({ item, onOpenImages }) => {
       }}
       className="flex flex-col w-full items-start gap-6 py-4 px-4 relative rounded-[35px] border-[4px] md:border-[5px] border-solid cursor-pointer hover:shadow-md transition"
     >
-      {/* ✅ Thumbnail فقط - بدون فيديو داخل الكارد */}
+      {/* ✅ Thumbnail */}
       <div className="group relative self-stretch w-full min-h-[200px] rounded-xl overflow-hidden bg-neutral-100">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           loading="lazy"
           className="w-full h-[200px] object-cover group-hover:scale-105 transition-transform duration-300"
@@ -76,7 +74,7 @@ export const StudentResultCard = ({ item, onOpenImages }) => {
         />
       </div>
 
-      {/* ✅ زر المشاهدة - يفتح صفحة جديدة */}
+      {/* ✅ زر المشاهدة */}
       <button
         className={`flex items-center text-white justify-center gap-2.5 px-2 py-3 md:py-3 relative self-stretch w-full flex-[0_0_auto] rounded-[15px] md:rounded-[19px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 ${
           canOpen

@@ -6,7 +6,6 @@ import { ArrowRight } from "lucide-react";
 
 import PagesBanner from "../../../components/ui/PagesBanner";
 import Container from "../../../components/ui/Container";
-import VideoPlayer from "../../../components/ui/Video";
 import LoadingPage from "../../../components/shared/Loading";
 
 function WatchContent() {
@@ -16,7 +15,11 @@ function WatchContent() {
   const youtubeId = searchParams.get("youtube_id") || "";
   const title = searchParams.get("title") || "توثيق درجة الطالب";
 
-  const hasVideo = vimeoId || youtubeId;
+  // ✅ Debug
+  console.log("YouTube ID from URL:", youtubeId);
+  console.log("Vimeo ID from URL:", vimeoId);
+
+  const hasVideo = !!(vimeoId || youtubeId);
 
   return (
     <div className="min-h-screen bg-[#f8f9fa]">
@@ -45,9 +48,6 @@ function WatchContent() {
 
         {hasVideo ? (
           <div className="flex flex-col gap-8">
-            {/* ===================== */}
-            {/* ✅ Video Card         */}
-            {/* ===================== */}
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm border border-neutral-200 overflow-hidden">
               {/* Title Section */}
               <div className="p-5 md:p-8 border-b border-neutral-100">
@@ -61,15 +61,34 @@ function WatchContent() {
                 </div>
               </div>
 
-              {/* ✅ Video Player */}
+              {/* ✅ Video Player - استخدام iframe مباشر */}
               <div className="p-4 md:p-6 lg:p-8">
                 <div className="rounded-xl md:rounded-2xl overflow-hidden shadow-lg">
-                  <VideoPlayer
-                    vimeo_id={vimeoId}
-                    youtube_id={youtubeId}
-                    defaultPlay={false}
-                    rootClassName="rounded-xl md:rounded-2xl overflow-hidden"
-                  />
+                  <div
+                    className="relative w-full"
+                    style={{ paddingTop: "56.25%" }}
+                  >
+                    {youtubeId && (
+                      <iframe
+                        className="absolute top-0 left-0 w-full h-full"
+                        src={`https://www.youtube.com/embed/${youtubeId}`}
+                        title={title}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      />
+                    )}
+                    {vimeoId && (
+                      <iframe
+                        className="absolute top-0 left-0 w-full h-full"
+                        src={`https://player.vimeo.com/video/${vimeoId}`}
+                        title={title}
+                        frameBorder="0"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowFullScreen
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -106,7 +125,6 @@ function WatchContent() {
   );
 }
 
-// ✅ Wrap with Suspense for useSearchParams
 export default function StudentResultWatchPage() {
   return (
     <Suspense fallback={<LoadingPage />}>
