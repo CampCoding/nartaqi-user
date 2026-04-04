@@ -258,10 +258,10 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
               {/* Question Header with Flag */}
               <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                  <span className="text-sm text-text-alt">
+                  {/* <span className="text-sm text-text-alt">
                     السؤال {currentIndexInSection + 1} من{" "}
                     {sectionQuestions.length}
-                  </span>
+                  </span> */}
                   {sections.length > 1 && (
                     <span className="text-xs text-gray-400">
                       (القسم {currentSectionIndex + 1})

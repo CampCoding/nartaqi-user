@@ -92,7 +92,7 @@ export const Timer = ({
   const currentSection = useSelector(selectCurrentSection);
 
   return (
-    <div className="flex flex-col  md:items-center gap-4 md:flex-row justify-between w-full mb-12 sm:mb-16 lg:mb-20">
+    <div className="flex flex-col  md:items-center gap-4 md:flex-row justify-between w-full mb-6 sm:mb-8 lg:mb-10">
       <div className="flex flex-col  order-2 md:order-1 justify-center items-start gap-6  ">
         {/* <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-text text-right sm:text-right">
             {examData?.exam_info?.title || "الاختبار"}

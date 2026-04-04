@@ -553,16 +553,22 @@ const MockTest = () => {
             {isStarted && currentSection && (
               <div
                 className={`text-right text-[#be1919] w-full 
-                  ${
-                    fontSize === "small"
-                      ? "text-[8px] sm:text-[10px] md:text-xs lg:text-sm landscape:text-[7px] md:landscape:text-xs"
-                      : fontSize === "large"
-                        ? "text-[10px] sm:text-xs md:text-lg lg:text-xl landscape:text-[9px] md:landscape:text-lg"
-                        : fontSize === "xlarge"
-                          ? "text-[12px] sm:text-sm md:text-xl lg:text-2xl landscape:text-[10px] md:landscape:text-xl"
-                          : "text-[9px] sm:text-[11px] md:text-base lg:text-lg landscape:text-[8px] md:landscape:text-base"
-                  } 
-                  leading-tight sm:leading-snug md:leading-relaxed landscape:leading-tight md:landscape:leading-relaxed`}
+      ${
+        fontSize === "small"
+          ? `text-[8px] sm:text-[10px] md:text-xs lg:text-sm xl:text-base
+             landscape:text-[7px] landscape:sm:text-[9px] landscape:md:text-[11px] landscape:lg:text-xs`
+          : fontSize === "large"
+            ? `text-[10px] sm:text-sm md:text-base lg:text-lg xl:text-xl
+               landscape:text-[9px] landscape:sm:text-xs landscape:md:text-sm landscape:lg:text-base`
+            : fontSize === "xlarge"
+              ? `text-[11px] sm:text-base md:text-lg lg:text-xl xl:text-2xl
+                 landscape:text-[10px] landscape:sm:text-sm landscape:md:text-base landscape:lg:text-lg`
+              : `text-[9px] sm:text-xs md:text-sm lg:text-base xl:text-lg
+                 landscape:text-[8px] landscape:sm:text-[10px] landscape:md:text-xs landscape:lg:text-sm`
+      } 
+      leading-normal sm:leading-relaxed md:leading-relaxed lg:leading-loose
+      landscape:leading-snug landscape:sm:leading-normal landscape:md:leading-relaxed
+    `}
               >
                 {enteredSections.has(currentSectionIndex) &&
                 currentBlock?.questions?.[0] ? (
@@ -596,17 +602,24 @@ const MockTest = () => {
                 ) : (
                   <>
                     <h3
-                      className={`prose prose-neutral font-bold w-full grid grid-cols-1 mb-1 sm:mb-4 landscape:mb-0.5 md:landscape:mb-4 !whitespace-normal
-                        ${
-                          fontSize === "small"
-                            ? "text-[10px] sm:text-xs md:text-lg landscape:text-[9px] md:landscape:text-lg"
-                            : fontSize === "large"
-                              ? "text-[12px] sm:text-sm md:text-xl landscape:text-[11px] md:landscape:text-xl"
-                              : fontSize === "xlarge"
-                                ? "text-[14px] sm:text-base md:text-2xl landscape:text-[12px] md:landscape:text-2xl"
-                                : "text-[11px] sm:text-[13px] md:text-lg lg:text-xl landscape:text-[10px] md:landscape:text-lg"
-                        }
-                      `}
+                      className={`
+            prose prose-neutral font-bold w-full grid grid-cols-1 !whitespace-normal
+            mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 xl:mb-5
+            landscape:mb-1 landscape:sm:mb-1.5 landscape:md:mb-2 landscape:lg:mb-3
+            ${
+              fontSize === "small"
+                ? `text-[10px] sm:text-xs md:text-sm lg:text-lg xl:text-xl
+                   landscape:text-[9px] landscape:sm:text-[11px] landscape:md:text-xs landscape:lg:text-base`
+                : fontSize === "large"
+                  ? `text-[12px] sm:text-base md:text-lg lg:text-xl xl:text-2xl
+                     landscape:text-[11px] landscape:sm:text-sm landscape:md:text-base landscape:lg:text-lg`
+                  : fontSize === "xlarge"
+                    ? `text-[14px] sm:text-lg md:text-xl lg:text-2xl xl:text-3xl
+                       landscape:text-[12px] landscape:sm:text-base landscape:md:text-lg landscape:lg:text-xl`
+                    : `text-[11px] sm:text-sm md:text-base lg:text-xl xl:text-2xl
+                       landscape:text-[10px] landscape:sm:text-xs landscape:md:text-sm landscape:lg:text-lg`
+            }
+          `}
                       dangerouslySetInnerHTML={{
                         __html: currentSection.title.replaceAll(
                           /&nbsp;/gi,

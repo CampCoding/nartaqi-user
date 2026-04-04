@@ -31,21 +31,21 @@ const MyFavourites = () => {
           {displayedCourses.map((course) => {
             const payload = {
               id: course?.round_id,
-              name: course.round.name,
+              name: course?.round?.name,
               description: course?.round?.description,
               image_url: course?.round?.image_url,
-              start_date: course.round.start_date,
+              start_date: course?.round?.start_date,
               free: course?.round?.free,
               price: course?.round?.price,
               capacity: course?.round?.capacity,
               favorite: true,
               enrolled: true,
               course: {
-                name: course?.round.category_part || "تكنولوجيا التعليم ",
+                name: course?.round?.category_part || "تكنولوجيا التعليم ",
               },
               teacher: [{ name }] || [],
-              rating: course.round.rate || 0,
-              totalRates: course.round.totalRate || 0,
+              rating: course?.round?.rate || 0,
+              totalRates: course?.round?.totalRate || 0,
             };
 
             return (
