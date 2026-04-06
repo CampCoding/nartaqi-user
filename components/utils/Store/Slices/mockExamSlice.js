@@ -226,7 +226,7 @@ const mockExamSlice = createSlice({
         });
 
         // Shuffle blocks only
-        const shuffledBlocks = shuffleArray(blocks);
+        const shuffledBlocks = blocks;
 
         if (shuffledBlocks.length > 0) {
           transformedSections.push({
