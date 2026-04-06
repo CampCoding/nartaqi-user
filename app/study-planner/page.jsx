@@ -30,7 +30,7 @@ const StudyPlannerPage = () => {
           <BannerSection />
           <StudyPlannerForm />
         </div>
-        <StudyBlannerFeaturesSection />
+        {/* <StudyBlannerFeaturesSection /> */}
       </Container>
     </div>
   );

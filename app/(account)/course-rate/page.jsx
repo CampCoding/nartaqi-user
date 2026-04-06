@@ -45,6 +45,37 @@ function parsePhoneNumber(rawPhone) {
   return { code: "+966", number: cleanPhone };
 }
 
+// ✅ ألوان مخصصة لكل قسم
+const SECTION_COLORS = {
+  basic: {
+    primary: "#3b82f6", // blue
+    bg: "bg-blue-50",
+    border: "border-blue-200",
+    text: "text-blue-600",
+    iconBg: "bg-blue-100",
+    gradientFrom: "from-blue-500",
+    gradientTo: "to-blue-600",
+  },
+  lecture: {
+    primary: "#8b5cf6", // purple
+    bg: "bg-purple-50",
+    border: "border-purple-200",
+    text: "text-purple-600",
+    iconBg: "bg-purple-100",
+    gradientFrom: "from-purple-500",
+    gradientTo: "to-purple-600",
+  },
+  fullRound: {
+    primary: "#f59e0b", // amber
+    bg: "bg-amber-50",
+    border: "border-amber-200",
+    text: "text-amber-600",
+    iconBg: "bg-amber-100",
+    gradientFrom: "from-amber-500",
+    gradientTo: "to-amber-600",
+  },
+};
+
 export default function CompletionRatePage() {
   const { token, user } = useSelector((s) => s.auth);
   const studentName = user?.name || "اسم الطالب/ة غير متوفر";
@@ -125,7 +156,6 @@ export default function CompletionRatePage() {
         text-align: right;
       `;
 
-      // بناء صفوف الجدول
       const buildTableRows = (items) => {
         if (!items || items.length === 0) {
           return `
@@ -166,11 +196,10 @@ export default function CompletionRatePage() {
           .join("");
       };
 
-      // بناء جدول كامل
-      const buildTable = (title, items, cumulativeAverage) => {
+      const buildTable = (title, items, cumulativeAverage, color) => {
         return `
           <div style="margin-bottom: 35px; position: relative;">
-            <h3 style="font-size: 17px; font-weight: bold; color: #1f2937; margin: 0 0 12px 0;">${title}</h3>
+            <h3 style="font-size: 17px; font-weight: bold; color: ${color}; margin: 0 0 12px 0;">${title}</h3>
             <div style="border: 1px solid #e5e7eb; border-radius: 4px; overflow: hidden; background-color: #fff;">
               <table style="width: 100%; border-collapse: collapse;">
                 <thead>
@@ -183,7 +212,7 @@ export default function CompletionRatePage() {
                   ${buildTableRows(items)}
                   <tr>
                     <td style="border: 1px solid #e5e7eb; padding: 14px 18px; text-align: right; color: #1f2937; font-size: 14px; font-weight: bold;">المعدل التراكمي</td>
-                    <td style="border: 1px solid #e5e7eb; padding: 14px 18px; text-align: center; color: #1d4ed8; font-size: 16px; font-weight: bold;">%${formatNumber(cumulativeAverage)}</td>
+                    <td style="border: 1px solid #e5e7eb; padding: 14px 18px; text-align: center; color: ${color}; font-size: 16px; font-weight: bold;">%${formatNumber(cumulativeAverage)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -193,7 +222,6 @@ export default function CompletionRatePage() {
       };
 
       container.innerHTML = `
-        <!-- Content -->
         <div style="position: relative; z-index: 10;">
           
           <h1 style="text-align: center; font-size: 24px; font-weight: bold; color: #4b5563; margin: 0 0 35px 0;">
@@ -219,28 +247,27 @@ export default function CompletionRatePage() {
             ${selectedCourseName}
           </div>
 
-          ${buildTable("تدريبات على التأسيس", basicItems, message.basic_percentage)}
-          ${buildTable("تدريبات البثوث المباشرة", lectureItems, message.lecture_percentage)}
-          ${buildTable("الاختبارات التجريبية", fullRoundItems, message.full_round_percentage)}
+          ${buildTable("تدريبات على التأسيس", basicItems, message.basic_percentage, "#3b82f6")}
+          ${buildTable("تدريبات البثوث المباشرة", lectureItems, message.lecture_percentage, "#8b5cf6")}
+          ${buildTable("الاختبارات التجريبية", fullRoundItems, message.full_round_percentage, "#f59e0b")}
 
           <div style="display: flex; justify-content: flex-end; padding-top: 20px;">
             <div style="display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: bold; color: #1f2937;">
               <span>المعدل التراكمي العام :</span>
-              <span style="color: #1d4ed8;">%${formatNumber(message.total_percentage)}</span>
+              <span style="color: #10b981;">%${formatNumber(message.total_percentage)}</span>
             </div>
           </div>
         </div>
 
-        <!-- ✅ Watermark (معدلة لتكون فوق كل شيء المطلق) -->
         <div style="
           position: absolute;
           top: 0; left: 0; right: 0; height: 100%;
-          z-index: 9999; /* 👈 يضمن أن تكون فوق الجداول واي محتوى */
+          z-index: 9999;
           display: flex;
           flex-direction: column;
           justify-content: space-evenly;
           align-items: center;
-          opacity: 0.12; /* 👈 شفافية مناسبة للظهور فوق الكلام والجداول */
+          opacity: 0.12;
           pointer-events: none;
         ">
           <img src="/images/logo.svg" style="width: 400px; margin: 200px 0;" crossorigin="anonymous"/>
@@ -252,7 +279,6 @@ export default function CompletionRatePage() {
 
       document.body.appendChild(container);
 
-      // انتظار تحميل الصور (اللوجو) لتجنب اختفاء العلامة المائية
       const images = container.querySelectorAll("img");
       await Promise.all(
         Array.from(images).map(
@@ -267,7 +293,6 @@ export default function CompletionRatePage() {
         )
       );
 
-      // انتظار إضافي لمعالجة خطوط المتصفح
       await new Promise((resolve) => setTimeout(resolve, 800));
 
       const canvas = await html2canvas(container, {
@@ -404,52 +429,74 @@ export default function CompletionRatePage() {
 
           {message && (
             <div className="mt-8 space-y-8 animate-fadeIn">
+              {/* ✅ StatCards بألوان مختلفة */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <StatCard
                   title="تدريبات التأسيس"
                   value={message.basic_percentage}
+                  color="blue"
+                  icon={<BookOutlined />}
                 />
                 <StatCard
                   title="تدريبات المحاضرات"
                   value={message.lecture_percentage}
+                  color="purple"
+                  icon={<VideoCameraOutlined />}
                 />
                 <StatCard
                   title="الاختبارات"
                   value={message.full_round_percentage}
+                  color="amber"
+                  icon={<TrophyOutlined />}
                 />
               </div>
 
-              <div className="rounded-3xl border border-slate-200 bg-white px-6 py-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-                <span className="font-bold text-slate-700">
-                  إجمالي نسبة الإنجاز في الدورة:
-                </span>
+              {/* ✅ إجمالي نسبة الإنجاز بلون مميز */}
+              <div className="rounded-3xl border-2 border-none bg-white px-6 py-5 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <TrophyOutlined className="text-2xl text-emerald-600" />
+                  </div>
+                  <span className="font-bold text-emerald-800 text-lg">
+                    إجمالي نسبة الإنجاز في الدورة
+                  </span>
+                </div>
                 <div className="flex items-center gap-3 w-full sm:w-1/2">
-                  <PercentProgress value={message.total_percentage} />
-                  <span className="font-extrabold text-slate-800">
+                  <PercentProgress
+                    value={message.total_percentage}
+                    color="#10b981"
+                  />
+                  <span className="font-extrabold text-emerald-700 text-2xl">
                     {formatPercentLabel(message.total_percentage)}
                   </span>
                 </div>
               </div>
 
-              <Divider className="border-slate-200">تفاصيل المحتوى</Divider>
+              <Divider className="border-slate-200">
+                <span className="text-slate-500 font-bold">تفاصيل المحتوى</span>
+              </Divider>
 
+              {/* ✅ ContentSections بألوان مختلفة */}
               <ContentSection
                 title="تدريبات التأسيس"
-                icon={<BookOutlined className="text-blue-500" />}
+                icon={<BookOutlined className="text-xl" />}
                 items={basicItems}
                 emptyText="لا توجد أساسيات في هذه الدورة"
+                colorScheme="blue"
               />
               <ContentSection
                 title="تدريبات المحاضرات"
-                icon={<VideoCameraOutlined className="text-purple-500" />}
+                icon={<VideoCameraOutlined className="text-xl" />}
                 items={lectureItems}
                 emptyText="لا توجد محاضرات في هذه الدورة"
+                colorScheme="purple"
               />
               <ContentSection
                 title="الاختبارات"
-                icon={<TrophyOutlined className="text-yellow-500" />}
+                icon={<TrophyOutlined className="text-xl" />}
                 items={fullRoundItems}
                 emptyText="لا توجد اختبارات شاملة"
+                colorScheme="amber"
               />
             </div>
           )}
@@ -459,41 +506,107 @@ export default function CompletionRatePage() {
   );
 }
 
-function ContentSection({ title, icon, items, emptyText }) {
+// ✅ ContentSection محدث بألوان
+function ContentSection({
+  title,
+  icon,
+  items,
+  emptyText,
+  colorScheme = "blue",
+}) {
   const hasItems = items && items.length > 0;
+
+  const colorClasses = {
+    blue: {
+      border: "border-blue-200",
+      headerBg: "bg-gradient-to-r from-blue-500 to-blue-600",
+      iconBg: "bg-white/20",
+      badge: "bg-white/30 text-white",
+      hoverBorder: "hover:border-blue-300",
+    },
+    purple: {
+      border: "border-purple-200",
+      headerBg: "bg-gradient-to-r from-purple-500 to-purple-600",
+      iconBg: "bg-white/20",
+      badge: "bg-white/30 text-white",
+      hoverBorder: "hover:border-purple-300",
+    },
+    amber: {
+      border: "border-amber-200",
+      headerBg: "bg-gradient-to-r from-amber-500 to-amber-600",
+      iconBg: "bg-white/20",
+      badge: "bg-white/30 text-white",
+      hoverBorder: "hover:border-amber-300",
+    },
+  };
+
+  const colors = colorClasses[colorScheme];
+
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-lg">
+    <div
+      className={`rounded-3xl border-2 ${colors.border} bg-white overflow-hidden shadow-sm transition-all hover:shadow-md ${colors.hoverBorder}`}
+    >
+      {/* ✅ Header بلون gradient */}
+      <div className={`${colors.headerBg} px-5 py-4 flex items-center gap-3`}>
+        <div
+          className={`flex h-10 w-10 items-center justify-center rounded-full ${colors.iconBg} text-white`}
+        >
           {icon}
         </div>
-        <h2 className="text-xl font-bold text-slate-800">{title}</h2>
-        <span className="mr-auto text-xs font-semibold text-slate-400 bg-slate-100 px-2 py-1 rounded-full">
+        <h2 className="text-xl font-bold text-white">{title}</h2>
+        <span
+          className={`mr-auto text-xs font-bold ${colors.badge} px-3 py-1 rounded-full`}
+        >
           {items?.length || 0} عنصر
         </span>
       </div>
-      {hasItems ? (
-        <div className="grid grid-cols-1 gap-3">
-          {items.map((it, idx) => (
-            <ExamItemRow key={`${it.exam_id}-${idx}`} item={it} />
-          ))}
-        </div>
-      ) : (
-        <Empty
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description={emptyText}
-          className="my-6"
-        />
-      )}
+
+      {/* Content */}
+      <div className="p-5">
+        {hasItems ? (
+          <div className="grid grid-cols-1 gap-3">
+            {items.map((it, idx) => (
+              <ExamItemRow
+                key={`${it.exam_id}-${idx}`}
+                item={it}
+                colorScheme={colorScheme}
+              />
+            ))}
+          </div>
+        ) : (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={emptyText}
+            className="my-6"
+          />
+        )}
+      </div>
     </div>
   );
 }
 
-function ExamItemRow({ item }) {
+// ✅ ExamItemRow محدث
+function ExamItemRow({ item, colorScheme = "blue" }) {
+  const hoverColors = {
+    blue: "hover:border-blue-200 hover:bg-blue-50/50",
+    purple: "hover:border-purple-200 hover:bg-purple-50/50",
+    amber: "hover:border-amber-200 hover:bg-amber-50/50",
+  };
+
+  const textColors = {
+    blue: "group-hover:text-blue-700",
+    purple: "group-hover:text-purple-700",
+    amber: "group-hover:text-amber-700",
+  };
+
   return (
-    <div className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/50 px-5 py-4 transition hover:bg-white hover:shadow-md hover:border-blue-200">
+    <div
+      className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50/50 px-5 py-4 transition-all ${hoverColors[colorScheme]} hover:shadow-md`}
+    >
       <div className="text-right">
-        <div className="font-bold text-slate-800 group-hover:text-blue-700 transition-colors text-base">
+        <div
+          className={`font-bold text-slate-800 ${textColors[colorScheme]} transition-colors text-base`}
+        >
           {item.exam_name}
         </div>
         <div className="mt-2 flex items-center gap-3 text-xs">
@@ -504,7 +617,7 @@ function ExamItemRow({ item }) {
                 : "bg-red-100 text-red-700"
             }`}
           >
-            {item.solved ? "تم الحل" : "لم يتم الحل"}
+            {item.solved ? "✓ تم الحل" : "✗ لم يتم الحل"}
           </span>
         </div>
       </div>
@@ -521,36 +634,84 @@ function ExamItemRow({ item }) {
   );
 }
 
-function StatCard({ title, value }) {
+// ✅ StatCard محدث بألوان وأيقونات
+function StatCard({ title, value, color = "blue", icon }) {
+  const colorClasses = {
+    blue: {
+      border: "border-none",
+      bg: "bg-white",
+      iconBg: "bg-blue-500",
+      iconText: "text-white",
+      titleText: "text-blue-600",
+      valueText: "text-blue-700",
+      progressColor: "#3b82f6",
+    },
+    purple: {
+      border: "border-none",
+      bg: "bg-white",
+      iconBg: "bg-purple-500",
+      iconText: "text-white",
+      titleText: "text-purple-600",
+      valueText: "text-purple-700",
+      progressColor: "#8b5cf6",
+    },
+    amber: {
+      border: "border-none",
+      bg: "bg-white",
+      iconBg: "bg-amber-500",
+      iconText: "text-white",
+      titleText: "text-amber-600",
+      valueText: "text-amber-700",
+      progressColor: "#f59e0b",
+    },
+  };
+
+  const colors = colorClasses[color];
+
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col justify-between">
+    <div
+      className={`rounded-3xl border-2 ${colors.border} ${colors.bg} p-5 shadow-sm flex flex-col justify-between transition-all hover:shadow-md hover:scale-[1.02]`}
+    >
       <div>
-        <div className="text-sm font-bold text-slate-500">{title}</div>
-        <div className="mt-2 text-3xl font-extrabold text-slate-900">
+        <div className="flex items-center gap-3 mb-3">
+          <div
+            className={`w-10 h-10 rounded-xl ${colors.iconBg} ${colors.iconText} flex items-center justify-center text-lg shadow-sm`}
+          >
+            {icon}
+          </div>
+          <div className={`text-sm font-bold ${colors.titleText}`}>{title}</div>
+        </div>
+        <div className={`text-4xl font-extrabold ${colors.valueText}`}>
           {formatPercentLabel(value)}
         </div>
       </div>
       <div className="mt-4">
-        <PercentProgress value={value} />
+        <PercentProgress value={value} color={colors.progressColor} />
       </div>
     </div>
   );
 }
 
-function PercentProgress({ value }) {
+// ✅ PercentProgress محدث
+function PercentProgress({ value, color }) {
   const p = parsePercent(value);
   if (p == null)
     return <div className="h-2 w-full bg-slate-100 rounded-full" />;
-  let color = "#3b82f6";
-  if (p >= 90) color = "#10b981";
-  else if (p < 50) color = "#ef4444";
+
+  let strokeColor = color;
+  if (!color) {
+    if (p >= 90) strokeColor = "#10b981";
+    else if (p >= 50) strokeColor = "#3b82f6";
+    else strokeColor = "#ef4444";
+  }
+
   return (
     <Progress
       percent={p}
       showInfo={false}
-      strokeColor={color}
+      strokeColor={strokeColor}
       strokeLinecap="round"
-      trailColor="#f1f5f9"
+      trailColor="#e2e8f0"
       size="small"
       style={{ margin: 0 }}
     />
