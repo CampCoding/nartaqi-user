@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import axios from "axios";
 
 const ENROLL_API =
-  "https://camp-coding.site/nartaqi/public/api/user/rounds/enrollInCourse";
+  "https://nartaqi.net/nartaqi/public/api/user/rounds/enrollInCourse";
 
 export default function useEnrollInCourse() {
   const [loading, setLoading] = useState(false);

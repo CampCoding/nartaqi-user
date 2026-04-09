@@ -87,7 +87,7 @@ export default function CompletionRatePage() {
 
   const { rounds, loading: coursesLoading } = useUserCourses(token, {
     autoFetch: true,
-    baseUrl: "https://camp-coding.site/nartaqi/public",
+    baseUrl: "https://nartaqi.net/nartaqi/public",
   });
 
   const [courseId, setCourseId] = useState(null);

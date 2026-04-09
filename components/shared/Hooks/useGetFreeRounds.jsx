@@ -17,17 +17,19 @@ import axios from "axios";
  * { data, loading, refetch, refetching, fetchNextPage, hasNextPage, isFetchingNextPage }
  */
 export const useGetFreeVideos = ({
-   category_part_free_id,
+  category_part_free_id,
   apiParams = "",
 } = {}) => {
   const fetcher = async ({ pageParam = 1 }) => {
-    const base = "https://camp-coding.site/nartaqi/public/api";
+    const base = "https://nartaqi.net/nartaqi/public/api";
     const query = apiParams ? `&${apiParams}` : "";
     const url = `${base}/user/categories/getFreeVideos?page=${pageParam}${query}`;
 
     // ✅ POST body as per new API
     const body = {
-      category_part_free_id: category_part_free_id ? String(category_part_free_id) : "",
+      category_part_free_id: category_part_free_id
+        ? String(category_part_free_id)
+        : "",
     };
 
     return axios.post(url, body);

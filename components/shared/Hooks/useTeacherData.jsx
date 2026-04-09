@@ -22,7 +22,7 @@ import { useCallback, useEffect, useState } from "react";
 export default function useTeacherData({
   teacherId,
   token,
-  baseUrl = "https://camp-coding.site/nartaqi/public",
+  baseUrl = "https://nartaqi.net/nartaqi/public",
   enabled = true,
 } = {}) {
   const [data, setData] = useState(null); // { teacher, rounds }

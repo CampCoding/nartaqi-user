@@ -6,7 +6,7 @@ import { useCallback, useRef, useState } from "react";
  * Mark student view for a specific video in a round.
  *
  * Endpoint:
- *  POST https://camp-coding.site/nartaqi/public/api/user/rounds/makestudentView
+ *  POST https://nartaqi.net/nartaqi/public/api/user/rounds/makestudentView
  * Body: { student_id, round_id, video_id }
  *
  * @param {string | null} token Optional Bearer token
@@ -14,11 +14,7 @@ import { useCallback, useRef, useState } from "react";
  */
 export default function useMakeStudentView(
   token,
-  {
-    baseUrl = "https://camp-coding.site/nartaqi/public",
-    onSuccess,
-    onError,
-  } = {}
+  { baseUrl = "https://nartaqi.net/nartaqi/public", onSuccess, onError } = {}
 ) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
@@ -37,7 +33,9 @@ export default function useMakeStudentView(
       try {
         // Basic validation
         if (!student_id || !round_id || !video_id) {
-          throw new Error("Missing required fields: student_id, round_id, video_id");
+          throw new Error(
+            "Missing required fields: student_id, round_id, video_id"
+          );
         }
 
         const res = await fetch(`${baseUrl}/api/user/rounds/makestudentView`, {

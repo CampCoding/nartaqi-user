@@ -1,10 +1,9 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 
 const ENDPOINT =
-  "https://camp-coding.site/nartaqi/public/api/user/settings/getSocialAccounts";
+  "https://nartaqi.net/nartaqi/public/api/user/settings/getSocialAccounts";
 
 /**
  * Fetch social accounts (no token, no headers, no abort).

@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 export default function useUserCourses(token, options = {}) {
-  const { autoFetch = true, baseUrl = "https://camp-coding.site/nartaqi/public" } =
+  const { autoFetch = true, baseUrl = "https://nartaqi.net/nartaqi/public" } =
     options;
 
   const [rounds, setRounds] = useState([]);

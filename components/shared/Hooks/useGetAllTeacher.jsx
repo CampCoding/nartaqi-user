@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const DEFAULT_URL =
-  "https://camp-coding.site/nartaqi/public/api/user/rounds/getAllTeacher";
+  "https://nartaqi.net/nartaqi/public/api/user/rounds/getAllTeacher";
 
 const DEFAULT_HEADERS = {};
 
@@ -64,7 +64,9 @@ export default function useGetAllTeacherRounds(options = {}) {
 
       if (!res.ok) {
         const msg =
-          json?.message || json?.error || `Request failed with status ${res.status}`;
+          json?.message ||
+          json?.error ||
+          `Request failed with status ${res.status}`;
         throw new Error(msg);
       }
 

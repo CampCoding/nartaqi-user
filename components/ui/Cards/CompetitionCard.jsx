@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
@@ -54,7 +60,14 @@ function makeDateInTimeZone(y, m, d, hh, mm, ss, tz) {
   // iterate a couple times to resolve DST edges
   for (let i = 0; i < 3; i++) {
     const p = tzPartsFromDate(guess, tz);
-    const asUTC = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+    const asUTC = Date.UTC(
+      p.year,
+      p.month - 1,
+      p.day,
+      p.hour,
+      p.minute,
+      p.second
+    );
     const offsetMs = asUTC - guess.getTime(); // tz offset at guess
     const corrected = desiredUTC - offsetMs;
     if (Math.abs(corrected - guess.getTime()) < 1) break;
@@ -82,7 +95,9 @@ function parseApiDate(v) {
   }
 
   // Handle: "YYYY-MM-DD HH:mm:ss" or "YYYY-MM-DD"
-  const m = str.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/);
+  const m = str.match(
+    /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/
+  );
   if (m) {
     const y = Number(m[1]);
     const mo = Number(m[2]);
@@ -119,9 +134,25 @@ function formatInTZ(date, locale = "ar-EG") {
 
 // ---------- Status Normalization Helpers ----------
 const STATUS_ALIASES = {
-  active: ["active", "ongoing", "on_going", "running", "started", "in_progress", "open"],
+  active: [
+    "active",
+    "ongoing",
+    "on_going",
+    "running",
+    "started",
+    "in_progress",
+    "open",
+  ],
   upcoming: ["upcoming", "scheduled", "pending", "soon", "not_started"],
-  ended: ["ended", "complete", "completed", "finished", "closed", "expired", "done"],
+  ended: [
+    "ended",
+    "complete",
+    "completed",
+    "finished",
+    "closed",
+    "expired",
+    "done",
+  ],
 };
 
 function normalizeStatusWord(v) {
@@ -135,7 +166,12 @@ function normalizeStatusWord(v) {
   if (s.includes("end")) return "ended";
   if (s.includes("complete") || s.includes("finish")) return "ended";
   if (s.includes("up")) return "upcoming";
-  if (s.includes("on") || s.includes("run") || s.includes("progress") || s.includes("start"))
+  if (
+    s.includes("on") ||
+    s.includes("run") ||
+    s.includes("progress") ||
+    s.includes("start")
+  )
     return "active";
 
   return s;
@@ -146,12 +182,18 @@ function isValidDate(d) {
 }
 
 function buildImageUrl(raw) {
-  const img = raw?.image_url || raw?.imageUrl || raw?.image || raw?.cover || raw?.banner || "";
+  const img =
+    raw?.image_url ||
+    raw?.imageUrl ||
+    raw?.image ||
+    raw?.cover ||
+    raw?.banner ||
+    "";
   if (!img) return "/images/daily-competition-image.png";
   if (/^https?:\/\//i.test(img)) return img;
 
   // relative path like "competitions/xxx.jpg"
-  const base = "https://camp-coding.site/nartaqi/public/storage/";
+  const base = "https://nartaqi.net/nartaqi/public/storage/";
   return base + img.replace(/^\/+/, "");
 }
 
@@ -164,7 +206,15 @@ function applyDailyHourIfNeeded(dateObj, raw, fallbackHour = null) {
   const isMidnight = p.hour === 0 && p.minute === 0 && p.second === 0;
   if (!isMidnight) return dateObj;
 
-  return makeDateInTimeZone(p.year, p.month, p.day, Number(fallbackHour), 0, 0, TZ);
+  return makeDateInTimeZone(
+    p.year,
+    p.month,
+    p.day,
+    Number(fallbackHour),
+    0,
+    0,
+    TZ
+  );
 }
 
 // ---------- Normalize Competition (robust) ----------
@@ -200,7 +250,8 @@ function normalizeCompetition(raw) {
   const apiActive = raw.active; // boolean or null
   const isComplete = !!raw.is_complete;
 
-  const durationMin = raw.duration_minutes ?? raw.durationMin ?? raw.duration ?? null;
+  const durationMin =
+    raw.duration_minutes ?? raw.durationMin ?? raw.duration ?? null;
   const enrolled = !!raw.enrolled;
 
   return {
@@ -278,22 +329,33 @@ function getTypeBadge(typeRaw) {
 function getQuestionTypeBadge(qtRaw) {
   const q = (qtRaw ?? "").toString().toLowerCase();
   if (q === "single")
-    return { label: "اختيار واحد", cls: "bg-white/90 text-black border-black/10" };
+    return {
+      label: "اختيار واحد",
+      cls: "bg-white/90 text-black border-black/10",
+    };
   if (q === "multi" || q === "multiple")
-    return { label: "اختيارات متعددة", cls: "bg-white/90 text-black border-black/10" };
+    return {
+      label: "اختيارات متعددة",
+      cls: "bg-white/90 text-black border-black/10",
+    };
   return null;
 }
 
 function getStatusBadge(status) {
   if (status === "active")
-    return { label: "نشطة الآن", cls: "bg-green-600/95 text-white border-white/15" };
+    return {
+      label: "نشطة الآن",
+      cls: "bg-green-600/95 text-white border-white/15",
+    };
   if (status === "upcoming")
     return { label: "قريبًا", cls: "bg-sky-600/95 text-white border-white/15" };
   if (status === "ended")
-    return { label: "منتهية", cls: "bg-rose-600/95 text-white border-white/15" };
+    return {
+      label: "منتهية",
+      cls: "bg-rose-600/95 text-white border-white/15",
+    };
   return null;
 }
-
 
 export const DailyQuizSection = ({
   buttonHoverColor,
@@ -335,9 +397,11 @@ export const DailyQuizSection = ({
     return `${days} يوم • ${hours} س • ${minutes} د • ${pad2(secs)} ث`;
   };
 
-
   // ---------- Normalize Competition ----------
-  const normalized = useMemo(() => normalizeCompetition(competition), [competition]);
+  const normalized = useMemo(
+    () => normalizeCompetition(competition),
+    [competition]
+  );
 
   // ---------- Status Logic ----------
   const computedStatus = useMemo(
@@ -345,15 +409,16 @@ export const DailyQuizSection = ({
     [normalized, nowMs]
   );
 
-
-
   const typeBadge = useMemo(
     () => getTypeBadge(normalized?._raw?.type || competition?.type),
     [normalized, competition]
   );
 
   const questionBadge = useMemo(
-    () => getQuestionTypeBadge(normalized?._raw?.question_type || competition?.question_type),
+    () =>
+      getQuestionTypeBadge(
+        normalized?._raw?.question_type || competition?.question_type
+      ),
     [normalized, competition]
   );
 
@@ -361,9 +426,6 @@ export const DailyQuizSection = ({
     () => getStatusBadge(computedStatus),
     [computedStatus]
   );
-
-
-
 
   // ---------- Countdown target ----------
   const targetAt = useMemo(
@@ -386,7 +448,9 @@ export const DailyQuizSection = ({
     }
 
     if (normalized.startAt && normalized.endAt) {
-      const diff = Math.floor((normalized.endAt.getTime() - normalized.startAt.getTime()) / 1000);
+      const diff = Math.floor(
+        (normalized.endAt.getTime() - normalized.startAt.getTime()) / 1000
+      );
       return Math.max(1, diff);
     }
 
@@ -425,14 +489,17 @@ export const DailyQuizSection = ({
         conceptDetails:
           ": مجموعة سريعة من الأسئلة القصيرة في مجالات مختلفة عشان تختبر سرعة البديهة والمعرفة.",
         prizesLabel: "الجوائز:",
-        prizesDetails: " نقاط تضاف لرصيدك فورا، تقدر تجمعها وتستبدلها بمكافآت داخل المنصة.",
+        prizesDetails:
+          " نقاط تضاف لرصيدك فورا، تقدر تجمعها وتستبدلها بمكافآت داخل المنصة.",
         timeLabel: "الوقت المتبقي  ",
         joinButton: "انضم الآن",
       };
     }
 
     const startLabel = "متى تبدأ؟";
-    const startDetails = normalized.startAt ? `: ${formatInTZ(normalized.startAt)}` : ": قريبًا";
+    const startDetails = normalized.startAt
+      ? `: ${formatInTZ(normalized.startAt)}`
+      : ": قريبًا";
 
     const conceptLabel = "فكرتها";
     const conceptDetails = `: ${normalized.idea || ""}`;
@@ -445,7 +512,8 @@ export const DailyQuizSection = ({
     if (computedStatus === "ended") timeLabel = "انتهت";
 
     let joinButton = normalized.enrolled ? "ادخل المسابقة" : "انضم الآن";
-    if (computedStatus === "upcoming") joinButton = normalized.enrolled ? "مسجل (قريبًا)" : "قريبًا";
+    if (computedStatus === "upcoming")
+      joinButton = normalized.enrolled ? "مسجل (قريبًا)" : "قريبًا";
     if (computedStatus === "ended") joinButton = "انتهت المسابقة";
 
     return {
@@ -631,13 +699,14 @@ export const DailyQuizSection = ({
           </div>
         </div>
 
-
         <div className="flex  flex-col items-center justify-between gap-4 sm:gap-6 relative self-stretch w-full flex-1">
           <div className="flex flex-col gap-3 sm:gap-[11px] relative self-stretch w-full flex-[0_0_auto]">
             <header className="flex items-center justify-center gap-2.5 py-0 relative self-stretch w-full flex-[0_0_auto]">
               <h1
                 id="quiz-title"
-                className={[`relative flex flex-1 mt-[-1.00px] font-bold ${colorClasses.text} text-lg sm:text-xl tracking-[0] leading-[normal] [direction:rtl] text-center`].join(" ")}
+                className={[
+                  `relative flex flex-1 mt-[-1.00px] font-bold ${colorClasses.text} text-lg sm:text-xl tracking-[0] leading-[normal] [direction:rtl] text-center`,
+                ].join(" ")}
               >
                 {ui.title}
               </h1>
@@ -646,20 +715,28 @@ export const DailyQuizSection = ({
             <div className="flex flex-col items-start gap-3 sm:gap-4 py-0 relative self-stretch w-full flex-[0_0_auto]">
               <p className="relative flex self-stretch mt-[-1.00px] font-normal text-transparent text-sm sm:text-base tracking-[0] leading-5 sm:leading-6 [direction:rtl]">
                 <span className="font-bold text-primary">{ui.startLabel}</span>
-                <span className="font-medium text-text-alt">{ui.startDetails}</span>
+                <span className="font-medium text-text-alt">
+                  {ui.startDetails}
+                </span>
               </p>
 
               <p className="self-stretch font-normal text-transparent text-sm sm:text-base leading-5 sm:leading-6 relative tracking-[0] [direction:rtl]">
                 <span
                   className="font-bold text-orange-500 prose prose-neutral"
                   dangerouslySetInnerHTML={{
-                    __html: String(ui.conceptLabel || "").replaceAll(/&nbsp;/gi, " "),
+                    __html: String(ui.conceptLabel || "").replaceAll(
+                      /&nbsp;/gi,
+                      " "
+                    ),
                   }}
                 />
                 <span
                   className="font-medium text-[#2d2d2d] prose prose-neutral"
                   dangerouslySetInnerHTML={{
-                    __html: String(ui.conceptDetails || "").replaceAll(/&nbsp;/gi, " "),
+                    __html: String(ui.conceptDetails || "").replaceAll(
+                      /&nbsp;/gi,
+                      " "
+                    ),
                   }}
                 />
               </p>
@@ -668,19 +745,23 @@ export const DailyQuizSection = ({
                 <span
                   className="font-bold prose prose-neutral"
                   dangerouslySetInnerHTML={{
-                    __html: String(ui.prizesLabel || "").replaceAll(/&nbsp;/gi, " "),
+                    __html: String(ui.prizesLabel || "").replaceAll(
+                      /&nbsp;/gi,
+                      " "
+                    ),
                   }}
                 />
                 <span
                   className="font-medium prose prose-neutral"
                   dangerouslySetInnerHTML={{
-                    __html: String(ui.prizesDetails || "").replaceAll(/&nbsp;/gi, " "),
+                    __html: String(ui.prizesDetails || "").replaceAll(
+                      /&nbsp;/gi,
+                      " "
+                    ),
                   }}
                 />
               </p>
             </div>
-
-
           </div>
 
           <div className="w-full sm:px-0 flex flex-col items-center justify-center gap-3 sm:gap-4 relative self-stretch flex-[0_0_auto]">

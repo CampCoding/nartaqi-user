@@ -2,9 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const DEFAULT_URL = "https://camp-coding.site/nartaqi/public/api/user/team";
+const DEFAULT_URL = "https://nartaqi.net/nartaqi/public/api/user/team";
 
-export function useTeam({ url = DEFAULT_URL, enabled = true, fetchOptions } = {}) {
+export function useTeam({
+  url = DEFAULT_URL,
+  enabled = true,
+  fetchOptions,
+} = {}) {
   const [team, setTeam] = useState([]);
   const [loading, setLoading] = useState(Boolean(enabled));
   const [error, setError] = useState(null);

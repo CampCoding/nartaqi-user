@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const ENDPOINT =
-  "https://camp-coding.site/nartaqi/public/api/user/rounds/getMyCompeletenessRoundByRoundID";
+  "https://nartaqi.net/nartaqi/public/api/user/rounds/getMyCompeletenessRoundByRoundID";
 
 export default function useRoundCompletenessRoundByRoundID(
   roundId,
@@ -116,8 +116,8 @@ export default function useRoundCompletenessRoundByRoundID(
   return {
     data,
     message,
-    basicItems,     // Exported separately
-    lectureItems,   // Exported separately
+    basicItems, // Exported separately
+    lectureItems, // Exported separately
     fullRoundItems, // Exported separately
     allItems,
     loading,

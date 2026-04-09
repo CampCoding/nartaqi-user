@@ -5,11 +5,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 const ENDPOINT =
-  "https://camp-coding.site/nartaqi/public/api/user/rounds/getmoreLatestRounds";
+  "https://nartaqi.net/nartaqi/public/api/user/rounds/getmoreLatestRounds";
 
 export default function useMoreLatestRounds(studentId, perPage = 3) {
   const [rounds, setRounds] = useState([]);
-  const [loading, setLoading] = useState(true);   // أول تحميل
+  const [loading, setLoading] = useState(true); // أول تحميل
   const [fetching, setFetching] = useState(false); // تحميل صفحات إضافية
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
@@ -21,9 +21,6 @@ export default function useMoreLatestRounds(studentId, perPage = 3) {
 
   const fetchPage = useCallback(
     async (targetPage, mode = "append") => {
-
-
-
       const rid = ++requestIdRef.current;
 
       try {
@@ -31,17 +28,16 @@ export default function useMoreLatestRounds(studentId, perPage = 3) {
         if (targetPage === 1) setLoading(true);
         else setFetching(true);
 
-        const res = await axios.post(ENDPOINT, {
-          // student_id: String(studentId),
-
-          // ✅ لو الـ API بيدعم pagination
-          // page: targetPage,
-          // per_page: perPage,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-
-      
-      );
+        const res = await axios.post(
+          ENDPOINT,
+          {
+            // student_id: String(studentId),
+            // ✅ لو الـ API بيدعم pagination
+            // page: targetPage,
+            // per_page: perPage,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
         // لو فيه request أحدث خرج قبل ده، تجاهل ده
         if (rid !== requestIdRef.current) return;

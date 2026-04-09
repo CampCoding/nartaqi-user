@@ -23,7 +23,7 @@ export function useTconditions() {
 
     try {
       const res = await fetch(
-        "https://camp-coding.site/nartaqi/public/api/user/settings/getTconditions"
+        "https://nartaqi.net/nartaqi/public/api/user/settings/getTconditions"
       );
 
       if (!res.ok) {
@@ -53,16 +53,19 @@ export function useTconditions() {
   }, [fetchTconditions]);
 
   // helpers by type
-  const term = useMemo(() => data.find((x) => x?.type === "term")?.content || "", [data]);
+  const term = useMemo(
+    () => data.find((x) => x?.type === "term")?.content || "",
+    [data]
+  );
   const conditions = useMemo(
     () => data.find((x) => x?.type === "conditions")?.content || "",
     [data]
   );
 
   return {
-    data,        // raw array
-    term,        // string
-    conditions,  // string
+    data, // raw array
+    term, // string
+    conditions, // string
     loading,
     error,
     refetch: fetchTconditions,

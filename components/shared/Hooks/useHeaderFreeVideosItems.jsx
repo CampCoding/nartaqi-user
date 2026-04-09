@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 const ENDPOINT =
-  "https://camp-coding.site/nartaqi/public/api/user/categories/getCourseCategoryIncludedFreeVideos";
+  "https://nartaqi.net/nartaqi/public/api/user/categories/getCourseCategoryIncludedFreeVideos";
 
 /**
  * Fetch header dropdown items for "Free Videos Parts"
@@ -54,7 +54,11 @@ export default function useHeaderFreeVideosItems(options = {}) {
         ? json.message.parts_free_videos
         : [];
 
-        const achievements = Array.isArray(json?.message?.category_parts_with_achievements) ? json.message.category_parts_with_achievements : [];
+      const achievements = Array.isArray(
+        json?.message?.category_parts_with_achievements
+      )
+        ? json.message.category_parts_with_achievements
+        : [];
       setAchievements(achievements);
       setParts(list);
       return json;
@@ -111,9 +115,7 @@ export default function useHeaderFreeVideosItems(options = {}) {
         count,
         image: p?.image_url || "",
         // ✅ link matches your FreeVideosPage reading category_part_free_id
-        link: `${achievementsPathname}/${encodeURIComponent(
-          String(id ?? "")
-        )}`,
+        link: `${achievementsPathname}/${encodeURIComponent(String(id ?? ""))}`,
       };
     });
   }, [achievements, basePath, paramName]);

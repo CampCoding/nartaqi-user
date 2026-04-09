@@ -27,7 +27,7 @@ export default function CompetitionExamPage() {
   const { data, loading, error, fetchQuestions } = useCompetitionQuestions({
     baseUrl:
       process.env.NEXT_PUBLIC_API_URL ||
-      "https://camp-coding.site/nartaqi/public/api",
+      "https://nartaqi.net/nartaqi/public/api",
     getToken,
     cleanHtml: false, // keep HTML for rendering via dangerouslySetInnerHTML
   });
@@ -41,7 +41,7 @@ export default function CompetitionExamPage() {
   } = useSubmitCompetitionAnswers({
     baseUrl:
       process.env.NEXT_PUBLIC_API_URL ||
-      "https://camp-coding.site/nartaqi/public/api",
+      "https://nartaqi.net/nartaqi/public/api",
     getToken,
   });
 
@@ -150,11 +150,14 @@ export default function CompetitionExamPage() {
       const pickedId = answers[q.id];
 
       // skip unanswered (but we will block submit anyway)
-      if (pickedId === undefined || pickedId === null || pickedId === "") continue;
+      if (pickedId === undefined || pickedId === null || pickedId === "")
+        continue;
 
       const pickedOption = (q.options || []).find((o) => o.id === pickedId);
 
-      const answer_text = pickedOption ? stripHtml(pickedOption.option_text) : "";
+      const answer_text = pickedOption
+        ? stripHtml(pickedOption.option_text)
+        : "";
 
       const correct_or_not =
         pickedOption && Number(pickedOption.is_correct) === 1 ? 1 : 0;
@@ -404,15 +407,16 @@ export default function CompetitionExamPage() {
                     : ""
                 }`}
                 style={{
-                  background: "linear-gradient(90deg, #3B82F6 0%, #F97316 100%)",
+                  background:
+                    "linear-gradient(90deg, #3B82F6 0%, #F97316 100%)",
                 }}
               >
                 {isLast
                   ? submitting
                     ? "جاري الإنهاء..."
                     : allAnswered
-                    ? "إنهاء"
-                    : "أكمل الإجابات"
+                      ? "إنهاء"
+                      : "أكمل الإجابات"
                   : "التالي"}
               </button>
 

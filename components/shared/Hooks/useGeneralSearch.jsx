@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const ENDPOINT =
-  "https://camp-coding.site/nartaqi/public/api/user/categories/makeGeneralSearch";
+  "https://nartaqi.net/nartaqi/public/api/user/categories/makeGeneralSearch";
 
 export default function useGeneralSearch({ token, search, enabled = true }) {
   const [data, setData] = useState({

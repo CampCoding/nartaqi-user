@@ -6,13 +6,14 @@ import axios from "axios";
 // تحويل HTML -> نص
 const htmlToText = (html) => {
   if (!html) return "";
-  if (typeof window === "undefined") return String(html).replace(/<[^>]*>/g, "");
+  if (typeof window === "undefined")
+    return String(html).replace(/<[^>]*>/g, "");
   const doc = new DOMParser().parseFromString(String(html), "text/html");
   return (doc.body.textContent || "").replace(/\u00A0/g, " ").trim();
 };
 
 export function useCompetitionQuestions({
-  baseUrl = "https://camp-coding.site/nartaqi/public/api",
+  baseUrl = "https://nartaqi.net/nartaqi/public/api",
   getToken,
   cleanHtml = true,
 } = {}) {

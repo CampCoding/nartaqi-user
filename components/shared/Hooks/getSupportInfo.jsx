@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 const ENDPOINT =
-  "https://camp-coding.site/nartaqi/public/api/user/settings/getSupportInfo";
+  "https://nartaqi.net/nartaqi/public/api/user/settings/getSupportInfo";
 
 function normalizePhoneForLink(phone) {
   return String(phone || "").replace(/[^\d+]/g, "");

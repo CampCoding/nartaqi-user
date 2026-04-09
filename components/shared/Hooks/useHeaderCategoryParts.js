@@ -29,13 +29,11 @@ export default function useHeaderCoursesItems(studentId) {
 
         const base =
           process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
-          "https://camp-coding.site/nartaqi/public/api";
+          "https://nartaqi.net/nartaqi/public/api";
 
         const url = `${base}/user/categories/get_limit_CourseCategoryParts`;
 
-        const res = await axios.get(
-          url,
-        );
+        const res = await axios.get(url);
 
         const list =
           res?.data?.status === "success" && Array.isArray(res.data.message)
@@ -48,7 +46,7 @@ export default function useHeaderCoursesItems(studentId) {
           count: Number(p.rounds_count ?? 0),
           title: p.name,
           // ✅ عدّل اللينك حسب صفحة عرض الدورات عندك
-          link: `/courses/${p?.course_category_id}?category=${p.id}&categoryName=${p.name}` ,
+          link: `/courses/${p?.course_category_id}?category=${p.id}&categoryName=${p.name}`,
         }));
 
         // // (اختياري) ترتيب تنازلي حسب العدد

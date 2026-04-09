@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const ENDPOINT =
-  "https://camp-coding.site/nartaqi/public/api/user/categories/getStudentAchievementResults";
+  "https://nartaqi.net/nartaqi/public/api/user/categories/getStudentAchievementResults";
 
 export default function useGetStudentAchievementResults(
   category_part_id,

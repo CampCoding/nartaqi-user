@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 export default function useTopRatedTestimonials({
   token = null,
-  baseUrl = "https://camp-coding.site/nartaqi/public",
+  baseUrl = "https://nartaqi.net/nartaqi/public",
   enabled = true,
 } = {}) {
   const [data, setData] = useState([]);

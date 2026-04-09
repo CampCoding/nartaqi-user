@@ -2,14 +2,15 @@
 
 import { useCallback, useRef, useState } from "react";
 
-
 export function useEnrollInCompetition(options = {}) {
   const {
-    baseUrl = "https://camp-coding.site/nartaqi/public/api",
+    baseUrl = "https://nartaqi.net/nartaqi/public/api",
     getToken = () => {
       // You can replace this with your auth store (Redux/Zustand/Cookies)
       // Example: return localStorage.getItem("token");
-      return typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      return typeof window !== "undefined"
+        ? localStorage.getItem("token")
+        : null;
     },
   } = options;
 
@@ -57,9 +58,7 @@ export function useEnrollInCompetition(options = {}) {
 
         if (!res.ok) {
           const msg =
-            json?.message ||
-            json?.error ||
-            `Request failed (${res.status})`;
+            json?.message || json?.error || `Request failed (${res.status})`;
           throw new Error(msg);
         }
 

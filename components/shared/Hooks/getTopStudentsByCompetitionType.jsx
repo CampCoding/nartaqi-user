@@ -9,7 +9,7 @@ import axios from "axios";
  */
 export function useGetTopStudentsByCompetitionType(options = {}) {
   const {
-    baseURL = "https://camp-coding.site/nartaqi/public/api",
+    baseURL = "https://nartaqi.net/nartaqi/public/api",
     enabled = true,
     headers,
     timeout = 20000,

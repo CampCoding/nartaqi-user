@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useCallback, useRef, useState } from "react";
@@ -19,7 +17,7 @@ import axios from "axios";
  * }
  */
 export function useSubmitCompetitionAnswers({
-  baseUrl = "https://camp-coding.site/nartaqi/public/api",
+  baseUrl = "https://nartaqi.net/nartaqi/public/api",
   getToken, // () => token string
 } = {}) {
   const [loading, setLoading] = useState(false);

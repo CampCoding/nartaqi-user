@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 const BASE_URL =
-  "https://camp-coding.site/nartaqi/public/api/user/settings/get_support_gate";
+  "https://nartaqi.net/nartaqi/public/api/user/settings/get_support_gate";
 
 export function useSupportGate(options = {}) {
   const { initialPage = 1, autoFetch = true } = options;
@@ -91,16 +91,19 @@ export function useSupportGate(options = {}) {
     setPage((p) => (p > 1 ? p - 1 : p));
   }, []);
 
-  const refetch = useCallback(() => fetchSupportGate(page), [fetchSupportGate, page]);
+  const refetch = useCallback(
+    () => fetchSupportGate(page),
+    [fetchSupportGate, page]
+  );
 
   return {
-    items,       // support gate list: [{id,title,youtube_link,description}]
-    pagination,  // useful pagination object
+    items, // support gate list: [{id,title,youtube_link,description}]
+    pagination, // useful pagination object
     page,
     setPage,
     next,
     prev,
-    raw,         // full API response
+    raw, // full API response
     loading,
     error,
     refetch,

@@ -2,7 +2,10 @@
 "use client";
 import { useCallback, useState } from "react";
 
-export function useMakeRoundRate({ token = null, baseUrl = "https://camp-coding.site/nartaqi/public" } = {}) {
+export function useMakeRoundRate({
+  token = null,
+  baseUrl = "https://nartaqi.net/nartaqi/public",
+} = {}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
