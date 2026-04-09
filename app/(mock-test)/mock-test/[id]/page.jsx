@@ -324,47 +324,34 @@ const MockTest = () => {
 
   const handleSubmitExam = async () => {
     if (isSubmitting) return;
-    if (!areAllExamQuestionsAnswered()) {
-      const unansweredCount =
-        sections?.reduce(
-          (count, section) =>
-            count +
-            (section.blocks?.reduce(
-              (bCount, block) =>
-                bCount +
-                (block.questions?.filter(
-                  (q) =>
-                    answeredMap[q.id] === undefined ||
-                    answeredMap[q.id] === null
-                ).length || 0),
-              0
-            ) || 0),
-          0
-        ) || 0;
-      alert(
-        `لا يمكنك إرسال الاختبار قبل حل جميع الأسئلة. لديك ${unansweredCount} سؤال غير مُجاب.`
-      );
-      return;
-    }
+
     setIsSubmitting(true);
     try {
       dispatch(submitExam());
       const token = localStorage.getItem("token");
+
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/storeStudentAnswers`,
         { student_id: studentId, exam_id: examId, answers: formattedAnswers },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const scoreToSubmit = `${formattedAnswers.filter((a) => a.is_correct).length}/${totalQuestions}`;
+
+      const correctAnswersCount = formattedAnswers.filter(
+        (a) => a.is_correct
+      ).length;
+      const scoreToSubmit = `${correctAnswersCount}/${totalQuestions}`;
+
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/rounds/exams/storeStudentScore`,
         { student_id: studentId, exam_id: examId, score: scoreToSubmit },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
       localStorage.removeItem(`mock_exam_state_${id}`);
       setIsSuccessOpen(true);
     } catch (error) {
-      alert("حدث خطأ أثناء حفظ الإجابات. يرجى المحاولة مرة أخرى.");
+      console.error("Error submitting exam:", error);
+      toast.error("حدث خطأ أثناء حفظ الإجابات. يرجى المحاولة مرة أخرى.");
     } finally {
       setIsSubmitting(false);
     }

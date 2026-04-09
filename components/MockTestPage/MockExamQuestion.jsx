@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState } from "react";
 
 const MockExamQuestion = ({
   block,
@@ -20,8 +20,6 @@ const MockExamQuestion = ({
 
   const getFontSizeClass = (size) => {
     const sizeMap = {
-      // base -> sm -> md -> lg -> xl
-      // Mobile -> Tablet Small -> Tablet -> Desktop -> Desktop Large
       small: `
         text-[8px] sm:text-[10px] md:text-xs lg:text-sm xl:text-base
         landscape:text-[7px] landscape:sm:text-[9px] landscape:md:text-[11px] landscape:lg:text-xs xl:landscape:text-sm
@@ -47,24 +45,26 @@ const MockExamQuestion = ({
   const currentQuestion =
     block.questions && block.questions.length > 0 ? block.questions[0] : null;
 
+  // Check if this is a paragraph type question
+  const isParagraphType = block.type === "paragraph";
+  const hasPassage = block.passage && block.passage.trim() !== "";
+  const hasVoice = block.voice && block.voice.trim() !== "";
+
   return (
     <div className="w-full">
-      {/* Passage */}
-      {block.passage && (
+      {/* Paragraph Content and/or Voice - Only for paragraph type */}
+      {isParagraphType && (hasPassage || hasVoice) && (
         <div
           className={`
             mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 xl:mb-6
             landscape:mb-1 landscape:sm:mb-1.5 landscape:md:mb-2 landscape:lg:mb-3
-            ${
-              block.type === "paragraph"
-                ? `sticky top-0 bg-white z-10 
-                   pb-1 sm:pb-1.5 md:pb-2 lg:pb-3 xl:pb-4
-                   pt-1 sm:pt-1.5 md:pt-2 
-                   border-b border-gray-200 sm:border-gray-300 shadow-sm`
-                : ""
-            }
+            sticky top-0 bg-white z-10 
+            pb-1 sm:pb-1.5 md:pb-2 lg:pb-3 xl:pb-4
+            pt-1 sm:pt-1.5 md:pt-2 
+            border-b border-gray-200 sm:border-gray-300 shadow-sm
           `}
         >
+          {/* Label */}
           <div
             className="
               mb-1 sm:mb-1.5 md:mb-2 lg:mb-3
@@ -73,26 +73,30 @@ const MockExamQuestion = ({
               font-bold text-primary
             "
           >
-            الفقرة:
+            {hasVoice && !hasPassage ? "استمع للفقرة:" : "الفقرة:"}
           </div>
-          <div
-            className={`
-              w-full font-medium text-zinc-600 ${textSizeClass} 
-              tracking-[0] [direction:rtl] block
-              leading-normal sm:leading-relaxed md:leading-relaxed lg:leading-loose
-              landscape:leading-snug landscape:sm:leading-normal landscape:md:leading-relaxed
-              ${
-                block.type === "paragraph"
-                  ? `max-h-[80px] sm:max-h-[100px] md:max-h-[140px] lg:max-h-[200px] xl:max-h-[280px]
-                     landscape:max-h-[60px] landscape:sm:max-h-[70px] landscape:md:max-h-[100px] landscape:lg:max-h-[150px]
-                     overflow-y-auto pr-1 sm:pr-2 custom-scroll`
-                  : ""
-              }
-            `}
-            dangerouslySetInnerHTML={{
-              __html: block?.passage?.replaceAll(/&nbsp;/gi, " "),
-            }}
-          />
+
+          {/* Voice Player */}
+          {hasVoice && <AudioPlayer src={block.voice} fontSize={fontSize} />}
+
+          {/* Paragraph Content */}
+          {hasPassage && (
+            <div
+              className={`
+                w-full font-medium text-zinc-600 ${textSizeClass} 
+                tracking-[0] [direction:rtl] block
+                leading-normal sm:leading-relaxed md:leading-relaxed lg:leading-loose
+                landscape:leading-snug landscape:sm:leading-normal landscape:md:leading-relaxed
+                max-h-[80px] sm:max-h-[100px] md:max-h-[140px] lg:max-h-[200px] xl:max-h-[280px]
+                landscape:max-h-[60px] landscape:sm:max-h-[70px] landscape:md:max-h-[100px] landscape:lg:max-h-[150px]
+                overflow-y-auto pr-1 sm:pr-2 custom-scroll
+                ${hasVoice ? "mt-2 sm:mt-3" : ""}
+              `}
+              dangerouslySetInnerHTML={{
+                __html: block.passage.replaceAll(/&nbsp;/gi, " "),
+              }}
+            />
+          )}
         </div>
       )}
 
@@ -126,6 +130,146 @@ const MockExamQuestion = ({
 };
 
 export default MockExamQuestion;
+
+// Audio Player Component
+const AudioPlayer = ({ src, fontSize = "normal" }) => {
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleSeek = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    if (audioRef.current) {
+      audioRef.current.currentTime = percentage * duration;
+    }
+  };
+
+  const handleEnded = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const formatTime = (time) => {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  return (
+    <div
+      className="
+        w-full flex items-end gap-2 sm:gap-3 md:gap-4
+        p-1.5 sm:p-2 md:p-3 lg:p-4
+        landscape:p-1 landscape:sm:p-1.5 landscape:md:p-2 landscape:lg:p-3
+        bg-primary-light rounded-lg sm:rounded-xl mb-2 sm:mb-3 md:mb-4 lg:mb-5 xl:mb-6
+      "
+      dir="ltr"
+    >
+      <audio
+        ref={audioRef}
+        src={src}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+        onEnded={handleEnded}
+      />
+
+      {/* Play/Pause Button */}
+      <button
+        onClick={togglePlay}
+        className="
+          w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14
+          landscape:w-6 landscape:h-6 landscape:sm:w-8 landscape:sm:h-8 landscape:md:w-10 landscape:md:h-10 landscape:lg:w-12 landscape:lg:h-12
+          flex items-center justify-center
+          bg-primary text-white rounded-full
+          hover:opacity-90 transition-opacity
+          shrink-0
+        "
+        aria-label={isPlaying ? "إيقاف" : "تشغيل"}
+      >
+        {isPlaying ? (
+          <svg
+            className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6
+                       landscape:w-2.5 landscape:h-2.5 landscape:sm:w-3 landscape:sm:h-3 landscape:md:w-4 landscape:md:h-4"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <rect x="6" y="4" width="4" height="16" rx="1" />
+            <rect x="14" y="4" width="4" height="16" rx="1" />
+          </svg>
+        ) : (
+          <svg
+            className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6
+                       landscape:w-2.5 landscape:h-2.5 landscape:sm:w-3 landscape:sm:h-3 landscape:md:w-4 landscape:md:h-4
+                       ml-0.5"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        )}
+      </button>
+
+      {/* Progress Bar */}
+      <div className="flex-1 flex flex-col gap-0.5 sm:gap-1">
+        <div
+          className="
+            w-full h-1.5 sm:h-2 md:h-2.5 lg:h-3
+            landscape:h-1 landscape:sm:h-1.5 landscape:md:h-2
+            bg-gray-300 rounded-full cursor-pointer overflow-hidden
+          "
+          onClick={handleSeek}
+        >
+          <div
+            className="h-full bg-primary rounded-full transition-all duration-100"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        {/* Time Display */}
+        <div
+          className="
+            flex justify-between
+            text-[8px] sm:text-[10px] md:text-xs lg:text-sm
+            landscape:text-[7px] landscape:sm:text-[8px] landscape:md:text-[10px] landscape:lg:text-xs
+            text-gray-600
+          "
+        >
+          <span>{formatTime(currentTime)}</span>
+          <span>{formatTime(duration)}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const SingleQuestion = ({
   questionData,

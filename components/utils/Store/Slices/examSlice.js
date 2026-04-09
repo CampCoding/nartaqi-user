@@ -26,9 +26,8 @@ const initialState = {
   startTime: null,
   endTime: null,
 
-  // ✅ جديد: حالة عرض القسم
-  showSectionIntro: true, // عرض مقدمة القسم
-  currentSectionStarted: false, // هل بدأ القسم الحالي
+  showSectionIntro: true,
+  currentSectionStarted: false,
 
   score: null,
   percentage: null,
@@ -105,12 +104,13 @@ const examSlice = createSlice({
         const sectionTitle = section.title || "";
         const sectionDescription = section.description || "";
         const blocks = [];
-        const sectionQuestionIds = []; // ✅ تتبع أسئلة كل قسم
+        const sectionQuestionIds = [];
 
         // 1) Paragraphs
         if (section.paragraphs?.length) {
           section.paragraphs.forEach((paraObj) => {
             const passage = paraObj.paragraph?.paragraph_content || "";
+            const voice = paraObj.paragraph?.voice || null; // ✅ إضافة الصوت
             const paragraphQuestions = [];
 
             paraObj.questions?.forEach((q) => {
@@ -141,9 +141,10 @@ const examSlice = createSlice({
                 type: "paragraph",
                 sectionId: section.id,
                 sectionTitle: stripHtml(sectionTitle),
-                sectionIndex: transformedSections.length, // ✅ إضافة index القسم
+                sectionIndex: transformedSections.length,
                 globalIndex: globalQuestionIndex++,
                 passage,
+                voice, // ✅ إضافة الصوت للسؤال أيضاً
               };
 
               paragraphQuestions.push(questionData);
@@ -155,6 +156,7 @@ const examSlice = createSlice({
               blocks.push({
                 type: "paragraph",
                 passage,
+                voice, // ✅ إضافة الصوت للـ block
                 questions: paragraphQuestions,
               });
             }
@@ -240,13 +242,14 @@ const examSlice = createSlice({
               type: questionType,
               sectionId: section.id,
               sectionTitle: stripHtml(sectionTitle),
-              sectionIndex: transformedSections.length, // ✅ إضافة index القسم
+              sectionIndex: transformedSections.length,
               globalIndex: globalQuestionIndex++,
             };
 
             blocks.push({
               type: questionType,
               passage: null,
+              voice: null, // ✅ MCQ ليس له صوت
               questions: [questionData],
             });
 
@@ -261,8 +264,8 @@ const examSlice = createSlice({
             title: sectionTitle,
             description: sectionDescription,
             blocks,
-            questionIds: sectionQuestionIds, // ✅ أسئلة القسم
-            questionCount: sectionQuestionIds.length, // ✅ عدد أسئلة القسم
+            questionIds: sectionQuestionIds,
+            questionCount: sectionQuestionIds.length,
           });
         }
       });
@@ -276,25 +279,21 @@ const examSlice = createSlice({
       state.currentQuestionInBlockIndex = 0;
       state.currentIndex = 0;
 
-      // ✅ جديد
       state.showSectionIntro = true;
       state.currentSectionStarted = false;
     },
 
-    // ✅ بدء القسم الحالي
     startCurrentSection: (state) => {
       state.showSectionIntro = false;
       state.currentSectionStarted = true;
     },
 
-    // ✅ الانتقال للقسم التالي
     moveToNextSection: (state) => {
       if (state.currentSectionIndex < state.sections.length - 1) {
         state.currentSectionIndex += 1;
         state.currentBlockIndex = 0;
         state.currentQuestionInBlockIndex = 0;
 
-        // حساب الـ global index للسؤال الأول في القسم الجديد
         const newSection = state.sections[state.currentSectionIndex];
         if (newSection?.blocks?.[0]?.questions?.[0]) {
           const qId = newSection.blocks[0].questions[0].id;
@@ -302,7 +301,6 @@ const examSlice = createSlice({
           if (gIdx >= 0) state.currentIndex = gIdx;
         }
 
-        // ✅ عرض مقدمة القسم الجديد
         state.showSectionIntro = true;
         state.currentSectionStarted = false;
       }
@@ -417,8 +415,6 @@ const examSlice = createSlice({
         state.currentIndex += 1;
         return;
       }
-
-      // ✅ لا ننتقل تلقائياً للقسم التالي - سيتم التحكم بهذا من الـ component
     },
 
     prevQuestion: (state) => {
@@ -443,8 +439,6 @@ const examSlice = createSlice({
         state.currentIndex -= 1;
         return;
       }
-
-      // ✅ لا نرجع للقسم السابق
     },
 
     setAnswer: (state, action) => {
@@ -506,7 +500,6 @@ const examSlice = createSlice({
     startExam: (state) => {
       state.isStarted = true;
       state.startTime = new Date().toISOString();
-      // ✅ القسم الأول يبدأ مباشرة - مش محتاج intro تاني
       state.showSectionIntro = false;
       state.currentSectionStarted = true;
     },
@@ -571,7 +564,6 @@ export const selectCurrentQuestionInBlockIndex = (state) =>
   state.exam.currentQuestionInBlockIndex;
 export const selectCurrentIndex = (state) => state.exam.currentIndex;
 
-// ✅ جديد
 export const selectShowSectionIntro = (state) => state.exam.showSectionIntro;
 export const selectCurrentSectionStarted = (state) =>
   state.exam.currentSectionStarted;
@@ -612,7 +604,6 @@ export const selectSubmissionData = (state) => ({
 
 export const selectAnswers = (state) => state.exam.answers;
 
-// ✅ تعديل: السؤال الأول في القسم الحالي (ليس في كل الامتحان)
 export const selectIsFirstQuestionInSection = (state) => {
   return (
     state.exam.currentBlockIndex === 0 &&
@@ -620,7 +611,6 @@ export const selectIsFirstQuestionInSection = (state) => {
   );
 };
 
-// ✅ تعديل: السؤال الأخير في القسم الحالي
 export const selectIsLastQuestionInSection = (state) => {
   const section = state.exam.sections[state.exam.currentSectionIndex];
   if (!section) return true;
@@ -635,7 +625,6 @@ export const selectIsLastQuestionInSection = (state) => {
   return isLastBlock && isLastQuestionInBlock;
 };
 
-// ✅ هل هذا آخر قسم؟
 export const selectIsLastSection = (state) => {
   return state.exam.currentSectionIndex === state.exam.sections.length - 1;
 };
@@ -648,7 +637,6 @@ export const selectExamScore = (state) => state.exam.score;
 export const selectExamPercentage = (state) => state.exam.percentage;
 export const selectExamResultData = (state) => state.exam.resultData;
 
-// ✅ جديد: احصائيات القسم الحالي
 export const selectCurrentSectionStats = (state) => {
   const section = state.exam.sections[state.exam.currentSectionIndex];
   if (!section) return { total: 0, answered: 0, unanswered: 0, flagged: 0 };
@@ -668,14 +656,12 @@ export const selectCurrentSectionStats = (state) => {
   return { total, answered, unanswered, flagged };
 };
 
-// ✅ أسئلة القسم الحالي فقط
 export const selectCurrentSectionQuestions = (state) => {
   return state.exam.questions.filter(
     (q) => q.sectionIndex === state.exam.currentSectionIndex
   );
 };
 
-// ✅ index السؤال داخل القسم الحالي
 export const selectCurrentIndexInSection = (state) => {
   const sectionQuestions = state.exam.questions.filter(
     (q) => q.sectionIndex === state.exam.currentSectionIndex

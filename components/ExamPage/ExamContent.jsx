@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setCurrentIndex,
@@ -205,6 +205,11 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
   const showingIntro =
     !isStarted || (isStarted && showSectionIntro && !currentSectionStarted);
 
+  // ✅ Check if current block is paragraph type with content or voice
+  const isParagraphBlock = currentBlock?.type === "paragraph";
+  const hasPassage = isParagraphBlock && currentBlock?.passage?.trim();
+  const hasVoice = isParagraphBlock && currentBlock?.voice?.trim();
+
   return (
     <div className="flex flex-col gap-6 sm:gap-8 lg:gap-12">
       {/* Section Progress Bar */}
@@ -258,10 +263,6 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
               {/* Question Header with Flag */}
               <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                  {/* <span className="text-sm text-text-alt">
-                    السؤال {currentIndexInSection + 1} من{" "}
-                    {sectionQuestions.length}
-                  </span> */}
                   {sections.length > 1 && (
                     <span className="text-xs text-gray-400">
                       (القسم {currentSectionIndex + 1})
@@ -296,14 +297,30 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
                 </button>
               </div>
 
-              {currentBlock?.type === "paragraph" && currentBlock.passage && (
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200 max-h-[200px] sm:max-h-[300px] overflow-y-auto">
-                  <div
-                    className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{
-                      __html: currentBlock.passage.replace(/&nbsp;/gi, " "),
-                    }}
-                  />
+              {/* ✅ Paragraph Content (passage) and/or Voice */}
+              {isParagraphBlock && (hasPassage || hasVoice) && (
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  {/* Label */}
+                  <div className="text-sm font-bold text-primary mb-3">
+                    {hasVoice && !hasPassage ? "استمع للفقرة:" : "الفقرة:"}
+                  </div>
+
+                  {/* Voice Player */}
+                  {hasVoice && <AudioPlayer src={currentBlock.voice} />}
+
+                  {/* Paragraph Content */}
+                  {hasPassage && (
+                    <div
+                      className={`
+                        prose prose-sm max-w-none 
+                        max-h-[200px] sm:max-h-[300px] overflow-y-auto
+                        ${hasVoice ? "mt-4" : ""}
+                      `}
+                      dangerouslySetInnerHTML={{
+                        __html: currentBlock.passage.replace(/&nbsp;/gi, " "),
+                      }}
+                    />
+                  )}
                 </div>
               )}
 
@@ -401,7 +418,121 @@ const ExamContent = ({ onSubmitExam, submitting }) => {
 
 export default ExamContent;
 
-// VerbalSection Component - التصميم الأصلي
+// ✅ Audio Player Component
+const AudioPlayer = ({ src }) => {
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleSeek = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    if (audioRef.current) {
+      audioRef.current.currentTime = percentage * duration;
+    }
+  };
+
+  const handleEnded = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const formatTime = (time) => {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  return (
+    <div
+      className="w-full flex items-end gap-3 sm:gap-4 p-3 sm:p-4 bg-primary/10 rounded-xl"
+      dir="ltr"
+    >
+      <audio
+        ref={audioRef}
+        src={src}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+        onEnded={handleEnded}
+      />
+
+      {/* Play/Pause Button */}
+      <button
+        onClick={togglePlay}
+        className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-primary text-white rounded-full hover:opacity-90 transition-opacity shrink-0"
+        aria-label={isPlaying ? "إيقاف" : "تشغيل"}
+      >
+        {isPlaying ? (
+          <svg
+            className="w-4 h-4 sm:w-5 sm:h-5"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <rect x="6" y="4" width="4" height="16" rx="1" />
+            <rect x="14" y="4" width="4" height="16" rx="1" />
+          </svg>
+        ) : (
+          <svg
+            className="w-4 h-4 sm:w-5 sm:h-5 ml-0.5"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        )}
+      </button>
+
+      {/* Progress Bar */}
+      <div className="flex-1 flex flex-col gap-1">
+        <div
+          className="w-full h-2 sm:h-2.5 bg-gray-300 rounded-full cursor-pointer overflow-hidden"
+          onClick={handleSeek}
+        >
+          <div
+            className="h-full bg-primary rounded-full transition-all duration-100"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        {/* Time Display */}
+        <div className="flex justify-between text-xs sm:text-sm text-gray-600">
+          <span>{formatTime(currentTime)}</span>
+          <span>{formatTime(duration)}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// VerbalSection Component
 const VerbalSection = ({
   sectionTitle,
   sectionDescription,

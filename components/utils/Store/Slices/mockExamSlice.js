@@ -145,8 +145,9 @@ const mockExamSlice = createSlice({
             // Create one block per question, but all share the same passage
             blocks.push({
               type: "paragraph",
-              passage: passage, // Same passage for all questions from this paragraph
-              questions: [questionData], // Only one question per block
+              passage: passage,
+              voice: paraObj.paragraph.voice || null, // أضف هذا
+              questions: [questionData],
             });
 
             allQuestions.push(questionData);

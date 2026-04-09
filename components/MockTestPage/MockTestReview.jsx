@@ -19,6 +19,7 @@ const MockTestReview = ({
 }) => {
   const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [isConfirmSubmit, setIsConfirmSubmit] = useState(false);
+  const [isConfirmNextSection, setIsConfirmNextSection] = useState(false);
 
   const currentSection =
     sections && sections[currentSectionIndex]
@@ -56,14 +57,33 @@ const MockTestReview = ({
   const incompleteQuestionsInSection =
     totalQuestionsInSection - completedQuestionsInSection;
 
+  // حساب جميع الأسئلة في الاختبار
   const totalQuestionsAll = sections.reduce(
     (sum, section) =>
       sum +
       section.blocks.reduce((bSum, block) => bSum + block.questions.length, 0),
     0
   );
-  const completedQuestionsAll = Object.keys(answers).length;
+
+  const completedQuestionsAll = sections.reduce((count, section) => {
+    return (
+      count +
+      section.blocks.reduce((bCount, block) => {
+        return (
+          bCount +
+          block.questions.filter((q) => answers[q.id] !== undefined).length
+        );
+      }, 0)
+    );
+  }, 0);
+
   const incompleteQuestionsAll = totalQuestionsAll - completedQuestionsAll;
+
+  // التحقق من اكتمال القسم الحالي
+  const isCurrentSectionComplete = incompleteQuestionsInSection === 0;
+
+  // التحقق من اكتمال جميع الأسئلة
+  const areAllQuestionsComplete = incompleteQuestionsAll === 0;
 
   useEffect(() => {
     let questions = [];
@@ -151,6 +171,26 @@ const MockTestReview = ({
     }
   };
 
+  // معالجة الانتقال للقسم التالي - فتح نافذة التأكيد
+  const handleMoveToNextSectionClick = () => {
+    // التحقق من اكتمال الأسئلة أولاً - فقط في مراجعة القسم وليس المراجعة النهائية
+    if (!isCurrentSectionComplete) {
+      return;
+    }
+    setIsConfirmNextSection(true);
+  };
+
+  // تأكيد الانتقال للقسم التالي
+  const handleConfirmNextSection = () => {
+    setIsConfirmNextSection(false);
+    onMoveToNextSection();
+  };
+
+  // معالجة محاولة إرسال الاختبار - السماح بالإرسال حتى مع وجود أسئلة غير مكتملة
+  const handleSubmitClick = () => {
+    setIsConfirmSubmit(true);
+  };
+
   const getFilteredCount = () => {
     if (isFinalReview) {
       switch (activeFilter) {
@@ -233,8 +273,7 @@ const MockTestReview = ({
                 التالي.
                 <br />
                 <span className="text-red-600 font-bold">
-                  تنبيه: بمجرد الانتقال للقسم التالي، لن تتمكن من العودة لهذا
-                  القسم.
+                  تنبيه: يجب الإجابة على جميع الأسئلة قبل الانتقال للقسم التالي.
                 </span>
               </>
             )}
@@ -347,10 +386,11 @@ const MockTestReview = ({
           )}
 
           {isFinalReview ? (
+            // زر إرسال الاختبار - متاح دائماً في المراجعة النهائية
             <button
-              onClick={() => setIsConfirmSubmit(true)}
+              onClick={handleSubmitClick}
               disabled={isSubmitting}
-              className="px-6 py-2 sm:px-8 sm:py-3 md:px-12 md:py-4 landscape:px-6 landscape:py-1.5 md:landscape:px-12 md:landscape:py-4 bg-green-600 text-white rounded-lg sm:rounded-xl hover:bg-green-700 transition-colors font-bold text-sm sm:text-base md:text-lg landscape:text-xs md:landscape:text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3"
+              className="px-6 py-2 sm:px-8 sm:py-3 md:px-12 md:py-4 landscape:px-6 landscape:py-1.5 md:landscape:px-12 md:landscape:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base md:text-lg landscape:text-xs md:landscape:text-lg flex items-center justify-center gap-2 sm:gap-3 transition-colors bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
@@ -396,9 +436,15 @@ const MockTestReview = ({
               )}
             </button>
           ) : (
+            // زر الانتقال للقسم التالي - يتطلب إكمال جميع الأسئلة
             <button
-              onClick={onMoveToNextSection}
-              className="px-6 py-2 sm:px-8 sm:py-3 md:px-12 md:py-4 landscape:px-6 landscape:py-1.5 md:landscape:px-12 md:landscape:py-4 bg-primary text-white rounded-lg sm:rounded-xl hover:opacity-90 transition-colors font-bold text-sm sm:text-base md:text-lg landscape:text-xs md:landscape:text-lg flex items-center justify-center gap-2 sm:gap-3"
+              onClick={handleMoveToNextSectionClick}
+              disabled={!isCurrentSectionComplete}
+              className={`px-6 py-2 sm:px-8 sm:py-3 md:px-12 md:py-4 landscape:px-6 landscape:py-1.5 md:landscape:px-12 md:landscape:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base md:text-lg landscape:text-xs md:landscape:text-lg flex items-center justify-center gap-2 sm:gap-3 transition-colors ${
+                isCurrentSectionComplete
+                  ? "bg-primary text-white hover:opacity-90"
+                  : "bg-gray-400 text-gray-200 cursor-not-allowed"
+              }`}
             >
               {isLastSection ? (
                 <>
@@ -415,7 +461,9 @@ const MockTestReview = ({
                       d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                     />
                   </svg>
-                  الانتقال للمراجعة النهائية
+                  {isCurrentSectionComplete
+                    ? "الانتقال للمراجعة النهائية"
+                    : `أكمل ${incompleteQuestionsInSection} سؤال أولاً`}
                 </>
               ) : (
                 <>
@@ -432,64 +480,230 @@ const MockTestReview = ({
                       d="M15 19l-7-7 7-7"
                     />
                   </svg>
-                  الانتقال للقسم التالي
+                  {isCurrentSectionComplete
+                    ? "الانتقال للقسم التالي"
+                    : `أكمل ${incompleteQuestionsInSection} سؤال أولاً`}
                 </>
               )}
             </button>
           )}
         </div>
 
-        {/* Warning Messages */}
-        {!isFinalReview && (
+        {/* Warning Messages - فقط في مراجعة القسم */}
+        {!isFinalReview && incompleteQuestionsInSection > 0 && (
           <div className="mt-2 sm:mt-3 md:mt-4 landscape:mt-1.5 md:landscape:mt-4 p-2 sm:p-3 md:p-4 landscape:p-2 md:landscape:p-4 bg-amber-50 border border-amber-200 rounded-lg sm:rounded-xl text-center">
             <p className="text-amber-800 font-medium text-xs sm:text-sm md:text-base landscape:text-[10px] md:landscape:text-base">
-              تأكد من مراجعة جميع إجاباتك قبل الانتقال. لن تتمكن من العودة لهذا
-              القسم.
+              يجب الإجابة على جميع الأسئلة قبل الانتقال. لديك{" "}
+              {incompleteQuestionsInSection} سؤال غير مُجاب.
             </p>
           </div>
         )}
 
+        {/* Info Message - في المراجعة النهائية فقط إذا كان هناك أسئلة غير مكتملة */}
         {isFinalReview && incompleteQuestionsAll > 0 && (
-          <div className="mt-2 sm:mt-3 md:mt-4 landscape:mt-1.5 md:landscape:mt-4 p-2 sm:p-3 md:p-4 landscape:p-2 md:landscape:p-4 bg-yellow-50 border border-yellow-200 rounded-lg sm:rounded-xl text-center">
-            <p className="text-yellow-800 font-medium text-xs sm:text-sm md:text-base landscape:text-[10px] md:landscape:text-base">
-              لديك {incompleteQuestionsAll} سؤال غير مُجاب.
+          <div className="mt-2 sm:mt-3 md:mt-4 landscape:mt-1.5 md:landscape:mt-4 p-2 sm:p-3 md:p-4 landscape:p-2 md:landscape:p-4 bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl text-center">
+            <p className="text-blue-800 font-medium text-xs sm:text-sm md:text-base landscape:text-[10px] md:landscape:text-base">
+              لديك {incompleteQuestionsAll} سؤال غير مُجاب. يمكنك إرسال الاختبار
+              الآن أو مراجعة الأسئلة غير المكتملة.
             </p>
           </div>
         )}
       </div>
 
+      {/* Confirm Next Section Modal */}
+      {isConfirmNextSection && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setIsConfirmNextSection(false)}
+          />
+          <div className="relative bg-white rounded-[20px] sm:rounded-[30px] p-6 sm:p-8 md:p-12 max-w-md w-[90%] mx-auto shadow-2xl">
+            {/* Icon */}
+            <div className="flex justify-center mb-4 sm:mb-6">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-amber-100 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-8 h-8 sm:w-12 sm:h-12 text-amber-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Title */}
+            <h2 className="text-xl sm:text-2xl font-bold text-center text-text mb-3 sm:mb-4">
+              {isLastSection
+                ? "الانتقال للمراجعة النهائية"
+                : "الانتقال للقسم التالي"}
+            </h2>
+
+            {/* Message */}
+            <p className="text-center text-text-alt mb-6 sm:mb-8 leading-relaxed text-sm sm:text-base">
+              {isLastSection ? (
+                <>
+                  هل أنت متأكد من الانتقال للمراجعة النهائية؟
+                  <br />
+                  <span className="text-red-600 font-bold">
+                    لن تتمكن من العودة لهذا القسم بعد الانتقال.
+                  </span>
+                </>
+              ) : (
+                <>
+                  هل أنت متأكد من الانتقال للقسم التالي؟
+                  <br />
+                  <span className="text-red-600 font-bold">
+                    لن تتمكن من العودة لهذا القسم بعد الانتقال.
+                  </span>
+                </>
+              )}
+            </p>
+
+            {/* Buttons */}
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleConfirmNextSection}
+                className="w-full py-3 sm:py-4 bg-primary text-white rounded-xl font-medium text-base sm:text-lg hover:opacity-90 transition-opacity"
+              >
+                {isLastSection
+                  ? "الانتقال للمراجعة النهائية"
+                  : "الانتقال للقسم التالي"}
+              </button>
+              <button
+                onClick={() => setIsConfirmNextSection(false)}
+                className="w-full py-3 sm:py-4 bg-gray-100 text-text rounded-xl font-medium text-base sm:text-lg hover:bg-gray-200 transition-colors"
+              >
+                إلغاء
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Confirm Submit Modal */}
       {isConfirmSubmit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsConfirmSubmit(false)}
           />
-          <div className="relative bg-white rounded-2xl sm:rounded-[20px] p-4 sm:p-6 md:p-8 max-w-md w-full mx-auto shadow-2xl">
-            <h3 className="text-base sm:text-lg md:text-xl font-bold text-center mb-2 sm:mb-3 md:mb-4">
-              تأكيد إرسال الاختبار
-            </h3>
-            <p className="text-center text-gray-600 mb-4 sm:mb-5 md:mb-6 text-xs sm:text-sm md:text-base">
-              {incompleteQuestionsAll > 0
-                ? `لديك ${incompleteQuestionsAll} سؤال غير مُجاب. هل أنت متأكد من إرسال الاختبار؟`
-                : "هل أنت متأكد من إرسال الاختبار؟ لن تتمكن من تعديل إجاباتك بعد الإرسال."}
-            </p>
-            <div className="flex gap-2 sm:gap-3 md:gap-4">
-              <button
-                onClick={() => setIsConfirmSubmit(false)}
-                className="flex-1 py-2 sm:py-2.5 md:py-3 border-2 border-gray-300 text-gray-700 rounded-lg sm:rounded-xl font-medium hover:bg-gray-50 text-xs sm:text-sm md:text-base"
+          <div className="relative bg-white rounded-[20px] sm:rounded-[30px] p-6 sm:p-8 md:p-12 max-w-md w-[90%] mx-auto shadow-2xl">
+            {/* Icon */}
+            <div className="flex justify-center mb-4 sm:mb-6">
+              <div
+                className={`w-16 h-16 sm:w-20 sm:h-20 ${areAllQuestionsComplete ? "bg-green-100" : "bg-amber-100"} rounded-full flex items-center justify-center`}
               >
-                إلغاء
-              </button>
+                {areAllQuestionsComplete ? (
+                  <svg
+                    className="w-8 h-8 sm:w-12 sm:h-12 text-green-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-8 h-8 sm:w-12 sm:h-12 text-amber-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                )}
+              </div>
+            </div>
+
+            {/* Title */}
+            <h2 className="text-xl sm:text-2xl font-bold text-center text-text mb-3 sm:mb-4">
+              تأكيد إرسال الاختبار
+            </h2>
+
+            {/* Message */}
+            <p className="text-center text-text-alt mb-6 sm:mb-8 leading-relaxed text-sm sm:text-base">
+              {areAllQuestionsComplete ? (
+                <>
+                  لقد أجبت على جميع الأسئلة. هل أنت متأكد من إرسال الاختبار؟
+                  <br />
+                  <span className="text-amber-600 font-bold">
+                    لن تتمكن من تعديل إجاباتك بعد الإرسال.
+                  </span>
+                </>
+              ) : (
+                <>
+                  لديك{" "}
+                  <span className="text-red-600 font-bold">
+                    {incompleteQuestionsAll} سؤال غير مُجاب
+                  </span>
+                  . هل أنت متأكد من إرسال الاختبار؟
+                  <br />
+                  <span className="text-amber-600 font-bold">
+                    لن تتمكن من تعديل إجاباتك بعد الإرسال.
+                  </span>
+                </>
+              )}
+            </p>
+
+            {/* Buttons */}
+            <div className="flex flex-col gap-3">
               <button
                 onClick={() => {
                   setIsConfirmSubmit(false);
                   onSubmitExam();
                 }}
-                disabled={isSubmitting || incompleteQuestionsAll > 0}
-                className="flex-1 py-2 sm:py-2.5 md:py-3 bg-green-600 text-white rounded-lg sm:rounded-xl font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm md:text-base"
+                disabled={isSubmitting}
+                className="w-full py-3 sm:py-4 bg-green-600 text-white rounded-xl font-medium text-base sm:text-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                تأكيد الإرسال
+                {isSubmitting ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    جاري الإرسال...
+                  </>
+                ) : (
+                  "تأكيد الإرسال"
+                )}
+              </button>
+              <button
+                onClick={() => setIsConfirmSubmit(false)}
+                className="w-full py-3 sm:py-4 bg-gray-100 text-text rounded-xl font-medium text-base sm:text-lg hover:bg-gray-200 transition-colors"
+              >
+                إلغاء
               </button>
             </div>
           </div>
