@@ -6,7 +6,7 @@ const useHeaderPlacementTests = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPlacementTests = async () => {
+    const fetchPlacementTests = async () => { 
       try {
         setLoading(true);
         const response = await axios.get(
