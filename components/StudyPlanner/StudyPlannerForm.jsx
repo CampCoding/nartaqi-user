@@ -121,6 +121,8 @@ const StudyPlannerForm = () => {
     "السبت",
   ];
 
+  const isArabicText = (text = "") => /[\u0600-\u06FF]/.test(text);
+
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -263,176 +265,216 @@ const StudyPlannerForm = () => {
     }
     return true;
   };
-
   const generatePDFBlob = async (schedule) => {
     const html2canvas = (await import("html2canvas")).default;
     const jsPDF = (await import("jspdf")).default;
 
+    const formatPhone = () => {
+      if (!formData.whatsappNumber) return "";
+      let num = formData.whatsappNumber.toString().trim();
+      if (num.startsWith("0")) num = num.substring(1);
+      return selectedCountry.code + num;
+    };
+
+    const isArabicName = isArabicText(formData.firstName);
+    const nameDirection = isArabicName ? "rtl" : "ltr";
+    const nameAlign = isArabicName ? "right" : "right";
+
     const container = document.createElement("div");
     container.style.cssText = `
-      position: absolute;
-      top: -9999px;
-      right: 0;
-      width: 800px;
-      background-color: #ffffff;
-      padding: 40px 50px;
-      font-family: 'Arial', 'Tahoma', sans-serif;
-      direction: rtl;
-      text-align: right;
-      color: #1f2937;
-    `;
+    position: absolute;
+    top: -9999px;
+    left: 0;
+    width: 800px;
+    font-family: 'Arial', sans-serif;
+    direction: rtl;
+    background-color: #F0F4F8;
+  `;
 
-    // Get formatted phone number
-    const formattedPhone = formData.whatsappNumber
-      ? handlePhoneCode({
-          phone: formData.whatsappNumber,
-          selectedCountryCode: selectedCountry.code,
-        })
-      : "---";
-
-    const tableRows = schedule
-      .map((day) => {
-        if (day.isRestDay) {
-          return `
-          <tr style="background-color: #eff6ff;">
-            <td style="border: 2px solid #3b82f6; padding: 12px; text-align: center; font-weight: bold; color: #1e3a8a;">${day.index}</td>
-            <td style="border: 2px solid #3b82f6; padding: 12px; text-align: center; font-weight: bold; color: #1d4ed8;">${day.dayName} ${day.date}</td>
-            <td colspan="3" style="border: 2px solid #3b82f6; padding: 12px; text-align: center; font-weight: bold; font-size: 22px; color: #2563eb;">
-              ( راحـــــــــــــــــــــــــــــــــة )
-            </td>
-          </tr>
-        `;
-        } else {
-          return `
-          <tr>
-            <td style="border: 2px solid #1f2937; padding: 15px 12px; text-align: center; font-weight: bold; font-size: 16px;">${day.index}</td>
-            <td style="border: 2px solid #1f2937; padding: 15px 12px; text-align: center; font-weight: bold; font-size: 16px;">${day.dayName} <br/> <span style="font-size:13px; font-weight:normal; color:#4b5563;">${day.date}</span></td>
-            <td style="border: 2px solid #1f2937; padding: 15px 12px; text-align: center; font-weight: bold; font-size: 16px;">من صـ ${day.startPage} إلى صـ ${day.endPage}</td>
-            <td style="border: 2px solid #1f2937; padding: 15px 12px; text-align: center;"></td>
-            <td style="border: 2px solid #1f2937; padding: 15px 12px; text-align: center;"></td>
-          </tr>
-        `;
-        }
-      })
+    const watermarkCount = Math.max(2, Math.ceil(schedule.length / 8) + 1);
+    const watermarks = Array(watermarkCount)
+      .fill(0)
+      .map(
+        () => `
+      <img src="/images/logo.svg" style="width:500px; margin-bottom:400px; opacity:0.08; display:block;" crossorigin="anonymous"/>
+    `
+      )
       .join("");
 
+    const tableHeaderStyle = `
+    background: linear-gradient(to left, #73CDEA, #1F73C9);
+    color: white;
+    font-weight: bold;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    border-radius: 30px 0 0 0;
+  `;
+
+    const tableRowStyle = `
+    background-color: #cde6ffa1;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #1D3A5F;
+    font-size: 18px;
+    margin-bottom: 4px;
+    border-radius: 6px;
+  `;
+
     container.innerHTML = `
-      <div style="border: 3px solid #1f2937; padding: 30px; border-radius: 10px; background-color: #fafafa; position: relative; z-index: 10;">
-        
-        <h1 style="text-align: center; font-size: 32px; font-weight: 900; color: #1e3a8a; margin-top: 0; margin-bottom: 40px;">
-          نـرتـقـي نـحـو الـتـفـوق
-        </h1>
-
-        <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; font-size: 18px; font-weight: bold;">
-          <div style="display: flex; border-bottom: 1px dashed #cbd5e1; padding-bottom: 5px; width: 60%;">
-            <span style="width: 120px; color: #4b5563;">الاسـم:</span>
-            <span style="color: #111827;">${formData.firstName}</span>
-          </div>
-          <div style="display: flex; border-bottom: 1px dashed #cbd5e1; padding-bottom: 5px; width: 60%;">
-            <span style="width: 120px; color: #4b5563;">رقم الجوال:</span>
-            <span style="color: #111827; direction: ltr; text-align: right;">+${formattedPhone}</span>
-          </div>
-          <div style="display: flex; border-bottom: 1px dashed #cbd5e1; padding-bottom: 5px; width: 60%;">
-            <span style="width: 120px; color: #4b5563;">المادة/الامتحان:</span>
-            <span style="color: #111827;">${formData.examTitle}</span>
-          </div>
-        </div>
-
-        <h2 style="text-align: center; font-size: 20px; font-weight: bold; color: #0f172a; margin-bottom: 30px;">
-          " اطـبـع الـجـدول وضـعـه أمـامـك وحـدد مـا تـم ومـا لـم يـتـم "
-        </h2>
-
-        <table style="width: 100%; border-collapse: collapse; background-color: #ffffff; position: relative; z-index: 20;">
-          <thead>
-            <tr style="background-color: #f1f5f9;">
-              <th style="border: 2px solid #1f2937; padding: 15px; width: 5%; font-size: 18px;">م</th>
-              <th style="border: 2px solid #1f2937; padding: 15px; width: 30%; font-size: 18px;">اليوم / التاريخ</th>
-              <th style="border: 2px solid #1f2937; padding: 15px; width: 35%; font-size: 18px;">الصفحات</th>
-              <th style="border: 2px solid #1f2937; padding: 15px; width: 15%; font-size: 18px;">تـم</th>
-              <th style="border: 2px solid #1f2937; padding: 15px; width: 15%; font-size: 18px;">لم يتم</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${tableRows}
-          </tbody>
-        </table>
-
-        <div style="margin-top: 50px; text-align: center; font-size: 22px; font-weight: 900; color: #1e3a8a; line-height: 1.8;">
-          انطلق الآن ! جدولك من نرتقي جاهز ...<br/>
-          <span style="color: #d97706; font-size: 24px;">التزامك اليوم هو تفوقك غداً</span>
-        </div>
-
+    <div style="position: relative; width: 800px; background-color: #F0F4F8; padding-bottom: 60px;">
+      
+      <!-- Watermarks -->
+      <div style="position: absolute; top: 250px; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: none; display: flex; flex-direction: column; align-items: center;">
+        ${watermarks}
       </div>
 
-      <div style="
-        position: absolute;
-        top: 0; left: 0; right: 0; height: 100%;
-        z-index: 100;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-evenly;
-        align-items: center;
-        opacity: 0.12;
-        pointer-events: none;
-      ">
-        <img src="/images/logo.svg" style="width: 400px; margin: 200px 0;" crossorigin="anonymous"/>
-        <img src="/images/logo.svg" style="width: 400px; margin: 200px 0;" crossorigin="anonymous"/>
-        <img src="/images/logo.svg" style="width: 400px; margin: 200px 0;" crossorigin="anonymous"/>
-        <img src="/images/logo.svg" style="width: 400px; margin: 200px 0;" crossorigin="anonymous"/>
+      <!-- Header -->
+      <div style="height: 150px; background: linear-gradient(to right, #73CDEA, #1F73C9); display: flex; justify-content: space-between; align-items: center; padding: 0 40px; position: relative; z-index: 2;">
+        <div style="display: flex; flex-direction: column; align-items: center;">
+          <img src="https://res.cloudinary.com/dbvh5i83q/image/upload/v1775902080/eeaf2477-0e69-4093-afe5-7cc2b948b192_enqxcm.png" style="width: 100px; filter: brightness(0) invert(1);" crossorigin="anonymous"/>
+        </div>
+        <h1 style="color: white; font-size: 42px; font-weight: bold; margin:0;">نرتقي نحو التفوق</h1>
       </div>
-    `;
+
+      <!-- Info Section -->
+      <div style="padding: 40px 60px 20px; display: flex; flex-direction: column; gap: 18px; position: relative; z-index:2;">
+        <div style="display: flex; align-items: center; font-size: 26px; color: #1D3A5F; font-weight: bold;">
+          <span style="white-space: nowrap;">الاســـــــــــــــــم:</span>
+          <div style="flex:1; border-bottom:2px dotted #2E8BC9; margin-right:15px; color:#1D3A5F; padding-bottom:2px; direction:${nameDirection}; text-align:${nameAlign}; min-height:35px;">${formData.firstName}</div>
+        </div>
+        <div style="display: flex; align-items: center; font-size: 26px; color: #1D3A5F; font-weight: bold;">
+          <span style="white-space: nowrap;">رقم الجــــــــوال:</span>
+          <div style="flex:1; border-bottom:2px dotted #2E8BC9; margin-right:15px; color:#1D3A5F; padding-bottom:2px; direction: ltr; text-align: right; min-height:35px;">${formatPhone()}</div>
+        </div>
+        <div style="display: flex; align-items: center; font-size: 26px; color: #1D3A5F; font-weight: bold;">
+          <span style="white-space: nowrap;">المادة/الامتحان:</span>
+          <div style="flex:1; border-bottom:2px dotted #2E8BC9; margin-right:15px; color:#1D3A5F; padding-bottom:2px; min-height:35px;">${formData.examTitle}</div>
+        </div>
+      </div>
+
+      <div style="text-align: center; color: #4b5563; font-size: 20px; margin: 20px 0; font-weight: 500; position: relative; z-index:2;">
+        « اطبع الجدول وضعه أمامك وحدد ما تم وما لم يتم »
+      </div>
+
+      <!-- Schedule Table -->
+      <div style="padding: 0 40px; position: relative; z-index:2;">
+        <div style="display: flex; gap: 12px;">
+          <div style="flex: 2.2;">
+            <div style="${tableHeaderStyle}">اليوم / التاريخ</div>
+            <div style="margin-top:5px;">
+              ${schedule.map((d) => `<div style="${tableRowStyle}">${d.dayName} ${d.date}</div>`).join("")}
+            </div>
+          </div>
+          <div style="flex:2.8;">
+            <div style="${tableHeaderStyle}">الصفحات</div>
+            <div style="margin-top:5px;">
+              ${schedule.map((d) => `<div style="${tableRowStyle}">${d.isRestDay ? "راحة" : `صـ ${d.startPage} إلى صـ ${d.endPage}`}</div>`).join("")}
+            </div>
+          </div>
+          <div style="flex:0.9;">
+            <div style="${tableHeaderStyle}">تم</div>
+            <div style="margin-top:5px;">
+              ${schedule.map((d) => `<div style="${tableRowStyle}">${d.isRestDay ? "" : '<div style="width:30px;height:30px;border:2.5px solid #2E8BC9;background:white;border-radius:6px;"></div>'}</div>`).join("")}
+            </div>
+          </div>
+          <div style="flex:0.9;">
+            <div style="${tableHeaderStyle}">لا يتم</div>
+            <div style="margin-top:5px;">
+              ${schedule.map((d) => `<div style="${tableRowStyle}">${d.isRestDay ? "" : '<div style="width:30px;height:30px;border:2.5px solid #2E8BC9;background:white;border-radius:6px;"></div>'}</div>`).join("")}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:50px; text-align:center; color:#1D3A5F; font-weight:900; font-size:28px; position: relative; z-index:2;">
+        التزامك اليوم هو تفوقك غداً
+      </div>
+    </div>
+  `;
 
     document.body.appendChild(container);
 
-    const images = container.querySelectorAll("img");
-    await Promise.all(
-      Array.from(images).map(
-        (img) =>
-          new Promise((resolve) => {
-            if (img.complete) resolve();
-            else {
-              img.onload = resolve;
-              img.onerror = resolve;
-            }
-          })
-      )
-    );
+    try {
+      const images = container.querySelectorAll("img");
+      await Promise.all(
+        Array.from(images).map(
+          (img) =>
+            new Promise((r) =>
+              img.complete ? r() : ((img.onload = r), (img.onerror = r))
+            )
+        )
+      );
 
-    await new Promise((resolve) => setTimeout(resolve, 800));
+      await new Promise((r) => setTimeout(r, 1200));
 
-    const canvas = await html2canvas(container, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: "#ffffff",
-    });
+      // ✅ التغيير 1: تقليل scale من 2 لـ 1.5 (فرق بسيط في الجودة لكن توفير كبير في الحجم)
+      const canvas = await html2canvas(container, {
+        scale: 1.5,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#F0F4F8",
+      });
 
-    document.body.removeChild(container);
+      // ✅ التغيير 2: استخدام JPEG بدل PNG مع جودة 0.7 (ده التوفير الأكبر)
+      const imgData = canvas.toDataURL("image/jpeg", 0.7);
 
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
+      const pdf = new jsPDF({
+        orientation: "p",
+        unit: "mm",
+        format: "a4",
+        compress: true, // ✅ التغيير 3: تفعيل الضغط الداخلي للـ PDF
+      });
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidthMM = pageWidth;
+      const imgHeightMM = (canvas.height * pageWidth) / canvas.width;
+      let heightLeft = imgHeightMM;
+      let position = 0;
 
-    let heightLeft = imgHeight;
-    let position = 0;
-
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-
-    while (heightLeft > 0) {
-      position -= pageHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      // ✅ التغيير 4: استخدام JPEG في addImage
+      pdf.addImage(
+        imgData,
+        "JPEG",
+        0,
+        position,
+        imgWidthMM,
+        imgHeightMM,
+        undefined,
+        "FAST"
+      );
       heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeightMM;
+        pdf.addPage();
+        pdf.addImage(
+          imgData,
+          "JPEG",
+          0,
+          position,
+          imgWidthMM,
+          imgHeightMM,
+          undefined,
+          "FAST"
+        );
+        heightLeft -= pageHeight;
+      }
+
+      document.body.removeChild(container);
+      return pdf;
+    } catch (err) {
+      if (document.body.contains(container))
+        document.body.removeChild(container);
+      throw err;
     }
-
-    return pdf;
   };
-
   // Download PDF locally
   const handleDownloadPDF = async () => {
     if (!validateForm()) return;
@@ -485,12 +527,13 @@ const StudyPlannerForm = () => {
       // Create FormData for API request
       const apiFormData = new FormData();
       apiFormData.append("file", pdfFile);
-      apiFormData.append("whatsapp_number", formattedPhone);
+      apiFormData.append("phone", formattedPhone);
+      apiFormData.append("name", formData.firstName);
 
       // Add student_id if user is logged in
-      if (user?.id) {
-        apiFormData.append("student_id", user.id);
-      }
+      // if (user?.id) {
+      //   apiFormData.append("student_id", user.id);
+      // }
 
       // Send to API
       const response = await axios.post(

@@ -34,7 +34,7 @@ const WeightedPercentageCalculator = () => {
       id: 3,
       question: "ما أهمية النسبة الموزونة للالتحاق بالجامعات؟",
       answer:
-        "النسبة الموزونة هي مجموع درجاتك في الثانوية العامة و اختبار القدرات و الاختبار التحصيلي بعد ما نوزن كل درجة بالنسبة المحددة لها.\nكل جامعة ممكن تغير نسب الوزن بين الثانوية والقدرات والتحصيلي، عشان كده تأكد من متطلبات الجامعة اللي ناوي تقدم لها.",
+        "النسبة الموزونة هي مجموع درجاتك في الثانوية العامة و اختبار القدرات و الاختبار التحصيلي بعد ما نوزن كل درجة بالنسبة المحددة لها.\nكل ج��معة ممكن تغير نسب الوزن بين الثانوية والقدرات والتحصيلي، عشان كده تأكد من متطلبات الجامعة اللي ناوي تقدم لها.",
     },
   ];
 
@@ -52,6 +52,7 @@ const WeightedPercentageCalculator = () => {
 
   const [result, setResult] = useState(null);
   const [globalError, setGlobalError] = useState("");
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const pdfRef = useRef(null);
 
@@ -107,63 +108,338 @@ const WeightedPercentageCalculator = () => {
   };
 
   const downloadPDF = async () => {
-    if (!pdfRef.current) return;
+    if (result === null) return;
+    setIsGeneratingPDF(true);
 
     try {
-      const html2canvas = (await import("html2canvas")).default;
+      const domToImage = (await import("dom-to-image")).default;
       const jsPDF = (await import("jspdf")).default;
 
-      const clone = pdfRef.current.cloneNode(true);
+      const percentage = result;
+      const size = 260;
+      const cx = size / 2;
+      const cy = size / 2;
+      const stroke = 28; // ← سميك زي الصورة
+      const radius = cx - stroke / 2;
+      const circumference = radius * 2 * Math.PI;
+      const strokeDashoffset =
+        circumference - (percentage / 100) * circumference;
+      const innerSize = size - stroke * 2; // الدايرة الداخلية
+      // إنشاء الـ wrapper
+      const wrapper = document.createElement("div");
+      wrapper.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: -9999px;
+      width: 800px;
+      height: 1131px;
+      z-index: -1;
+      overflow: hidden;
+    `;
 
-      clone.style.position = "fixed";
-      clone.style.left = "-9999px";
-      clone.style.top = "0";
-      clone.style.width = "700px";
-      clone.style.backgroundColor = "#ffffff";
-      clone.style.padding = "40px";
+      // إنشاء الـ container الفعلي
+      const pdfContainer = document.createElement("div");
+      pdfContainer.id = "pdf-export-container";
+      pdfContainer.style.cssText = `
+      width: 800px;
+      height: 1131px;
+      background-color: #F0F4F8;
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      position: relative;
+      overflow: hidden;
+    `;
 
-      clone.querySelectorAll('[data-pdf-only="true"]').forEach((el) => {
-        el.style.display = "block";
+      // ===== HEADER =====
+      const header = document.createElement("div");
+      header.style.cssText = `
+      width: 800px;
+      height: 120px;
+      background: linear-gradient(to left, #2E8BC9, #47A7E9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      box-sizing: border-box;
+    `;
+
+      const logo = document.createElement("img");
+      logo.src =
+        "https://res.cloudinary.com/dbvh5i83q/image/upload/v1775902080/eeaf2477-0e69-4093-afe5-7cc2b948b192_enqxcm.png";
+      logo.crossOrigin = "anonymous";
+      logo.style.cssText = `
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+    `;
+
+      const headerTitle = document.createElement("div");
+      headerTitle.textContent = "تقرير النسبة الموزونة";
+      headerTitle.style.cssText = `
+      color: white;
+      font-size: 30px;
+      font-weight: bold;
+    `;
+
+      header.appendChild(logo);
+      header.appendChild(headerTitle);
+
+      // ===== CONTENT AREA =====
+      const content = document.createElement("div");
+      content.style.cssText = `
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    `;
+
+      // ===== TABLE =====
+      const tableWrapper = document.createElement("div");
+      tableWrapper.style.cssText = `
+      width: 100%;
+      display: flex;
+      flex-direction: row-reverse;
+      gap: 20px;
+      margin-top: 20px;
+    `;
+
+      const columns = [
+        {
+          header: "البيان",
+          rows: ["الثانوية العامة", "اختبار القدرات", "الاختبار التحصيلي"],
+        },
+        {
+          header: "درجة الطالب",
+          rows: [
+            `${student.highSchoolGrade || "0"}%`,
+            `${student.aptitudeScore || "0"}%`,
+            `${student.achievementScore || "0"}%`,
+          ],
+        },
+        {
+          header: "وزن الجامعة",
+          rows: [
+            `${weights.highSchoolPercentage || "0"}%`,
+            `${weights.abilitiesScore || "0"}%`,
+            `${weights.achievementScore || "0"}%`,
+          ],
+        },
+      ];
+
+      columns.forEach((col) => {
+        const colDiv = document.createElement("div");
+        colDiv.style.cssText = `
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      `;
+
+        // Header cell
+        const headerCell = document.createElement("div");
+        headerCell.style.cssText = `
+        background: linear-gradient(to bottom, #47A7E9, #2E8BC9);
+        color: white;
+        font-weight: bold;
+        font-size: 20px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 30px 0px 0 0;
+        text-align: center;
+      `;
+        headerCell.textContent = col.header;
+        colDiv.appendChild(headerCell);
+
+        // Data rows
+        col.rows.forEach((rowText) => {
+          const cell = document.createElement("div");
+          cell.style.cssText = `
+          background-color: #DAE9F5;
+          color: #334155;
+          font-weight: bold;
+          font-size: 20px;
+          height: 58px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+          text-align: center;
+        `;
+          cell.textContent = rowText;
+          colDiv.appendChild(cell);
+        });
+
+        tableWrapper.appendChild(colDiv);
       });
 
-      clone.querySelectorAll('[data-screen-only="true"]').forEach((el) => {
-        el.style.display = "none";
+      content.appendChild(tableWrapper);
+
+      // ===== PILL =====
+      const pill = document.createElement("div");
+      pill.style.cssText = `
+      margin-top: 60px;
+      background: white;
+      padding: 14px 50px;
+      border-radius: 50px;
+      font-weight: bold;
+      color: #334155;
+      font-size: 24px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      display: inline-block;
+    `;
+      pill.textContent = "النسبة الموزونة النهائية";
+      content.appendChild(pill);
+
+      // ===== CIRCLE =====
+      const circleWrapper = document.createElement("div");
+      circleWrapper.style.cssText = `
+  margin-top: 40px;
+  width: ${size}px;
+  height: ${size}px;
+  position: relative;
+`;
+
+      // SVG
+      const svgNS = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(svgNS, "svg");
+      svg.setAttribute("width", String(size));
+      svg.setAttribute("height", String(size));
+      svg.style.cssText = `
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotate(-90deg);
+`;
+
+      // Background track - أزرق فاتح جداً
+      const bgCircle = document.createElementNS(svgNS, "circle");
+      bgCircle.setAttribute("cx", String(cx));
+      bgCircle.setAttribute("cy", String(cy));
+      bgCircle.setAttribute("r", String(radius));
+      bgCircle.setAttribute("stroke", "#DBEAFE");
+      bgCircle.setAttribute("stroke-width", String(stroke));
+      bgCircle.setAttribute("fill", "transparent");
+
+      // Progress arc - أزرق غامق
+      const progressCircle = document.createElementNS(svgNS, "circle");
+      progressCircle.setAttribute("cx", String(cx));
+      progressCircle.setAttribute("cy", String(cy));
+      progressCircle.setAttribute("r", String(radius));
+      progressCircle.setAttribute("stroke", "#2E8BC9");
+      progressCircle.setAttribute("stroke-width", String(stroke));
+      progressCircle.setAttribute("fill", "transparent");
+      progressCircle.setAttribute("stroke-dasharray", String(circumference));
+      progressCircle.setAttribute(
+        "stroke-dashoffset",
+        String(strokeDashoffset)
+      );
+      progressCircle.setAttribute("stroke-linecap", "round");
+
+      svg.appendChild(bgCircle);
+      svg.appendChild(progressCircle);
+
+      // Inner white circle
+      const innerCircle = document.createElement("div");
+      innerCircle.style.cssText = `
+  position: absolute;
+  top: ${stroke}px;
+  left: ${stroke}px;
+  width: ${innerSize}px;
+  height: ${innerSize}px;
+  background: white;
+  border-radius: 50%;
+`;
+
+      // Percentage text - centered بـ line-height
+      const percentText = document.createElement("div");
+      percentText.textContent = `${percentage}%`;
+      percentText.style.cssText = `
+  position: absolute;
+  top: ${stroke}px;
+  left: ${stroke}px;
+  width: ${innerSize}px;
+  height: ${innerSize}px;
+  line-height: ${innerSize}px;
+  text-align: center;
+  font-size: 52px;
+  font-weight: bold;
+  color: #334155;
+  z-index: 2;
+`;
+
+      circleWrapper.appendChild(svg);
+      circleWrapper.appendChild(innerCircle);
+      circleWrapper.appendChild(percentText);
+      content.appendChild(circleWrapper);
+
+      // ===== SUBTITLE =====
+      const subtitle = document.createElement("div");
+      subtitle.textContent = "نرتقي معا للنجاح .. فالموازنة بداية الرحلة";
+      subtitle.style.cssText = `
+      margin-top: 40px;
+      font-size: 22px;
+      font-weight: 500;
+      color: #4b5563;
+      text-align: center;
+    `;
+      content.appendChild(subtitle);
+
+      // ===== FOOTER =====
+      const footer = document.createElement("div");
+      footer.style.cssText = `
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: linear-gradient(to left, #2E8BC9, #47A7E9);
+    `;
+
+      // Assemble
+      pdfContainer.appendChild(header);
+      pdfContainer.appendChild(content);
+      pdfContainer.appendChild(footer);
+      wrapper.appendChild(pdfContainer);
+      document.body.appendChild(wrapper);
+
+      // Wait for image to load
+      await new Promise((r) => {
+        if (logo.complete) r(null);
+        else {
+          logo.onload = r;
+          logo.onerror = r;
+        }
       });
 
-      document.body.appendChild(clone);
+      await new Promise((r) => setTimeout(r, 500));
 
-      const canvas = await html2canvas(clone, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
+      // Capture using dom-to-image
+      const dataUrl = await domToImage.toPng(pdfContainer, {
+        width: 800,
+        height: 1131,
+        style: {
+          transform: "scale(1)",
+          transformOrigin: "top left",
+        },
       });
 
-      document.body.removeChild(clone);
-
-      const imgData = canvas.toDataURL("image/png");
+      document.body.removeChild(wrapper);
 
       const pdf = new jsPDF("p", "mm", "a4");
-      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      const imgWidth = pageWidth - 20;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-
-      pdf.save("نتيجة-النسبة-الموزونة.pdf");
-    } catch (error) {
-      console.error("Error generating PDF:", error);
+      pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save("تقرير_النسبة_الموزونة.pdf");
+    } catch (err) {
+      console.error("PDF Error:", err);
+    } finally {
+      setIsGeneratingPDF(false);
     }
-  };
-
-  const getCurrentDate = () => {
-    const now = new Date();
-    return now.toLocaleDateString("ar-SA", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
   };
 
   return (
@@ -229,323 +505,13 @@ const WeightedPercentageCalculator = () => {
 
         {result !== null ? (
           <>
-            {/* ===== PDF Container ===== */}
-            <div ref={pdfRef} className="w-[30%] m-auto relative bg-white">
-              {/* للشاشة فقط */}
-              <div data-screen-only="true">
-                <ProgressFrame percentage={result} show />
-              </div>
-
-              {/* ===== للـ PDF فقط - تصميم بسيط ===== */}
-              <div
-                data-pdf-only="true"
-                className="hidden"
-                style={{
-                  direction: "rtl",
-                  fontFamily: "Arial, sans-serif",
-                  position: "relative",
-                  minHeight: "500px",
-                }}
-              >
-                {/* Content - الأول */}
-                <div style={{ position: "relative", zIndex: 1 }}>
-                  {/* Header */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: "30px",
-                      paddingBottom: "20px",
-                      borderBottom: "2px solid #e5e7eb",
-                    }}
-                  >
-                    <div>
-                      <h1
-                        style={{
-                          fontSize: "24px",
-                          fontWeight: "bold",
-                          color: "#1f2937",
-                          margin: 0,
-                        }}
-                      >
-                        تقرير النسبة الموزونة
-                      </h1>
-                      <p
-                        style={{
-                          fontSize: "14px",
-                          color: "#6b7280",
-                          marginTop: "4px",
-                        }}
-                      >
-                        {getCurrentDate()}
-                      </p>
-                    </div>
-                    <img
-                      src="/images/logo.svg"
-                      alt="Logo"
-                      style={{ width: "80px", height: "auto" }}
-                    />
-                  </div>
-
-                  {/* جدول المقارنة */}
-                  <table
-                    style={{
-                      width: "100%",
-                      borderCollapse: "collapse",
-                      marginBottom: "24px",
-                    }}
-                  >
-                    <thead>
-                      <tr>
-                        <th
-                          style={{
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            backgroundColor: "#f9fafb",
-                            textAlign: "right",
-                            fontWeight: "bold",
-                            color: "#374151",
-                          }}
-                        >
-                          البيان
-                        </th>
-                        <th
-                          style={{
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            backgroundColor: "#f9fafb",
-                            textAlign: "center",
-                            fontWeight: "bold",
-                            color: "#374151",
-                          }}
-                        >
-                          درجة الطالب
-                        </th>
-                        <th
-                          style={{
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            backgroundColor: "#f9fafb",
-                            textAlign: "center",
-                            fontWeight: "bold",
-                            color: "#374151",
-                          }}
-                        >
-                          وزن الجامعة %
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td
-                          style={{
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            textAlign: "right",
-                            color: "#1f2937",
-                          }}
-                        >
-                          الثانوية العامة
-                        </td>
-                        <td
-                          style={{
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            textAlign: "center",
-                            fontWeight: "600",
-                            color: "#1f2937",
-                          }}
-                        >
-                          {student.highSchoolGrade || "—"}
-                        </td>
-                        <td
-                          style={{
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            textAlign: "center",
-                            fontWeight: "600",
-                            color: "#1f2937",
-                          }}
-                        >
-                          {weights.highSchoolPercentage || "—"}%
-                        </td>
-                      </tr>
-                      <tr>
-                        <td
-                          style={{
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            textAlign: "right",
-                            color: "#1f2937",
-                          }}
-                        >
-                          اختبار القدرات
-                        </td>
-                        <td
-                          style={{
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            textAlign: "center",
-                            fontWeight: "600",
-                            color: "#1f2937",
-                          }}
-                        >
-                          {student.aptitudeScore || "—"}
-                        </td>
-                        <td
-                          style={{
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            textAlign: "center",
-                            fontWeight: "600",
-                            color: "#1f2937",
-                          }}
-                        >
-                          {weights.abilitiesScore || "—"}%
-                        </td>
-                      </tr>
-                      <tr>
-                        <td
-                          style={{
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            textAlign: "right",
-                            color: "#1f2937",
-                          }}
-                        >
-                          الاختبار التحصيلي
-                        </td>
-                        <td
-                          style={{
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            textAlign: "center",
-                            fontWeight: "600",
-                            color: "#1f2937",
-                          }}
-                        >
-                          {student.achievementScore || "—"}
-                        </td>
-                        <td
-                          style={{
-                            border: "1px solid #d1d5db",
-                            padding: "12px 16px",
-                            textAlign: "center",
-                            fontWeight: "600",
-                            color: "#1f2937",
-                          }}
-                        >
-                          {weights.achievementScore || "—"}%
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-
-                  {/* النتيجة النهائية مع Progress Bar */}
-                  <div
-                    style={{
-                      backgroundColor: "#f3f4f6",
-                      borderRadius: "12px",
-                      padding: "20px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: "12px",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: "18px",
-                          fontWeight: "bold",
-                          color: "#374151",
-                        }}
-                      >
-                        النسبة الموزونة النهائية
-                      </span>
-                      <span
-                        style={{
-                          fontSize: "32px",
-                          fontWeight: "bold",
-                          color: "#3b82f6",
-                        }}
-                      >
-                        {result}%
-                      </span>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "12px",
-                        backgroundColor: "#e5e7eb",
-                        borderRadius: "9999px",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: `${result}%`,
-                          height: "100%",
-                          backgroundColor: "#3b82f6",
-                          borderRadius: "9999px",
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div
-                    style={{
-                      marginTop: "30px",
-                      paddingTop: "16px",
-                      borderTop: "1px solid #e5e7eb",
-                      textAlign: "center",
-                    }}
-                  >
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        color: "#9ca3af",
-                      }}
-                    >
-                      هذا التقرير تم إنشاؤه تلقائياً ولا يُعد وثيقة رسمية
-                    </p>
-                  </div>
-                </div>
-
-                {/* Watermark - فوق المحتوى */}
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    opacity: 0.1,
-                    pointerEvents: "none",
-                    zIndex: 10,
-                  }}
-                >
-                  <img
-                    src="/images/logo.svg"
-                    alt=""
-                    style={{ width: "300px", height: "auto" }}
-                  />
-                </div>
-              </div>
-              {/* ===== نهاية PDF ===== */}
-            </div>
-
+            <ProgressFrame percentage={result} show />
             <ActionsButtons
               onRecalculate={calculate}
               onReset={resetAll}
               canDownload={true}
               onDownload={downloadPDF}
+              isLoading={isGeneratingPDF}
             />
           </>
         ) : null}
@@ -567,7 +533,7 @@ const WeightedPercentageCalculator = () => {
 
 export default WeightedPercentageCalculator;
 
-// ============ باقي الكومبوننتات ============
+// ============ باقي الكومبوننتات كما هي ============
 
 export const StudentDataFrame = ({ value, onChange }) => {
   const formFields = [
@@ -804,6 +770,7 @@ const ActionsButtons = ({
   onReset,
   onDownload,
   canDownload,
+  isLoading,
 }) => {
   const FileIcon = () => (
     <svg
@@ -829,23 +796,27 @@ const ActionsButtons = ({
     <div className="flex flex-col md:flex-row w-full max-w-[812px] mx-auto items-center justify-center gap-4 md:gap-12 mt-6 md:mt-[32px]">
       <button
         className={`flex items-center px-10 md:px-20 py-4 md:py-6 justify-center gap-2 w-full md:w-auto flex-1 grow rounded-[20px] text-white transition
-          ${canDownload ? "bg-primary hover:bg-primary-dark" : "bg-gray-300 cursor-not-allowed"}`}
+          ${canDownload && !isLoading ? "bg-primary hover:bg-primary-dark" : "bg-gray-300 cursor-not-allowed"}`}
         onClick={onDownload}
         type="button"
-        disabled={!canDownload}
-        aria-label="تنزيل النتيجة PDF"
+        disabled={!canDownload || isLoading}
       >
-        <FileIcon />
-        <span className="font-bold text-sm md:text-base [direction:rtl] whitespace-nowrap">
-          تنزيل النتيجة PDF
-        </span>
+        {isLoading ? (
+          "جارِ الإنشاء..."
+        ) : (
+          <>
+            <FileIcon />
+            <span className="font-bold text-sm md:text-base [direction:rtl] whitespace-nowrap">
+              تنزيل النتيجة PDF
+            </span>
+          </>
+        )}
       </button>
 
       <button
         className="flex items-center px-10 md:px-20 py-4 md:py-6 justify-center gap-2 w-full md:w-auto flex-1 grow bg-white rounded-[20px] border-2 border-solid border-blue-500 hover:bg-gray-50 transition"
         onClick={onRecalculate}
         type="button"
-        aria-label="إعادة الحساب"
       >
         <span className="font-bold text-blue-500 text-sm md:text-base [direction:rtl]">
           إعادة الحساب
@@ -856,7 +827,6 @@ const ActionsButtons = ({
         className="flex items-center px-6 py-4 md:py-6 justify-center w-full md:w-auto rounded-[20px] border border-zinc-200 hover:bg-zinc-50 transition"
         onClick={onReset}
         type="button"
-        aria-label="مسح البيانات"
       >
         <span className="font-bold text-zinc-700 text-sm md:text-base [direction:rtl]">
           مسح البيانات
