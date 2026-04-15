@@ -207,8 +207,12 @@ const WeightedPercentageCalculator = () => {
 
       const columns = [
         {
-          header: "البيان",
-          rows: ["الثانوية العامة", "اختبار القدرات", "الاختبار التحصيلي"],
+          header: "وزن الجامعة",
+          rows: [
+            `${weights.highSchoolPercentage || "0"}%`,
+            `${weights.abilitiesScore || "0"}%`,
+            `${weights.achievementScore || "0"}%`,
+          ],
         },
         {
           header: "درجة الطالب",
@@ -219,12 +223,8 @@ const WeightedPercentageCalculator = () => {
           ],
         },
         {
-          header: "وزن الجامعة",
-          rows: [
-            `${weights.highSchoolPercentage || "0"}%`,
-            `${weights.abilitiesScore || "0"}%`,
-            `${weights.achievementScore || "0"}%`,
-          ],
+          header: "البيان",
+          rows: ["الثانوية العامة", "اختبار القدرات", "الاختبار التحصيلي"],
         },
       ];
 

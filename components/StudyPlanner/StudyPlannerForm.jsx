@@ -326,6 +326,23 @@ const StudyPlannerForm = () => {
     border-radius: 6px;
   `;
 
+    // ✅ ستايل خاص بصفوف الراحة
+    const restRowStyle = `
+    background-color: #E5E7EB;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #6B7280;
+    font-size: 18px;
+    margin-bottom: 4px;
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0.75;
+  `;
+
     container.innerHTML = `
     <div style="position: relative; width: 800px; background-color: #F0F4F8; padding-bottom: 60px;">
       
@@ -365,30 +382,73 @@ const StudyPlannerForm = () => {
       <!-- Schedule Table -->
       <div style="padding: 0 40px; position: relative; z-index:2;">
         <div style="display: flex; gap: 12px;">
+          
+          <!-- عمود اليوم / التاريخ -->
           <div style="flex: 2.2;">
             <div style="${tableHeaderStyle}">اليوم / التاريخ</div>
             <div style="margin-top:5px;">
-              ${schedule.map((d) => `<div style="${tableRowStyle}">${d.dayName} ${d.date}</div>`).join("")}
+              ${schedule
+                .map(
+                  (d) => `
+                <div style="${d.isRestDay ? restRowStyle : tableRowStyle}">
+                  <span style="${d.isRestDay ? "" : ""}">${d.dayName} ${d.date}</span>
+                </div>
+              `
+                )
+                .join("")}
             </div>
           </div>
+
+          <!-- عمود الصفحات -->
           <div style="flex:2.8;">
             <div style="${tableHeaderStyle}">الصفحات</div>
             <div style="margin-top:5px;">
-              ${schedule.map((d) => `<div style="${tableRowStyle}">${d.isRestDay ? "راحة" : `صـ ${d.startPage} إلى صـ ${d.endPage}`}</div>`).join("")}
+              ${schedule
+                .map(
+                  (d) => `
+                <div style="${d.isRestDay ? restRowStyle : tableRowStyle}">
+                  <span style="${d.isRestDay ? "font-size: 22px;" : ""}">
+                    ${d.isRestDay ? "راحـــــــــــــــــــــة" : `صـ ${d.startPage} إلى صـ ${d.endPage}`}
+                  </span>
+                </div>
+              `
+                )
+                .join("")}
             </div>
           </div>
+
+          <!-- عمود تم -->
           <div style="flex:0.9;">
             <div style="${tableHeaderStyle}">تم</div>
             <div style="margin-top:5px;">
-              ${schedule.map((d) => `<div style="${tableRowStyle}">${d.isRestDay ? "" : '<div style="width:30px;height:30px;border:2.5px solid #2E8BC9;background:white;border-radius:6px;"></div>'}</div>`).join("")}
+              ${schedule
+                .map(
+                  (d) => `
+                <div style="${d.isRestDay ? restRowStyle : tableRowStyle}">
+                  ${d.isRestDay ? "" : '<div style="width:30px;height:30px;border:2.5px solid #2E8BC9;background:white;border-radius:6px;"></div>'}
+                </div>
+              `
+                )
+                .join("")}
             </div>
           </div>
+
+          <!-- عمود لا يتم -->
           <div style="flex:0.9;">
             <div style="${tableHeaderStyle}">لا يتم</div>
             <div style="margin-top:5px;">
-              ${schedule.map((d) => `<div style="${tableRowStyle}">${d.isRestDay ? "" : '<div style="width:30px;height:30px;border:2.5px solid #2E8BC9;background:white;border-radius:6px;"></div>'}</div>`).join("")}
+              ${schedule
+                .map(
+                  (d) => `
+                <div style="${d.isRestDay ? restRowStyle : tableRowStyle}">
+                  ${d.isRestDay ? "" : '<div style="width:30px;height:30px;border:2.5px solid #2E8BC9;background:white;border-radius:6px;"></div>'}
+                </div>
+              `
+                )
+                .join("")}
             </div>
           </div>
+
         </div>
       </div>
 
@@ -413,7 +473,6 @@ const StudyPlannerForm = () => {
 
       await new Promise((r) => setTimeout(r, 1200));
 
-      // ✅ التغيير 1: تقليل scale من 2 لـ 1.5 (فرق بسيط في الجودة لكن توفير كبير في الحجم)
       const canvas = await html2canvas(container, {
         scale: 1.5,
         useCORS: true,
@@ -421,14 +480,13 @@ const StudyPlannerForm = () => {
         backgroundColor: "#F0F4F8",
       });
 
-      // ✅ التغيير 2: استخدام JPEG بدل PNG مع جودة 0.7 (ده التوفير الأكبر)
       const imgData = canvas.toDataURL("image/jpeg", 0.7);
 
       const pdf = new jsPDF({
         orientation: "p",
         unit: "mm",
         format: "a4",
-        compress: true, // ✅ التغيير 3: تفعيل الضغط الداخلي للـ PDF
+        compress: true,
       });
 
       const pageWidth = pdf.internal.pageSize.getWidth();
@@ -438,7 +496,6 @@ const StudyPlannerForm = () => {
       let heightLeft = imgHeightMM;
       let position = 0;
 
-      // ✅ التغيير 4: استخدام JPEG في addImage
       pdf.addImage(
         imgData,
         "JPEG",
@@ -475,6 +532,7 @@ const StudyPlannerForm = () => {
       throw err;
     }
   };
+
   // Download PDF locally
   const handleDownloadPDF = async () => {
     if (!validateForm()) return;
