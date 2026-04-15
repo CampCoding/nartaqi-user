@@ -309,11 +309,11 @@ const WeightedPercentageCalculator = () => {
       svg.setAttribute("width", String(size));
       svg.setAttribute("height", String(size));
       svg.style.cssText = `
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: rotate(-90deg);
-`;
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: rotate(-90deg);
+      `;
 
       // Background track - أزرق فاتح جداً
       const bgCircle = document.createElementNS(svgNS, "circle");
