@@ -31,13 +31,8 @@ const Footer = () => {
     return null;
   }
 
-  const {
-    whatsappHref,
-    emailText,
-    phoneText,
-    whatsappNumber,
-    telHref,
-  } = useSupportInfo();
+  const { whatsappHref, emailText, phoneText, whatsappNumber, telHref } =
+    useSupportInfo();
 
   const { accounts: socialAccounts } = useSocialAccounts();
 
@@ -80,6 +75,8 @@ export const Frame = ({
     { text: "فريق العمل", href: "/team-work" },
     { text: "الأسئلة الشائعة", href: "/faqs" },
     { text: "شروط الاستخدام والخصوصية", href: "/conditions-and-privacy" },
+    { text: "سياسة الإسترجاع", href: "/refund-policy" },
+
     { text: "المدونة", href: "/blogs" },
     { text: "تواصل معنا", href: "/contact-us" },
   ];

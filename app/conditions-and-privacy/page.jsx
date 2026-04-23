@@ -4,49 +4,241 @@ import React, { useMemo, useState } from "react";
 import PagesBanner from "./../../components/ui/PagesBanner";
 import Container from "../../components/ui/Container";
 import cx from "../../lib/cx";
-import { useTconditions } from "../../components/shared/Hooks/useTconditions"; // ✅ عدّل المسار حسب مشروعك
 
-const ConditionsAndPrivacy = () => {
+// ✅ Rich Text content - نفس فورمات الـ API بالظبط
+const RETURN_POLICY_HTML = `
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <strong>
+    <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; color: rgb(112, 48, 160); font-size: 25px;">
+      سياسة الاسترجاع والاستبدال لمنصة "نرتقي للتدريب وتنمية المهارات"
+    </span>
+  </strong>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    نحرص في منصة "نرتقي للتدريب وتنمية المهارات" على تقديم تجربة تعليمية مميزة. قبل إتمام عملية الشراء، يُرجى الاطلاع على سياسة الاسترجاع والاستبدال التالية:
+  </span>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <strong>
+    <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+      <span style="background-color: rgb(255, 255, 255); color: rgb(255, 0, 0);">١</span>
+      <span style="color: rgb(192, 0, 0);">. أولًا: استرداد المبالغ (Refund Policy) :</span>
+    </span>
+  </strong>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    يحق للمستخدم طلب استرداد المبلغ خلال 24 ساعة من تاريخ الشراء، بشرط:
+  </span>
+</p>
+
+<p class="MsoListParagraphCxSpFirst" dir="RTL" style="margin: 0px 48px 0px 0px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; text-indent: -24px; font-size: 15px;">
+  <span style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    <span>-<span style="font: 9px &quot;Times New Roman&quot;;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </span>
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    عدم مشاهدة أكثر من ٥٪ من محتوى الدورة
+  </span>
+</p>
+
+<p class="MsoListParagraphCxSpLast" dir="RTL" style="margin: 0px 48px 11px 0px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; text-indent: -24px; font-size: 15px;">
+  <span style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    <span>-<span style="font: 9px &quot;Times New Roman&quot;;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </span>
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    عدم تحميل أي مواد تعليمية من المنصة
+  </span>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    في حال تحقق الشروط، يتم رد المبلغ خلال مدة تتراوح بين 7 إلى 14 يوم عمل عبر نفس وسيلة الدفع.
+  </span>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <strong>
+    <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+      <span style="background-color: rgb(255, 255, 255); color: rgb(255, 0, 0);">٢</span>
+      <span style="color: rgb(192, 0, 0);">. ثانيًا: حالات لا يُسمح فيها بالاسترجاع :</span>
+    </span>
+  </strong>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    لا يمكن استرداد المبلغ في الحالات التالية:
+  </span>
+</p>
+
+<p class="MsoListParagraphCxSpFirst" dir="RTL" style="margin: 0px 48px 0px 0px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; text-indent: -24px; font-size: 15px;">
+  <span style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    <span>-<span style="font: 9px &quot;Times New Roman&quot;;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </span>
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    بعد مرور 24 ساعة من وقت الشراء
+  </span>
+</p>
+
+<p class="MsoListParagraphCxSp" dir="RTL" style="margin: 0px 48px 0px 0px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; text-indent: -24px; font-size: 15px;">
+  <span style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    <span>-<span style="font: 9px &quot;Times New Roman&quot;;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </span>
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    عند مشاهدة نسبة تتجاوز ٥٪ من محتوى الدورة
+  </span>
+</p>
+
+<p class="MsoListParagraphCxSp" dir="RTL" style="margin: 0px 48px 0px 0px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; text-indent: -24px; font-size: 15px;">
+  <span style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    <span>-<span style="font: 9px &quot;Times New Roman&quot;;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </span>
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    في حال تحميل أو نسخ أي جزء من المواد التعليمية
+  </span>
+</p>
+
+<p class="MsoListParagraphCxSpLast" dir="RTL" style="margin: 0px 48px 11px 0px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; text-indent: -24px; font-size: 15px;">
+  <span style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    <span>-<span style="font: 9px &quot;Times New Roman&quot;;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </span>
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    في الدورات أو الخدمات التي يتم تنفيذها بشكل مخصص بناءً على طلب المستخدم
+  </span>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <strong>
+    <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+      <span style="background-color: rgb(255, 255, 255); color: rgb(255, 0, 0);">٣</span>
+      <span style="color: rgb(192, 0, 0);">. ثالثًا: الاستبدال (Exchange Policy) :</span>
+    </span>
+  </strong>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    يمكن للمستخدم طلب استبدال الدورة بدورة أخرى خلال 48 ساعة من الشراء، بشرط:
+  </span>
+</p>
+
+<p class="MsoListParagraphCxSpFirst MsoListParagraphCxSpLast" dir="RTL" style="margin: 0px 48px 11px 0px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; text-indent: -24px; font-size: 15px;">
+  <span style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    <span>-<span style="font: 9px &quot;Times New Roman&quot;;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </span>
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    عدم استهلاك أكثر من 10٪ من محتوى الدورة الأصلية
+  </span>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    يتم احتساب فرق السعر (إن وجد) بين الدورتين.
+  </span>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <strong>
+    <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+      <span style="background-color: rgb(255, 255, 255); color: rgb(255, 0, 0);">٤</span>
+      <span style="color: rgb(192, 0, 0);">. رابعًا: إلغاء الاشتراكات :</span>
+    </span>
+  </strong>
+</p>
+
+<p class="MsoListParagraphCxSpFirst" dir="RTL" style="margin: 0px 48px 0px 0px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; text-indent: -24px; font-size: 15px;">
+  <span style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    <span>-<span style="font: 9px &quot;Times New Roman&quot;;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </span>
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    يمكن إلغاء الاشتراك في أي وقت، ويظل الوصول متاحًا حتى نهاية مدة الاشتراك المدفوعة
+  </span>
+</p>
+
+<p class="MsoListParagraphCxSpLast" dir="RTL" style="margin: 0px 48px 11px 0px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; text-indent: -24px; font-size: 15px;">
+  <span style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    <span>-<span style="font: 9px &quot;Times New Roman&quot;;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </span>
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    لا يتم رد أي مبالغ عن الفترات المستخدمة
+  </span>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <strong>
+    <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+      <span style="background-color: rgb(255, 255, 255); color: rgb(255, 0, 0);">٥</span>
+      <span style="color: rgb(192, 0, 0);">. خامسًا: الحالات الاستثنائية :</span>
+    </span>
+  </strong>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    تحتفظ منصة "نرتقي للتدريب وتنمية المهارات" بحق النظر في بعض الحالات الخاصة (مثل المشكلات التقنية أو الأخطاء في الدفع) واتخاذ القرار المناسب بما يحقق العدالة للطرفين.
+  </span>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <strong>
+    <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+      <span style="background-color: rgb(255, 255, 255); color: rgb(255, 0, 0);">٦</span>
+      <span style="color: rgb(192, 0, 0);">. سادسًا: التواصل :</span>
+    </span>
+  </strong>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    لطلب الاسترجاع أو الاستبدال، يُرجى التواصل معنا من خلال:
+  </span>
+</p>
+
+<p class="MsoListParagraphCxSpFirst" dir="RTL" style="margin: 0px 48px 0px 0px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; text-indent: -24px; font-size: 15px;">
+  <span style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    <span>-<span style="font: 9px &quot;Times New Roman&quot;;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </span>
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    رقم التواصل: <span dir="LTR">+20 10 98286080</span>
+  </span>
+</p>
+
+<p class="MsoListParagraphCxSpLast" dir="RTL" style="margin: 0px 48px 11px 0px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; text-indent: -24px; font-size: 15px;">
+  <span style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    <span>-<span style="font: 9px &quot;Times New Roman&quot;;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </span>
+  <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+    من خلال صفحة الدعم داخل المنصة
+  </span>
+</p>
+
+<p class="MsoNormal" dir="RTL" style="margin: 0px 0px 11px; text-align: right; line-height: 107%; direction: rtl; unicode-bidi: embed; font-family: Calibri, sans-serif; font-size: 15px;">
+  <strong>
+    <span lang="AR-SA" style="line-height: 107%; font-family: Arial, sans-serif; font-size: 25px;">
+      باستخدامك للمنصة وإتمام عملية الشراء، فإنك توافق على هذه الشروط.
+    </span>
+  </strong>
+</p>
+`;
+
+const ReturnPolicyPage = () => {
   const [selectedSection, setSelectedSection] = useState(1);
 
-  // ✅ API
-  const { data, term, conditions, loading, error, refetch } = useTconditions();
-
-  // ✅ جهّز المينيو + المحتوى بناءً على الـ API
-  // - لو الـ API رجّع فقط term + conditions → هنظهر اتنين بس
-  // - لو بعدين زوّدتوا أنواع إضافية → هنظهرها تلقائي
-  const menuItems = useMemo(() => {
-    // ترتيب مبدئي لو موجودين
-    const order = ["term", "conditions"];
-    const typeToTitle = {
-      term: "شروط الاستخدام",
-      conditions: "سياسة الخصوصية",
-    };
-
-    const normalized = Array.isArray(data) ? data : [];
-
-    // رتّب اللي معروفين أولاً ثم أي نوع جديد
-    const sorted = [...normalized].sort((a, b) => {
-      const ai = order.indexOf(a?.type);
-      const bi = order.indexOf(b?.type);
-      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
-    });
-
-    // لو فاضي (أو لسه loading) رجّع الافتراضي (اتنين)
-    if (!sorted.length) {
-      return [
-        { id: 1, type: "term", text: "شروط الاستخدام" },
-        { id: 2, type: "conditions", text: "سياسة الخصوصية" },
-      ];
-    }
-
-    return sorted.map((item, idx) => ({
-      id: idx + 1,
-      type: item?.type || `type_${idx + 1}`,
-      text: typeToTitle[item?.type] || item?.type || `قسم ${idx + 1}`,
-      content: item?.content || "",
-    }));
-  }, [data]);
+  const menuItems = useMemo(
+    () => [
+      {
+        id: 1,
+        type: "return-policy",
+        text: "سياسة الاسترجاع والاستبدال",
+        content: RETURN_POLICY_HTML,
+      },
+    ],
+    []
+  );
 
   const selectedItem = useMemo(() => {
     return menuItems.find((x) => x.id === selectedSection) || menuItems[0];
@@ -57,11 +249,11 @@ const ConditionsAndPrivacy = () => {
       <PagesBanner
         variant="normal"
         objectPosition={"object-[50%_80%]"}
-        title={"شروط الأستخدام و الخصوصية"}
+        title={"سياسة الاسترجاع والاستبدال"}
         image={"/images/Frame 1000005097.png"}
         breadcrumb={[
           { title: "الرئيسية", link: "/" },
-          { title: "شروط الأستخدام و الخصوصية", link: "/" },
+          { title: "سياسة الاسترجاع والاستبدال", link: "/return-policy" },
         ]}
       />
 
@@ -71,16 +263,13 @@ const ConditionsAndPrivacy = () => {
             rootClassName="h-fit"
             selectedSection={selectedSection}
             setSelectedSection={setSelectedSection}
-            menuItems={menuItems} // ✅ من الـ API
+            menuItems={menuItems}
           />
 
           <PoliciesSections
             selectedSection={selectedSection}
             setSelectedSection={setSelectedSection}
-            selectedItem={selectedItem} // ✅ المحتوى
-            loading={loading}
-            error={error}
-            onRetry={refetch}
+            selectedItem={selectedItem}
           />
         </div>
       </Container>
@@ -88,8 +277,9 @@ const ConditionsAndPrivacy = () => {
   );
 };
 
-export default ConditionsAndPrivacy;
+export default ReturnPolicyPage;
 
+// ✅ Chevron Icon
 const ChevromLeft = (props) => (
   <svg
     width={24}
@@ -109,7 +299,7 @@ const ChevromLeft = (props) => (
   </svg>
 );
 
-// ✅ SideNav بقى بياخد menuItems من بره
+// ✅ SideNav - نفس الشكل بالظبط
 const SideNav = ({
   selectedSection,
   setSelectedSection,
@@ -123,7 +313,7 @@ const SideNav = ({
         rootClassName
       )}
       role="navigation"
-      aria-label="قائمة شروط الاستخدام"
+      aria-label="قائمة سياسة الاسترجاع"
     >
       {menuItems.map((item) => (
         <div
@@ -154,14 +344,11 @@ const SideNav = ({
   );
 };
 
-// ✅ PoliciesSections: عرض قسم واحد فقط بناءً على الـ selectedSection
+// ✅ PoliciesSections - عرض المحتوى بالـ dangerouslySetInnerHTML
 const PoliciesSections = ({
   selectedSection,
   setSelectedSection,
   selectedItem,
-  loading,
-  error,
-  onRetry,
 }) => {
   return (
     <section className="flex flex-col gap-[32px] mb-[100px]">
@@ -177,39 +364,13 @@ const PoliciesSections = ({
         </header>
 
         <section className="flex flex-col items-start gap-2 relative self-stretch w-full flex-[0_0_auto]">
-          {loading && (
-            <p className="font-medium text-text-alt text-lg md:text-xl">
-              جاري التحميل...
-            </p>
-          )}
-
-          {!loading && error && (
-            <div className="w-full space-y-3">
-              <p className="font-medium text-red-600 text-lg md:text-xl">
-                حصل خطأ: {error}
-              </p>
-              <button
-                type="button"
-                onClick={onRetry}
-                className="px-4 py-2 rounded-xl bg-primary text-white"
-              >
-                إعادة المحاولة
-              </button>
-            </div>
-          )}
-
-          {!loading && !error && (
-            <div className="font-medium w-full text-text-alt text-lg md:text-xl leading-loose">
-              {/* ✅ لو رجع HTML من الـ backend وعايز تعرضه كـ HTML قولّي */}
-
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: selectedItem?.content || "—",
-                }}
-              />
-              {/* {|| "—"} */}
-            </div>
-          )}
+          <div
+            dir="rtl"
+            className="font-medium w-full text-text-alt text-lg md:text-xl leading-loose"
+            dangerouslySetInnerHTML={{
+              __html: selectedItem?.content || "—",
+            }}
+          />
         </section>
       </main>
     </section>
