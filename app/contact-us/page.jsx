@@ -32,10 +32,10 @@ const ContactUs = () => {
       />
       <Container className="flex flex-col lg:flex-row justify-between   gap-6 g:gap-[48px] mt-8 lg:mt-[48px] mb-16 lg:mb-[100px]">
         {/* Left column */}
-          <ContactMessageForm />
+        <ContactMessageForm />
 
         {/* Right column */}
-          <SiteData />
+        <SiteData />
       </Container>
     </div>
   );
@@ -154,19 +154,19 @@ export const SiteData = () => {
     {
       id: 1,
       title: "موقعنا",
-      content: "123 شارع التعليم 123، منطقة المعرفة\nالمدينة التعليمية، 12345",
+      content: "دمياط الجديدة \n الحي السادس مجاورة ٣٠  قطعة ٣٣٠ /١٤",
       iconName: "location",
     },
     {
       id: 2,
       title: "رقم الهاتف",
-      content: "+123-456-789",
+      content: "+20 10 98286080",
       iconName: "phone",
     },
     {
       id: 3,
       title: "عنوان البريد الإلكتروني",
-      content: "support@example.com",
+      content: "support@nartaqi.com",
       iconName: "email",
     },
   ];
@@ -206,7 +206,10 @@ export const SiteData = () => {
                   {item.title}
                 </h3>
                 {/* `whitespace-pre-line` handles newlines (\n) automatically */}
-                <p className="whitespace-pre-line break-words text-sm sm:text-base text-text-alt">
+                <p
+                  dir="ltr"
+                  className="whitespace-pre-line break-words text-sm sm:text-base text-text-alt"
+                >
                   {item.content}
                 </p>
               </div>
@@ -219,7 +222,7 @@ export const SiteData = () => {
       <div className="w-full self-stretch overflow-hidden rounded-[30px] bg-zinc-100">
         <div className="h-48 xs:h-56 sm:h-64 md:h-[363px] w-full">
           <iframe
-            src="https://maps.google.com/maps?q=tanta&t=&z=13&ie=UTF8&iwloc=&output=embed"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3404.0532623212785!2d31.68308399999999!3d31.4402006!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14f9ef8892d5fb83%3A0x95f0a32dce7d3e40!2z2KzZh9in2LIg2KrYudmF2YrYsSDZhdiv2YrZhtipINiv2YXZitin2Lcg2KfZhNis2K_Zitiv2Kk!5e0!3m2!1sar!2seg!4v1777288615319!5m2!1sar!2seg"
             className="h-full w-full rounded-[30px] border-0"
             allowFullScreen
             loading="lazy"
