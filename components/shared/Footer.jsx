@@ -204,6 +204,18 @@ export const Frame = ({
                 </span>
               </a>
             ))}
+
+            <a className="flex items-center gap-3 text-neutral-50 hover:text-neutral-200 transition">
+              <span className="w-6 h-6 flex items-center justify-center">
+                <FooterLocationIcon />
+              </span>
+              <span
+                dir="rtl"
+                className="text-sm leading-5  max-w-[220px] text-wrap"
+              >
+                دمياط الجديدة الحي السادس مجاورة ٣٠ قطعة ٣٣٠ /١٤{" "}
+              </span>
+            </a>
           </div>
 
           {/* Social icons (dynamic from API) */}
