@@ -9,6 +9,11 @@ import {
   removeFromCart,
   getUserCart,
 } from "@/components/utils/Store/Slices/cartSlice";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination as SwiperPagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 export const ProductCard = ({ data, getCategoryLabel }) => {
   const dispatch = useDispatch();
@@ -20,10 +25,25 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
   const [localQuantity, setLocalQuantity] = useState(0);
   const [isUpdating, setIsUpdating] = useState(false);
   const [debounceTimer, setDebounceTimer] = useState(null);
-  const [showDetails, setShowDetails] = useState(false); // ✅ State للتفاصيل
+  const [showDetails, setShowDetails] = useState(false);
 
   // ✅ Check if item is a round (no quantity control for rounds)
   const isRound = data.type === "rounds";
+
+  // ✅ Build images array for swiper
+  const allImages = (() => {
+    const imgs = [];
+    if (data.image) imgs.push(data.image);
+    if (data.gallery && Array.isArray(data.gallery)) {
+      data.gallery.forEach((img) => {
+        // Filter out invalid/broken URLs
+        if (img && img.startsWith("http") && img !== data.image) {
+          imgs.push(img);
+        }
+      });
+    }
+    return imgs.length > 0 ? imgs : [""];
+  })();
 
   // ✅ Find item in cart
   const cartItem = cartItems.find(
@@ -195,7 +215,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
       if (isInCart) {
         return (
           <button
-            className={`inline-flex items-center justify-center gap-2 px-4 py-2 relative flex-1 rounded-[10px] transition-all duration-200 cursor-pointer bg-red-500 hover:bg-red-600 text-white ${
+            className={`inline-flex items-center justify-center gap-2 px-3 py-2 relative flex-1 min-w-0 rounded-[10px] transition-all duration-200 cursor-pointer bg-red-500 hover:bg-red-600 text-white ${
               isLoading ? "opacity-70 cursor-not-allowed" : ""
             }`}
             onClick={handleRemoveFromCart}
@@ -208,7 +228,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
             ) : (
               <>
                 <svg
-                  className="w-5 h-5"
+                  className="w-5 h-5 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -230,7 +250,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
       } else {
         return (
           <button
-            className={`inline-flex items-center justify-center gap-2 px-4 py-2 relative flex-1 rounded-[10px] transition-all duration-200 cursor-pointer bg-primary hover:bg-primary-dark text-neutral-50 ${
+            className={`inline-flex items-center justify-center gap-2 px-3 py-2 relative flex-1 min-w-0 rounded-[10px] transition-all duration-200 cursor-pointer bg-primary hover:bg-primary-dark text-neutral-50 ${
               isLoading ? "opacity-70 cursor-not-allowed" : ""
             }`}
             onClick={handleAddToCart}
@@ -243,7 +263,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
             ) : (
               <>
                 <svg
-                  className="w-5 h-5"
+                  className="w-5 h-5 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -268,11 +288,11 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
     if (isInCart && localQuantity > 0) {
       return (
         <div
-          className="inline-flex items-center justify-center gap-2 relative flex-1"
+          className="inline-flex items-center justify-center gap-2 relative flex-1 min-w-0"
           onClick={(e) => e.stopPropagation()}
         >
           <button
-            className={`w-10 h-10 flex items-center justify-center rounded-[10px] transition-all duration-200 ${
+            className={`w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-[10px] transition-all duration-200 ${
               localQuantity <= 1
                 ? "bg-red-500 hover:bg-red-600 text-white"
                 : "bg-gray-200 hover:bg-gray-300 text-gray-700"
@@ -313,7 +333,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
             )}
           </button>
 
-          <div className="w-12 h-10 flex items-center justify-center bg-gray-100 rounded-[10px] font-bold text-lg text-primary relative">
+          <div className="flex-1 min-w-0 h-10 flex items-center justify-center bg-gray-100 rounded-[10px] font-bold text-lg text-primary relative">
             {isLoading || isUpdating ? (
               <span className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
             ) : (
@@ -327,7 +347,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
           </div>
 
           <button
-            className={`w-10 h-10 flex items-center justify-center rounded-[10px] bg-primary hover:bg-primary-dark text-white transition-all duration-200 ${
+            className={`w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-[10px] bg-primary hover:bg-primary-dark text-white transition-all duration-200 ${
               isLoading ? "opacity-50 cursor-not-allowed" : ""
             }`}
             onClick={handleIncrease}
@@ -355,7 +375,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
 
     return (
       <button
-        className={`inline-flex items-center justify-center gap-2 px-4 py-2 relative flex-1 rounded-[10px] transition-all duration-200 cursor-pointer bg-primary hover:bg-primary-dark text-neutral-50 ${
+        className={`inline-flex items-center justify-center gap-2 px-3 py-2 relative flex-1 min-w-0 rounded-[10px] transition-all duration-200 cursor-pointer bg-primary hover:bg-primary-dark text-neutral-50 ${
           isLoading ? "opacity-70 cursor-not-allowed" : ""
         }`}
         onClick={handleAddToCart}
@@ -368,7 +388,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
         ) : (
           <>
             <svg
-              className="w-5 h-5"
+              className="w-5 h-5 flex-shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -393,7 +413,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
     <>
       <article
         onClick={handleCardClick}
-        className="flex flex-col w-full h-auto md:h-[426px] items-center gap-6 md:gap-8 pt-0 pb-6 md:pb-8 px-0 relative bg-white rounded-[30px] border-[3px] border-solid border-[#d7e6ff] cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all duration-300"
+        className="flex flex-col w-full min-h-[420px] md:h-[426px] items-center gap-4 md:gap-6 pt-0 pb-4 md:pb-6 px-0 relative bg-white rounded-[30px] border-[3px] border-solid border-[#d7e6ff] cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all duration-300 overflow-hidden"
         role="article"
         aria-label={`${data.title} - منتج`}
       >
@@ -404,8 +424,13 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
           </div>
         )}
 
-        {/* Image Section */}
-        <div className="relative self-stretch w-full h-[180px] md:h-[222px] rounded-[30px_30px_0px_0px] overflow-hidden">
+        {/* ✅ Image Section - Swiper */}
+        <div
+          className="relative self-stretch w-full h-[200px] md:h-[222px] rounded-[27px_27px_0px_0px] overflow-hidden bg-gray-100 flex-shrink-0"
+          onClick={(e) => {
+            if (allImages.length > 1) e.stopPropagation();
+          }}
+        >
           {/* Category Badge */}
           <span
             className="absolute top-3 left-3 z-10 bg-primary-light text-primary font-bold text-xs md:text-sm px-3 py-1 rounded-full shadow whitespace-nowrap"
@@ -427,29 +452,51 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
             </span>
           )}
 
-          {/* Product Image */}
-          <div
-            role="img"
-            aria-label={`صورة ${data.title}`}
-            className="absolute inset-0 w-full h-full rounded-[27px_27px_0px_0px] bg-gray-100"
-            style={{
-              backgroundImage: `url('${data.image}')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
+          {/* ✅ Swiper for images */}
+          {allImages.length > 1 ? (
+            <Swiper
+              modules={[Navigation, SwiperPagination]}
+              navigation
+              pagination={{ clickable: true }}
+              loop={allImages.length > 1}
+              className="w-full h-full product-card-swiper"
+              dir="ltr"
+              style={{ width: "100%", height: "100%" }}
+            >
+              {allImages.map((img, index) => (
+                <SwiperSlide
+                  key={index}
+                  style={{ width: "100%", height: "100%" }}
+                >
+                  <img
+                    src={img}
+                    alt={`${data.title} - صورة ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <img
+              src={allImages[0]}
+              alt={`صورة ${data.title}`}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          )}
         </div>
 
         {/* Content Section */}
-        <div className="flex flex-col items-start justify-between px-4 py-0 relative flex-1 self-stretch w-full grow">
-          <header className="flex flex-col items-start gap-4 relative self-stretch w-full flex-[0_0_auto]">
-            <h1 className="relative w-full mt-[-1.00px] text-text text-xl md:text-2xl text-right leading-6 line-clamp-1">
+        <div className="flex flex-col items-start justify-between gap-3 px-4 py-0 relative flex-1 self-stretch w-full grow min-h-0">
+          <header className="flex flex-col items-start gap-2 relative self-stretch w-full flex-[0_0_auto]">
+            <h1 className="relative w-full text-text text-lg md:text-2xl text-right leading-6 line-clamp-1 font-bold">
               {data.title}
             </h1>
 
             {/* Round-specific info */}
             {isRound && (
-              <div className="flex items-center gap-2 text-xs text-text-alt">
+              <div className="flex items-center gap-2 text-xs text-text-alt flex-wrap">
                 {data.teacher && (
                   <div className="flex items-center gap-1">
                     <img
@@ -470,7 +517,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
             )}
           </header>
 
-          <footer className="flex flex-col gap-3 relative self-stretch w-full mt-4 md:mt-0">
+          <footer className="flex flex-col gap-3 relative self-stretch w-full mt-auto">
             {/* Price Row */}
             <div className="flex items-center justify-between">
               <div
@@ -492,7 +539,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
               {/* ✅ Details Button */}
               <button
                 onClick={handleToggleDetails}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-[10px] transition-all duration-200 cursor-pointer bg-gray-100 hover:bg-gray-200 text-text border border-gray-200 hover:border-gray-300"
+                className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-[10px] transition-all duration-200 cursor-pointer bg-gray-100 hover:bg-gray-200 text-text border border-gray-200 hover:border-gray-300 flex-shrink-0"
                 aria-label="عرض التفاصيل"
                 type="button"
               >
@@ -509,7 +556,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <span className="text-sm text-center leading-5 whitespace-nowrap">
+                <span className="text-sm text-center leading-5 whitespace-nowrap hidden sm:inline">
                   تفاصيل
                 </span>
               </button>
@@ -525,15 +572,17 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
           onClick={handleToggleDetails}
         >
           <div
-            className="bg-white rounded-[20px] w-full max-w-lg max-h-[80vh] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200"
+            className="bg-white rounded-[20px] w-full max-w-lg max-h-[85vh] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-text">{data.title}</h2>
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
+              <h2 className="text-xl font-bold text-text line-clamp-1">
+                {data.title}
+              </h2>
               <button
                 onClick={handleToggleDetails}
-                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
                 aria-label="إغلاق"
               >
                 <svg
@@ -553,15 +602,40 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
             </div>
 
             {/* Modal Body */}
-            <div className="p-4 overflow-y-auto max-h-[60vh]">
-              {/* Product Image */}
-              <div className="relative w-full h-48 rounded-[15px] overflow-hidden mb-4">
-                <img
-                  src={data.image}
-                  alt={data.title}
-                  className="w-full h-full object-cover"
-                />
-                <span className="absolute top-3 left-3 bg-primary-light text-primary font-bold text-xs px-3 py-1 rounded-full">
+            <div className="p-4 overflow-y-auto flex-1">
+              {/* ✅ Product Image Swiper in Modal */}
+              <div className="relative w-full h-48 rounded-[15px] overflow-hidden mb-4 bg-gray-100">
+                {allImages.length > 1 ? (
+                  <Swiper
+                    modules={[Navigation, SwiperPagination]}
+                    navigation
+                    pagination={{ clickable: true }}
+                    loop={allImages.length > 1}
+                    className="w-full h-full product-modal-swiper"
+                    dir="ltr"
+                    style={{ width: "100%", height: "100%" }}
+                  >
+                    {allImages.map((img, index) => (
+                      <SwiperSlide
+                        key={index}
+                        style={{ width: "100%", height: "100%" }}
+                      >
+                        <img
+                          src={img}
+                          alt={`${data.title} - صورة ${index + 1}`}
+                          className="w-full h-full object-contain"
+                        />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                ) : (
+                  <img
+                    src={allImages[0]}
+                    alt={data.title}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+                <span className="absolute top-3 left-3 z-10 bg-primary-light text-primary font-bold text-xs px-3 py-1 rounded-full">
                   {categoryLabel}
                 </span>
               </div>
@@ -625,7 +699,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex items-center gap-3 p-4 border-t border-gray-100 bg-gray-50">
+            <div className="flex items-center gap-3 p-4 border-t border-gray-100 bg-gray-50 flex-shrink-0">
               {/* Add to Cart in Modal */}
               <button
                 className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-[10px] transition-all duration-200 cursor-pointer ${
@@ -679,7 +753,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
               {/* Close Button */}
               <button
                 onClick={handleToggleDetails}
-                className="px-6 py-3 rounded-[10px] bg-gray-200 hover:bg-gray-300 text-text transition-colors"
+                className="px-6 py-3 rounded-[10px] bg-gray-200 hover:bg-gray-300 text-text transition-colors flex-shrink-0"
                 type="button"
               >
                 إغلاق

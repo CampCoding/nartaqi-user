@@ -12,7 +12,7 @@ export const getStoreItems = createAsyncThunk(
       category = "",
       sort = "",
       minPrice = 0,
-      maxPrice = 1000,
+      maxPrice,
     },
     { getState, rejectWithValue }
   ) => {
@@ -28,10 +28,7 @@ export const getStoreItems = createAsyncThunk(
       if (sort) {
         url += `&filter=${sort}`;
       }
-      // if (minPrice > 0) {
-      //   url += `&minPrice=${minPrice}`;
-      // }
-      if (maxPrice < 1000) {
+      if (maxPrice && maxPrice > 0) {
         url += `&priceFilter=${maxPrice}`;
       }
 
@@ -85,21 +82,48 @@ const storeSlice = createSlice({
       })
       .addCase(getStoreItems.fulfilled, (state, action) => {
         state.isLoading = false;
-        const data = action.payload.message?.items;
-        state.items = data.data || [];
-        state.highest_price = action.payload?.message?.highest_price;
-        state.pagination = {
-          currentPage: data.current_page,
-          lastPage: data.last_page,
-          perPage: data.per_page,
-          total: data.total,
-          from: data.from,
-          to: data.to,
-        };
+
+        const message = action.payload?.message || {};
+        const itemsData = message.items;
+
+        // ✅ Handle both cases: paginated object OR plain array
+        if (
+          itemsData &&
+          typeof itemsData === "object" &&
+          !Array.isArray(itemsData)
+        ) {
+          // ✅ Paginated structure (current API response)
+          state.items = itemsData.data || [];
+          state.pagination = {
+            currentPage: itemsData.current_page || 1,
+            lastPage: itemsData.last_page || 1,
+            perPage: itemsData.per_page || 10,
+            total: itemsData.total || 0,
+            from: itemsData.from || 0,
+            to: itemsData.to || 0,
+          };
+        } else if (Array.isArray(itemsData)) {
+          // ✅ Fallback: plain array
+          state.items = itemsData;
+          state.pagination = {
+            currentPage: 1,
+            lastPage: 1,
+            perPage: itemsData.length,
+            total: itemsData.length,
+            from: itemsData.length > 0 ? 1 : 0,
+            to: itemsData.length,
+          };
+        } else {
+          state.items = [];
+          state.pagination = initialState.pagination;
+        }
+
+        state.highest_price = message.highest_price || "";
       })
       .addCase(getStoreItems.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+        state.items = [];
       });
   },
 });

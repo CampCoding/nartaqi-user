@@ -16,6 +16,7 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import { getStoreItems } from "@/components/utils/Store/Slices/storeSlice";
 import Pagination from "../../components/ui/Pagination";
+import "./style.css";
 
 const Store = () => {
   const dispatch = useDispatch();
@@ -50,7 +51,7 @@ const Store = () => {
   const [sortBy, setSortBy] = useState(getInitialSort());
   const [currentPage, setCurrentPage] = useState(getInitialPage());
   const [isInitialized, setIsInitialized] = useState(false);
-  const perPage = 12;
+  const perPage = 6;
 
   // ✅ Get max price from API or default
   const maxPrice = highest_price ? parseFloat(highest_price) : 1000;
@@ -201,7 +202,7 @@ const Store = () => {
     setSortBy(newSort);
   };
 
-  // ✅ Normalize item data
+  // ✅ Normalize item data - FIXED to match API response
   const normalizeItem = (item) => {
     const isRound = item.teachers !== undefined;
 
@@ -213,6 +214,7 @@ const Store = () => {
         description: item.description,
         price: parseFloat(item.price),
         image: item.image_url,
+        gallery: [],
         category: "rounds",
         rating: item.average_rating || 0,
         date: item.created_at,
@@ -224,6 +226,7 @@ const Store = () => {
         totalDays: item.total_days,
         totalHours: item.total_hours,
         capacity: item.capacity,
+        isPurchased: item.is_purchased || false,
       };
     } else {
       return {
@@ -233,9 +236,12 @@ const Store = () => {
         description: item.description,
         price: parseFloat(item.price),
         image: item.image,
+        gallery: item.gallery || [],
         category: item.category,
         rating: 0,
         date: item.created_at,
+        isPurchased: item.is_purchased || false,
+        files: item.files || [],
       };
     }
   };
@@ -264,8 +270,6 @@ const Store = () => {
       />
 
       <Container className="mt-[48px]">
-        {/* ✅ زر الانتقال لأحدث الدورات */}
-
         <StoreHeaderMobile
           rootClassName={"lg:hidden"}
           priceRange={priceRange ?? maxPrice}

@@ -71,7 +71,7 @@ const ConditionsAndPrivacy = () => {
             rootClassName="h-fit"
             selectedSection={selectedSection}
             setSelectedSection={setSelectedSection}
-            menuItems={menuItems} // ✅ من الـ API
+            menuItems={menuItems?.slice(0, 2)} // ✅ من الـ API
           />
 
           <PoliciesSections

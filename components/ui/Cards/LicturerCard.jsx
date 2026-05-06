@@ -3,6 +3,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import { RatingStarIcon } from "../../../public/svgs";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const FALLBACK_AVATAR = "/images/Image-12422.png";
 
@@ -95,6 +96,14 @@ export const LecturerCard = ({ lecturer }) => {
           <h1 className="text-center text-xl font-bold text-text [direction:rtl]">
             {name}
           </h1>
+
+          <Link
+            href={`mailto:${lecturer.email}`}
+            onClick={(e) => e.stopPropagation()}
+            className="text-center text-base font-medium  text-[#0170f9] [direction:rtl] underline"
+          >
+            {lecturer.email}
+          </Link>
 
           <p className="text-center text-base font-medium text-text-alt [direction:rtl] line-clamp-2">
             {title}

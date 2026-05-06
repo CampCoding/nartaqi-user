@@ -25,6 +25,19 @@ const toNum = (v, fallback = 0) => {
   return Number.isFinite(n) ? n : fallback;
 };
 
+// ✅ Helper: check if course has ended
+const isCourseEnded = (endDate) => {
+  if (!endDate) return false;
+  try {
+    const end = new Date(endDate);
+    const now = new Date();
+    end.setHours(23, 59, 59, 999);
+    return now > end;
+  } catch {
+    return false;
+  }
+};
+
 const CourseCard = ({
   freeWidth = false,
   payload = {},
@@ -50,6 +63,27 @@ const CourseCard = ({
     [favFromPayload, isInFav]
   );
 
+  // ✅ Check if course has ended
+  const courseEnded = useMemo(
+    () => isCourseEnded(payload?.end_date),
+    [payload?.end_date]
+  );
+
+  // ✅ Check if user owns/enrolled in the course
+  const userOwnsCourse = useMemo(
+    () => toBool(payload?.own) || toBool(payload?.enrolled) || isRegistered,
+    [payload?.own, payload?.enrolled, isRegistered]
+  );
+
+  // ✅ Show rate button if course ended AND user owns it
+  const showRateButton = courseEnded && userOwnsCourse;
+
+  // ✅ Check if user already rated
+  const alreadyRated = useMemo(
+    () => toBool(payload?.user_rated || payload?.is_rated),
+    [payload?.user_rated, payload?.is_rated]
+  );
+
   // Local state for optimistic update
   const [isFavorite, setIsFavorite] = useState(initialFav);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -60,7 +94,6 @@ const CourseCard = ({
     setIsFavorite(initialFav);
   }, [initialFav]);
 
-  // ✅ share url should be course url, not current page url
   const shareUrl = useMemo(() => {
     if (typeof window === "undefined") return "";
     const origin = window.location.origin;
@@ -70,16 +103,21 @@ const CourseCard = ({
   const courseLink = useMemo(() => {
     if (!roundId) return "#";
     if (isRegistered) {
-      // keep your query logic
       const done = buttonStyle === "normal" ? "false" : "true";
       return `/course/${roundId}?reg=true&done=${done}`;
     }
     return `/course/${roundId}`;
   }, [roundId, isRegistered, buttonStyle]);
 
+  // ✅ Rate course link
+  const rateCourseLink = useMemo(() => {
+    if (!roundId) return "#";
+    return `/courses/${roundId}/rate-course`;
+  }, [roundId]);
+
   const handleAddToFavorite = async (id) => {
     if (!id) return;
-    if (isUpdating) return; // ✅ prevent double taps
+    if (isUpdating) return;
 
     try {
       const mustLogin = redirect({
@@ -94,7 +132,6 @@ const CourseCard = ({
 
       if (!mustLogin) return;
 
-      // Optimistic update - update UI immediately
       setIsFavorite((prev) => !prev);
       setIsUpdating(true);
 
@@ -102,7 +139,6 @@ const CourseCard = ({
         { id, payload: { round_id: id } },
         {
           onError: () => {
-            // Revert on error
             setIsFavorite((prev) => !prev);
           },
           onSettled: () => {
@@ -118,31 +154,88 @@ const CourseCard = ({
   };
 
   const Button = () => {
-    if (buttonStyle === "normal") {
+    // ✅ Rate Button - يظهر تحت زرار العرض بنفس العرض
+    const RateButton = () => {
+      if (!showRateButton) return null;
+
+      if (alreadyRated) {
+        return (
+          <div className="w-full px-3 sm:px-4 py-3 bg-green-50 border border-green-300 rounded-[8px] sm:rounded-[10px] flex justify-center items-center gap-2">
+            <svg
+              className="w-4 h-4 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2.5}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            <span className="text-green-600 text-xs sm:text-sm font-semibold">
+              تم التقييم
+            </span>
+          </div>
+        );
+      }
+
       return (
         <Link
-          href={courseLink}
-          className="flex-1 px-3 sm:px-4 py-3 bg-secondary rounded-[8px] sm:rounded-[10px] flex justify-center items-center gap-2.5 transition-shadow duration-200 hover:shadow-[0_4px_12px_var(--color-secondary,rgba(59,130,246,0.25))]"
+          href={rateCourseLink}
+          className="w-full px-3 sm:px-4 py-3 bg-primary  rounded-[8px] sm:rounded-[10px] flex justify-center items-center gap-2 transition-all duration-200 hover:shadow-[0_4px_12px_rgba(245,158,11,0.3)]"
         >
-          <div className="justify-center text-bg text-xs sm:text-sm font-semibold">
-            عرض الدورة
+          <svg
+            className="w-4 h-4 text-white"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+          </svg>
+          <div className="text-white text-xs sm:text-sm font-semibold">
+            قيّم الدورة
           </div>
         </Link>
       );
+    };
+
+    if (buttonStyle === "normal") {
+      return (
+        <div className="flex-1 flex flex-col gap-2">
+          {/* ✅ View Course Button */}
+          <Link
+            href={courseLink}
+            className="w-full px-3 sm:px-4 py-3 bg-secondary rounded-[8px] sm:rounded-[10px] flex justify-center items-center gap-2.5 transition-shadow duration-200 hover:shadow-[0_4px_12px_var(--color-secondary,rgba(59,130,246,0.25))]"
+          >
+            <div className="justify-center text-bg text-xs sm:text-sm font-semibold">
+              عرض الدورة
+            </div>
+          </Link>
+
+          {/* ✅ Rate Button - تحت زرار العرض */}
+          <RateButton />
+        </div>
+      );
     }
 
+    // Gradient style
     return (
-      <Link
-        href={courseLink}
-        className="w-full self-stretch px-3 sm:px-4 py-3 bg-gradient-to-r from-primary to-secondary rounded-[8px] sm:rounded-[10px] shadow-[0_4px_20px_rgba(0,0,0,0.25)] inline-flex justify-center items-center gap-2.5 transition-all duration-200 cursor-pointer hover:from-secondary hover:to-primary hover:scale-105 hover:shadow-[0_8px_24px_rgba(59,130,246,0.25)]"
-      >
-        <div className="justify-center text-bg text-xs sm:text-sm font-semibold">
-          {token && payload?.enrolled ? "ادخل الدورة" : "التحق بالدورة"}
-        </div>
-      </Link>
+      <div className="flex-1 flex flex-col gap-2">
+        <Link
+          href={courseLink}
+          className="w-full self-stretch px-3 sm:px-4 py-3 bg-gradient-to-r from-primary to-secondary rounded-[8px] sm:rounded-[10px] shadow-[0_4px_20px_rgba(0,0,0,0.25)] inline-flex justify-center items-center gap-2.5 transition-all duration-200 cursor-pointer hover:from-secondary hover:to-primary hover:scale-105 hover:shadow-[0_8px_24px_rgba(59,130,246,0.25)]"
+        >
+          <div className="justify-center text-bg text-xs sm:text-sm font-semibold">
+            {token && payload?.enrolled ? "ادخل الدورة" : "التحق بالدورة"}
+          </div>
+        </Link>
+
+        {/* ✅ Rate Button - تحت زرار التحق بالدورة */}
+        <RateButton />
+      </div>
     );
   };
-
   const rating = useMemo(() => {
     const n = toNum(payload?.rating, null);
     return n === null ? "-" : n.toFixed(1);
@@ -247,7 +340,7 @@ const CourseCard = ({
             </div>
 
             <div className="self-stretch inline-flex justify-between items-center gap-2">
-              {/* Lessons count (fallback) */}
+              {/* Lessons count */}
               <div className="flex justify-start items-center gap-[5px] flex-1 min-w-0">
                 <div className="w-5 h-5 flex  items-center justify-center sm:w-6 sm:h-6 flex-shrink-0">
                   <FileTextIcon className="stroke-primary w-5 h-5 sm:w-6 sm:h-6" />
@@ -291,9 +384,6 @@ const CourseCard = ({
 
               {/* Teachers */}
               <div className="flex flex-col gap-2 justify-center items-center">
-                {/* <div className="flex place-self-start">
-                  <span className="text-[13px]">المدرسين</span>
-                </div> */}
                 <div className="flex justify-start items-center gap-[5px]">
                   <Avatar.Group maxCount={4} size="small">
                     {(payload?.teachers || []).map((instructor) => (
@@ -437,404 +527,3 @@ const FavIcon = ({
     </button>
   );
 };
-
-// "use client";
-
-// import React, { Fragment, useEffect, useMemo, useState } from "react";
-// import {
-//   CourseCalenderIcon,
-//   FileTextIcon,
-//   RatingStarIcon,
-//   ShareIcon,
-// } from "../../../public/svgs";
-// import Link from "next/link";
-// import { formatDateBackEnd } from "../../utils/helpers/date";
-// import { useDispatch, useSelector } from "react-redux";
-// import { Avatar, Tooltip } from "antd";
-// import useRedirect from "../../shared/Hooks/useRedirect";
-// import { saveContent } from "../../utils/Store/Slices/redirectSlice";
-// import useHandleFavoriteActions from "../../shared/Hooks/useHandleFavoriteActions";
-// import { openShare } from "../../utils/Store/Slices/shareSlice";
-// import buildShareUrl from "../../../lib/buildShareUrl";
-
-// // helpers
-// const toBool = (v) => String(v) === "1" || v === true || v === 1;
-// const toNum = (v, fallback = 0) => {
-//   const n = Number(v);
-//   return Number.isFinite(n) ? n : fallback;
-// };
-
-// const safeText = (v, fallback = "—") => {
-//   if (v === null || v === undefined) return fallback;
-//   const s = String(v).trim();
-//   return s.length ? s : fallback;
-// };
-
-// const CourseCard = ({
-//   freeWidth = false,
-//   payload = {},
-//   type = "0",
-//   buttonStyle = "normal",
-//   isRegistered = false,
-//   isInFav = false,
-//   onShareClick = () => {},
-// }) => {
-//   const redirect = useRedirect();
-//   const { mutate } = useHandleFavoriteActions();
-//   const { token } = useSelector((state) => state.auth);
-//   const dispatch = useDispatch();
-
-//   const width = freeWidth ? "w-full" : "w-full lg:max-w-[380px]";
-
-//   // ✅ normalize values coming from backend
-//   const roundId = payload?.id;
-
-//   // free: "0" => not free, else free
-//   const isFree = useMemo(() => String(payload?.free) !== "0", [payload?.free]);
-
-//   const favFromPayload =
-//     payload?.favorite ?? payload?.fav ?? payload?.is_favorite;
-//   const initialFav = useMemo(
-//     () => toBool(favFromPayload) || !!isInFav,
-//     [favFromPayload, isInFav]
-//   );
-
-//   // Local state for optimistic update
-//   const [isFavorite, setIsFavorite] = useState(initialFav);
-//   const [isUpdating, setIsUpdating] = useState(false);
-
-//   // Sync with payload when it changes
-//   useEffect(() => {
-//     setIsFavorite(initialFav);
-//   }, [initialFav]);
-
-//   const courseLink = useMemo(() => {
-//     if (!roundId) return "#";
-//     if (isRegistered) {
-//       const done = buttonStyle === "normal" ? "false" : "true";
-//       return `/course/${roundId}?reg=true&done=${done}`;
-//     }
-//     return `/course/${roundId}`;
-//   }, [roundId, isRegistered, buttonStyle]);
-
-//   const rating = useMemo(() => {
-//     const n = toNum(payload?.rating, null);
-//     return n === null ? "-" : n.toFixed(1);
-//   }, [payload?.rating]);
-
-//   const lessonsCount =
-//     payload?.lessons_count ??
-//     payload?.lessonsCount ??
-//     payload?.total_lessons ??
-//     "—";
-
-//   const categoryName = payload?.course_categories?.name || "—";
-
-//   const teachers = Array.isArray(payload?.teachers) ? payload.teachers : [];
-
-//   const handleAddToFavorite = async (id) => {
-//     if (!id) return;
-//     if (isUpdating) return;
-
-//     try {
-//       const ok = redirect({
-//         token,
-//         action: saveContent,
-//         payload: {
-//           id,
-//           type: "favorite",
-//           link: typeof window !== "undefined" ? window.location.pathname : "/",
-//         },
-//       });
-
-//       if (!ok) return;
-
-//       // optimistic
-//       setIsFavorite((prev) => !prev);
-//       setIsUpdating(true);
-
-//       mutate(
-//         { id, payload: { round_id: id } },
-//         {
-//           onError: () => setIsFavorite((prev) => !prev),
-//           onSettled: () => setIsUpdating(false),
-//         }
-//       );
-//     } catch (error) {
-//       console.log(error);
-//       setIsFavorite((prev) => !prev);
-//       setIsUpdating(false);
-//     }
-//   };
-
-//   const Button = () => {
-//     const label =
-//       buttonStyle === "normal"
-//         ? "عرض الدورة"
-//         : token && payload?.enrolled
-//         ? "ادخل الدورة"
-//         : "التحق بالدورة";
-
-//     return (
-//       <Link
-//         href={courseLink}
-//         className={[
-//           "inline-flex items-center justify-center gap-2",
-//           "rounded-xl px-4 py-3",
-//           "text-xs sm:text-sm font-semibold",
-//           "transition-all active:scale-[0.99]",
-//           buttonStyle === "normal"
-//             ? "bg-secondary text-bg hover:shadow-[0_10px_25px_rgba(59,130,246,0.25)]"
-//             : "bg-gradient-to-r from-primary to-secondary text-bg hover:opacity-95 hover:shadow-[0_14px_28px_rgba(59,130,246,0.20)]",
-//           "w-full",
-//         ].join(" ")}
-//       >
-//         {label}
-//       </Link>
-//     );
-//   };
-
-//   return (
-//     <Fragment>
-//       <div className={`${width} mx-auto`}>
-//         {/* Outer gradient frame */}
-//         <div className="rounded-[26px] p-[2px] bg-gradient-to-b from-[#3B82F6] to-[#F97316]">
-//           {/* Card */}
-//           <div className="rounded-[24px] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.18)] overflow-hidden">
-//             {/* Cover */}
-//             <div
-//               className="relative h-[170px] sm:h-[200px] bg-gray-200"
-//               style={{
-//                 backgroundImage: `url('${
-//                   payload?.image_url || "/images/Image-48.png"
-//                 }')`,
-//                 backgroundSize: "cover",
-//                 backgroundPosition: "center",
-//               }}
-//             >
-//               {/* Overlay gradient for readability */}
-//               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-black/0" />
-
-//               {/* Start date badge */}
-//               <div className="absolute top-4 right-4 z-10 inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-white shadow">
-//                 <span className="w-5 h-5">
-//                   <CourseCalenderIcon />
-//                 </span>
-//                 <span className="text-[11px] font-medium">
-//                   يبدأ: {formatDateBackEnd(payload?.start_date)}
-//                 </span>
-//               </div>
-
-//               {/* Fav + Free/Price chip */}
-//               <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-//                 <FavIcon
-//                   isFav={isFavorite}
-//                   isLoading={isUpdating}
-//                   onClick={() => handleAddToFavorite(roundId)}
-//                 />
-
-//                 {isFree ? (
-//                   <span className="rounded-xl bg-secondary px-3 py-2 text-[11px] font-semibold text-white shadow">
-//                     مجاني
-//                   </span>
-//                 ) : (
-//                   <span className="rounded-xl bg-white/90 px-3 py-2 text-[11px] font-semibold text-gray-900 shadow">
-//                     {toNum(payload?.price, 0)} ج.م
-//                   </span>
-//                 )}
-//               </div>
-
-//               {/* bottom meta */}
-//               <div className="absolute bottom-4 right-4 left-4 z-10 flex items-center justify-between gap-3">
-//                 <div className="min-w-0">
-//                   <div className="text-white font-bold text-sm sm:text-base line-clamp-1">
-//                     {safeText(payload?.name)}
-//                   </div>
-//                   <div className="mt-1 text-white/85 text-[11px] sm:text-xs line-clamp-1">
-//                     {categoryName}
-//                   </div>
-//                 </div>
-
-//                 <span className="shrink-0 rounded-xl bg-white/15 backdrop-blur px-3 py-2 text-[11px] text-white">
-//                   {type === "0" ? "طلاب" : "معلمين"}
-//                 </span>
-//               </div>
-//             </div>
-
-//             {/* Body */}
-//             <div className="p-4 sm:p-5">
-//               {/* Description */}
-//               <div className="text-right text-text-alt text-xs sm:text-sm leading-relaxed line-clamp-2 min-h-[38px]">
-//                 {safeText(payload?.description, "وصف الدورة غير متوفر حاليًا.")}
-//               </div>
-
-//               {/* Stats row */}
-//               <div className="mt-4 grid grid-cols-2 gap-3">
-//                 <div className="rounded-2xl bg-primary-bg px-3 py-3">
-//                   <div className="flex items-center gap-2">
-//                     <span className="w-6 h-6">
-//                       <FileTextIcon className="stroke-primary" />
-//                     </span>
-//                     <div className="text-[11px] sm:text-xs font-medium text-text">
-//                       الدروس: {lessonsCount}
-//                     </div>
-//                   </div>
-//                 </div>
-
-//                 <div className="rounded-2xl bg-[#3b82f615] px-3 py-3 border border-[#CEDFFC]">
-//                   <div className="text-[11px] sm:text-xs font-medium text-text">
-//                     المقاعد المتبقية: {safeText(+payload?.remainingSets ? payload.remainingSets  : +payload.capacity - +payload.students_count)}
-//                   </div>
-//                 </div>
-//               </div>
-
-//               {/* Rating + Teachers */}
-//               <div className="mt-4 flex items-start justify-between gap-3">
-//                 <div className="flex items-center gap-2 rounded-2xl bg-gray-50 px-3 py-2">
-//                   <span className="text-[11px] sm:text-xs font-medium text-text">
-//                     التقييم:
-//                   </span>
-//                   <span className="text-[11px] sm:text-xs font-semibold text-text">
-//                     {rating}
-//                   </span>
-//                   <span className="w-4 h-4">
-//                     <RatingStarIcon />
-//                   </span>
-//                   <span className="text-[11px] sm:text-xs text-text">
-//                     ({toNum(payload?.totalRates, 0)})
-//                   </span>
-//                 </div>
-
-//                 <div className="text-right">
-//                   <div className="text-[11px] sm:text-xs text-text mb-1">
-//                     المدرسين
-//                   </div>
-//                   <Avatar.Group maxCount={4} size="small">
-//                     {teachers.map((t) => (
-//                       <Tooltip title={t?.name} key={t?.id}>
-//                         <Avatar src={t?.image_url} alt={t?.name} />
-//                       </Tooltip>
-//                     ))}
-//                   </Avatar.Group>
-//                 </div>
-//               </div>
-
-//               {/* Actions */}
-//               <div className="mt-5 flex items-center gap-3">
-//                 {payload?.round_road_map_book_url && (
-//                   <a
-//                     href={payload.round_road_map_book_url}
-//                     target="_blank"
-//                     rel="noreferrer"
-//                     className="group inline-flex h-11 p-2 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white shadow-sm hover:bg-gray-50 hover:shadow transition active:scale-95"
-//                     aria-label="جدول الدورة"
-//                     title="جدول الدورة"
-//                   >
-//                     <FileTextIcon className="stroke-[#2D2D2D] group-hover:stroke-secondary" />
-//                   </a>
-//                 )}
-
-//                 <button
-//                   type="button"
-//                   onClick={() => {
-//                     const url = buildShareUrl();
-//                     onShareClick?.(payload);
-//                     dispatch(
-//                       openShare({
-//                         url,
-//                         title: payload?.name || "مشاركة الدورة",
-//                         summary: payload?.description || "",
-//                         image: payload?.image_url || "",
-//                       })
-//                     );
-//                   }}
-//                   className="group inline-flex h-11 w-11 items-center justify-center p-2 rounded-2xl border border-gray-200 bg-white shadow-sm hover:bg-gray-50 hover:shadow transition active:scale-95"
-//                   aria-label="مشاركة"
-//                   title="مشاركة"
-//                 >
-//                   <ShareIcon className="stroke-[#2D2D2D] group-hover:stroke-secondary" />
-//                 </button>
-
-//                 <div className="flex-1">
-//                   <Button />
-//                 </div>
-//               </div>
-//             </div>
-
-//             {/* Footer strip (optional) */}
-//             <div className="px-5 pb-5">
-//               <div className="h-px bg-gray-100" />
-//               <div className="mt-3 flex items-center justify-between text-[11px] text-gray-500">
-//                 <span>مدة الدورة: {safeText(payload?.total_days)} يوم</span>
-//                 <span>إجمالي الساعات: {safeText(payload?.total_hours)}</span>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </Fragment>
-//   );
-// };
-
-// export default CourseCard;
-
-// const FavIcon = ({ isFav = false, onClick = () => null, isLoading = false }) => {
-//   return (
-//     <button
-//       type="button"
-//       aria-label={isFav ? "إزالة من المفضلة" : "إضافة للمفضلة"}
-//       disabled={isLoading}
-//       onClick={(e) => {
-//         e.preventDefault();
-//         e.stopPropagation();
-//         if (!isLoading) onClick();
-//       }}
-//       className={[
-//         "h-11 w-11 rounded-2xl inline-flex items-center justify-center",
-//         "transition-all duration-200 active:scale-95",
-//         isFav
-//           ? "bg-secondary shadow text-white"
-//           : "bg-black/35 backdrop-blur border border-white/40 text-white",
-//         isLoading ? "opacity-70 pointer-events-none" : "hover:scale-[1.03]",
-//       ].join(" ")}
-//     >
-//       {isLoading ? (
-//         <svg
-//           className="animate-spin w-5 h-5 text-white"
-//           xmlns="http://www.w3.org/2000/svg"
-//           fill="none"
-//           viewBox="0 0 24 24"
-//         >
-//           <circle
-//             className="opacity-25"
-//             cx="12"
-//             cy="12"
-//             r="10"
-//             stroke="currentColor"
-//             strokeWidth="4"
-//           />
-//           <path
-//             className="opacity-75"
-//             fill="currentColor"
-//             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-//           />
-//         </svg>
-//       ) : (
-//         <svg
-//           width={18}
-//           height={16}
-//           viewBox="0 0 18 16"
-//           fill="none"
-//           xmlns="http://www.w3.org/2000/svg"
-//           className={`transition-all duration-200 ${isFav ? "scale-110" : ""}`}
-//         >
-//           <path
-//             d="M9 16C8.79 16 8.5764 15.9623 8.3592 15.8868C8.142 15.8114 7.9506 15.6907 7.785 15.5248L6.2325 14.099C4.6425 12.6355 3.2061 11.1836 1.9233 9.74303C0.6405 8.3025 -0.000599579 6.71442 4.20757e-07 4.97878C4.20757e-07 3.56058 0.472501 2.37624 1.4175 1.42574C2.3625 0.475247 3.54 0 4.95 0C5.745 0 6.495 0.16958 7.2 0.508741C7.905 0.847902 8.505 1.31198 9 1.90099C9.495 1.31259 10.095 0.848807 10.8 0.509646C11.505 0.170486 12.255 0.000603489 13.05 0C14.46 0 15.6375 0.475247 16.5825 1.42574C17.5275 2.37624 18 3.56058 18 4.97878C18 6.71381 17.3625 8.30552 16.0875 9.75389C14.8125 11.2023 13.365 12.6582 11.745 14.1216L10.215 15.5248C10.05 15.6907 9.8589 15.8114 9.6417 15.8868C9.4245 15.9623 9.2106 16 9 16Z"
-//             fill="currentColor"
-//             opacity={isFav ? 1 : 0.9}
-//           />
-//         </svg>
-//       )}
-//     </button>
-//   );
-// };

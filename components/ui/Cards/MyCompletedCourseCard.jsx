@@ -1,18 +1,13 @@
 "use client";
 import Link from "next/link";
-import React, { useState } from "react";
-import CourseRateModal from "@/components/CourseRateModal"; // عدّل المسار
+import React from "react";
 
 export const MyCompletedCourseCard = ({ course, studentId, token }) => {
-
-
-
   const courseData = {
     title: course?.name || "دورة تدريبية",
     imageUrl: course?.image_url || "/images/teacher-course-banner.png",
     id: course?.id,
-    // ✅ لو عندك round_id مرتبط بالكورس (لازم تبعته هنا)
-    roundId: course?.round_id, // عدّل حسب الداتا عندك
+    roundId: course?.round_id,
   };
 
   return (
@@ -36,68 +31,35 @@ export const MyCompletedCourseCard = ({ course, studentId, token }) => {
           </div>
         </div>
 
-        <Buttons
-          course={courseData}
-          studentId={studentId}
-          token={token}
-        />
+        <Buttons course={courseData} />
       </div>
     </article>
   );
 };
 
-export const Buttons = ({ course, studentId, token }) => {
-  const [activeTab, setActiveTab] = useState("evaluation");
-  const [openRate, setOpenRate] = useState(false);
-
-  const handleEvaluationClick = (e) => {
-    e.preventDefault(); // ✅ منع التنقل
-    setActiveTab("evaluation");
-    setOpenRate(true);
-  };
-
+export const Buttons = ({ course }) => {
   return (
-    <>
-      <div className="flex w-full items-start justify-between relative" role="tablist">
-        {/* تقييم => Modal */}
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === "evaluation"}
-          onClick={handleEvaluationClick}
-          className={`flex w-[130px] items-center justify-center gap-2.5 px-4 py-3 rounded-[10px] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-            activeTab === "evaluation"
-              ? "bg-primary text-white"
-              : "bg-primary-light border-2 border-primary hover:bg-blue-50 text-primary"
-          }`}
-        >
-          تقييم
-        </button>
+    <div
+      className="flex w-full items-start justify-between relative"
+      role="tablist"
+    >
+      {/* ✅ تقييم => Link لصفحة التقييم */}
+      <Link
+        href={`/courses/${course.id}/rate-course`}
+        role="tab"
+        className="flex w-[130px] items-center justify-center gap-2.5 px-4 py-3 rounded-[10px] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-primary-light border-2 border-primary hover:bg-blue-50 text-primary"
+      >
+        تقييم
+      </Link>
 
-        {/* مراجعة => Link */}
-        <Link
-          href={`/course/${course.id}?reg=true`}
-          role="tab"
-          aria-selected={activeTab === "review"}
-          onClick={() => setActiveTab("review")}
-          className={`flex w-[130px] items-center justify-center gap-2.5 px-4 py-3 rounded-[10px] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-            activeTab === "review"
-              ? "bg-primary text-white"
-              : "bg-primary-light border-2 border-primary hover:bg-blue-50 text-primary"
-          }`}
-        >
-          مراجعة
-        </Link>
-      </div>
-
-      {/* Modal */}
-      <CourseRateModal
-        open={openRate}
-        onClose={() => setOpenRate(false)}
-        roundId={course.id}
-        studentId={studentId}
-        token={token}
-      />
-    </>
+      {/* مراجعة => Link */}
+      <Link
+        href={`/course/${course.id}?reg=true`}
+        role="tab"
+        className="flex w-[130px] items-center justify-center gap-2.5 px-4 py-3 rounded-[10px] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-primary-light border-2 border-primary hover:bg-blue-50 text-primary"
+      >
+        مراجعة
+      </Link>
+    </div>
   );
 };

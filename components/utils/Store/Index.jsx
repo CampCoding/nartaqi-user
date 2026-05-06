@@ -22,7 +22,8 @@ import mockExamReducer from "./Slices/mockExamSlice.js";
 import shareReducer from "./Slices/shareSlice.js";
 import videoModalReducer from "./Slices/videoModalSlice.js";
 import placementTestReducer from "./Slices/placementTestSlice.js";
-
+import librarySlice from "./Slices/librarySlice.jsx";
+import rateRoundSlice from "./Slices/rateRoundSlice.js";
 const persistConfig = {
   key: "root",
   storage,
@@ -41,6 +42,8 @@ const rootReducer = combineReducers({
   share: shareReducer,
   videoModal: videoModalReducer,
   placementTest: placementTestReducer,
+  library: librarySlice.reducer,
+  rateRound: rateRoundSlice.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -1,10 +1,46 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import toast from "react-hot-toast";
 import PagesBanner from "../../../../components/ui/PagesBanner";
 import { RatingQuestion } from "../../../../components/ReateCoursePage.jsx/RatingQuestion";
 import RateDone from "./RateDone";
 import Container from "../../../../components/ui/Container";
+import {
+  submitRoundRate,
+  resetRateState,
+} from "@/components/utils/Store/Slices/rateRoundSlice";
+
+/* ✅ Mapping من القيم المحلية للقيم الموقع API بيستقبلها */
+const MAPPINGS = {
+  recommend: {
+    yes: "نعم",
+    depends: "حسب المحتوى",
+    no: "لا",
+  },
+  staff_interaction: {
+    excellent: "ممتاز",
+    very_good: "جيد جدًا",
+    needs_improvement: "تحتاج إلى تحسين",
+  },
+  response_speed: {
+    excellent: "ممتاز",
+    very_good: "جيد جدًا",
+    needs_improvement: "تحتاج إلى تحسين",
+  },
+  platform_usability: {
+    easy: "سهلة",
+    normal: "متوسطة",
+    hard: "صعبة",
+  },
+  platform_notifications: {
+    excellent: "ممتاز",
+    good: "جيدة",
+    weak: "تحتاج إلى تحسين",
+  },
+};
 
 /* Simple Text Question */
 function TextQuestion({
@@ -40,7 +76,6 @@ function TextQuestion({
   );
 }
 
-/* Your pages (3 questions per page) */
 const PAGES = [
   {
     title: "تقييمات عامة",
@@ -123,7 +158,32 @@ const PAGES = [
       },
     ],
   },
-  // ... other pages remain the same
+  {
+    title: "تقييم عام للدورة",
+    questions: [
+      {
+        id: "overall_rating",
+        type: "rating",
+        question: "تقييمك العام للدورة",
+        options: [
+          { value: "5", label: "ممتاز (5)" },
+          { value: "4.5", label: "جيد جدًا (4.5)" },
+          { value: "4", label: "جيد (4)" },
+          { value: "3", label: "متوسط (3)" },
+          { value: "2", label: "ضعيف (2)" },
+        ],
+        required: true,
+        defaultValue: "5",
+      },
+      {
+        id: "comment",
+        type: "text",
+        question: "اكتب رأيك في الدورة",
+        placeholder: "اكتب تعليقك هنا...",
+        required: true,
+      },
+    ],
+  },
 ];
 
 const isAnswered = (ans, type, required) => {
@@ -134,7 +194,30 @@ const isAnswered = (ans, type, required) => {
   return String(ans).length > 0;
 };
 
+// ✅ Helper: get value from answer (object or string)
+const getValue = (ans) => {
+  if (ans == null) return "";
+  if (typeof ans === "object") return ans.value || "";
+  return String(ans);
+};
+
 export default function RateCoursePage() {
+  const params = useParams();
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  // ✅ Get round id from URL params
+  const roundId = params?.id;
+
+  // ✅ Get user from auth
+  const { user, token } = useSelector((state) => state.auth);
+  const studentId = user?.id;
+
+  // ✅ Get rate state
+  const { isSubmitting, error, success } = useSelector(
+    (state) => state.rateRound
+  );
+
   const [isFinished, setIsFinished] = useState(false);
 
   const [answers, setAnswers] = useState(() => {
@@ -149,6 +232,19 @@ export default function RateCoursePage() {
   const [touched, setTouched] = useState({});
 
   const qRefs = useRef({});
+
+  // ✅ Reset state on mount
+  useEffect(() => {
+    dispatch(resetRateState());
+  }, [dispatch]);
+
+  // ✅ Redirect if not logged in
+  useEffect(() => {
+    if (!token) {
+      toast.error("يجب تسجيل الدخول أولاً");
+      router.push("/login");
+    }
+  }, [token, router]);
 
   const handleChange = (qid) => (val) => {
     setAnswers((prev) => ({ ...prev, [qid]: val }));
@@ -171,10 +267,53 @@ export default function RateCoursePage() {
         ...t,
         ...Object.fromEntries(missingRequired.map((q) => [q.id, true])),
       }));
+      toast.error("يرجى الإجابة على جميع الأسئلة المطلوبة");
       return;
     }
-    setIsFinished(true);
-    alert("تم إرسال التقييم بنجاح ✅");
+
+    if (!roundId || !studentId) {
+      toast.error("بيانات غير كاملة، يرجى إعادة المحاولة");
+      return;
+    }
+
+    // ✅ Build the API payload
+    const apiPayload = {
+      student_id: parseInt(studentId),
+      round_id: parseInt(roundId),
+      rate: parseFloat(getValue(answers.overall_rating) || 5),
+      comment: getValue(answers.comment) || "",
+      recommend_to_friends:
+        MAPPINGS.recommend[getValue(answers.recommend)] || "نعم",
+      moderator_interaction:
+        MAPPINGS.staff_interaction[getValue(answers.staff_interaction)] ||
+        "ممتاز",
+      response_speed:
+        MAPPINGS.response_speed[getValue(answers.response_speed)] || "جيد جدًا",
+      platform_ease_of_use:
+        MAPPINGS.platform_usability[getValue(answers.platform_usability)] ||
+        "سهلة",
+      notifications_rating:
+        MAPPINGS.platform_notifications[
+          getValue(answers.platform_notifications)
+        ] || "ممتاز",
+    };
+
+    // ✅ Optional: include suggestions if provided
+    const suggestions = getValue(answers.platform_suggestions);
+    if (suggestions && suggestions.trim()) {
+      apiPayload.suggestions = suggestions;
+    }
+
+    try {
+      await dispatch(submitRoundRate(apiPayload)).unwrap();
+      toast.success("تم إرسال التقييم بنجاح ✅");
+      setIsFinished(true);
+    } catch (err) {
+      console.error("Failed to submit rating:", err);
+      toast.error(
+        typeof err === "string" ? err : "حدث خطأ أثناء إرسال التقييم"
+      );
+    }
   };
 
   return (
@@ -186,7 +325,7 @@ export default function RateCoursePage() {
         objectPosition={"top"}
         breadcrumb={[
           { title: "الرئيسية", link: "/" },
-          { title: "تقييم الدورة", link: "/rate-course" },
+          { title: "تقييم الدورة", link: "#" },
         ]}
       />
 
@@ -195,10 +334,7 @@ export default function RateCoursePage() {
           <RateDone />
         </div>
       ) : (
-        <Container
-          className=" mt-8 md:mt-12 mb-16 md:mb-24"
-          dir="rtl"
-        >
+        <Container className="mt-8 md:mt-12 mb-16 md:mb-24" dir="rtl">
           <div className="flex flex-col gap-8 md:gap-12">
             {PAGES.map((page) => (
               <section key={page.title} className="flex flex-col gap-4">
@@ -252,19 +388,54 @@ export default function RateCoursePage() {
             ))}
           </div>
 
+          {/* ✅ Error Display */}
+          {error && (
+            <div className="mt-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
           <div className="mt-8 flex items-center">
             <button
               onClick={handleSubmit}
-              disabled={!allRequiredAnswered}
+              disabled={!allRequiredAnswered || isSubmitting}
               className="w-full text-white ml-auto flex items-center justify-center gap-2 px-6 py-3 rounded-2xl
                                  bg-gradient-to-r from-primary to-secondary
                                    disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 active:scale-95 transition"
               type="button"
               aria-label="إرسال"
             >
-              <span className="font-bold text-lg md:text-xl leading-normal">
-                إرسال
-              </span>
+              {isSubmitting ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  <span className="font-bold text-lg md:text-xl leading-normal">
+                    جاري الإرسال...
+                  </span>
+                </>
+              ) : (
+                <span className="font-bold text-lg md:text-xl leading-normal">
+                  إرسال
+                </span>
+              )}
             </button>
           </div>
         </Container>

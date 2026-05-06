@@ -166,7 +166,9 @@ const SearchBanner = ({ openSearch, setOpenSearch }) => {
           )}
 
           {!loading && !error && totalResults === 0 && (
-            <p className="mt-8 text-center text-gray-400">لا توجد نتائج مطابقة.</p>
+            <p className="mt-8 text-center text-gray-400">
+              لا توجد نتائج مطابقة.
+            </p>
           )}
 
           {/* Results */}
@@ -238,17 +240,16 @@ const Courses = ({ rounds = [] }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 lg:gap-x-[48px] gap-y-6 lg:gap-y-[28px] mt-6">
-      {rounds.map((item) => {
+        {rounds.map((item) => {
           const payload = {
             ...item,
             id: item.id,
-
             name: item.name,
             goal: item.description,
             description: item.description,
             image_url: item.image_url,
             start_date: item.start_date,
-            end_date: item.end_date,
+            end_date: item.end_date, // ✅ موجود (بس بنأكد)
             free: item.free,
             price: item.price,
             for: item.for,
@@ -256,29 +257,31 @@ const Courses = ({ rounds = [] }) => {
             active: item.active,
             course_category_id: item.course_category_id,
             remainingSets: +item.capacity - +item.students_count,
-            // Transform course_categories to course
+            own: item?.own || false, // ✅ ADDED
+            enrolled: item?.own || item.enrolled || false, // ✅ UPDATED
+            fav: item?.fav || false, // ✅ ADDED
+            is_favorite: item?.fav || false,
+            user_rated: item?.user_rated || false, // ✅ ADDED
+            is_rated: item?.is_rated || false, // ✅ ADDED
             course: {
               name: item.course_categories?.name || "غير محدد",
               id: item.course_categories?.id,
               description: item.course_categories?.description,
               image_url: item.course_categories?.image_url,
             },
-            // Teacher data (already in correct format)
             teacher: Array.isArray(item.teacher)
               ? item.teacher.map((teacher) => ({
                   name: teacher.name,
                   image_url: teacher.image_url,
                 }))
               : item.teacher && typeof item.teacher === "object"
-              ? [
-                  {
-                    name: item.teacher.name,
-                    image_url: item.teacher.image_url,
-                  },
-                ]
-              : [],
-            is_favorite: item?.fav || false,
-            enrolled: item.enrolled || false,
+                ? [
+                    {
+                      name: item.teacher.name,
+                      image_url: item.teacher.image_url,
+                    },
+                  ]
+                : [],
             teachers: item.teachers,
           };
 
@@ -355,8 +358,14 @@ const Blogs = ({ blogs = [] }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 lg:gap-x-[29px] gap-y-6 lg:gap-y-[28px] mt-6">
         {blogs.map((b) => (
-          <Link href={`/blogs/blog-details/${b?.id || ""}`} key={b?.id || b?.title}>
-            <BlogCard freeWidth={true} image={b?.image || "/images/FRAME.png"} />
+          <Link
+            href={`/blogs/blog-details/${b?.id || ""}`}
+            key={b?.id || b?.title}
+          >
+            <BlogCard
+              freeWidth={true}
+              image={b?.image || "/images/FRAME.png"}
+            />
           </Link>
         ))}
       </div>
@@ -369,11 +378,31 @@ const Blogs = ({ blogs = [] }) => {
 // ----------------------------
 export const Navs = ({ activeTab, setActiveTab, counts }) => {
   const items = [
-    { key: "all", text: `الكل (${counts?.all ?? 0})`, padding: "px-8 py-3 lg:px-16 lg:py-4" },
-    { key: "rounds", text: `دورات (${counts?.rounds ?? 0})`, padding: "px-8 py-3 lg:px-16 lg:py-4" },
-    { key: "teachers", text: `محاضرين (${counts?.teachers ?? 0})`, padding: "px-8 py-3 lg:px-16 lg:py-4" },
-    { key: "stores", text: `كتب وحقائب (${counts?.stores ?? 0})`, padding: "px-6 py-3 lg:px-8 lg:py-4" },
-    { key: "blogs", text: `مدونات (${counts?.blogs ?? 0})`, padding: "px-6 py-3 lg:px-8 lg:py-4" },
+    {
+      key: "all",
+      text: `الكل (${counts?.all ?? 0})`,
+      padding: "px-8 py-3 lg:px-16 lg:py-4",
+    },
+    {
+      key: "rounds",
+      text: `دورات (${counts?.rounds ?? 0})`,
+      padding: "px-8 py-3 lg:px-16 lg:py-4",
+    },
+    {
+      key: "teachers",
+      text: `محاضرين (${counts?.teachers ?? 0})`,
+      padding: "px-8 py-3 lg:px-16 lg:py-4",
+    },
+    {
+      key: "stores",
+      text: `كتب وحقائب (${counts?.stores ?? 0})`,
+      padding: "px-6 py-3 lg:px-8 lg:py-4",
+    },
+    {
+      key: "blogs",
+      text: `مدونات (${counts?.blogs ?? 0})`,
+      padding: "px-6 py-3 lg:px-8 lg:py-4",
+    },
   ];
 
   return (

@@ -209,16 +209,22 @@ const TeachersCourses = () => {
                   description: course?.description,
                   image_url: course?.image_url || course?.image || "",
                   start_date: course?.start_date,
+                  end_date: course?.end_date, // ✅ ADDED (موجود من ...course بس بنأكد)
                   free: course?.free,
                   price: course?.price,
                   enrolled: course?.own,
+                  own: course?.own || false, // ✅ ADDED صراحة
                   favorite: course?.fav,
+                  fav: course?.fav,
+                  user_rated: course?.user_rated || false, // ✅ ADDED
+                  is_rated: course?.is_rated || false, // ✅ ADDED
                   roundBook: course?.round_book,
                   roundBookUrl: course?.round_book_url,
                   roundRoadMapBook: course?.round_road_map_book,
                   roundRoadMapBookUrl: course?.round_road_map_book_url,
                   rating: course?.average_rating,
                   totalRates: course?.ratings_count,
+                  ratings_count: course?.ratings_count || 0,
                   capacity: course?.capacity,
                   teachers: course?.teachers,
                   course: { name: course?.category_parts_name },

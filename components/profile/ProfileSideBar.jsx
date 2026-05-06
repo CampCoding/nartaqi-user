@@ -38,6 +38,12 @@ export const ProfileSideBar = () => {
       icon: OpenBook, // ✅
     },
     {
+      id: "my-books",
+      path: "/my-books",
+      label: "كتبي",
+      icon: BookIcon, // ✅ هضيفه تحت
+    },
+    {
       id: "course-rate",
       path: "/course-rate",
       label: "معدل اللإنجاز",
@@ -85,7 +91,7 @@ export const ProfileSideBar = () => {
       role="navigation"
       aria-label="القائمة الرئيسية"
     >
-      <div className="w-[331px] h-[568px] mt-14 flex-col items-start px-4 py-0 flex relative gap-4">
+      <div className="w-[331px]  mt-14 flex-col items-start px-4 py-0 flex relative gap-4">
         {menuItems.map((item) => {
           const icon = (
             <item.icon
@@ -99,15 +105,17 @@ export const ProfileSideBar = () => {
             <button
               key={item.id}
               onClick={() => handleItemClick(item.path)}
-              className={`flex items-center justify-start gap-4 px-4 py-5 relative self-stretch w-full flex-[0_0_auto] rounded-[20px] transition-colors duration-200  focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 ${item.path == pathname ? "bg-primary" : " text-text"
-                }`}
+              className={`flex items-center justify-start gap-4 px-4 py-5 relative self-stretch w-full flex-[0_0_auto] rounded-[20px] transition-colors duration-200  focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 ${
+                item.path == pathname ? "bg-primary" : " text-text"
+              }`}
               aria-pressed={item?.path === pathname}
               role="menuitem"
             >
               {icon}
               <div
-                className={`relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold text-base text-left tracking-[0] leading-6 whitespace-nowrap ${item.path === pathname ? "text-white" : "text-text"
-                  }`}
+                className={`relative flex items-center justify-center w-fit mt-[-1.00px]  font-bold text-base text-left tracking-[0] leading-6 whitespace-nowrap ${
+                  item.path === pathname ? "text-white" : "text-text"
+                }`}
               >
                 {item.label}
               </div>
@@ -338,6 +346,24 @@ const LogoutIcon = (props) => (
     <path
       d="M5 3H11C11.7956 3 12.5587 3.31607 13.1213 3.87868C13.6839 4.44129 14 5.20435 14 6V10H13V6C13 5.46957 12.7893 4.96086 12.4142 4.58579C12.0391 4.21071 11.5304 4 11 4H5C4.46957 4 3.96086 4.21071 3.58579 4.58579C3.21071 4.96086 3 5.46957 3 6V19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21H11C11.5304 21 12.0391 20.7893 12.4142 20.4142C12.7893 20.0391 13 19.5304 13 19V15H14V19C14 19.7956 13.6839 20.5587 13.1213 21.1213C12.5587 21.6839 11.7956 22 11 22H5C4.20435 22 3.44129 21.6839 2.87868 21.1213C2.31607 20.5587 2 19.7956 2 19V6C2 5.20435 2.31607 4.44129 2.87868 3.87868C3.44129 3.31607 4.20435 3 5 3ZM8 12H19.25L16 8.75L16.66 8L21.16 12.5L16.66 17L16 16.25L19.25 13H8V12Z"
       fill="#E94242"
+    />
+  </svg>
+);
+
+const BookIcon = (props) => (
+  <svg
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      opacity={0.97}
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M5 2.5h11a3 3 0 0 1 3 3v13a3 3 0 0 1-3 3H5a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1Zm1 2v15h10a1 1 0 0 0 1-1V5.5a1 1 0 0 0-1-1H6Zm2 3h7v1.5H8v-1.5Zm0 3h7v1.5H8v-1.5Zm0 3h5v1.5H8v-1.5Z"
     />
   </svg>
 );
