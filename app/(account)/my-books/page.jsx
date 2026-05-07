@@ -30,13 +30,8 @@ const MyBooksPage = () => {
         ]}
       /> */}
 
-      <Container className="mt-[48px]">
-        <div className="grid grid-cols-1 lg:grid-cols-[379px_auto] gap-6 mb-[56px]">
-          {/* Sidebar - Desktop only */}
-          <div className="hidden lg:block">
-            <ProfileSideBar />
-          </div>
-
+      <Container className="mt-[0px]">
+        <div className="flex items-center gap-6 mb-[56px]">
           {/* Content */}
           <div className="flex flex-col gap-6">
             {/* Header */}

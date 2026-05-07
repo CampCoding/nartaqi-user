@@ -46,6 +46,7 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
     price: item.price,
     for: item.for,
     gender: item.gender,
+    end_date: item.end_date,
     active: item.active,
     course_category_id: item.course_category_id,
     remainingSets: +item.capacity - +item.students_count,
