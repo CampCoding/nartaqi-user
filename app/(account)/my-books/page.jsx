@@ -6,7 +6,6 @@ import PagesBanner from "@/components/ui/PagesBanner";
 import Container from "@/components/ui/Container";
 // import { BookCard } from "../../components/Library/BookCard";
 import { getMyLibrary } from "@/components/utils/Store/Slices/librarySlice";
-import { ProfileSideBar } from "@/components/Profile/ProfileSideBar";
 import BookCard from "../../../components/Store/BookCard";
 
 const MyBooksPage = () => {
