@@ -171,9 +171,11 @@ const CartItem = ({ data, onRemove }) => {
                 <div className="self-stretch text-right justify-center text-text text-base font-bold">
                   {data.title}
                 </div>
-                <div className="self-stretch text-right justify-center text-alt text-sm font-normal line-clamp-2">
+                {/* <div className="self-stretch text-right justify-center text-alt text-sm font-normal line-clamp-2">
                   {data.description}
-                </div>
+                </div> */}
+
+                {/* <div dangerouslySetInnerHTML={{ __html: data.description }} /> */}
               </div>
 
               {/* Badge & Rating */}

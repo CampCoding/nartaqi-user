@@ -3,6 +3,7 @@ import axios from "axios";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// ==================== GET USER CART ====================
 export const getUserCart = createAsyncThunk(
   "cart/getUserCart",
   async (_, { getState, rejectWithValue }) => {
@@ -26,7 +27,7 @@ export const getUserCart = createAsyncThunk(
   }
 );
 
-
+// ==================== ADD TO CART ====================
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async (
@@ -57,6 +58,7 @@ export const addToCart = createAsyncThunk(
   }
 );
 
+// ==================== UPDATE QUANTITY ====================
 export const updateCartQuantity = createAsyncThunk(
   "cart/updateCartQuantity",
   async (
@@ -90,6 +92,7 @@ export const updateCartQuantity = createAsyncThunk(
   }
 );
 
+// ==================== REMOVE FROM CART ====================
 export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
   async ({ type, item_id, loading = false }, { getState, rejectWithValue }) => {
@@ -97,10 +100,9 @@ export const removeFromCart = createAsyncThunk(
       const { auth } = getState();
       const token = auth.token;
 
-
       const response = await axios.post(
         `${BASE_URL}/user/cart/cart_toggle`,
-        { type, item_id }, // ✅ No quantity = remove item
+        { type, item_id },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -120,13 +122,13 @@ export const removeFromCart = createAsyncThunk(
   }
 );
 
+// ==================== DELETE CART ITEM ====================
 export const deleteCartItem = createAsyncThunk(
   "cart/deleteCartItem",
   async ({ type, item_id, loading = false }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState();
       const token = auth.token;
-
 
       const response = await axios.post(
         `${BASE_URL}/user/cart/delete_cart_item`,
@@ -150,6 +152,7 @@ export const deleteCartItem = createAsyncThunk(
   }
 );
 
+// ==================== DELETE CART ====================
 export const deleteCart = createAsyncThunk(
   "cart/deleteCart",
   async ({ loading = false } = {}, { getState, rejectWithValue }) => {
@@ -177,6 +180,127 @@ export const deleteCart = createAsyncThunk(
   }
 );
 
+// ==================== CHECK COUPON ====================
+export const checkCoupon = createAsyncThunk(
+  "cart/checkCoupon",
+  async ({ code, target, round_id }, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+
+      const payload = { code, target };
+      if (target === "rounds" && round_id) {
+        payload.round_id = round_id;
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/payment/coupons/check`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data.message;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "كود الكوبون غير صحيح"
+      );
+    }
+  }
+);
+
+// ==================== PAY CART ====================
+export const payCart = createAsyncThunk(
+  "cart/payCart",
+  async ({ couponCode } = {}, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+
+      const payload = {};
+      if (couponCode) {
+        payload.copounData = { code: couponCode };
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/payment/fawaterk/payCart`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data.message;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "فشل في إتمام الدفع"
+      );
+    }
+  }
+);
+
+// ==================== CREATE COURSE INVOICE ====================
+export const createCourseInvoice = createAsyncThunk(
+  "cart/createCourseInvoice",
+  async (
+    { round, user, couponCode, couponDiscount, finalPrice },
+    { getState, rejectWithValue }
+  ) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+
+      const payload = {
+        student_id: user.id,
+        round_id: round.id,
+        userData: {
+          full_name: user.name,
+          phone: user.phone,
+        },
+        total_price: Number(finalPrice).toFixed(2),
+        items: [
+          {
+            productData: { name: round.name },
+            priceAfterDiscount: Number(finalPrice).toFixed(2),
+            quantity: 1,
+          },
+        ],
+      };
+
+      // ✅ Add coupon data if applied
+      if (couponCode && couponDiscount > 0) {
+        payload.copounDiscount = Number(couponDiscount).toFixed(2);
+        payload.copounData = { code: couponCode };
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/payment/fawaterk/createInvoice`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data.message;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "فشل في إنشاء الفاتورة"
+      );
+    }
+  }
+);
+
+// ==================== HELPERS ====================
 const getItemPrice = (item) => {
   switch (item.type) {
     case "rounds":
@@ -206,6 +330,7 @@ const findItemIndex = (items, type, item_id) => {
   );
 };
 
+// ==================== INITIAL STATE ====================
 const initialState = {
   items: [],
   totalItems: 0,
@@ -218,8 +343,19 @@ const initialState = {
   error: null,
   successMessage: null,
   previousItems: [],
+
+  // ✅ Coupon state
+  coupon: null,
+  isCheckingCoupon: false,
+  couponError: null,
+
+  // ✅ Payment state
+  isPaying: false,
+  paymentError: null,
+  paymentUrl: null,
 };
 
+// ==================== SLICE ====================
 const cartSlice = createSlice({
   name: "cart",
   initialState,
@@ -242,6 +378,12 @@ const cartSlice = createSlice({
         const totals = calculateTotals(state.items);
         state.totalItems = totals.totalItems;
         state.totalPrice = totals.totalPrice;
+
+        // ✅ Invalidate coupon when cart changes
+        if (state.coupon) {
+          state.coupon = null;
+          state.couponError = null;
+        }
       }
     },
 
@@ -255,6 +397,12 @@ const cartSlice = createSlice({
       const totals = calculateTotals(state.items);
       state.totalItems = totals.totalItems;
       state.totalPrice = totals.totalPrice;
+
+      // ✅ Invalidate coupon when cart changes
+      if (state.coupon) {
+        state.coupon = null;
+        state.couponError = null;
+      }
     },
 
     clearCartLocally: (state) => {
@@ -262,6 +410,8 @@ const cartSlice = createSlice({
       state.items = [];
       state.totalItems = 0;
       state.totalPrice = 0;
+      state.coupon = null;
+      state.couponError = null;
     },
 
     rollbackCart: (state) => {
@@ -276,6 +426,18 @@ const cartSlice = createSlice({
 
     setError: (state, action) => {
       state.error = action.payload;
+    },
+
+    // ✅ Coupon actions
+    clearCoupon: (state) => {
+      state.coupon = null;
+      state.couponError = null;
+    },
+
+    // ✅ Payment actions
+    clearPayment: (state) => {
+      state.paymentUrl = null;
+      state.paymentError = null;
     },
   },
 
@@ -381,10 +543,55 @@ const cartSlice = createSlice({
       })
       .addCase(deleteCart.fulfilled, (state) => {
         state.isDeleting = false;
+        state.coupon = null;
       })
       .addCase(deleteCart.rejected, (state, action) => {
         state.isDeleting = false;
         state.error = action.payload || "فشل حذف السلة";
+      })
+
+      // ==================== CHECK COUPON ====================
+      .addCase(checkCoupon.pending, (state) => {
+        state.isCheckingCoupon = true;
+        state.couponError = null;
+      })
+      .addCase(checkCoupon.fulfilled, (state, action) => {
+        state.isCheckingCoupon = false;
+        state.coupon = action.payload;
+        state.successMessage = "تم تطبيق الكوبون بنجاح!";
+      })
+      .addCase(checkCoupon.rejected, (state, action) => {
+        state.isCheckingCoupon = false;
+        state.couponError = action.payload;
+        state.coupon = null;
+      })
+
+      // ==================== PAY CART ====================
+      .addCase(payCart.pending, (state) => {
+        state.isPaying = true;
+        state.paymentError = null;
+      })
+      .addCase(payCart.fulfilled, (state, action) => {
+        state.isPaying = false;
+        state.paymentUrl = action.payload.url;
+      })
+      .addCase(payCart.rejected, (state, action) => {
+        state.isPaying = false;
+        state.paymentError = action.payload;
+      })
+
+      // ==================== CREATE COURSE INVOICE ====================
+      .addCase(createCourseInvoice.pending, (state) => {
+        state.isPaying = true;
+        state.paymentError = null;
+      })
+      .addCase(createCourseInvoice.fulfilled, (state, action) => {
+        state.isPaying = false;
+        state.paymentUrl = action.payload.url;
+      })
+      .addCase(createCourseInvoice.rejected, (state, action) => {
+        state.isPaying = false;
+        state.paymentError = action.payload;
       });
   },
 });
@@ -397,6 +604,8 @@ export const {
   clearCartLocally,
   rollbackCart,
   setError,
+  clearCoupon,
+  clearPayment,
 } = cartSlice.actions;
 
 export default cartSlice;

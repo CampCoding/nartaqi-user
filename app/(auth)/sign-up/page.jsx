@@ -18,6 +18,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { signUpSchema } from "../../../components/utils/Schema/SignupSchema.js";
 import toast from "react-hot-toast";
 import { getExecutionDateTime } from "../../../components/utils/helpers/GetDeviceTime";
+import { handlePhoneCode } from "../../../components/utils/helpers/phoneCode";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 const SignUpPage = () => {
@@ -61,19 +62,21 @@ const SignUpPage = () => {
   });
 
   const onSubmit = async (data) => {
-    setLoading(true);
-    let countryCode = selectedCountry.code.slice(1);
-    if (selectedCountry.code === "+20") {
-      data.phone = data.phone.slice(1);
-    }
+    // ✅ استخدم نفس الدالة زي اللوجن
+    const phone = handlePhoneCode({
+      phone: data.phone,
+      selectedCountryCode: selectedCountry.code,
+    });
+
     const payload = {
       name: `${data.firstName} ${data.middleName} ${data.lastName}`,
       password: data.password,
-      phone: `${countryCode}${data.phone}`,
+      phone: phone, // ✅ رقم نظيف بكود الدوله
       gender: selected,
       expires_at: getExecutionDateTime(),
     };
 
+    setLoading(true);
     try {
       const code = await axios.post(`${baseUrl}/authentication/send-code`, {
         phone: payload.phone,
@@ -81,10 +84,9 @@ const SignUpPage = () => {
       });
       dispatch(userSignUpdata(payload));
       toast.success(code.data.message);
-
       router.push("/verification-code");
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "حدث خطأ");
     } finally {
       setLoading(false);
     }

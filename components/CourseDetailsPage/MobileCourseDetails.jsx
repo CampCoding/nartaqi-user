@@ -27,14 +27,14 @@ import {
   getUserCart,
 } from "@/components/utils/Store/Slices/cartSlice";
 
-// ✅ Hook deps
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { queryClient } from "../../lib/getQueryClient";
-import useEnrollInCourse from "../shared/Hooks/useEnroll";
 import buildShareUrl from "../../lib/buildShareUrl";
 import { openShare } from "../utils/Store/Slices/shareSlice";
+import CoursePaymentModal from "./CoursePaymentModal";
+
 /** =========================
  *  Hook: useHandleFavoriteActions
  *  ========================= */
@@ -85,7 +85,7 @@ const MobileCourseDetails = ({
   onSubscribe,
   onShareClick = () => null,
   isDone,
-  onToggleFavorite, // optional
+  onToggleFavorite,
   onShare,
 }) => {
   const router = useRouter();
@@ -94,10 +94,9 @@ const MobileCourseDetails = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isEnrollLoading, setIsEnrollLoading] = useState(false);
   const [isCartLoading, setIsCartLoading] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-  // ✅ local optimistic fav state
   const [localFav, setLocalFav] = useState(
     Boolean(courseData?.round?.fav ?? false)
   );
@@ -107,48 +106,25 @@ const MobileCourseDetails = ({
 
   const { items: cartItems } = useSelector((state) => state.cart);
   const { token, user } = useSelector((state) => state.auth);
-  const { enroll } = useEnrollInCourse();
 
-  const studentId = user?.id;
   const goLogin = useCallback(() => {
     router.push("/login");
   }, [router]);
-  const handleSubscribe = useCallback(async () => {
-    const isFull = +round.capacity - +round.students_count == 0;
 
+  // ✅ Open payment modal
+  const handleSubscribe = useCallback(() => {
     if (!token) return goLogin();
     if (!roundId) return console.error("Round ID is undefined!");
-    if (!studentId) return console.error("Student ID is undefined!");
-    if (isFull) return console.error("هذه الدورة ممتلئة");
 
-    setIsEnrollLoading(true);
-    try {
-      const res = await enroll({
-        token,
-        round_id: roundId,
-        student_id: studentId,
-        payment_id: 1,
-        // ✅ الأفضل بدل تاريخ ثابت
-        end_date: round?.end_date || "2025-12-30",
-      });
-
-      if (res?.ok) onSubscribe?.(res);
-    } catch (e) {
-      console.error("Enroll failed:", e);
-    } finally {
-      setIsEnrollLoading(false);
+    const isFull = +round.capacity - +round.students_count === 0;
+    if (isFull) {
+      toast.error("هذه الدورة ممتلئة");
+      return;
     }
-  }, [
-    token,
-    roundId,
-    studentId,
-    enroll,
-    onSubscribe,
-    goLogin,
-    round?.end_date,
-  ]);
 
-  // ✅ use hook
+    setIsPaymentModalOpen(true);
+  }, [token, roundId, round, goLogin]);
+
   const { mutate: toggleFavMutate, isLoading: favLoading } =
     useHandleFavoriteActions();
 
@@ -184,7 +160,6 @@ const MobileCourseDetails = ({
         ).unwrap();
       }
 
-      // لو عندك Slice بيعمل optimistic update، ممكن تستغني عن دي
       await dispatch(getUserCart()).unwrap();
     } catch (error) {
       console.error("Failed to toggle cart:", error);
@@ -212,6 +187,7 @@ const MobileCourseDetails = ({
 
     return `${day}/${month}/${year}`;
   }, []);
+
   const genderMap = {
     male: "طلاب",
     female: "طالبات",
@@ -224,18 +200,14 @@ const MobileCourseDetails = ({
       return;
     }
 
-    // ✅ keep old behavior if parent passed something
     if (typeof onToggleFavorite === "function") onToggleFavorite();
 
-    // ✅ optimistic UI
     const next = !localFav;
     setLocalFav(next);
 
-    // toast UI (local)
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
 
-    // ✅ call API (payload must contain round_id غالبًا)
     toggleFavMutate(
       {
         payload: {
@@ -244,7 +216,6 @@ const MobileCourseDetails = ({
       },
       {
         onError: () => {
-          // rollback if failed
           setLocalFav(!next);
         },
       }
@@ -318,7 +289,6 @@ const MobileCourseDetails = ({
             <ShareIcon
               onClick={() => {
                 const url = buildShareUrl(roundId);
-                // return
                 onShareClick?.(courseData);
                 dispatch(
                   openShare({
@@ -431,14 +401,6 @@ const MobileCourseDetails = ({
 
         {!isRegestered && (
           <>
-            {/* {round.round_book && (
-              <div className="self-stretch px-4 py-2 bg-white rounded-[10px] outline outline-1 outline-offset-[-1px] outline-neutral-400 inline-flex justify-center items-center gap-2">
-                <div className="text-center justify-center text-zinc-800 text-base font-normal font-['Cairo']">
-                  جدول الدورة
-                </div>
-              </div>
-            )} */}
-
             <div className="w-full inline-flex flex-col items-start gap-6 relative">
               <div className="items-center justify-start gap-2 self-stretch w-full flex-[0_0_auto] flex relative">
                 <div className="text-primary text-2xl md:text-[30px] font-bold text-left leading-normal whitespace-nowrap relative flex items-center justify-center w-fit mt-[-1.00px] [direction:rtl]">
@@ -455,19 +417,19 @@ const MobileCourseDetails = ({
                 <div className="items-center justify-end gap-6 self-stretch w-full flex-[0_0_auto] flex relative">
                   <button
                     onClick={handleToggleCart}
-                    disabled={isLoading}
+                    disabled={isCartLoading}
                     className={`items-center justify-center gap-2.5 px-2.5 py-3 flex-1 grow rounded-[20px] border border-solid flex relative transition-all duration-200
                       ${
-                        isInCart && !isLoading
+                        isInCart && !isCartLoading
                           ? "bg-red-50 border-red-500 hover:bg-red-100"
-                          : isLoading
+                          : isCartLoading
                             ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
                             : "bg-white border-orange-500 hover:bg-orange-50"
                       }
                     `}
                     type="button"
                   >
-                    {isLoading ? (
+                    {isCartLoading ? (
                       <>
                         <div className="spinner"></div>
                         <span className="text-gray-500 text-base text-center leading-[normal] relative flex items-center justify-center w-fit mt-[-1.00px] font-bold tracking-[0] [direction:rtl]">
@@ -504,7 +466,7 @@ const MobileCourseDetails = ({
                           xmlns="http://www.w3.org/2000/svg"
                         >
                           <path
-                            d="M3 3H5L5.4 5M5.4 5H21L17 13H7M5.4 5L7 13M7 13L4.707 15.293C4.077 15.923 4.523 17 5.414 17H17M17 17C16.4696 17 15.9609 17.2107 15.5858 17.5858C15.2107 17.9609 15 18.4696 15 19C15 19.5304 15.2107 20.0391 15.5858 20.4142C15.9609 20.7893 16.4696 21 17 21C17.5304 21 18.0391 20.7893 18.4142 20.4142C18.7893 20.0391 19 19.5304 19 19C19 18.4696 18.7893 17.9609 18.4142 17.5858C18.0391 17.2107 17.5304 17 17 17ZM9 19C9 19.5304 8.78929 20.0391 8.41421 20.4142C8.03914 20.7893 7.53043 21 7 21C6.46957 21 5.96086 20.7893 5.58579 20.4142C5.21071 20.0391 5 19 5 19C5 18.4696 5.21071 17.9609 5.58579 17.5858C5.96086 17.2107 6.46957 17 7 17C7.53043 17 8.03914 17.2107 8.41421 17.5858C8.78929 17.9609 9 18.4696 9 19Z"
+                            d="M3 3H5L5.4 5M5.4 5H21L17 13H7M5.4 5L7 13M7 13L4.707 15.293C4.077 15.923 4.523 17 5.414 17H17M17 17C16.4696 17 15.9609 17.2107 15.5858 17.5858C15.2107 17.9609 15 18.4696 15 19C15 19.5304 15.2107 20.0391 15.5858 20.4142C15.9609 20.7893 16.4696 21 17 21C17.5304 21 18.0391 20.7893 18.4142 20.4142C18.7893 20.0391 19 19.5304 19 19C19 18.4696 18.7893 17.9609 18.4142 17.5858C18.0391 17.2107 17.5304 17 17 17ZM9 19C9 19.5304 8.78929 20.0391 8.41421 20.4142C8.03914 20.7893 7.53043 21 7 21C6.46957 21 5.96086 20.7893 5.58579 20.4142C5.21071 20.0391 5 19.5304 5 19C5 18.4696 5.21071 17.9609 5.58579 17.5858C5.96086 17.2107 6.46957 17 7 17C7.53043 17 8.03914 17.2107 8.41421 17.5858C8.78929 17.9609 9 18.4696 9 19Z"
                             stroke="currentColor"
                             strokeWidth="2"
                             strokeLinecap="round"
@@ -522,15 +484,11 @@ const MobileCourseDetails = ({
                 <button
                   type="button"
                   onClick={handleSubscribe}
-                  disabled={
-                    isEnrollLoading ||
-                    round.capacity - round?.students_count <= 0
-                  }
-                  className="items-center justify-center gap-2.5 px-2.5 py-[18px] self-stretch w-full flex-[0_0_auto] bg-orange-500 rounded-[20px] flex relative cursor-pointer hover:bg-orange-600 transition-colors"
+                  disabled={round.capacity - round?.students_count <= 0}
+                  className="items-center justify-center gap-2.5 px-2.5 py-[18px] self-stretch w-full flex-[0_0_auto] bg-orange-500 rounded-[20px] flex relative cursor-pointer hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isEnrollLoading ? <div className="spinner" /> : null}
                   <span className="text-center justify-center text-slate-200 text-base font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
-                    {isEnrollLoading ? "جاري الاشتراك..." : "اشترك الأن"}
+                    اشترك الأن
                   </span>
                 </button>
               </div>
@@ -557,6 +515,14 @@ const MobileCourseDetails = ({
           </div>
         </div>
       )}
+
+      {/* ✅ Payment Modal */}
+      <CoursePaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        round={round}
+        user={user}
+      />
 
       <style jsx>{`
         .spinner {

@@ -157,10 +157,10 @@ export const MobileCartItem = ({ data, onRemove }) => {
                 className="cursor-pointer active:bg-red-200 rounded-full transition-colors"
               />
             </header>
-
+            {/* 
             <p className="self-stretch text-right justify-center text-alt text-sm font-normal line-clamp-2">
               {data.description}
-            </p>
+            </p> */}
           </div>
 
           <div className="flex flex-col items-start gap-3 relative self-stretch w-full">
