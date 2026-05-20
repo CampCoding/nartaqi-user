@@ -281,10 +281,23 @@ const generatePDFBlob = async (schedule) => {
   const nameAlign = "right";
 
   // ✅ تقسيم الجدول لأسابيع (كل 7 أيام = أسبوع)
-  const weeks = [];
-  for (let i = 0; i < schedule.length; i += 7) {
-    weeks.push(schedule.slice(i, i + 7));
+const weeks = [];
+let currentWeek = [];
+
+schedule.forEach((day) => {
+  currentWeek.push(day);
+  
+  // ✅ لو اليوم ده جمعة → اقفل الأسبوع وابدأ أسبوع جديد
+  if (day.dayName === "الجمعة") {
+    weeks.push(currentWeek);
+    currentWeek = [];
   }
+});
+
+// ✅ لو فضل أيام في الأسبوع الأخير (مفيش جمعة في الآخر)
+if (currentWeek.length > 0) {
+  weeks.push(currentWeek);
+}
 
   const weekNamesArabic = [
     "الأول",
