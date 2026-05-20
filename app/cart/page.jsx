@@ -16,6 +16,7 @@ import {
   clearCartLocally,
   rollbackCart,
   clearCartMessages,
+  checkStoreCoupon,
 } from "@/components/utils/Store/Slices/cartSlice";
 import LoadingPage from "@/components/shared/Loading";
 
@@ -31,6 +32,7 @@ const CartPage = () => {
   useEffect(() => {
     if (token) {
       dispatch(getUserCart());
+      dispatch(checkStoreCoupon());
     }
   }, [token, dispatch]);
 
@@ -43,10 +45,8 @@ const CartPage = () => {
     }
   }, [successMessage, error, dispatch]);
 
-  // ✅ Updated to handle type and item_id
   const handleRemoveItem = async (type, item_id) => {
     dispatch(removeItemLocally({ type, item_id }));
-
     try {
       await dispatch(removeFromCart({ type, item_id })).unwrap();
     } catch (error) {
@@ -56,7 +56,6 @@ const CartPage = () => {
 
   const handleDeleteAll = async () => {
     dispatch(clearCartLocally());
-
     try {
       await dispatch(deleteCart()).unwrap();
     } catch (error) {
@@ -64,7 +63,6 @@ const CartPage = () => {
     }
   };
 
-  // ✅ Helper to get item data based on type
   const getItemData = (item) => {
     switch (item.type) {
       case "rounds":
@@ -80,12 +78,10 @@ const CartPage = () => {
     }
   };
 
-  // ✅ Updated mapper to handle all types
   const mapCartItemToProps = (item) => {
     const itemData = getItemData(item);
     const isRound = item.type === "rounds";
 
-    // Common fields
     const baseProps = {
       id: item.id,
       type: item.type,
@@ -128,7 +124,6 @@ const CartPage = () => {
         tag: getTypeLabel(item.type),
         badge: getTypeLabel(item.type),
         store: true,
-
         category: itemData?.category?.name || "",
         stock: itemData?.stock || 0,
         title: itemData?.title,
@@ -136,7 +131,6 @@ const CartPage = () => {
     }
   };
 
-  // ✅ Get Arabic label for type
   const getTypeLabel = (type) => {
     const labels = {
       books: "كتاب",

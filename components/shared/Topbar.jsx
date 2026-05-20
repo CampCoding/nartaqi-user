@@ -29,6 +29,10 @@ export default function Header() {
   const accountItems = useMemo(
     () => [
       { key: "my-courses", label: "دوراتي" },
+      {
+        key: "my-books",
+        label: "كتبي",
+      },
       { key: "account", label: "حسابي" },
       { key: "progress", label: "معدل الإنجاز" },
       { type: "divider" },
@@ -45,6 +49,7 @@ export default function Header() {
 
   const onAccountMenuClick = ({ key }) => {
     if (key === "my-courses") return router.push("/my-courses");
+    if (key === "my-books") return router.push("/my-books");
     if (key === "account")
       return router.push(
         user?.type == "marketer" ? "/marketer-profile" : "/profile"

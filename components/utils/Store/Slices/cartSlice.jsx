@@ -213,6 +213,33 @@ export const checkCoupon = createAsyncThunk(
   }
 );
 
+// ==================== CHECK STORE COUPON ====================
+export const checkStoreCoupon = createAsyncThunk(
+  "cart/checkStoreCoupon",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+
+      const response = await axios.get(
+        `${BASE_URL}/user/store/hasStoreCoupon`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data.message; // { has_coupon: 1 }
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to check store coupon"
+      );
+    }
+  }
+);
+
 // ==================== PAY CART ====================
 export const payCart = createAsyncThunk(
   "cart/payCart",
@@ -274,7 +301,6 @@ export const createCourseInvoice = createAsyncThunk(
         ],
       };
 
-      // ✅ Add coupon data if applied
       if (couponCode && couponDiscount > 0) {
         payload.copounDiscount = Number(couponDiscount).toFixed(2);
         payload.copounData = { code: couponCode };
@@ -348,6 +374,7 @@ const initialState = {
   coupon: null,
   isCheckingCoupon: false,
   couponError: null,
+  hasStoreCoupon: false,
 
   // ✅ Payment state
   isPaying: false,
@@ -379,7 +406,6 @@ const cartSlice = createSlice({
         state.totalItems = totals.totalItems;
         state.totalPrice = totals.totalPrice;
 
-        // ✅ Invalidate coupon when cart changes
         if (state.coupon) {
           state.coupon = null;
           state.couponError = null;
@@ -398,7 +424,6 @@ const cartSlice = createSlice({
       state.totalItems = totals.totalItems;
       state.totalPrice = totals.totalPrice;
 
-      // ✅ Invalidate coupon when cart changes
       if (state.coupon) {
         state.coupon = null;
         state.couponError = null;
@@ -428,13 +453,11 @@ const cartSlice = createSlice({
       state.error = action.payload;
     },
 
-    // ✅ Coupon actions
     clearCoupon: (state) => {
       state.coupon = null;
       state.couponError = null;
     },
 
-    // ✅ Payment actions
     clearPayment: (state) => {
       state.paymentUrl = null;
       state.paymentError = null;
@@ -468,7 +491,7 @@ const cartSlice = createSlice({
         }
         state.error = null;
       })
-      .addCase(addToCart.fulfilled, (state, action) => {
+      .addCase(addToCart.fulfilled, (state) => {
         state.isAdding = false;
         state.successMessage = "تمت الإضافة للسلة بنجاح!";
       })
@@ -564,6 +587,14 @@ const cartSlice = createSlice({
         state.isCheckingCoupon = false;
         state.couponError = action.payload;
         state.coupon = null;
+      })
+
+      // ==================== CHECK STORE COUPON ====================
+      .addCase(checkStoreCoupon.fulfilled, (state, action) => {
+        state.hasStoreCoupon = action.payload?.has_coupon === 1;
+      })
+      .addCase(checkStoreCoupon.rejected, (state) => {
+        state.hasStoreCoupon = false;
       })
 
       // ==================== PAY CART ====================

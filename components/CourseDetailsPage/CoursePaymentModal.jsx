@@ -11,7 +11,7 @@ import {
   createCourseInvoice,
 } from "@/components/utils/Store/Slices/cartSlice";
 
-const CoursePaymentModal = ({ isOpen, onClose, round, user }) => {
+const CoursePaymentModal = ({ isOpen, onClose, round, user, hasCoupon }) => {
   const dispatch = useDispatch();
   const { coupon, isCheckingCoupon, couponError, isPaying } = useSelector(
     (state) => state.cart
@@ -212,56 +212,58 @@ const CoursePaymentModal = ({ isOpen, onClose, round, user }) => {
               </div>
             </div>
 
-            {/* Coupon Section */}
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-text">
-                كود الكوبون (اختياري)
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="ادخل كود الكوبون"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  disabled={!!coupon || isCheckingCoupon}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !coupon) {
-                      handleApplyCoupon();
-                    }
-                  }}
-                  className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-secondary outline-none text-sm font-semibold text-text disabled:bg-green-50 disabled:text-green-700 disabled:border-green-300 transition-colors"
-                />
-                {coupon ? (
-                  <button
-                    type="button"
-                    onClick={handleRemoveCoupon}
-                    className="px-5 py-3 bg-red-500 text-white text-sm font-bold rounded-xl hover:bg-red-600 transition-all active:scale-95"
-                  >
-                    إلغاء
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleApplyCoupon}
-                    disabled={isCheckingCoupon || !couponCode.trim()}
-                    className="px-5 py-3 bg-secondary text-white text-sm font-bold rounded-xl hover:opacity-90 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isCheckingCoupon ? "..." : "تطبيق"}
-                  </button>
-                )}
-              </div>
+ {/* Coupon Section */}
+{hasCoupon && (
+  <div className="space-y-2">
+    <label className="text-sm font-bold text-text">
+      كود الكوبون (اختياري)
+    </label>
+    <div className="flex gap-2">
+      <input
+        type="text"
+        placeholder="ادخل كود الكوبون"
+        value={couponCode}
+        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+        disabled={!!coupon || isCheckingCoupon}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !coupon) {
+            handleApplyCoupon();
+          }
+        }}
+        className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-secondary outline-none text-sm font-semibold text-text disabled:bg-green-50 disabled:text-green-700 disabled:border-green-300 transition-colors"
+      />
+      {coupon ? (
+        <button
+          type="button"
+          onClick={handleRemoveCoupon}
+          className="px-5 py-3 bg-red-500 text-white text-sm font-bold rounded-xl hover:bg-red-600 transition-all active:scale-95"
+        >
+          إلغاء
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={handleApplyCoupon}
+          disabled={isCheckingCoupon || !couponCode.trim()}
+          className="px-5 py-3 bg-secondary text-white text-sm font-bold rounded-xl hover:opacity-90 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isCheckingCoupon ? "..." : "تطبيق"}
+        </button>
+      )}
+    </div>
 
-              {coupon && (
-                <div className="text-green-600 text-xs font-medium flex items-center gap-1">
-                  ✓ تم تطبيق الكوبون: {coupon.coupon_code}
-                </div>
-              )}
-              {couponError && !coupon && (
-                <div className="text-red-500 text-xs font-medium">
-                  {couponError}
-                </div>
-              )}
-            </div>
+    {coupon && (
+      <div className="text-green-600 text-xs font-medium flex items-center gap-1">
+        ✓ تم تطبيق الكوبون: {coupon.coupon_code}
+      </div>
+    )}
+    {couponError && !coupon && (
+      <div className="text-red-500 text-xs font-medium">
+        {couponError}
+      </div>
+    )}
+  </div>
+)}
 
             {/* Price Summary */}
             <div className="space-y-3 p-4 bg-orange-50/50 border border-orange-100 rounded-2xl">

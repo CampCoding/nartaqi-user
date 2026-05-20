@@ -265,237 +265,286 @@ const StudyPlannerForm = () => {
     }
     return true;
   };
-  const generatePDFBlob = async (schedule) => {
-    const html2canvas = (await import("html2canvas")).default;
-    const jsPDF = (await import("jspdf")).default;
+const generatePDFBlob = async (schedule) => {
+  const html2canvas = (await import("html2canvas")).default;
+  const jsPDF = (await import("jspdf")).default;
 
-    const formatPhone = () => {
-      if (!formData.whatsappNumber) return "";
-      let num = formData.whatsappNumber.toString().trim();
-      if (num.startsWith("0")) num = num.substring(1);
-      return selectedCountry.code + num;
-    };
+  const formatPhone = () => {
+    if (!formData.whatsappNumber) return "";
+    let num = formData.whatsappNumber.toString().trim();
+    if (num.startsWith("0")) num = num.substring(1);
+    return selectedCountry.code + num;
+  };
 
-    const isArabicName = isArabicText(formData.firstName);
-    const nameDirection = isArabicName ? "rtl" : "ltr";
-    const nameAlign = isArabicName ? "right" : "right";
+  const isArabicName = isArabicText(formData.firstName);
+  const nameDirection = isArabicName ? "rtl" : "ltr";
+  const nameAlign = "right";
 
-    const container = document.createElement("div");
-    container.style.cssText = `
+  // ✅ تقسيم الجدول لأسابيع (كل 7 أيام = أسبوع)
+  const weeks = [];
+  for (let i = 0; i < schedule.length; i += 7) {
+    weeks.push(schedule.slice(i, i + 7));
+  }
+
+  const weekNamesArabic = [
+    "الأول",
+    "الثاني",
+    "الثالث",
+    "الرابع",
+    "الخامس",
+    "السادس",
+    "السابع",
+    "الثامن",
+    "التاسع",
+    "العاشر",
+    "الحادي عشر",
+    "الثاني عشر",
+    "الثالث عشر",
+    "الرابع عشر",
+    "الخامس عشر",
+    "السادس عشر",
+    "السابع عشر",
+    "الثامن عشر",
+    "التاسع عشر",
+    "العشرين",
+  ];
+
+  const container = document.createElement("div");
+  container.style.cssText = `
     position: absolute;
     top: -9999px;
     left: 0;
     width: 800px;
     font-family: 'Arial', sans-serif;
     direction: rtl;
-    background-color: #F0F4F8;
+    background-color: #ffffff;
   `;
 
-    const watermarkCount = Math.max(2, Math.ceil(schedule.length / 8) + 1);
-    const watermarks = Array(watermarkCount)
-      .fill(0)
-      .map(
-        () => `
-      <img src="/images/logo.svg" style="width:500px; margin-bottom:400px; opacity:0.08; display:block;" crossorigin="anonymous"/>
+  const watermarkCount = Math.max(2, Math.ceil(schedule.length / 8) + 1);
+  const watermarks = Array(watermarkCount)
+    .fill(0)
+    .map(
+      () => `
+      <img src="/images/logo.svg" style="width:500px; margin-bottom:400px; opacity:0.06; display:block;" crossorigin="anonymous"/>
     `
-      )
-      .join("");
+    )
+    .join("");
 
-    const tableHeaderStyle = `
-    background: linear-gradient(to left, #73CDEA, #1F73C9);
-    color: white;
+  // ✅ ستايلات الجدول
+  const weekTitleStyle = `
+    background-color: #D6EBFA;
+    color: #1F73C9;
     font-weight: bold;
     font-size: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 60px;
-    border-radius: 30px 0 0 0;
+    text-align: center;
+    padding: 14px 0;
+    border-radius: 4px;
+    margin-bottom: 0 !important;
   `;
 
-    const tableRowStyle = `
-    background-color: #cde6ffa1;
-    height: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  // ✅ تغيير: لون فاتح زي الأسبوع
+  const headerCellStyle = `
+    background-color: #2370B7;
+    color: #fff;
     font-weight: bold;
+    font-size: 18px;
+    padding: 8px 8px;
+    text-align: center;
+    border: 1px solid #2E8BC9;
+  `;
+
+  const dataCellStyle = `
+    background-color: #ffffff;
     color: #1D3A5F;
-    font-size: 18px;
-    margin-bottom: 4px;
-    border-radius: 6px;
-  `;
-
-    // ✅ ستايل خاص بصفوف الراحة
-    const restRowStyle = `
-    background-color: #E5E7EB;
-    height: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-weight: bold;
-    color: #6B7280;
-    font-size: 18px;
-    margin-bottom: 4px;
-    border-radius: 6px;
-    position: relative;
-    overflow: hidden;
-    opacity: 0.75;
+    font-size: 16px;
+    padding: 8px 8px;
+    text-align: center;
+    border: 1px solid #2E8BC9;
+    height: 45px;
   `;
 
-    container.innerHTML = `
-    <div style="position: relative; width: 800px; background-color: #F0F4F8; padding-bottom: 60px;">
+  // ✅ نفس لون الأسبوع
+  const restCellStyle = `
+    background-color: #D6EBFA;
+    color: #1F73C9;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid #2E8BC9;
+    height: 45px;
+  `;
+
+  const checkboxHTML = `<div style="width:22px;height:22px;border:2px solid #C9C9C9;background:white;border-radius:5px;margin:0 auto;"></div>`;
+
+  // ✅ بناء جدول لكل أسبوع
+  const buildWeekTable = (weekDays, weekIndex) => {
+    const weekTitle = weekNamesArabic[weekIndex] || `${weekIndex + 1}`;
+
+    const rows = weekDays
+      .map((d) => {
+        if (d.isRestDay) {
+          // ✅ صف الراحة كله بنفس اللون + كلمة راحة بشرطات
+          return `
+            <tr>
+              <td style="${restCellStyle}">${d.dayName}</td>
+              <td colspan="2" style="${restCellStyle}">
+                <span style="display:inline-flex; align-items:center; gap:8px; justify-content:center;">
+                  <span>راحـــــــــــــــــــــــــــــــــــــــــــــــــة</span>
+                </span>
+              </td>
+              <td style="${restCellStyle}"></td>
+              <td style="${restCellStyle}"></td>
+            </tr>
+          `;
+        }
+        return `
+          <tr>
+            <td style="${dataCellStyle}">${d.dayName}</td>
+            <td style="${dataCellStyle}">${d.date}</td>
+            <td style="${dataCellStyle}">من ${d.startPage} إلى ${d.endPage}</td>
+            <td style="${dataCellStyle}">${checkboxHTML}</td>
+            <td style="${dataCellStyle}">${checkboxHTML}</td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    return `
+      <div style="margin-bottom: 30px; position: relative; z-index: 2;">
+        <div style="${weekTitleStyle}">الأسبوع ${weekTitle}</div>
+        <table style="width:100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="${headerCellStyle}; width: 22%;">اليوم</th>
+              <th style="${headerCellStyle}; width: 22%;">التاريخ</th>
+              <th style="${headerCellStyle}; width: 30%;">عدد الصفحات</th>
+              <th style="${headerCellStyle}; width: 13%;">تم</th>
+              <th style="${headerCellStyle}; width: 13%;">لم يتم</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+      </div>
+    `;
+  };
+
+  const weeksHTML = weeks.map((w, i) => buildWeekTable(w, i)).join("");
+
+  container.innerHTML = `
+    <div style="position: relative; width: 800px; background-color: #ffffff; padding-bottom: 50px;">
       
       <!-- Watermarks -->
-      <div style="position: absolute; top: 250px; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: none; display: flex; flex-direction: column; align-items: center;">
+      <div style="position: absolute; top: 250px; left: 50%; transform: translateX(-50%); z-index: 1; pointer-events: none; display: flex; flex-direction: column; align-items: center;">
         ${watermarks}
       </div>
 
       <!-- Header -->
-      <div style="height: 150px; background: linear-gradient(to right, #73CDEA, #1F73C9); display: flex; justify-content: space-between; align-items: center; padding: 0 40px; position: relative; z-index: 2;">
-        <div style="display: flex; flex-direction: column; align-items: center;">
+      <div style="height: 170px; background: linear-gradient(to right, #73CDEA, #1F73C9); display: flex; justify-content: space-between; align-items: center; padding: 0 40px; position: relative; z-index: 2;">
+        
+        <!-- Left: Student Image Circle -->
+        <div style="width: 130px; height: 130px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
           <img src="https://res.cloudinary.com/dbvh5i83q/image/upload/v1775902080/eeaf2477-0e69-4093-afe5-7cc2b948b192_enqxcm.png" style="width: 100px; filter: brightness(0) invert(1);" crossorigin="anonymous"/>
         </div>
-        <h1 style="color: white; font-size: 42px; font-weight: bold; margin:0;">نرتقي نحو التفوق</h1>
+
+        <!-- Center Title -->
+        <h1 style="color: white; font-size: 44px; font-weight: bold; margin: 0; flex: 1; text-align: center;">نرتقي نحو التفوق</h1>
+
+        <!-- Right: Nartaqi Logo -->
+        <div style="width: 130px; height: 130px; display: flex; align-items: center; justify-content: center;">
+          <img src="https://res.cloudinary.com/dbvh5i83q/image/upload/v1775902080/eeaf2477-0e69-4093-afe5-7cc2b948b192_enqxcm.png" style="width: 110px; filter: brightness(0) invert(1);" crossorigin="anonymous"/>
+        </div>
       </div>
 
       <!-- Info Section -->
-      <div style="padding: 40px 60px 20px; display: flex; flex-direction: column; gap: 18px; position: relative; z-index:2;">
-        <div style="display: flex; align-items: center; font-size: 26px; color: #1D3A5F; font-weight: bold;">
+      <div style="padding: 35px 60px 15px; display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 2;">
+        <div style="display: flex; align-items: center; font-size: 24px; color: #1D3A5F; font-weight: bold;">
           <span style="white-space: nowrap;">الاســـــــــــــــــم:</span>
-          <div style="flex:1; border-bottom:2px dotted #2E8BC9; margin-right:15px; color:#1D3A5F; padding-bottom:2px; direction:${nameDirection}; text-align:${nameAlign}; min-height:35px;">${formData.firstName}</div>
+          <div style="flex:1; border-bottom:2px dotted #2E8BC9; margin-right:15px; color:#1D3A5F; padding-bottom:4px; direction:${nameDirection}; text-align:${nameAlign}; min-height:32px;">${formData.firstName}</div>
         </div>
-        <div style="display: flex; align-items: center; font-size: 26px; color: #1D3A5F; font-weight: bold;">
+        <div style="display: flex; align-items: center; font-size: 24px; color: #1D3A5F; font-weight: bold;">
           <span style="white-space: nowrap;">رقم الجــــــــوال:</span>
-          <div style="flex:1; border-bottom:2px dotted #2E8BC9; margin-right:15px; color:#1D3A5F; padding-bottom:2px; direction: ltr; text-align: right; min-height:35px;">${formatPhone()}</div>
+          <div style="flex:1; border-bottom:2px dotted #2E8BC9; margin-right:15px; color:#1D3A5F; padding-bottom:4px; direction: ltr; text-align: right; min-height:32px;">${formatPhone()}</div>
         </div>
-        <div style="display: flex; align-items: center; font-size: 26px; color: #1D3A5F; font-weight: bold;">
+        <div style="display: flex; align-items: center; font-size: 24px; color: #1D3A5F; font-weight: bold;">
           <span style="white-space: nowrap;">المادة/الامتحان:</span>
-          <div style="flex:1; border-bottom:2px dotted #2E8BC9; margin-right:15px; color:#1D3A5F; padding-bottom:2px; min-height:35px;">${formData.examTitle}</div>
+          <div style="flex:1; border-bottom:2px dotted #2E8BC9; margin-right:15px; color:#1D3A5F; padding-bottom:4px; min-height:32px;">${formData.examTitle}</div>
         </div>
       </div>
 
-      <div style="text-align: center; color: #4b5563; font-size: 20px; margin: 20px 0; font-weight: 500; position: relative; z-index:2;">
+      <!-- Subtitle -->
+      <div style="text-align: center; color: #4b5563; font-size: 18px; margin: 25px 0 30px; font-weight: 500; position: relative; z-index: 2;">
         « اطبع الجدول وضعه أمامك وحدد ما تم وما لم يتم »
       </div>
 
-      <!-- Schedule Table -->
-      <div style="padding: 0 40px; position: relative; z-index:2;">
-        <div style="display: flex; gap: 12px;">
-          
-          <!-- عمود اليوم / التاريخ -->
-          <div style="flex: 2.2;">
-            <div style="${tableHeaderStyle}">اليوم / التاريخ</div>
-            <div style="margin-top:5px;">
-              ${schedule
-                .map(
-                  (d) => `
-                <div style="${d.isRestDay ? restRowStyle : tableRowStyle}">
-                  <span style="${d.isRestDay ? "" : ""}">${d.dayName} ${d.date}</span>
-                </div>
-              `
-                )
-                .join("")}
-            </div>
-          </div>
-
-          <!-- عمود الصفحات -->
-          <div style="flex:2.8;">
-            <div style="${tableHeaderStyle}">الصفحات</div>
-            <div style="margin-top:5px;">
-              ${schedule
-                .map(
-                  (d) => `
-                <div style="${d.isRestDay ? restRowStyle : tableRowStyle}">
-                  <span style="${d.isRestDay ? "font-size: 22px;" : ""}">
-                    ${d.isRestDay ? "راحـــــــــــــــــــــة" : `صـ ${d.startPage} إلى صـ ${d.endPage}`}
-                  </span>
-                </div>
-              `
-                )
-                .join("")}
-            </div>
-          </div>
-
-          <!-- عمود تم -->
-          <div style="flex:0.9;">
-            <div style="${tableHeaderStyle}">تم</div>
-            <div style="margin-top:5px;">
-              ${schedule
-                .map(
-                  (d) => `
-                <div style="${d.isRestDay ? restRowStyle : tableRowStyle}">
-                  ${d.isRestDay ? "" : '<div style="width:30px;height:30px;border:2.5px solid #2E8BC9;background:white;border-radius:6px;"></div>'}
-                </div>
-              `
-                )
-                .join("")}
-            </div>
-          </div>
-
-          <!-- عمود لا يتم -->
-          <div style="flex:0.9;">
-            <div style="${tableHeaderStyle}">لا يتم</div>
-            <div style="margin-top:5px;">
-              ${schedule
-                .map(
-                  (d) => `
-                <div style="${d.isRestDay ? restRowStyle : tableRowStyle}">
-                  ${d.isRestDay ? "" : '<div style="width:30px;height:30px;border:2.5px solid #2E8BC9;background:white;border-radius:6px;"></div>'}
-                </div>
-              `
-                )
-                .join("")}
-            </div>
-          </div>
-
-        </div>
+      <!-- Weeks Tables -->
+      <div style="padding: 0 40px; position: relative; z-index: 2;">
+        ${weeksHTML}
       </div>
 
-      <div style="margin-top:50px; text-align:center; color:#1D3A5F; font-weight:900; font-size:28px; position: relative; z-index:2;">
+      <!-- Footer Quote -->
+      <div style="margin-top: 40px; text-align: center; color: #1D3A5F; font-weight: 900; font-size: 28px; position: relative; z-index: 2;">
         التزامك اليوم هو تفوقك غداً
       </div>
     </div>
   `;
 
-    document.body.appendChild(container);
+  document.body.appendChild(container);
 
-    try {
-      const images = container.querySelectorAll("img");
-      await Promise.all(
-        Array.from(images).map(
-          (img) =>
-            new Promise((r) =>
-              img.complete ? r() : ((img.onload = r), (img.onerror = r))
-            )
-        )
-      );
+  try {
+    const images = container.querySelectorAll("img");
+    await Promise.all(
+      Array.from(images).map(
+        (img) =>
+          new Promise((r) =>
+            img.complete ? r() : ((img.onload = r), (img.onerror = r))
+          )
+      )
+    );
 
-      await new Promise((r) => setTimeout(r, 1200));
+    await new Promise((r) => setTimeout(r, 1200));
 
-      const canvas = await html2canvas(container, {
-        scale: 1.5,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#F0F4F8",
-      });
+    const canvas = await html2canvas(container, {
+      scale: 1.5,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#ffffff",
+    });
 
-      const imgData = canvas.toDataURL("image/jpeg", 0.7);
+    const imgData = canvas.toDataURL("image/jpeg", 0.75);
 
-      const pdf = new jsPDF({
-        orientation: "p",
-        unit: "mm",
-        format: "a4",
-        compress: true,
-      });
+    const pdf = new jsPDF({
+      orientation: "p",
+      unit: "mm",
+      format: "a4",
+      compress: true,
+    });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidthMM = pageWidth;
-      const imgHeightMM = (canvas.height * pageWidth) / canvas.width;
-      let heightLeft = imgHeightMM;
-      let position = 0;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgWidthMM = pageWidth;
+    const imgHeightMM = (canvas.height * pageWidth) / canvas.width;
+    let heightLeft = imgHeightMM;
+    let position = 0;
 
+    pdf.addImage(
+      imgData,
+      "JPEG",
+      0,
+      position,
+      imgWidthMM,
+      imgHeightMM,
+      undefined,
+      "FAST"
+    );
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeightMM;
+      pdf.addPage();
       pdf.addImage(
         imgData,
         "JPEG",
@@ -507,32 +556,16 @@ const StudyPlannerForm = () => {
         "FAST"
       );
       heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeightMM;
-        pdf.addPage();
-        pdf.addImage(
-          imgData,
-          "JPEG",
-          0,
-          position,
-          imgWidthMM,
-          imgHeightMM,
-          undefined,
-          "FAST"
-        );
-        heightLeft -= pageHeight;
-      }
-
-      document.body.removeChild(container);
-      return pdf;
-    } catch (err) {
-      if (document.body.contains(container))
-        document.body.removeChild(container);
-      throw err;
     }
-  };
 
+    document.body.removeChild(container);
+    return pdf;
+  } catch (err) {
+    if (document.body.contains(container))
+      document.body.removeChild(container);
+    throw err;
+  }
+};
   // Download PDF locally
   const handleDownloadPDF = async () => {
     if (!validateForm()) return;

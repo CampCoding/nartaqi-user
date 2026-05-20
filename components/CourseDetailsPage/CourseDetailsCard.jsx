@@ -283,7 +283,7 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
 
           <div className="mt-4 mb-4 sm:mb-5 w-full inline-flex justify-end items-center gap-3 sm:gap-4">
             {/* Cart Button */}
-            <button
+            {/* <button
               type="button"
               onClick={handleToggleCart}
               disabled={isCartLoading}
@@ -346,7 +346,7 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
                   </span>
                 </>
               )}
-            </button>
+            </button> */}
 
             {/* Favorite Button */}
             <button
@@ -442,6 +442,8 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
         onClose={() => setIsPaymentModalOpen(false)}
         round={round}
         user={user}
+          hasCoupon={courseData?.has_coupon == 1}
+
       />
     </>
   );

@@ -22,6 +22,7 @@ const CardSummery = () => {
     isCheckingCoupon,
     couponError,
     isPaying,
+    hasStoreCoupon,
   } = useSelector((state) => state.cart);
 
   const [couponCode, setCouponCode] = useState("");
@@ -35,7 +36,7 @@ const CardSummery = () => {
     }
   }, [coupon]);
 
-  // ✅ Apply coupon - always with target: "store" in cart
+  // ✅ Apply coupon
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       toast.error("ادخل كود الكوبون");
@@ -177,62 +178,66 @@ const CardSummery = () => {
           </div>
         </div>
 
-        {/* ✅ Coupon input */}
-        <div className="self-stretch flex flex-col justify-center items-start gap-1.5">
-          <div className="self-stretch text-right text-text text-xs font-bold">
-            إضافة كوبون
-          </div>
-          <div className="self-stretch inline-flex justify-start items-center gap-3">
-            <div className="flex-1 px-2 py-2 bg-white rounded-[10px] outline outline-1 outline-offset-[-1px] outline-zinc-500 flex justify-end items-center gap-3">
-              <input
-                placeholder="كود كوبون"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                disabled={!!coupon || isCheckingCoupon}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !coupon) {
-                    handleApplyCoupon();
-                  }
-                }}
-                className="placeholder:text-sup-title w-full text-right text-text-alt text-[10px] font-bold disabled:bg-gray-100 disabled:text-green-700 outline-none"
-              />
+        {/* ✅ Coupon Section - only if hasStoreCoupon */}
+        {hasStoreCoupon && (
+          <div className="self-stretch flex flex-col justify-center items-start gap-1.5">
+            <div className="self-stretch text-right text-text text-xs font-bold">
+              إضافة كوبون
             </div>
-            {coupon ? (
-              <button
-                onClick={handleRemoveCoupon}
-                className="self-stretch cursor-pointer hover:scale-105 transition-all px-5 py-2 bg-red-500 rounded-[10px] flex justify-end items-center gap-2.5"
-              >
-                <div className="text-right text-white text-[11px] font-bold whitespace-nowrap">
-                  إلغاء
-                </div>
-              </button>
-            ) : (
-              <button
-                onClick={handleApplyCoupon}
-                disabled={
-                  isCheckingCoupon || !couponCode.trim() || totalItems === 0
-                }
-                className="self-stretch cursor-pointer hover:scale-105 transition-all px-5 py-2 bg-secondary rounded-[10px] flex justify-end items-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div className="text-right text-white text-[11px] font-bold whitespace-nowrap">
-                  {isCheckingCoupon ? "..." : "إستخدام"}
-                </div>
-              </button>
+            <div className="self-stretch inline-flex justify-start items-center gap-3">
+              <div className="flex-1 px-2 py-2 bg-white rounded-[10px] outline outline-1 outline-offset-[-1px] outline-zinc-500 flex justify-end items-center gap-3">
+                <input
+                  placeholder="كود كوبون"
+                  value={couponCode}
+                  onChange={(e) =>
+                    setCouponCode(e.target.value.toUpperCase())
+                  }
+                  disabled={!!coupon || isCheckingCoupon}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !coupon) {
+                      handleApplyCoupon();
+                    }
+                  }}
+                  className="placeholder:text-sup-title w-full text-right text-text-alt text-[10px] font-bold disabled:bg-gray-100 disabled:text-green-700 outline-none"
+                />
+              </div>
+              {coupon ? (
+                <button
+                  onClick={handleRemoveCoupon}
+                  className="self-stretch cursor-pointer hover:scale-105 transition-all px-5 py-2 bg-red-500 rounded-[10px] flex justify-end items-center gap-2.5"
+                >
+                  <div className="text-right text-white text-[11px] font-bold whitespace-nowrap">
+                    إلغاء
+                  </div>
+                </button>
+              ) : (
+                <button
+                  onClick={handleApplyCoupon}
+                  disabled={
+                    isCheckingCoupon || !couponCode.trim() || totalItems === 0
+                  }
+                  className="self-stretch cursor-pointer hover:scale-105 transition-all px-5 py-2 bg-secondary rounded-[10px] flex justify-end items-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="text-right text-white text-[11px] font-bold whitespace-nowrap">
+                    {isCheckingCoupon ? "..." : "إستخدام"}
+                  </div>
+                </button>
+              )}
+            </div>
+
+            {/* Coupon messages */}
+            {coupon && (
+              <div className="text-green-600 text-xs font-medium">
+                ✓ تم تطبيق الكوبون بنجاح
+              </div>
+            )}
+            {couponError && !coupon && (
+              <div className="text-red-500 text-xs font-medium">
+                {couponError}
+              </div>
             )}
           </div>
-
-          {/* Coupon messages */}
-          {coupon && (
-            <div className="text-green-600 text-xs font-medium">
-              ✓ تم تطبيق الكوبون بنجاح
-            </div>
-          )}
-          {couponError && !coupon && (
-            <div className="text-red-500 text-xs font-medium">
-              {couponError}
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
       {/* ✅ Pay button */}
