@@ -132,7 +132,7 @@ const CoursePaymentModal = ({ isOpen, onClose, round, user, hasCoupon }) => {
     if (coupon.discount_type === "percentage") {
       return `${parseFloat(coupon.discount_value)}%`;
     }
-    return `${parseFloat(coupon.discount_value).toFixed(2)} ج.م`;
+    return `${parseFloat(coupon.discount_value).toFixed(2)} ر.س`;
   };
 
   // ✅ Don't render anything if not mounted or not open
@@ -270,7 +270,7 @@ const CoursePaymentModal = ({ isOpen, onClose, round, user, hasCoupon }) => {
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600 font-semibold">سعر الدورة</span>
                 <span className="font-bold text-text">
-                  {originalPrice.toFixed(2)} ج.م
+                  {originalPrice.toFixed(2)} ر.س
                 </span>
               </div>
 
@@ -283,7 +283,7 @@ const CoursePaymentModal = ({ isOpen, onClose, round, user, hasCoupon }) => {
                     </span>
                   </span>
                   <span className="font-bold text-red-500">
-                    - {discountAmount.toFixed(2)} ج.م
+                    - {discountAmount.toFixed(2)} ر.س
                   </span>
                 </div>
               )}
@@ -293,7 +293,7 @@ const CoursePaymentModal = ({ isOpen, onClose, round, user, hasCoupon }) => {
                   المجموع النهائي
                 </span>
                 <span className="text-2xl font-bold text-secondary">
-                  {finalPrice.toFixed(2)} ج.م
+                  {finalPrice.toFixed(2)} ر.س
                 </span>
               </div>
             </div>
@@ -311,7 +311,7 @@ const CoursePaymentModal = ({ isOpen, onClose, round, user, hasCoupon }) => {
                   <span>جارٍ التحويل لصفحة الدفع...</span>
                 </>
               ) : (
-                <span>ادفع الآن ({finalPrice.toFixed(2)} ج.م)</span>
+                <span>ادفع الآن ({finalPrice.toFixed(2)} ر.س)</span>
               )}
             </button>
 

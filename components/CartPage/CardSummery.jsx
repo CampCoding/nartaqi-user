@@ -102,7 +102,7 @@ const CardSummery = () => {
     if (coupon.discount_type === "percentage") {
       return `${parseFloat(coupon.discount_value)}%`;
     }
-    return `${parseFloat(coupon.discount_value).toFixed(2)} ج.م`;
+    return `${parseFloat(coupon.discount_value).toFixed(2)} ر.س`;
   };
 
   return (
@@ -138,7 +138,7 @@ const CardSummery = () => {
               {isLoading ? (
                 <span className="animate-pulse">...</span>
               ) : (
-                `${originalPrice.toFixed(2)} ج.م`
+                `${originalPrice.toFixed(2)} ر.س`
               )}
             </div>
           </div>
@@ -155,7 +155,7 @@ const CardSummery = () => {
                 </span>
               </div>
               <div className="text-right text-secondary text-sm font-bold">
-                - {discountAmount.toFixed(2)} ج.م
+                - {discountAmount.toFixed(2)} ر.س
               </div>
             </div>
             <div className="text-[10px] text-green-600 font-medium">
@@ -173,7 +173,7 @@ const CardSummery = () => {
             {isLoading ? (
               <span className="animate-pulse">...</span>
             ) : (
-              `${finalTotal.toFixed(2)} ج.م`
+              `${finalTotal.toFixed(2)} ر.س`
             )}
           </div>
         </div>
@@ -257,7 +257,7 @@ const CardSummery = () => {
           </div>
         ) : (
           <div className="text-right text-white text-sm font-bold">
-            دفع {finalTotal > 0 && `(${finalTotal.toFixed(2)} ج.م)`}
+            دفع {finalTotal > 0 && `(${finalTotal.toFixed(2)} ر.س)`}
           </div>
         )}
       </button>

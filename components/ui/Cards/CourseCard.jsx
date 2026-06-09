@@ -304,7 +304,7 @@ const CourseCard = ({
 
                 {!isFree && (
                   <div className="flex justify-center hover:bg-secondary hover:text-white transition-all cursor-default items-center bg-secondary-light px-3 py-1 rounded-lg whitespace-nowrap">
-                    {toNum(payload?.price, 0)} ج.م{" "}
+                    {toNum(payload?.price, 0)} ر.س{" "}
                   </div>
                 )}
               </div>

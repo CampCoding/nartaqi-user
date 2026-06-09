@@ -272,7 +272,7 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
         <div className="pt-3 sm:pt-4 pb-8 sm:pb-10">
           <div className="self-stretch inline-flex justify-end items-end gap-3 sm:gap-4 mt-1">
             <div className="justify-center text-primary text-xl sm:text-2xl font-bold">
-              {round.price} ج.م
+              {round.price} ر.س
             </div>
             {round.show_round_book == "1" && (
               <div className="justify-center text-text text-[11px] sm:text-xs font-medium">
@@ -401,7 +401,7 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
             className="w-full px-3.5 py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group disabled:!bg-gray-300 disabled:!cursor-not-allowed bg-secondary hover:bg-secondary-warm focus:bg-primary"
           >
             <span className="text-center justify-center text-slate-200 text-xs sm:text-[13px] font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
-              اشترك الآن - {round.price} ج.م
+              اشترك الآن - {round.price} ر.س
             </span>
           </button>
 

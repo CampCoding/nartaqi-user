@@ -523,10 +523,10 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
               <div
                 className="inline-flex h-6 items-center relative flex-[0_0_auto]"
                 role="text"
-                aria-label={`السعر: ${formatPrice(data.price)} جنيه مصري`}
+                aria-label={`السعر: ${formatPrice(data.price)} ريال سعودي`}
               >
                 <span className="self-stretch w-fit text-text font-bold text-lg text-left leading-6 whitespace-nowrap relative">
-                  {formatPrice(data.price)} ج.م
+                  {formatPrice(data.price)} ر.س
                 </span>
               </div>
             </div>
@@ -644,7 +644,7 @@ export const ProductCard = ({ data, getCategoryLabel }) => {
               <div className="flex items-center justify-between mb-4 p-3 bg-primary-light rounded-[10px]">
                 <span className="text-text-alt font-medium">السعر:</span>
                 <span className="text-primary font-bold text-xl">
-                  {formatPrice(data.price)} ج.م
+                  {formatPrice(data.price)} ر.س
                 </span>
               </div>
 

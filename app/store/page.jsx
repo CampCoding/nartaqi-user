@@ -639,7 +639,7 @@ export const PriceRange = ({ priceRange, onPriceCommit, maxPrice }) => {
         <h2 id="price-range-title" className="font-bold text-primary text-2xl">
           النطاق السعري
           <span className="text-text-alt text-base mx-3">
-            ({Math.round(localValue)} ج.م)
+            ({Math.round(localValue)} ر.س)
           </span>
         </h2>
       </div>
@@ -654,7 +654,7 @@ export const PriceRange = ({ priceRange, onPriceCommit, maxPrice }) => {
           aria-valuemin="0"
           aria-valuemax={maxValue}
           aria-valuenow={Math.round(localValue)}
-          aria-label={`النطاق السعري: ${Math.round(localValue)} جنيه مصري`}
+          aria-label={`النطاق السعري: ${Math.round(localValue)} ريال سعودي`}
           tabIndex="0"
           onKeyDown={handleSliderKeyDown}
           onKeyUp={handleSliderKeyUp}
@@ -684,9 +684,9 @@ export const PriceRange = ({ priceRange, onPriceCommit, maxPrice }) => {
       </div>
 
       <div className="flex w-[280px] h-5 items-start justify-between">
-        <span className="text-text-alt text-sm">0 ج.م</span>
+        <span className="text-text-alt text-sm">0 ر.س</span>
         <span className="text-text-alt text-sm">
-          {Math.round(maxValue)} ج.م
+          {Math.round(maxValue)} ر.س
         </span>
       </div>
     </div>

@@ -296,7 +296,7 @@ const CartItem = ({ data, onRemove }) => {
           {/* Price & Remove Button */}
           <div className="w-full px-4 md:px-0 md:w-36 md:self-stretch md:pl-4 flex flex-row-reverse md:flex-col justify-between items-center">
             <div className="self-stretch text-right md:text-center justify-center text-primary text-2xl font-bold">
-              {(data.price * quantity).toFixed(2)} ج.م
+              {(data.price * quantity).toFixed(2)} ر.س
             </div>
             <button
               onClick={onRemove}

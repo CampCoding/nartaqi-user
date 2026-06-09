@@ -242,7 +242,7 @@ export const MobileCartItem = ({ data, onRemove }) => {
                 </div>
               )}
               <div className="font-bold text-blue-500 text-base">
-                {(data.price * quantity).toFixed(2)} ج.م
+                {(data.price * quantity).toFixed(2)} ر.س
               </div>
             </footer>
           </div>
