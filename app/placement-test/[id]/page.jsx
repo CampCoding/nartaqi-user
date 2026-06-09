@@ -1,13 +1,9 @@
-// app/placement-test/[id]/page.jsx
+import Content from './_Content';
 
-import { Suspense } from "react";
-import PlacementTestContent from "./PlacementTestContent";
-import { LoadingView } from "./_components";
+export function generateStaticParams() {
+  return [{ id: '1' }];
+}
 
-export default function PlacementTestPage() {
-  return (
-    <Suspense fallback={<LoadingView />}>
-      <PlacementTestContent />
-    </Suspense>
-  );
+export default function Page() {
+  return <Content />;
 }

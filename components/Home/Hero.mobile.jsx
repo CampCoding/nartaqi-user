@@ -2,16 +2,22 @@
 
 import React, { useRef, useState } from "react";
 import Container from "../ui/Container";
-// import frame1 from "./frame-1.svg";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Play } from "lucide-react";
 
-export const MobileHero = () => {
+const FALLBACK_BG = "/images/Header, hero 9.png";
+
+export const MobileHero = ({ banners = [], videoUrl = null }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+
+  const getBg = (idx) => {
+    if (!banners || banners.length === 0) return FALLBACK_BG;
+    return banners[idx % banners.length]?.image_url || FALLBACK_BG;
+  };
 
   const slides = [
     {
@@ -58,7 +64,6 @@ export const MobileHero = () => {
 
   const swiperRef = useRef(null);
 
-  // Handler for the "اكتشف المزيد" button to go to next slide
   const handleDiscoverMore = () => {
     if (
       swiperRef.current &&
@@ -99,15 +104,14 @@ export const MobileHero = () => {
             loop
             pagination={{
               clickable: true,
-              el: ".custom-pagination", // نربطها بعنصر خارجي
+              el: ".custom-pagination",
             }}
-            // style={{ width: "100%", height: "100%" }}
           >
             {/* Creative video slide with CTA */}
             <SwiperSlide className="w-full">
               <article
                 style={{
-                  backgroundImage: "url('/images/Header, hero 9.png')",
+                  backgroundImage: `url('${getBg(0)}')`,
                   backgroundSize: "cover",
                   backgroundPosition: "50% 30%",
                   backgroundRepeat: "no-repeat",
@@ -117,7 +121,6 @@ export const MobileHero = () => {
                 className="flex flex-col w-full h-[148px] items-start gap-2.5 p-4 relative rounded-[25px] overflow-hidden bg-[linear-gradient(270deg,rgba(21,46,86,0.9)_0%,rgba(0,0,0,0.45)_100%)]"
                 aria-label="شريحة فيديو تعريفية"
               >
-                {/* Decorative blobs */}
                 <div className="absolute -top-10 -left-10 w-24 h-24 bg-secondary/30 blur-2xl rounded-full" />
                 <div className="absolute -bottom-12 -right-12 w-28 h-28 bg-primary/30 blur-2xl rounded-full" />
 
@@ -135,7 +138,6 @@ export const MobileHero = () => {
                       aria-label="مشاهدة الفيديو"
                       className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-[16px] bg-gradient-to-r from-primary to-secondary text-white text-sm font-bold shadow-md active:scale-95 transition"
                     >
-                      {/* Play icon */}
                       <button
                         onClick={openVideo}
                         aria-label="تشغيل الفيديو"
@@ -150,16 +152,15 @@ export const MobileHero = () => {
                     </button>
                   </div>
                 </div>
-
-                {/* Center floating play button with ripple */}
               </article>
             </SwiperSlide>
+
             {slides.map((slide, index) => {
               return (
                 <SwiperSlide key={index} className="w-full">
                   <article
                     style={{
-                      backgroundImage: "url('/images/Header, hero 9.png')",
+                      backgroundImage: `url('${getBg(index + 1)}')`,
                       backgroundSize: "cover",
                       backgroundPosition: "50% 30%",
                       backgroundRepeat: "no-repeat",
@@ -221,13 +222,23 @@ export const MobileHero = () => {
               </svg>
             </button>
             <div className="relative" style={{ paddingTop: "56.25%" }}>
-              <iframe
-                className="absolute inset-0 w-full h-full"
-                src="https://www.youtube.com/embed/jmVflHiAEV4?autoplay=1&rel=0"
-                title="Intro video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
+              {videoUrl ? (
+                <video
+                  className="absolute inset-0 w-full h-full"
+                  src={videoUrl}
+                  autoPlay
+                  controls
+                  title="Intro video"
+                />
+              ) : (
+                <iframe
+                  className="absolute inset-0 w-full h-full"
+                  src="https://www.youtube.com/embed/jmVflHiAEV4?autoplay=1&rel=0"
+                  title="Intro video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              )}
             </div>
           </div>
         </div>

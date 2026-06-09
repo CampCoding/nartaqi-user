@@ -3,17 +3,23 @@
 import React, { useRef, useState } from "react";
 import { HomeBannerArrowLeft } from "../../public/svgs";
 import { Swiper, SwiperSlide } from "swiper/react";
-import SwiperCore from "swiper";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import Container from "../ui/Container";
 import { Play } from "lucide-react";
 
-export const HeaderHero = () => {
+const FALLBACK_BG = "/images/Header, hero 9.png";
+
+export const HeaderHero = ({ banners = [], videoUrl = null }) => {
   const swiperRef = useRef(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  // Handler for the "اكتشف المزيد" button to go to next slide
+  const currentBg =
+    banners.length > 0
+      ? banners[activeIndex % banners.length]?.image_url || FALLBACK_BG
+      : FALLBACK_BG;
+
   const handleDiscoverMore = () => {
     if (
       swiperRef.current &&
@@ -41,7 +47,7 @@ export const HeaderHero = () => {
     <div className=" flex-1  flex items-center justify-center">
       <div
         style={{
-          backgroundImage: "url('/images/Header, hero 9.png')",
+          backgroundImage: `url('${currentBg}')`,
           backgroundSize: "cover",
           backgroundPosition: "50% 30%",
           backgroundRepeat: "no-repeat",
@@ -55,6 +61,7 @@ export const HeaderHero = () => {
             modules={[Autoplay]}
             onSwiper={(instance) => (swiperRef.current = instance)}
             autoplay={{ delay: 6000, disableOnInteraction: false }}
+            onRealIndexChange={(swiper) => setActiveIndex(swiper.realIndex)}
             loop
             style={{ width: "100%", height: "100%" }}
           >
@@ -148,7 +155,6 @@ export const HeaderHero = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/70" onClick={closeVideo} />
             <div className="relative z-10 w-[92%] max-w-[1000px] rounded-2xl overflow-hidden shadow-2xl bg-black">
-              {/* Close button */}
               <button
                 onClick={closeVideo}
                 aria-label="إغلاق الفيديو"
@@ -158,15 +164,24 @@ export const HeaderHero = () => {
                   <path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.71 2.89 18.3 9.17 12 2.89 5.71 4.3 4.29 10.59 10.6 16.89 4.29z" />
                 </svg>
               </button>
-              {/* 16:9 container */}
               <div className="relative" style={{ paddingTop: "56.25%" }}>
-                <iframe
-                  className="absolute inset-0 w-full h-full"
-                  src="https://www.youtube.com/embed/jmVflHiAEV4?autoplay=1&rel=0"
-                  title="Intro video"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
+                {videoUrl ? (
+                  <video
+                    className="absolute inset-0 w-full h-full"
+                    src={videoUrl}
+                    autoPlay
+                    controls
+                    title="Intro video"
+                  />
+                ) : (
+                  <iframe
+                    className="absolute inset-0 w-full h-full"
+                    src="https://www.youtube.com/embed/jmVflHiAEV4?autoplay=1&rel=0"
+                    title="Intro video"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                )}
               </div>
             </div>
           </div>

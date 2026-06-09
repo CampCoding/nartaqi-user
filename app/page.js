@@ -13,6 +13,7 @@ import HonorRoll from "../components/Home/HonorRoll";
 import NewestBlogs from "../components/Home/NewestBlogs";
 import { MobileHero } from "../components/Home/Hero.mobile";
 import { useHomeData } from "../hooks/useHomeData";
+import { useHomeMeta } from "../hooks/useHomeMeta";
 import { Icon } from "@iconify/react";
 import LoadingPage from "../components/shared/Loading";
 import { useSelector } from "react-redux";
@@ -22,6 +23,7 @@ export default function Home() {
   const user = useSelector((state) => state.auth);
   const studentId = user?.user?.id || null;
   const { data, isLoading, isError, error, refetch } = useHomeData(studentId);
+  const { banners, videoUrl } = useHomeMeta();
 
   // ✅ التعامل مع الـ hash بعد تحميل الصفحة
   useEffect(() => {
@@ -105,15 +107,15 @@ export default function Home() {
     <>
       <TopServices />
       <div className="hidden md:block">
-        <HeaderHero />
+        <HeaderHero banners={banners} videoUrl={videoUrl} />
         <CursorLabelSection />
       </div>
 
       <div className="block md:hidden">
-        <MobileHero />
+        <MobileHero banners={banners} videoUrl={videoUrl} />
       </div>
 
-      <AboutUs youtubeId="jmVflHiAEV4" />
+      <AboutUs mp4Src={videoUrl || ""} youtubeId="" />
 
       <CoursesCategoriesLable />
 
