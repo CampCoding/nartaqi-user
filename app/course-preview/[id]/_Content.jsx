@@ -14,7 +14,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { useRouter, useSearchParams, usePathname, useParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 import CourseTitle from "../../../components/CourseDetailsPage/CourseTitle";
 import CourseDetailsContent from "../../../components/CourseDetailsPage/CourseDetailsContent";
@@ -90,17 +90,14 @@ const CoursePreviewPage = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const params = useParams();
-
   const isLgUp = useIsLgUp();
 
   const token = useSelector((s) => s.auth?.token);
   const studentId = useSelector((s) => s.auth?.user?.id);
 
   const roundId = useMemo(() => {
-    const id = params?.id;
-    return Array.isArray(id) ? id[0] : id;
-  }, [params]);
+    return pathname.split("/").filter(Boolean)[1] || null;
+  }, [pathname]);
 
   const [courseData, setCourseData] = useState(null);
   const [freeVideos, setFreeVideos] = useState([]); // ✅ always array

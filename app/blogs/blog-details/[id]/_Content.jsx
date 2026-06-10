@@ -5,13 +5,14 @@ import { BlogContent } from "../../../../components/BlogDetailPage/BlogContent";
 import RelatedBlogs from "../../../../components/BlogDetailPage/RelatedBlogs";
 import BlogComments from "../../../../components/BlogDetailPage/BlogComments";
 import Container from "../../../../components/ui/Container";
-import { useParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import useGetBlog from "../../../../components/shared/Hooks/useGetBlog";
 import LoadingPage from "../../../../components/shared/Loading";
 import NoContent from "../../../../components/shared/NoContent";
 
 const BlogDetails = () => {
-  const { id } = useParams();
+  const pathname = usePathname();
+  const id = pathname.split("/").filter(Boolean)[2];
   const { blog, loading, error } = useGetBlog(id);
 
   if (loading) return <LoadingPage />;

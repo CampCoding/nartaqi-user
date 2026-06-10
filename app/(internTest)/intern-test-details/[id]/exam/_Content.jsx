@@ -8,7 +8,7 @@ import { FixedResultHero } from "../../../../../components/ExamPage/FixedResultH
 import Container from "../../../../../components/ui/Container";
 import { useSelector, useDispatch } from "react-redux";
 import LoadingPage from "@/components/shared/Loading";
-import { useParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import ExamContent from "../../../../../components/ExamPage/ExamContent";
 
 
@@ -43,7 +43,8 @@ import {
 const ExamPage = () => {
   const dispatch = useDispatch();
   const { token, user } = useSelector((state) => state.auth);
-  const { id } = useParams();
+  const pathname = usePathname();
+  const id = pathname.split("/").filter(Boolean)[1];
 
   // Local state for loading/error
   const [examData, setExamData] = useState(null);

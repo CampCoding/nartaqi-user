@@ -3,7 +3,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import {
@@ -38,7 +38,8 @@ import {
 } from "./_components";
 
 const PlacementTestContent = () => {
-  const { id } = useParams();
+  const pathname = usePathname();
+  const id = pathname.split("/").filter(Boolean)[1];
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useDispatch();

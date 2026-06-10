@@ -10,7 +10,7 @@ import MockTestReview from "../../../../components/MockTestPage/MockTestReview";
 import { ConfirmationPopup } from "../../../../components/ui/ConfirmationPopup";
 import { SuccessPopup } from "../../../../components/ui/SuccessPopup";
 import axios from "axios";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   initializeExam,
   startExam,
@@ -151,7 +151,8 @@ const AlreadySolvedPopup = ({ isOpen, onClose }) => {
 const MockTest = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { id } = useParams();
+  const pathname = usePathname();
+  const id = pathname.split("/").filter(Boolean)[1];
   const user = useSelector((state) => state?.auth);
 
   // Redux selectors

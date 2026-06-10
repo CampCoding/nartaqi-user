@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { useParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 
 import CourseTitle from "../../../components/CourseDetailsPage/CourseTitle";
@@ -20,7 +20,8 @@ import Container from "../../../components/ui/Container";
 import useTeacherData from "./../../../components/shared/Hooks/useTeacherData";
 
 const TecherOverviewPage = () => {
-  const { id } = useParams();
+  const pathname = usePathname();
+  const id = pathname.split("/").filter(Boolean)[1];
 
   // لو عندك token في redux
   const { token } = useSelector((state) => state.auth);

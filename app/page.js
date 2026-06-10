@@ -14,6 +14,14 @@ import NewestBlogs from "../components/Home/NewestBlogs";
 import { MobileHero } from "../components/Home/Hero.mobile";
 import { useHomeData } from "../hooks/useHomeData";
 import { useHomeMeta } from "../hooks/useHomeMeta";
+
+const getYouTubeId = (url) => {
+  if (!url) return null;
+  const match = url.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+};
 import { Icon } from "@iconify/react";
 import LoadingPage from "../components/shared/Loading";
 import { useSelector } from "react-redux";
@@ -24,6 +32,7 @@ export default function Home() {
   const studentId = user?.user?.id || null;
   const { data, isLoading, isError, error, refetch } = useHomeData(studentId);
   const { banners, videoUrl } = useHomeMeta();
+  const youtubeId = getYouTubeId(videoUrl);
 
   // ✅ التعامل مع الـ hash بعد تحميل الصفحة
   useEffect(() => {
@@ -115,7 +124,7 @@ export default function Home() {
         <MobileHero banners={banners} videoUrl={videoUrl} />
       </div>
 
-      <AboutUs mp4Src={videoUrl || ""} youtubeId="" />
+      <AboutUs youtubeId={youtubeId || ""} />
 
       <CoursesCategoriesLable />
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 import useGetStudentExamAnswers from "../../../../../components/shared/Hooks/getStudentAnswersByExamId";
 import { MockExamHeader } from "../../../../../components/MockTestPage/MockTestHeader";
@@ -200,7 +200,8 @@ const QuestionCard = ({ question, index, fontSize }) => {
 };
 
 const AnswersPage = () => {
-  const { id } = useParams();
+  const pathname = usePathname();
+  const id = pathname.split("/").filter(Boolean)[1];
   const router = useRouter();
   const user = useSelector((state) => state?.auth?.user);
   const [currentIndex, setCurrentIndex] = useState(0);

@@ -9,7 +9,7 @@ import { Alerts } from "../../../components/ExamDetailsPage/Alerts";
 import ExamResults from "../../../components/ExamPage/ExamResults";
 import Link from "next/link";
 import Container from "../../../components/ui/Container";
-import { useParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import LoadingPage from "@/components/shared/Loading";
 import { useSelector } from "react-redux";
 
@@ -20,7 +20,8 @@ const ExamDetails = ({ params }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [examResult, setExamResult] = useState(null);
-  const { id } = useParams();
+  const pathname = usePathname();
+  const id = pathname.split("/").filter(Boolean)[1];
   const { token } = useSelector((state) => state.auth);
   const user = useSelector((state) => state.auth);
 

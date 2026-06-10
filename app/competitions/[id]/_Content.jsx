@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 
 import LoadingPage from "@/components/shared/Loading";
@@ -18,7 +18,8 @@ const stripHtml = (html = "") =>
 
 export default function CompetitionExamPage() {
   const router = useRouter();
-  const { id } = useParams(); // competition_id
+  const pathname = usePathname();
+  const id = pathname.split("/").filter(Boolean)[1]; // competition_id
   const { token, user } = useSelector((s) => s.auth);
 
   const getToken = useCallback(() => token, [token]);

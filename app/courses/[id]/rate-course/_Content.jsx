@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import PagesBanner from "../../../../components/ui/PagesBanner";
@@ -202,12 +202,12 @@ const getValue = (ans) => {
 };
 
 export default function RateCoursePage() {
-  const params = useParams();
+  const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
 
   // ✅ Get round id from URL params
-  const roundId = params?.id;
+  const roundId = pathname.split("/").filter(Boolean)[1];
 
   // ✅ Get user from auth
   const { user, token } = useSelector((state) => state.auth);

@@ -10,7 +10,6 @@ import LoadingPage from "../../../components/shared/Loading";
 import LoadingContent from "../../../components/shared/LoadingContent";
 import TeachersTestimonials from "../../../components/Teachers/TeachersTestimonials";
 import {
-  useParams,
   useSearchParams,
   usePathname,
   useRouter,
@@ -63,10 +62,9 @@ function shallowEqual(a, b) {
 }
 
 const TeachersCourses = () => {
-  const { id } = useParams();
-
   const router = useRouter();
   const pathname = usePathname();
+  const id = pathname.split("/").filter(Boolean)[1];
   const searchParams = useSearchParams();
 
   //////////////////////////////////////////////////////////////////////

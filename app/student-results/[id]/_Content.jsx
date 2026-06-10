@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import PagesBanner from "../../../components/ui/PagesBanner";
 import { StudentResultCard } from "../../../components/ui/Cards/StudentResultCard";
@@ -11,7 +11,8 @@ import useGetStudentAchievementResults from "../../../components/shared/Hooks/us
 import ResultsImagesSliderModal from "../../../components/ui/Modals/ResultsImagesSliderModal";
 
 const StudentsResults = () => {
-  const { id: categoryPartId } = useParams();
+  const pathname = usePathname();
+  const categoryPartId = pathname.split("/").filter(Boolean)[1];
 
   const { results, categoryPart, loading, error, refetch } =
     useGetStudentAchievementResults(categoryPartId, {

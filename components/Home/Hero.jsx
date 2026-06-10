@@ -10,6 +10,14 @@ import { Play } from "lucide-react";
 
 const FALLBACK_BG = "/images/Header, hero 9.png";
 
+const getYouTubeId = (url) => {
+  if (!url) return null;
+  const match = url.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+};
+
 export const HeaderHero = ({ banners = [], videoUrl = null }) => {
   const swiperRef = useRef(null);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -20,31 +28,21 @@ export const HeaderHero = ({ banners = [], videoUrl = null }) => {
       ? banners[activeIndex % banners.length]?.image_url || FALLBACK_BG
       : FALLBACK_BG;
 
-  const handleDiscoverMore = () => {
-    if (
-      swiperRef.current &&
-      typeof swiperRef.current.slideNext === "function"
-    ) {
-      swiperRef.current.slideNext();
-    }
-  };
+  const youtubeId = getYouTubeId(videoUrl);
+  const slideCount = Math.max(banners.length, 1);
 
   const openVideo = () => {
-    if (swiperRef.current?.autoplay?.stop) {
-      swiperRef.current.autoplay.stop();
-    }
+    if (swiperRef.current?.autoplay?.stop) swiperRef.current.autoplay.stop();
     setIsVideoOpen(true);
   };
 
   const closeVideo = () => {
     setIsVideoOpen(false);
-    if (swiperRef.current?.autoplay?.start) {
-      swiperRef.current.autoplay.start();
-    }
+    if (swiperRef.current?.autoplay?.start) swiperRef.current.autoplay.start();
   };
 
   return (
-    <div className=" flex-1  flex items-center justify-center">
+    <div className="flex-1 flex items-center justify-center">
       <div
         style={{
           backgroundImage: `url('${currentBg}')`,
@@ -54,101 +52,55 @@ export const HeaderHero = ({ banners = [], videoUrl = null }) => {
           flex: 1,
           color: "var(--color-bg)",
         }}
-        className=" w-full h-full pt-[48px] pb-[50px]  "
+        className="w-full min-h-[725px] relative"
       >
-        <Container className="flex items-end justify-between relative">
+        {/* Swiper for cycling through banner images */}
+        <div className="absolute inset-0">
           <Swiper
             modules={[Autoplay]}
             onSwiper={(instance) => (swiperRef.current = instance)}
             autoplay={{ delay: 6000, disableOnInteraction: false }}
             onRealIndexChange={(swiper) => setActiveIndex(swiper.realIndex)}
-            loop
+            loop={slideCount > 1}
             style={{ width: "100%", height: "100%" }}
           >
-            {/* Primary Text Slide with CTA to open video */}
-            <SwiperSlide>
-              <div className="select-none">
-                <div className="w-[714px] ">
-                  <h1 className=" w-[714px] text-bold h-[154px] flex flex-col justify-center text-bg text-[40px] leading-[60px] overflow-hidden text-ellipsis ">
-                    اكتشف منصتنا في دقيقة
-                    <span className="text-secondary font-bold">شاهد الفيديو التعريفي</span>
-                  </h1>
-                </div>
-                <p className=" w-[703px]   leading-normal  text-bg text-2xl overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:3] [-webkit-box-orient:vertical] ">
-                  نظرة عامة سريعة على المزايا والخصائص التي تقدمها منصتنا وكيف
-                  تساعدك على التعلم والنمو بشكل أسرع وأسهل.
-                </p>
-                <div className="mt-[75px] flex items-center gap-4">
-                  <button
-                    className=" inline-flex items-center justify-center gap-2 px-14 py-6 relative rounded-[20px] bg-gradient-to-r from-primary to-secondary cursor-pointer transition-all duration-200 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                    type="button"
-                    aria-label="مشاهدة الفيديو"
-                    onClick={openVideo}
-                  >
-                    <Play />
-                    <span className="relative [display:-webkit-box] font-bold items-center justify-center w-fit  text-bg text-base text-center leading-5 whitespace-nowrap overflow-hidden text-ellipsis [-webkit-line-clamp:2] [-webkit-box-orient:vertical] ">
-                      مشاهدة الفيديو
-                    </span>
-                  </button>
-                  <button
-                    className=" inline-flex items-center justify-center gap-2 px-10 py-6 relative rounded-[20px] border-2 border-white/70 text-bg cursor-pointer transition-all duration-200 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                    type="button"
-                    aria-label="اكتشف المزيد"
-                    onClick={handleDiscoverMore}
-                  >
-                    <span className="relative [display:-webkit-box] font-bold items-center justify-center w-fit  text-bg text-base text-center leading-5 whitespace-nowrap overflow-hidden text-ellipsis [-webkit-line-clamp:2] [-webkit-box-orient:vertical] ">
-                      اكتشف المزيد
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </SwiperSlide>
-
-            {/* Existing Text Slides */}
-            {Array.from({ length: 3 }).map((item, index) => (
-              <SwiperSlide key={index}>
-                <div className="select-none">
-                  <div className="w-[714px] ">
-                    <h1 className=" w-[714px] text-bold h-[154px] flex flex-col justify-center text-bg text-[40px] leading-[60px] overflow-hidden text-ellipsis ">
-                      ابنِ مستقبلك مع أفضل الدورات{" "}
-                      <span className="text-secondary font-bold">التعليمية</span>
-                    </h1>
-                  </div>
-                  <p className=" w-[703px]   leading-normal  text-bg text-2xl overflow-hidden text-ellipsis [display:-webkit-box] [-webkit-line-clamp:3] [-webkit-box-orient:vertical] ">
-                    انضم إلى آلاف المتعلمين واكتسب مهارات جديدة من خبراء بارزين في مجالات متعددة، من خلال الدورات التدريبية المصممة لإلهامك وتحديك وتحويل مستقبلك.
-                  </p>
-                  <button
-                    className=" mt-[75px] inline-flex items-center justify-center gap-2 px-14 py-6 relative rounded-[20px] bg-gradient-to-r from-primary to-secondary cursor-pointer transition-all duration-200 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                    type="button"
-                    aria-label="اكتشف المزيد"
-                    onClick={handleDiscoverMore}
-                  >
-                    <span className="relative [display:-webkit-box] font-bold items-center justify-center w-fit  text-bg text-base text-center leading-5 whitespace-nowrap overflow-hidden text-ellipsis [-webkit-line-clamp:2] [-webkit-box-orient:vertical] ">
-                      اكتشف المزيد
-                    </span>
-                  </button>
-                </div>
-              </SwiperSlide>
+            {Array.from({ length: slideCount }).map((_, i) => (
+              <SwiperSlide key={i} />
             ))}
           </Swiper>
+        </div>
 
-          <div className="absolute left-20 z-20">
-            <div
-              className="w-[72px] group flex items-center justify-center h-[72px] relative bg-primary-light  hover:bg-primary rounded-[50px] transition-all hover:shadow-[0px_-8px_50px_0px_var(--color-primary)] cursor-pointer"
-              onClick={() => swiperRef.current?.slidePrev()}
+        {/* Play button */}
+        {youtubeId && (
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-10">
+            <button
+              onClick={openVideo}
+              aria-label="مشاهدة الفيديو"
+              type="button"
+              className="inline-flex items-center justify-center gap-2 px-14 py-6 rounded-[20px] bg-gradient-to-r from-primary to-secondary text-white cursor-pointer transition-all duration-200 hover:opacity-90 shadow-2xl"
             >
-              <HomeBannerArrowLeft className=" text-text group-hover:fill-white fill-text" />
-            </div>
-
-            <div
-              className="w-[72px] group h-[72px] relative translate-x-[72px]   bg-primary-light hover:bg-primary rounded-[50px] backdrop-blur-lg flex items-center justify-center hover:shadow-[0px_-8px_50px_0px_var(--color-primary)] cursor-pointer "
-              onClick={() => swiperRef.current?.slideNext()}
-            >
-              <div className="w-[72px] h-[72px] left-0 top-0  absolute rounded-full border-2 border-bg group-hover:border-primary transition-all duration-200" />
-              <HomeBannerArrowLeft className="!rotate-180 text-text group-hover:fill-white fill-text" />
-            </div>
+              <Play className="w-5 h-5" />
+              <span className="font-bold text-base whitespace-nowrap">مشاهدة الفيديو</span>
+            </button>
           </div>
-        </Container>
+        )}
+
+        {/* Navigation arrows */}
+        <div className="absolute left-10 bottom-10 z-20">
+          <div
+            className="w-[72px] group flex items-center justify-center h-[72px] relative bg-primary-light hover:bg-primary rounded-[50px] transition-all hover:shadow-[0px_-8px_50px_0px_var(--color-primary)] cursor-pointer"
+            onClick={() => swiperRef.current?.slidePrev()}
+          >
+            <HomeBannerArrowLeft className="text-text group-hover:fill-white fill-text" />
+          </div>
+          <div
+            className="w-[72px] group h-[72px] relative translate-x-[72px] bg-primary-light hover:bg-primary rounded-[50px] backdrop-blur-lg flex items-center justify-center hover:shadow-[0px_-8px_50px_0px_var(--color-primary)] cursor-pointer"
+            onClick={() => swiperRef.current?.slideNext()}
+          >
+            <div className="w-[72px] h-[72px] left-0 top-0 absolute rounded-full border-2 border-bg group-hover:border-primary transition-all duration-200" />
+            <HomeBannerArrowLeft className="!rotate-180 text-text group-hover:fill-white fill-text" />
+          </div>
+        </div>
 
         {/* Video Modal */}
         {isVideoOpen && (
@@ -165,23 +117,13 @@ export const HeaderHero = ({ banners = [], videoUrl = null }) => {
                 </svg>
               </button>
               <div className="relative" style={{ paddingTop: "56.25%" }}>
-                {videoUrl ? (
-                  <video
-                    className="absolute inset-0 w-full h-full"
-                    src={videoUrl}
-                    autoPlay
-                    controls
-                    title="Intro video"
-                  />
-                ) : (
-                  <iframe
-                    className="absolute inset-0 w-full h-full"
-                    src="https://www.youtube.com/embed/jmVflHiAEV4?autoplay=1&rel=0"
-                    title="Intro video"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                  />
-                )}
+                <iframe
+                  className="absolute inset-0 w-full h-full"
+                  src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`}
+                  title="Intro video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
               </div>
             </div>
           </div>

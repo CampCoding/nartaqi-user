@@ -3,13 +3,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import axios from "axios";
 import Container from "@/components/ui/Container";
 import { Clock, FileText, HelpCircle, Play } from "lucide-react";
 
 const PlacementDetails = () => {
-  const { id } = useParams();
+  const pathname = usePathname();
+  const id = pathname.split("/").filter(Boolean)[1];
   const router = useRouter();
   const [testInfo, setTestInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);

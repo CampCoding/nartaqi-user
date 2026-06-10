@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
@@ -11,12 +11,10 @@ import Reg_courseDetails from "./contents/Reg_courseDetails";
 import LoadingPage from "@/components/shared/Loading";
 
 const CourseDetailsPage = () => {
-  const params = useParams();
-  // ✅ handle string | string[]
+  const pathname = usePathname();
   const roundId = useMemo(() => {
-    const id = params?.id;
-    return Array.isArray(id) ? id[0] : id;
-  }, [params]);
+    return pathname.split("/").filter(Boolean)[1] || null;
+  }, [pathname]);
 
   const [courseData, setCourseData] = useState(null);
   const [loading, setLoading] = useState(false);
