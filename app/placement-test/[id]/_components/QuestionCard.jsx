@@ -80,7 +80,7 @@ const QuestionCard = ({
               </div>
             </div>
             <div
-              className="prose prose-sm max-w-none text-gray-700 leading-relaxed pr-11"
+              className="prose prose-sm max-w-none text-gray-700 leading-relaxed pr-11 richtext"
               dangerouslySetInnerHTML={{ __html: question.passage }}
             />
           </div>
@@ -88,7 +88,7 @@ const QuestionCard = ({
 
         {/* Question Text */}
         <div
-          className="text-lg md:text-xl text-gray-800 font-medium prose max-w-none leading-relaxed mb-6"
+          className="text-lg md:text-xl text-gray-800 font-medium prose max-w-none leading-relaxed mb-6 richtext"
           dangerouslySetInnerHTML={{ __html: question?.text }}
         />
 
@@ -117,7 +117,7 @@ const QuestionCard = ({
                   {letters[optIndex] || optIndex + 1}
                 </div>
                 <span
-                  className="flex-1 text-gray-700 text-base md:text-lg"
+                  className="flex-1 text-gray-700 text-base md:text-lg richtext"
                   dangerouslySetInnerHTML={{ __html: option.text }}
                 />
                 {isSelected && (

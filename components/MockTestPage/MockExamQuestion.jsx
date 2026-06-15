@@ -80,10 +80,9 @@ const MockExamQuestion = ({
           {hasVoice && <AudioPlayer src={block.voice} fontSize={fontSize} />}
 
           {/* Paragraph Content */}
-          {hasPassage && (
             <div
               className={`
-                w-full font-medium text-zinc-600 ${textSizeClass} 
+                w-full font-medium text-zinc-600 ${textSizeClass} richtext
                 tracking-[0] [direction:rtl] block
                 leading-normal sm:leading-relaxed md:leading-relaxed lg:leading-loose
                 landscape:leading-snug landscape:sm:leading-normal landscape:md:leading-relaxed
@@ -96,7 +95,6 @@ const MockExamQuestion = ({
                 __html: block.passage.replaceAll(/&nbsp;/gi, " "),
               }}
             />
-          )}
         </div>
       )}
 
@@ -308,12 +306,11 @@ export const SingleQuestion = ({
 
   return (
     <div className="relative w-full">
-      {/* Question Text */}
       <div
         className={`
           mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 xl:mb-5
           landscape:mb-1 landscape:sm:mb-1.5 landscape:md:mb-2 landscape:lg:mb-3
-          prose prose-neutral max-w-none ${textSizeClass} 
+          prose prose-neutral max-w-none ${textSizeClass} richtext
           [&_p]:text-inherit [&_span]:text-inherit
           leading-normal sm:leading-relaxed md:leading-relaxed lg:leading-loose
           landscape:leading-snug landscape:sm:leading-normal landscape:md:leading-relaxed
@@ -360,7 +357,7 @@ export const SingleQuestion = ({
             />
             <span
               className={`
-                relative flex items-center justify-start w-fit font-medium text-black 
+                relative flex items-center justify-start w-fit font-medium text-black richtext
                 ${textSizeClass} tracking-[0] [direction:rtl] 
                 [&_p]:text-inherit [&_span]:text-inherit
                 leading-normal sm:leading-relaxed md:leading-relaxed lg:leading-loose

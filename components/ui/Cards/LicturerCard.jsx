@@ -105,9 +105,14 @@ export const LecturerCard = ({ lecturer }) => {
             {lecturer.email}
           </Link>
 
-          <p className="text-center text-base font-medium text-text-alt [direction:rtl] line-clamp-2">
+          {/* <p className="text-center text-base font-medium text-text-alt [direction:rtl] line-clamp-2">
             {title}
-          </p>
+          </p> */}
+
+          <div
+            dangerouslySetInnerHTML={{ __html: title }}
+            className="text-center text-base font-medium text-text-alt [direction:rtl] line-clamp-2"
+          />
         </header>
 
         {/* Rating */}

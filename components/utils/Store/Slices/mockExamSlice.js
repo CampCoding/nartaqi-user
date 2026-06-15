@@ -226,6 +226,102 @@ const mockExamSlice = createSlice({
           allQuestions.push(questionData);
         });
 
+        // Process direct questions array (New unified format)
+        if (Array.isArray(section.questions)) {
+          section.questions.forEach((q) => {
+            // Handle Paragraph Container Type
+            if (q.question_type === "paragraph" && Array.isArray(q.questions)) {
+              const passage = stripHtml(q.paragraph?.paragraph_content) || "";
+              const voice = q.paragraph?.voice || null;
+
+              q.questions.forEach((subQ) => {
+                if (!subQ.options || subQ.options.length === 0) return;
+
+                const formattedOptions = subQ.options.map((opt) => ({
+                  id: opt.id,
+                  text: stripHtml(opt.option_text),
+                  isCorrect: opt.is_correct === 1,
+                }));
+
+                const correctOption = subQ.options.find(
+                  (o) => o.is_correct === 1
+                );
+
+                const questionData = {
+                  id: subQ.id,
+                  text: stripHtml(subQ.question_text),
+                  options: formattedOptions,
+                  correctAnswer: correctOption?.id || null,
+                  correctAnswerText:
+                    stripHtml(correctOption?.option_text) || null,
+                  explanation:
+                    stripHtml(correctOption?.question_explanation) ||
+                    "لا يوجد تفسير متاح.",
+                  instructions: subQ.instructions || "",
+                  type: "paragraph",
+                  description: subQ.description || "",
+                  globalIndex: questionCounter++,
+                };
+
+                blocks.push({
+                  type: "paragraph",
+                  passage: passage,
+                  voice: voice,
+                  questions: [questionData],
+                });
+
+                allQuestions.push(questionData);
+              });
+              return; // Move to next item in section.questions
+            }
+
+            // Normal Question Handling
+            if (!q.options || q.options.length === 0) return;
+
+            const formattedOptions = q.options.map((opt) => ({
+              id: opt.id,
+              text: stripHtml(opt.option_text),
+              isCorrect: opt.is_correct === 1,
+            }));
+
+            const correctOption = q.options.find((o) => o.is_correct === 1);
+
+            const questionData = {
+              id: q.id,
+              text: stripHtml(q.question_text),
+              options: formattedOptions,
+              correctAnswer: correctOption?.id || null,
+              correctAnswerText: stripHtml(correctOption?.option_text) || null,
+              explanation:
+                stripHtml(correctOption?.question_explanation) ||
+                "لا يوجد تفسير متاح.",
+              instructions: q.instructions || "",
+              type: q.question_type || "mcq",
+              description: q.description || "",
+              globalIndex: questionCounter++,
+            };
+
+            // Handle paragraph if nested in single question
+            if (q.paragraph) {
+              const passage = stripHtml(q.paragraph.paragraph_content);
+              blocks.push({
+                type: "paragraph",
+                passage: passage,
+                voice: q.paragraph.voice || null,
+                questions: [questionData],
+              });
+            } else {
+              blocks.push({
+                type: q.question_type || "mcq",
+                passage: null,
+                questions: [questionData],
+              });
+            }
+
+            allQuestions.push(questionData);
+          });
+        }
+
         // Shuffle blocks only
         const shuffledBlocks = blocks;
 

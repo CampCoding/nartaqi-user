@@ -77,7 +77,7 @@ export const McqQuestion = ({
               {option.textHtml ? (
                 <span
                   dir="rtl"
-                  className="prose prose-neutral !w-full text-sm sm:text-base"
+                  className="prose prose-neutral !w-full richtext text-sm sm:text-base"
                   dangerouslySetInnerHTML={{ __html: option.textHtml }}
                 />
               ) : (

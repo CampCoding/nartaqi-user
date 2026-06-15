@@ -265,65 +265,65 @@ const StudyPlannerForm = () => {
     }
     return true;
   };
-const generatePDFBlob = async (schedule) => {
-  const html2canvas = (await import("html2canvas")).default;
-  const jsPDF = (await import("jspdf")).default;
+  const generatePDFBlob = async (schedule) => {
+    const html2canvas = (await import("html2canvas")).default;
+    const jsPDF = (await import("jspdf")).default;
 
-  const formatPhone = () => {
-    if (!formData.whatsappNumber) return "";
-    let num = formData.whatsappNumber.toString().trim();
-    if (num.startsWith("0")) num = num.substring(1);
-    return selectedCountry.code + num;
-  };
+    const formatPhone = () => {
+      if (!formData.whatsappNumber) return "";
+      let num = formData.whatsappNumber.toString().trim();
+      if (num.startsWith("0")) num = num.substring(1);
+      return selectedCountry.code + num;
+    };
 
-  const isArabicName = isArabicText(formData.firstName);
-  const nameDirection = isArabicName ? "rtl" : "ltr";
-  const nameAlign = "right";
+    const isArabicName = isArabicText(formData.firstName);
+    const nameDirection = isArabicName ? "rtl" : "ltr";
+    const nameAlign = "right";
 
-  // ✅ تقسيم الجدول لأسابيع (كل 7 أيام = أسبوع)
-const weeks = [];
-let currentWeek = [];
+    // ✅ تقسيم الجدول لأسابيع (كل 7 أيام = أسبوع)
+    const weeks = [];
+    let currentWeek = [];
 
-schedule.forEach((day) => {
-  currentWeek.push(day);
-  
-  // ✅ لو اليوم ده جمعة → اقفل الأسبوع وابدأ أسبوع جديد
-  if (day.dayName === "الجمعة") {
-    weeks.push(currentWeek);
-    currentWeek = [];
-  }
-});
+    schedule.forEach((day) => {
+      currentWeek.push(day);
 
-// ✅ لو فضل أيام في الأسبوع الأخير (مفيش جمعة في الآخر)
-if (currentWeek.length > 0) {
-  weeks.push(currentWeek);
-}
+      // ✅ لو اليوم ده جمعة → اقفل الأسبوع وابدأ أسبوع جديد
+      if (day.dayName === "الجمعة") {
+        weeks.push(currentWeek);
+        currentWeek = [];
+      }
+    });
 
-  const weekNamesArabic = [
-    "الأول",
-    "الثاني",
-    "الثالث",
-    "الرابع",
-    "الخامس",
-    "السادس",
-    "السابع",
-    "الثامن",
-    "التاسع",
-    "العاشر",
-    "الحادي عشر",
-    "الثاني عشر",
-    "الثالث عشر",
-    "الرابع عشر",
-    "الخامس عشر",
-    "السادس عشر",
-    "السابع عشر",
-    "الثامن عشر",
-    "التاسع عشر",
-    "العشرين",
-  ];
+    // ✅ لو فضل أيام في الأسبوع الأخير (مفيش جمعة في الآخر)
+    if (currentWeek.length > 0) {
+      weeks.push(currentWeek);
+    }
 
-  const container = document.createElement("div");
-  container.style.cssText = `
+    const weekNamesArabic = [
+      "الأول",
+      "الثاني",
+      "الثالث",
+      "الرابع",
+      "الخامس",
+      "السادس",
+      "السابع",
+      "الثامن",
+      "التاسع",
+      "العاشر",
+      "الحادي عشر",
+      "الثاني عشر",
+      "الثالث عشر",
+      "الرابع عشر",
+      "الخامس عشر",
+      "السادس عشر",
+      "السابع عشر",
+      "الثامن عشر",
+      "التاسع عشر",
+      "العشرين",
+    ];
+
+    const container = document.createElement("div");
+    container.style.cssText = `
     position: absolute;
     top: -9999px;
     left: 0;
@@ -333,18 +333,18 @@ if (currentWeek.length > 0) {
     background-color: #ffffff;
   `;
 
-  const watermarkCount = Math.max(2, Math.ceil(schedule.length / 8) + 1);
-  const watermarks = Array(watermarkCount)
-    .fill(0)
-    .map(
-      () => `
+    const watermarkCount = Math.max(2, Math.ceil(schedule.length / 8) + 1);
+    const watermarks = Array(watermarkCount)
+      .fill(0)
+      .map(
+        () => `
       <img src="/images/logo.svg" style="width:500px; margin-bottom:400px; opacity:0.06; display:block;" crossorigin="anonymous"/>
     `
-    )
-    .join("");
+      )
+      .join("");
 
-  // ✅ ستايلات الجدول
-  const weekTitleStyle = `
+    // ✅ ستايلات الجدول
+    const weekTitleStyle = `
     background-color: #D6EBFA;
     color: #1F73C9;
     font-weight: bold;
@@ -355,8 +355,8 @@ if (currentWeek.length > 0) {
     margin-bottom: 0 !important;
   `;
 
-  // ✅ تغيير: لون فاتح زي الأسبوع
-  const headerCellStyle = `
+    // ✅ تغيير: لون فاتح زي الأسبوع
+    const headerCellStyle = `
     background-color: #2370B7;
     color: #fff;
     font-weight: bold;
@@ -366,7 +366,7 @@ if (currentWeek.length > 0) {
     border: 1px solid #2E8BC9;
   `;
 
-  const dataCellStyle = `
+    const dataCellStyle = `
     background-color: #ffffff;
     color: #1D3A5F;
     font-weight: bold;
@@ -377,8 +377,8 @@ if (currentWeek.length > 0) {
     height: 45px;
   `;
 
-  // ✅ نفس لون الأسبوع
-  const restCellStyle = `
+    // ✅ نفس لون الأسبوع
+    const restCellStyle = `
     background-color: #D6EBFA;
     color: #1F73C9;
     font-weight: bold;
@@ -389,17 +389,17 @@ if (currentWeek.length > 0) {
     height: 45px;
   `;
 
-  const checkboxHTML = `<div style="width:22px;height:22px;border:2px solid #C9C9C9;background:white;border-radius:5px;margin:0 auto;"></div>`;
+    const checkboxHTML = `<div style="width:22px;height:22px;border:2px solid #C9C9C9;background:white;border-radius:5px;margin:0 auto;"></div>`;
 
-  // ✅ بناء جدول لكل أسبوع
-  const buildWeekTable = (weekDays, weekIndex) => {
-    const weekTitle = weekNamesArabic[weekIndex] || `${weekIndex + 1}`;
+    // ✅ بناء جدول لكل أسبوع
+    const buildWeekTable = (weekDays, weekIndex) => {
+      const weekTitle = weekNamesArabic[weekIndex] || `${weekIndex + 1}`;
 
-    const rows = weekDays
-      .map((d) => {
-        if (d.isRestDay) {
-          // ✅ صف الراحة كله بنفس اللون + كلمة راحة بشرطات
-          return `
+      const rows = weekDays
+        .map((d) => {
+          if (d.isRestDay) {
+            // ✅ صف الراحة كله بنفس اللون + كلمة راحة بشرطات
+            return `
             <tr>
               <td style="${restCellStyle}">${d.dayName}</td>
               <td colspan="2" style="${restCellStyle}">
@@ -411,8 +411,8 @@ if (currentWeek.length > 0) {
               <td style="${restCellStyle}"></td>
             </tr>
           `;
-        }
-        return `
+          }
+          return `
           <tr>
             <td style="${dataCellStyle}">${d.dayName}</td>
             <td style="${dataCellStyle}">${d.date}</td>
@@ -421,10 +421,10 @@ if (currentWeek.length > 0) {
             <td style="${dataCellStyle}">${checkboxHTML}</td>
           </tr>
         `;
-      })
-      .join("");
+        })
+        .join("");
 
-    return `
+      return `
       <div style="margin-bottom: 30px; position: relative; z-index: 2;">
         <div style="${weekTitleStyle}">الأسبوع ${weekTitle}</div>
         <table style="width:100%; border-collapse: collapse;">
@@ -443,11 +443,11 @@ if (currentWeek.length > 0) {
         </table>
       </div>
     `;
-  };
+    };
 
-  const weeksHTML = weeks.map((w, i) => buildWeekTable(w, i)).join("");
+    const weeksHTML = weeks.map((w, i) => buildWeekTable(w, i)).join("");
 
-  container.innerHTML = `
+    container.innerHTML = `
     <div style="position: relative; width: 800px; background-color: #ffffff; padding-bottom: 50px;">
       
       <!-- Watermarks -->
@@ -505,59 +505,44 @@ if (currentWeek.length > 0) {
     </div>
   `;
 
-  document.body.appendChild(container);
+    document.body.appendChild(container);
 
-  try {
-    const images = container.querySelectorAll("img");
-    await Promise.all(
-      Array.from(images).map(
-        (img) =>
-          new Promise((r) =>
-            img.complete ? r() : ((img.onload = r), (img.onerror = r))
-          )
-      )
-    );
+    try {
+      const images = container.querySelectorAll("img");
+      await Promise.all(
+        Array.from(images).map(
+          (img) =>
+            new Promise((r) =>
+              img.complete ? r() : ((img.onload = r), (img.onerror = r))
+            )
+        )
+      );
 
-    await new Promise((r) => setTimeout(r, 1200));
+      await new Promise((r) => setTimeout(r, 1200));
 
-    const canvas = await html2canvas(container, {
-      scale: 1.5,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: "#ffffff",
-    });
+      const canvas = await html2canvas(container, {
+        scale: 1.5,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+      });
 
-    const imgData = canvas.toDataURL("image/jpeg", 0.75);
+      const imgData = canvas.toDataURL("image/jpeg", 0.75);
 
-    const pdf = new jsPDF({
-      orientation: "p",
-      unit: "mm",
-      format: "a4",
-      compress: true,
-    });
+      const pdf = new jsPDF({
+        orientation: "p",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgWidthMM = pageWidth;
-    const imgHeightMM = (canvas.height * pageWidth) / canvas.width;
-    let heightLeft = imgHeightMM;
-    let position = 0;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidthMM = pageWidth;
+      const imgHeightMM = (canvas.height * pageWidth) / canvas.width;
+      let heightLeft = imgHeightMM;
+      let position = 0;
 
-    pdf.addImage(
-      imgData,
-      "JPEG",
-      0,
-      position,
-      imgWidthMM,
-      imgHeightMM,
-      undefined,
-      "FAST"
-    );
-    heightLeft -= pageHeight;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeightMM;
-      pdf.addPage();
       pdf.addImage(
         imgData,
         "JPEG",
@@ -569,16 +554,31 @@ if (currentWeek.length > 0) {
         "FAST"
       );
       heightLeft -= pageHeight;
-    }
 
-    document.body.removeChild(container);
-    return pdf;
-  } catch (err) {
-    if (document.body.contains(container))
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeightMM;
+        pdf.addPage();
+        pdf.addImage(
+          imgData,
+          "JPEG",
+          0,
+          position,
+          imgWidthMM,
+          imgHeightMM,
+          undefined,
+          "FAST"
+        );
+        heightLeft -= pageHeight;
+      }
+
       document.body.removeChild(container);
-    throw err;
-  }
-};
+      return pdf;
+    } catch (err) {
+      if (document.body.contains(container))
+        document.body.removeChild(container);
+      throw err;
+    }
+  };
   // Download PDF locally
   const handleDownloadPDF = async () => {
     if (!validateForm()) return;
@@ -703,9 +703,8 @@ if (currentWeek.length > 0) {
               <span className="text-xs text-gray-400">(اختياري)</span>
             </div>
             <div
-              className={`h-[56px] justify-between overflow-hidden bg-white rounded-[15px] border border-solid flex items-center relative w-full transition-colors border-zinc-200 focus-within:border-orange-400 ${
-                isLoading ? "opacity-60" : ""
-              }`}
+              className={`h-[56px] justify-between overflow-hidden bg-white rounded-[15px] border border-solid flex items-center relative w-full transition-colors border-zinc-200 focus-within:border-orange-400 ${isLoading ? "opacity-60" : ""
+                }`}
             >
               <input
                 type="text"

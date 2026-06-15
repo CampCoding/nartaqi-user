@@ -9,6 +9,8 @@ import MockExamQuestion from "../../../../components/MockTestPage/MockExamQuesti
 import MockTestReview from "../../../../components/MockTestPage/MockTestReview";
 import { ConfirmationPopup } from "../../../../components/ui/ConfirmationPopup";
 import { SuccessPopup } from "../../../../components/ui/SuccessPopup";
+import TigerMockTest from "../../../../components/MockTestPage/TigerMockTest";
+import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -152,7 +154,9 @@ const MockTest = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const id = pathname.split("/").filter(Boolean)[1];
+  const mode = searchParams.get("mode");
   const user = useSelector((state) => state?.auth);
 
   // Redux selectors
@@ -426,7 +430,7 @@ const MockTest = () => {
 
   const handleStartExam = () => {
     dispatch(startExam());
-    setEnteredSections((prev) => new Set(prev).add(0));
+    setEnteredSections((prev) => new Set(prev).add(currentSectionIndex));
   };
 
   const formatTime = (seconds) => {
@@ -466,6 +470,94 @@ const MockTest = () => {
         </div>
       </div>
     );
+
+  if (mode === "tiger") {
+    return (
+      <>
+        {isInReview ? (
+          <div className="flex-1 overflow-y-auto w-full h-screen bg-white">
+            <MockTestReview
+              sections={sections}
+              currentSectionIndex={currentSectionIndex}
+              answers={answeredMap}
+              setIsInReview={setIsInReview}
+              markedForReview={
+                new Set(
+                  Object.keys(flaggedMap)
+                    .filter((k) => flaggedMap[k])
+                    .map((k) => parseInt(k))
+                )
+              }
+              onNavigateToQuestion={handleNavigateToQuestion}
+              onBackToTest={handleBackToQuestions}
+              activeFilter={activeFilter}
+              setActiveFilter={setActiveFilter}
+              onSubmitExam={handleSubmitExam}
+              isSubmitting={isSubmitting}
+              isFinalReview={isFinalReview}
+              isLastSection={isLastSection}
+              onMoveToNextSection={handleMoveToNextSection}
+              completedSections={completedSections}
+            />
+          </div>
+        ) : (
+          <TigerMockTest
+            user={user?.user}
+            examInfo={examInfo}
+            currentSection={currentSection}
+            currentBlock={currentBlock}
+            isStarted={isStarted}
+            timeRemaining={formatTime(timeRemaining)}
+            progressText={progressText}
+            sectionProgressText={sectionProgressText}
+            answeredMap={answeredMap}
+            flaggedMap={flaggedMap}
+            onAnswerSelect={handleAnswerSelect}
+            onNext={handleNextBlock}
+            onPrevious={handlePreviousBlock}
+            onStart={handleStartExam}
+            onMarkForReview={handleMarkForReview}
+            isMarkedForReview={isCurrentBlockMarked}
+            onSubmitSection={handleConfirmSectionEnd}
+            sections={sections}
+            currentSectionIndex={currentSectionIndex}
+            currentBlockIndex={currentBlockIndex}
+            totalQuestions={totalQuestions}
+            onNavigateToQuestion={handleNavigateToQuestion}
+            enteredSections={enteredSections}
+          />
+        )}
+
+        <ConfirmationPopup
+          isOpen={isConfirmSectionEnd}
+          onClose={() => setIsConfirmSectionEnd(false)}
+          onConfirm={handleConfirmSectionEnd}
+          title="إنهاء القسم"
+          message={
+            getUnansweredCountInCurrentSection() > 0
+              ? `يجب الإجابة على جميع الأسئلة في هذا القسم قبل الانتقال. لديك ${getUnansweredCountInCurrentSection()} سؤال غير مُجاب.`
+              : "هل أنت متأكد من إنهاء هذا القسم والانتقال إلى صفحة مراجعة القسم؟"
+          }
+          confirmText={
+            getUnansweredCountInCurrentSection() > 0
+              ? "إغلاق"
+              : "الانتقال للمراجعة"
+          }
+          cancelText="إلغاء"
+        />
+        <SuccessPopup
+          isOpen={isSuccessOpen}
+          onClose={() => {
+            setIsSuccessOpen(false);
+            router.push("/");
+          }}
+          title="تم إرسال الاختبار بنجاح!"
+          message={`نتيجتك: ${examScore} (${examPercentage}%)`}
+          buttonText="العودة للصفحة الرئيسية"
+        />
+      </>
+    );
+  }
 
   return (
     <div className="bg-[#f8f9fa] flex flex-col h-[100dvh] overflow-hidden w-full">
@@ -515,8 +607,8 @@ const MockTest = () => {
         <div className="flex flex-row w-full flex-1 overflow-hidden" dir="rtl">
           <div className="w-[49%] h-full bg-white px-2 py-2 sm:px-4 landscape:py-0.5 md:landscape:py-6 sm:py-6 md:px-12 overflow-y-auto custom-scroll">
             {isStarted &&
-            currentBlock &&
-            enteredSections.has(currentSectionIndex) ? (
+              currentBlock &&
+              enteredSections.has(currentSectionIndex) ? (
               <MockExamQuestion
                 currentSection={currentSection}
                 block={currentBlock}
@@ -541,25 +633,24 @@ const MockTest = () => {
             {isStarted && currentSection && (
               <div
                 className={`text-right text-[#be1919] w-full 
-      ${
-        fontSize === "small"
-          ? `text-[8px] sm:text-[10px] md:text-xs lg:text-sm xl:text-base
+      ${fontSize === "small"
+                    ? `text-[8px] sm:text-[10px] md:text-xs lg:text-sm xl:text-base
              landscape:text-[7px] landscape:sm:text-[9px] landscape:md:text-[11px] landscape:lg:text-xs`
-          : fontSize === "large"
-            ? `text-[10px] sm:text-sm md:text-base lg:text-lg xl:text-xl
+                    : fontSize === "large"
+                      ? `text-[10px] sm:text-sm md:text-base lg:text-lg xl:text-xl
                landscape:text-[9px] landscape:sm:text-xs landscape:md:text-sm landscape:lg:text-base`
-            : fontSize === "xlarge"
-              ? `text-[11px] sm:text-base md:text-lg lg:text-xl xl:text-2xl
+                      : fontSize === "xlarge"
+                        ? `text-[11px] sm:text-base md:text-lg lg:text-xl xl:text-2xl
                  landscape:text-[10px] landscape:sm:text-sm landscape:md:text-base landscape:lg:text-lg`
-              : `text-[9px] sm:text-xs md:text-sm lg:text-base xl:text-lg
+                        : `text-[9px] sm:text-xs md:text-sm lg:text-base xl:text-lg
                  landscape:text-[8px] landscape:sm:text-[10px] landscape:md:text-xs landscape:lg:text-sm`
-      } 
+                  } 
       leading-normal sm:leading-relaxed md:leading-relaxed lg:leading-loose
       landscape:leading-snug landscape:sm:leading-normal landscape:md:leading-relaxed
     `}
               >
                 {enteredSections.has(currentSectionIndex) &&
-                currentBlock?.questions?.[0] ? (
+                  currentBlock?.questions?.[0] ? (
                   <>
                     {currentBlock.questions[0].description && (
                       <p
@@ -594,19 +685,18 @@ const MockTest = () => {
             prose prose-neutral font-bold w-full grid grid-cols-1 !whitespace-normal
             mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 xl:mb-5
             landscape:mb-1 landscape:sm:mb-1.5 landscape:md:mb-2 landscape:lg:mb-3
-            ${
-              fontSize === "small"
-                ? `text-[10px] sm:text-xs md:text-sm lg:text-lg xl:text-xl
+            ${fontSize === "small"
+                          ? `text-[10px] sm:text-xs md:text-sm lg:text-lg xl:text-xl
                    landscape:text-[9px] landscape:sm:text-[11px] landscape:md:text-xs landscape:lg:text-base`
-                : fontSize === "large"
-                  ? `text-[12px] sm:text-base md:text-lg lg:text-xl xl:text-2xl
+                          : fontSize === "large"
+                            ? `text-[12px] sm:text-base md:text-lg lg:text-xl xl:text-2xl
                      landscape:text-[11px] landscape:sm:text-sm landscape:md:text-base landscape:lg:text-lg`
-                  : fontSize === "xlarge"
-                    ? `text-[14px] sm:text-lg md:text-xl lg:text-2xl xl:text-3xl
+                            : fontSize === "xlarge"
+                              ? `text-[14px] sm:text-lg md:text-xl lg:text-2xl xl:text-3xl
                        landscape:text-[12px] landscape:sm:text-base landscape:md:text-lg landscape:lg:text-xl`
-                    : `text-[11px] sm:text-sm md:text-base lg:text-xl xl:text-2xl
+                              : `text-[11px] sm:text-sm md:text-base lg:text-xl xl:text-2xl
                        landscape:text-[10px] landscape:sm:text-xs landscape:md:text-sm landscape:lg:text-lg`
-            }
+                        }
           `}
                       dangerouslySetInnerHTML={{
                         __html: currentSection.title.replaceAll(

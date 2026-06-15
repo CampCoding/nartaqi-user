@@ -21,6 +21,7 @@ const initialState = {
 
 const stripHtml = (html) => {
   if (!html) return "";
+  // We keep HTML tags but fix common entities
   return html.replace(/&nbsp;/gi, " ");
 };
 
@@ -52,6 +53,39 @@ const placementTestSlice = createSlice({
         // Process direct questions (MCQ, T/F)
         if (Array.isArray(section.questions)) {
           section.questions.forEach((q) => {
+            // Handle Paragraph Container Type
+            if (q.question_type === "paragraph" && Array.isArray(q.questions)) {
+              const passage = stripHtml(q.paragraph?.paragraph_content) || "";
+
+              q.questions.forEach((subQ) => {
+                if (!subQ.options || subQ.options.length === 0) return;
+
+                const correctOption = subQ.options.find(
+                  (o) => o.is_correct === 1
+                );
+
+                const questionData = {
+                  id: subQ.id,
+                  text: stripHtml(subQ.question_text),
+                  type: subQ.question_type,
+                  label: stripHtml(subQ.label),
+                  options: subQ.options.map((opt) => ({
+                    id: opt.id,
+                    text: stripHtml(opt.option_text),
+                    isCorrect: opt.is_correct === 1,
+                  })),
+                  correctAnswer: correctOption?.id || null,
+                  passage: passage,
+                  globalIndex: questionCounter++,
+                  sectionIndex,
+                };
+
+                sectionQuestions.push(questionData);
+                allQuestions.push(questionData);
+              });
+              return;
+            }
+
             if (!q.options || q.options.length === 0) return;
 
             const correctOption = q.options.find((o) => o.is_correct === 1);

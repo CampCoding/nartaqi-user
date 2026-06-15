@@ -749,13 +749,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   animation: dothatopcheck-19 0.4s ease 0s forwards;
 }
 
-.course-goal-content * {
-  white-space: pre-wrap !important;
-}
-
-/* ✅ UA-like defaults for rich text content */
+/* ✅ Enhanced Rich Text Content (UA-like defaults + improvements) */
 .richtext {
-  /* inherit from your app (font, color, etc.) */
+  font-size: inherit;
+  line-height: 1.6;
 }
 
 .richtext p {
@@ -765,7 +762,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .richtext b,
 .richtext strong {
-  font-weight: bolder; /* most UA sheets render bold/bolder */
+  font-weight: bolder;
 }
 
 .richtext i,
@@ -783,109 +780,85 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .richtext a {
-  color: -webkit-link; /* closest to UA in WebKit */
+  color: var(--color-primary);
   cursor: pointer;
   text-decoration: underline;
 }
 
-.richtext a:visited {
-  color: -webkit-visited-link;
-}
-
 /* Headings */
-.richtext h1 {
-  display: block;
-  font-size: 2em;
-  margin: 0.67em 0;
-}
-.richtext h2 {
-  display: block;
-  font-size: 1.5em;
-  margin: 0.83em 0;
-}
-.richtext h3 {
-  display: block;
-  font-size: 1.17em;
-  margin: 1em 0;
-}
-.richtext h4 {
-  display: block;
-  font-size: 1em;
-  margin: 1.33em 0;
-}
-.richtext h5 {
-  display: block;
-  font-size: 0.83em;
-  margin: 1.67em 0;
-}
-.richtext h6 {
-  display: block;
-  font-size: 0.67em;
-  margin: 2.33em 0;
-}
+.richtext h1 { font-size: 2em; margin: 0.67em 0; font-weight: bold; }
+.richtext h2 { font-size: 1.5em; margin: 0.83em 0; font-weight: bold; }
+.richtext h3 { font-size: 1.17em; margin: 1em 0; font-weight: bold; }
+.richtext h4 { font-size: 1em; margin: 1.33em 0; font-weight: bold; }
+.richtext h5 { font-size: 0.83em; margin: 1.67em 0; font-weight: bold; }
+.richtext h6 { font-size: 0.67em; margin: 2.33em 0; font-weight: bold; }
 
 /* Lists */
 .richtext ul {
   display: block;
   list-style-type: disc;
   margin: 1em 0;
-  padding-left: 40px;
+  padding-right: 40px; /* Arabic RTL padding */
 }
 .richtext ol {
   display: block;
   list-style-type: decimal;
   margin: 1em 0;
-  padding-left: 40px;
+  padding-right: 40px;
 }
 .richtext li {
   display: list-item;
+  margin-bottom: 0.5em;
 }
 
-/* Quotes / code */
-.richtext blockquote {
+/* MathML Base Styles */
+math {
+  font-family: "STIX Two Math", "Latin Modern Math", serif;
+  font-size: 1.15em;
+  direction: ltr !important;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+[dir="rtl"] math {
+  direction: ltr !important;
+  unicode-bidi: embed;
+}
+
+math[display="block"] {
   display: block;
-  margin: 1em 40px;
-}
-
-.richtext pre {
-  display: block;
-  font-family: monospace;
-  white-space: pre;
-  margin: 1em 0;
-}
-
-.richtext code,
-.richtext kbd,
-.richtext samp {
-  font-family: monospace;
-  font-size: 1em;
-}
-
-/* Horizontal rule */
-.richtext hr {
-  display: block;
-  margin: 0.5em auto;
-  border-style: inset;
-  border-width: 1px;
+  margin: 1.5rem auto;
+  text-align: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
 }
 
 /* Images */
 .richtext img {
-  display: inline;
+  display: block;
   max-width: 100%;
   height: auto;
+  border-radius: 8px;
+  margin: 1rem auto;
 }
 
-/* Tables (basic UA-ish) */
+/* Tables */
 .richtext table {
-  display: table;
-  border-collapse: separate;
-  border-spacing: 2px;
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+  overflow-x: auto;
+  display: block;
 }
-.richtext th {
-  text-align: center;
+
+.richtext th, .richtext td {
+  border: 1px solid var(--color-border);
+  padding: 0.75rem;
+  text-align: right;
 }
-.richtext td,
+
 .richtext th {
-  padding: 1px;
+  background-color: var(--color-bg-alt);
+  font-weight: bold;
 }

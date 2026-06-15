@@ -258,6 +258,166 @@ const examSlice = createSlice({
           });
         }
 
+        // 3) Unified questions array (New format)
+        if (section.questions?.length) {
+          section.questions.forEach((q) => {
+            if (processedParagraphQuestionIds.has(q.id)) return;
+
+            // Handle Paragraph Container Type
+            if (q.question_type === "paragraph" && Array.isArray(q.questions)) {
+              const passage = q.paragraph?.paragraph_content || "";
+              const voice = q.paragraph?.voice || null;
+
+              q.questions.forEach((subQ) => {
+                if (!subQ.options?.length) return;
+
+                const subQuestionType = mapQuestionType(subQ.question_type);
+                let subOptions = subQ.options.map((opt) => ({
+                  id: opt.id,
+                  text: stripHtml(opt.option_text),
+                  textHtml: opt.option_text,
+                  isCorrect: opt.is_correct === 1,
+                }));
+
+                const correctSubOption = subQ.options.find(
+                  (o) => o.is_correct === 1
+                );
+
+                const subQuestionData = {
+                  id: subQ.id,
+                  text: stripHtml(subQ.question_text),
+                  textHtml: subQ.question_text,
+                  options: subOptions,
+                  correctAnswer: correctSubOption?.id || null,
+                  correctAnswerText:
+                    stripHtml(correctSubOption?.option_text) || null,
+                  explanation:
+                    stripHtml(correctSubOption?.question_explanation) ||
+                    "لا يوجد تفسير متاح.",
+                  instructions: subQ.instructions || "",
+                  type: subQuestionType,
+                  sectionId: section.id,
+                  sectionTitle: stripHtml(sectionTitle),
+                  sectionIndex: transformedSections.length,
+                  globalIndex: globalQuestionIndex++,
+                };
+
+                blocks.push({
+                  type: "paragraph",
+                  passage,
+                  voice,
+                  questions: [subQuestionData],
+                });
+
+                allQuestions.push(subQuestionData);
+                sectionQuestionIds.push(subQ.id);
+              });
+              return;
+            }
+
+            if (!q.options?.length) return;
+
+            const questionType = mapQuestionType(q.question_type);
+
+            let formattedOptions = [];
+            let correctAnswer = null;
+            let correctAnswerText = null;
+
+            if (questionType === "t_f") {
+              const trueOpt = q.options.find((o) =>
+                ["صحيح", "صح", "true", true].includes(stripHtml(o.option_text))
+              );
+              const falseOpt = q.options.find((o) =>
+                ["خطأ", "خاطئ", "false", false].includes(
+                  stripHtml(o.option_text)
+                )
+              );
+
+              const trueCorrect = trueOpt?.is_correct === 1;
+              const falseCorrect = falseOpt?.is_correct === 1;
+
+              formattedOptions = [
+                {
+                  id: "true",
+                  text: "صح",
+                  textHtml: "صح",
+                  isCorrect: trueCorrect,
+                },
+                {
+                  id: "false",
+                  text: "خطأ",
+                  textHtml: "خطأ",
+                  isCorrect: falseCorrect,
+                },
+              ];
+
+              if (trueCorrect) {
+                correctAnswer = "صحيح";
+                correctAnswerText = "صح";
+              } else if (falseCorrect) {
+                correctAnswer = "خطأ";
+                correctAnswerText = "خطأ";
+              }
+            } else {
+              const correctOption = q.options.find((o) => o.is_correct === 1);
+
+              formattedOptions = q.options.map((opt) => ({
+                id: opt.id,
+                text: stripHtml(opt.option_text),
+                textHtml: opt.option_text,
+                isCorrect: opt.is_correct === 1,
+              }));
+
+              correctAnswer = correctOption?.id || null;
+              correctAnswerText = stripHtml(correctOption?.option_text) || null;
+            }
+
+            const correctOptionForExplanation = q.options.find(
+              (o) => o.is_correct === 1
+            );
+
+            const questionData = {
+              id: q.id,
+              text: stripHtml(q.question_text),
+              textHtml: q.question_text,
+              options: formattedOptions,
+              correctAnswer,
+              correctAnswerText,
+              explanation:
+                stripHtml(correctOptionForExplanation?.question_explanation) ||
+                "لا يوجد تفسير متاح.",
+              instructions: q.instructions || "",
+              type: questionType,
+              sectionId: section.id,
+              sectionTitle: stripHtml(sectionTitle),
+              sectionIndex: transformedSections.length,
+              globalIndex: globalQuestionIndex++,
+            };
+
+            // Handle paragraph if nested in question
+            if (q.paragraph) {
+              const passage = q.paragraph.paragraph_content || "";
+              const voice = q.paragraph.voice || null;
+              blocks.push({
+                type: "paragraph",
+                passage,
+                voice,
+                questions: [questionData],
+              });
+            } else {
+              blocks.push({
+                type: questionType,
+                passage: null,
+                voice: null,
+                questions: [questionData],
+              });
+            }
+
+            allQuestions.push(questionData);
+            sectionQuestionIds.push(q.id);
+          });
+        }
+
         if (blocks.length) {
           transformedSections.push({
             id: section.id,

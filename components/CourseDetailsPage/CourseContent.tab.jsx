@@ -41,6 +41,11 @@ const extractYoutubeId = (url) => {
 
 const CourseContent = ({ isRegistered, courseData }) => {
   const [selectedTab, setSelectedTab] = useState("foundation");
+  const [examModeModal, setExamModeModal] = useState({ isOpen: false, examId: null });
+
+  const handleOpenModeModal = (examId) => {
+    setExamModeModal({ isOpen: true, examId });
+  };
 
   const { contents, round, exams_round, own } = courseData;
   const isFree = round.free == 1;
@@ -108,6 +113,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
                 key={examData.exam.id}
                 examData={examData}
                 isRegistered={own || isFree}
+                onOpenModeModal={handleOpenModeModal}
               />
             ))
           ) : (
@@ -117,6 +123,12 @@ const CourseContent = ({ isRegistered, courseData }) => {
           )}
         </div>
       )}
+
+      <ExamModeModal
+        isOpen={examModeModal.isOpen}
+        onClose={() => setExamModeModal({ isOpen: false, examId: null })}
+        examId={examModeModal.examId}
+      />
     </div>
   );
 };
@@ -191,7 +203,7 @@ export const Navs = ({ selectedTab, setSelectedTab }) => {
   );
 };
 
-export const TestRow = ({ examData, isRegistered }) => {
+export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(null);
 
@@ -336,7 +348,7 @@ export const TestRow = ({ examData, isRegistered }) => {
   const isFutureExam = examDate ? examDate.getTime() > Date.now() : false;
   const isBlocked = !isRegistered || isFutureExam;
 
-  
+
 
 
   return (
@@ -351,7 +363,7 @@ export const TestRow = ({ examData, isRegistered }) => {
     >
       {/* Main Row */}
       <div
-        onClick={() =>{
+        onClick={() => {
 
           hasContent && setIsExpanded(!isExpanded)
 
@@ -378,17 +390,17 @@ export const TestRow = ({ examData, isRegistered }) => {
                   : `/intern-test-details/${exam.id}`
             }
             onClick={(e) => {
-              console.log("examData" , examData)
               if (isBlocked) {
                 e.preventDefault();
-
                 if (!isRegistered) {
                   alert("يجب التسجيل في الدورة أولاً 🔒");
                 } else if (isFutureExam) {
                   alert("هذا الاختبار لم يبدأ بعد ⏳");
                 }
+              } else if (exam.type === "mock") {
+                e.preventDefault();
+                onOpenModeModal(exam.id);
               }
-
               e.stopPropagation();
             }}
             className={[
@@ -401,7 +413,7 @@ export const TestRow = ({ examData, isRegistered }) => {
           >
             {exam.title || "غير محدد"}{" "}
             {exam.type === "mock" ? (
-              <span className="text-primary">(محــاكي)</span>
+              <span className="text-primary">(اختر وضع الاختبار)</span>
             ) : (
               <span className="text-secondary">(تدريـــــب)</span>
             )}
@@ -666,13 +678,21 @@ export const TestRow = ({ examData, isRegistered }) => {
               <Link
                 href={
                   isBlocked
-                  ? "#"
-                  : exam.type === "mock"
-                    ? `/mock-test/${exam.id}`
-                    : `/intern-test-details/${exam.id}`
+                    ? "#"
+                    : exam.type === "mock"
+                      ? `/mock-test/${exam.id}`
+                      : `/intern-test-details/${exam.id}`
                 }
-                  className={["inline-flex items-center gap-2 px-7 sm:px-9 py-3.5 bg-primary text-white rounded-2xl hover:opacity-90 transition-opacity font-medium text-sm md:text-base", isBlocked ? "pointer-events-auto opacity-60 cursor-not-allowed hover:no-underline hover:text-text" : " hover:shadow-2xl hover:scale-105 !transition-all "].join(" ")}
-                >
+                onClick={(e) => {
+                  if (isBlocked) {
+                    e.preventDefault();
+                  } else if (exam.type === "mock") {
+                    e.preventDefault();
+                    onOpenModeModal(exam.id);
+                  }
+                }}
+                className={["inline-flex items-center gap-2 px-7 sm:px-9 py-3.5 bg-primary text-white rounded-2xl hover:opacity-90 transition-opacity font-medium text-sm md:text-base", isBlocked ? "pointer-events-auto opacity-60 cursor-not-allowed hover:no-underline hover:text-text" : " hover:shadow-2xl hover:scale-105 !transition-all "].join(" ")}
+              >
                 <svg
                   className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0"
                   fill="none"
@@ -698,6 +718,77 @@ export const TestRow = ({ examData, isRegistered }) => {
           )}
         </div>
       )}
+    </div>
+  );
+};
+
+const ExamModeModal = ({ isOpen, onClose, examId }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
+      <div className="relative bg-white rounded-[32px] w-full max-w-lg overflow-hidden shadow-2xl transform transition-all scale-100">
+        <div className="bg-primary p-8 text-white text-center">
+          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              className="w-10 h-10 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+              />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-bold mb-2">اختيار وضع الاختبار</h3>
+          <p className="text-white/80">اختر الطريقة التي تفضل بها أداء الاختبار المحاكي</p>
+        </div>
+
+        <div className="p-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <Link
+            href={`/mock-test/${examId}`}
+            onClick={onClose}
+            className="group flex flex-col items-center p-6 bg-gray-50 rounded-3xl border-2 border-transparent hover:border-primary hover:bg-primary/5 transition-all"
+          >
+            <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-all text-primary">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <span className="font-bold text-lg text-text">الوضع الافتراضي</span>
+            <span className="text-sm text-text-alt text-center mt-2">الشكل الكلاسيكي للاختبار المحاكي</span>
+          </Link>
+
+          <Link
+            href={`/mock-test/${examId}?mode=tiger`}
+            onClick={onClose}
+            className="group flex flex-col items-center p-6 bg-gray-50 rounded-3xl border-2 border-transparent hover:border-secondary hover:bg-secondary/5 transition-all"
+          >
+            <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 group-hover:bg-secondary group-hover:text-white transition-all text-secondary">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <span className="font-bold text-lg text-text">وضع النمر</span>
+            <span className="text-sm text-text-alt text-center mt-2">تصميم عصري وتجربة أسرع</span>
+          </Link>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full py-5 text-text-alt font-medium hover:text-text bg-gray-50 hover:bg-gray-100 transition-all border-t border-gray-100"
+        >
+          إلغاء
+        </button>
+      </div>
     </div>
   );
 };

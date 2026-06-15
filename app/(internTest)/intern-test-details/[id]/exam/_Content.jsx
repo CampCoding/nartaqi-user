@@ -10,18 +10,12 @@ import { useSelector, useDispatch } from "react-redux";
 import LoadingPage from "@/components/shared/Loading";
 import { usePathname } from "next/navigation";
 import ExamContent from "../../../../../components/ExamPage/ExamContent";
-
-
-
-
 import {
   resetExam,
   setStudentId,
   setExamId,
   initializeExam,
   decrementTime,
-  setCurrentSectionIndex,
-  setCurrentBlockIndex,
   selectQuestions,
   selectSections,
   selectCurrentSection,
@@ -39,6 +33,7 @@ import {
   submitExam,
   setExamResults,
 } from "../../../../../components/utils/Store/Slices/examSlice";
+
 
 const ExamPage = () => {
   const dispatch = useDispatch();
@@ -68,10 +63,10 @@ const ExamPage = () => {
 
   useEffect(() => {
     if (isSubmitted) {
-      
+
       setOpenResult(isSubmitted)
     }
-  },[isSubmitted])
+  }, [isSubmitted])
   const submissionData = useSelector(selectSubmissionData);
   const answers = useSelector(selectAnswers);
 
