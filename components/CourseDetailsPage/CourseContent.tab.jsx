@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import CourseContentDrawer from "../ui/CourseContentDrawer";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -11,6 +11,7 @@ import {
   LockIcon2,
 } from "../../public/svgs";
 import cx from "../../lib/cx";
+import { createPortal } from "react-dom";
 
 // ==================== ENCODING HELPERS ====================
 const encodeId = (value) => {
@@ -723,15 +724,50 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
 };
 
 const ExamModeModal = ({ isOpen, onClose, examId }) => {
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
 
-  return (
-    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll + hide overflow
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+
+      // ESC to close
+      const handleEsc = (e) => {
+        if (e.key === "Escape") onClose();
+      };
+      document.addEventListener("keydown", handleEsc);
+
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        document.removeEventListener("keydown", handleEsc);
+      };
+    }
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !mounted) return null;
+
+  const modalContent = (
+    <div
+      className="fixed inset-0 flex items-center justify-center p-4"
+      style={{ zIndex: 2147483647 }} // أعلى z-index ممكن
+    >
+      {/* Overlay */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
         onClick={onClose}
+        style={{ zIndex: 1 }}
       />
-      <div className="relative bg-white rounded-[32px] w-full max-w-lg overflow-hidden shadow-2xl transform transition-all scale-100">
+
+      {/* Modal */}
+      <div
+        className="relative bg-white rounded-[32px] w-full max-w-lg overflow-hidden shadow-2xl transform transition-all scale-100"
+        style={{ zIndex: 2 }}
+      >
         <div className="bg-primary p-8 text-white text-center">
           <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
@@ -749,7 +785,9 @@ const ExamModeModal = ({ isOpen, onClose, examId }) => {
             </svg>
           </div>
           <h3 className="text-2xl font-bold mb-2">اختيار وضع الاختبار</h3>
-          <p className="text-white/80">اختر الطريقة التي تفضل بها أداء الاختبار المحاكي</p>
+          <p className="text-white/80">
+            اختر الطريقة التي تفضل بها أداء الاختبار المحاكي
+          </p>
         </div>
 
         <div className="p-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -759,12 +797,24 @@ const ExamModeModal = ({ isOpen, onClose, examId }) => {
             className="group flex flex-col items-center p-6 bg-gray-50 rounded-3xl border-2 border-transparent hover:border-primary hover:bg-primary/5 transition-all"
           >
             <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-all text-primary">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
               </svg>
             </div>
             <span className="font-bold text-lg text-text">الوضع الافتراضي</span>
-            <span className="text-sm text-text-alt text-center mt-2">الشكل الكلاسيكي للاختبار المحاكي</span>
+            <span className="text-sm text-text-alt text-center mt-2">
+              الشكل الكلاسيكي للاختبار المحاكي
+            </span>
           </Link>
 
           <Link
@@ -773,12 +823,24 @@ const ExamModeModal = ({ isOpen, onClose, examId }) => {
             className="group flex flex-col items-center p-6 bg-gray-50 rounded-3xl border-2 border-transparent hover:border-secondary hover:bg-secondary/5 transition-all"
           >
             <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 group-hover:bg-secondary group-hover:text-white transition-all text-secondary">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
               </svg>
             </div>
             <span className="font-bold text-lg text-text">وضع النمر</span>
-            <span className="text-sm text-text-alt text-center mt-2">تصميم عصري وتجربة أسرع</span>
+            <span className="text-sm text-text-alt text-center mt-2">
+              تصميم عصري وتجربة أسرع
+            </span>
           </Link>
         </div>
 
@@ -791,4 +853,6 @@ const ExamModeModal = ({ isOpen, onClose, examId }) => {
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
