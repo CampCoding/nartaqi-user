@@ -1,0 +1,157 @@
+RewriteEngine On
+RewriteBase /
+
+# Serve actual files directly
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# ===== STATIC PAGES =====
+RewriteRule ^$ /index.html [L]
+RewriteRule ^about-us/?$ /about-us.html [L]
+RewriteRule ^blogs/?$ /blogs.html [L]
+RewriteRule ^cart/?$ /cart.html [L]
+RewriteRule ^change-password/?$ /change-password.html [L]
+RewriteRule ^checkout/?$ /checkout.html [L]
+RewriteRule ^checkout/old-checkout/?$ /checkout/old-checkout.html [L]
+RewriteRule ^competitions/?$ /competitions.html [L]
+RewriteRule ^complaints-and-suggestions/?$ /complaints-and-suggestions.html [L]
+RewriteRule ^conditions-and-privacy/?$ /conditions-and-privacy.html [L]
+RewriteRule ^conditions-for-joining-courses/?$ /conditions-for-joining-courses.html [L]
+RewriteRule ^contact-us/?$ /contact-us.html [L]
+RewriteRule ^course-rate/?$ /course-rate.html [L]
+RewriteRule ^courses/newest/?$ /courses/newest.html [L]
+RewriteRule ^faqs/?$ /faqs.html [L]
+RewriteRule ^free-courses/?$ /free-courses.html [L]
+RewriteRule ^free-courses/watch/?$ /free-courses/watch.html [L]
+RewriteRule ^instructors/?$ /instructors.html [L]
+RewriteRule ^login/?$ /login.html [L]
+RewriteRule ^marketer-profile/?$ /marketer-profile.html [L]
+RewriteRule ^marketing-team/?$ /marketing-team.html [L]
+RewriteRule ^marketing-team/join-to-marketers/?$ /marketing-team/join-to-marketers.html [L]
+RewriteRule ^my-badges/?$ /my-badges.html [L]
+RewriteRule ^my-books/?$ /my-books.html [L]
+RewriteRule ^my-certificates/?$ /my-certificates.html [L]
+RewriteRule ^my-courses/?$ /my-courses.html [L]
+RewriteRule ^my-favourites/?$ /my-favourites.html [L]
+RewriteRule ^notifications/?$ /notifications.html [L]
+RewriteRule ^payment/callback/?$ /payment/callback.html [L]
+RewriteRule ^payment/failed/?$ /payment/failed.html [L]
+RewriteRule ^profile/?$ /profile.html [L]
+RewriteRule ^refund-policy/?$ /refund-policy.html [L]
+RewriteRule ^register-certificate/?$ /register-certificate.html [L]
+RewriteRule ^reset-password/?$ /reset-password.html [L]
+RewriteRule ^reset-password-code/?$ /reset-password-code.html [L]
+RewriteRule ^reset-password-last-step/?$ /reset-password-last-step.html [L]
+RewriteRule ^rewards-store/?$ /rewards-store.html [L]
+RewriteRule ^sign-up/?$ /sign-up.html [L]
+RewriteRule ^store/?$ /store.html [L]
+RewriteRule ^student-achievement-scores/?$ /student-achievement-scores.html [L]
+RewriteRule ^student-results/watch/?$ /student-results/watch.html [L]
+RewriteRule ^students-courses/?$ /students-courses.html [L]
+RewriteRule ^study-planner/?$ /study-planner.html [L]
+RewriteRule ^success-checkout/?$ /success-checkout.html [L]
+RewriteRule ^support-gate/?$ /support-gate.html [L]
+RewriteRule ^team-work/?$ /team-work.html [L]
+RewriteRule ^technical-support/?$ /technical-support.html [L]
+RewriteRule ^verification-code/?$ /verification-code.html [L]
+RewriteRule ^weighted-percentage-calculator/?$ /weighted-percentage-calculator.html [L]
+
+# ===== DYNAMIC ROUTES (sub-routes first, then root) =====
+
+# course/[id]/lesson/[lessonId]/exam-details/[examId]/exam
+RewriteRule ^course/[^/]+/lesson/[^/]+/exam-details/[^/]+/exam\.txt$ /course/1/lesson/1/exam-details/1/exam.txt [L]
+RewriteRule ^course/[^/]+/lesson/[^/]+/exam-details/[^/]+/exam/(.+)$ /course/1/lesson/1/exam-details/1/exam/$1 [L]
+RewriteRule ^course/[^/]+/lesson/[^/]+/exam-details/[^/]+/exam/?$ /course/1/lesson/1/exam-details/1/exam.html [L]
+
+# course/[id]/lesson/[lessonId]/exam-details/[examId]
+RewriteRule ^course/[^/]+/lesson/[^/]+/exam-details/[^/]+\.txt$ /course/1/lesson/1/exam-details/1.txt [L]
+RewriteRule ^course/[^/]+/lesson/[^/]+/exam-details/[^/]+/(.+)$ /course/1/lesson/1/exam-details/1/$1 [L]
+RewriteRule ^course/[^/]+/lesson/[^/]+/exam-details/[^/]+/?$ /course/1/lesson/1/exam-details/1.html [L]
+
+# course/[id]/view
+RewriteRule ^course/[^/]+/view\.txt$ /course/1/view.txt [L]
+RewriteRule ^course/[^/]+/view/(.+)$ /course/1/view/$1 [L]
+RewriteRule ^course/[^/]+/view/?$ /course/1/view.html [L]
+
+# course/[id]
+RewriteRule ^course/[^/]+\.txt$ /course/1.txt [L]
+RewriteRule ^course/[^/]+/(.+)$ /course/1/$1 [L]
+RewriteRule ^course/[^/]+/?$ /course/1.html [L]
+
+# courses/[id]/rate-course
+RewriteRule ^courses/[^/]+/rate-course\.txt$ /courses/1/rate-course.txt [L]
+RewriteRule ^courses/[^/]+/rate-course/(.+)$ /courses/1/rate-course/$1 [L]
+RewriteRule ^courses/[^/]+/rate-course/?$ /courses/1/rate-course.html [L]
+
+# courses/[id]
+RewriteRule ^courses/[^/]+\.txt$ /courses/1.txt [L]
+RewriteRule ^courses/[^/]+/(.+)$ /courses/1/$1 [L]
+RewriteRule ^courses/[^/]+/?$ /courses/1.html [L]
+
+# exam-details/[id]/exam
+RewriteRule ^exam-details/[^/]+/exam\.txt$ /exam-details/1/exam.txt [L]
+RewriteRule ^exam-details/[^/]+/exam/(.+)$ /exam-details/1/exam/$1 [L]
+RewriteRule ^exam-details/[^/]+/exam/?$ /exam-details/1/exam.html [L]
+
+# exam-details/[id]
+RewriteRule ^exam-details/[^/]+\.txt$ /exam-details/1.txt [L]
+RewriteRule ^exam-details/[^/]+/(.+)$ /exam-details/1/$1 [L]
+RewriteRule ^exam-details/[^/]+/?$ /exam-details/1.html [L]
+
+# intern-test-details/[id]/exam
+RewriteRule ^intern-test-details/[^/]+/exam\.txt$ /intern-test-details/1/exam.txt [L]
+RewriteRule ^intern-test-details/[^/]+/exam/(.+)$ /intern-test-details/1/exam/$1 [L]
+RewriteRule ^intern-test-details/[^/]+/exam/?$ /intern-test-details/1/exam.html [L]
+
+# intern-test-details/[id]
+RewriteRule ^intern-test-details/[^/]+\.txt$ /intern-test-details/1.txt [L]
+RewriteRule ^intern-test-details/[^/]+/(.+)$ /intern-test-details/1/$1 [L]
+RewriteRule ^intern-test-details/[^/]+/?$ /intern-test-details/1.html [L]
+
+# mock-test/[id]/answers
+RewriteRule ^mock-test/[^/]+/answers\.txt$ /mock-test/1/answers.txt [L]
+RewriteRule ^mock-test/[^/]+/answers/(.+)$ /mock-test/1/answers/$1 [L]
+RewriteRule ^mock-test/[^/]+/answers/?$ /mock-test/1/answers.html [L]
+
+# mock-test/[id]
+RewriteRule ^mock-test/[^/]+\.txt$ /mock-test/1.txt [L]
+RewriteRule ^mock-test/[^/]+/(.+)$ /mock-test/1/$1 [L]
+RewriteRule ^mock-test/[^/]+/?$ /mock-test/1.html [L]
+
+# blogs/blog-details/[id]
+RewriteRule ^blogs/blog-details/[^/]+\.txt$ /blogs/blog-details/1.txt [L]
+RewriteRule ^blogs/blog-details/[^/]+/(.+)$ /blogs/blog-details/1/$1 [L]
+RewriteRule ^blogs/blog-details/[^/]+/?$ /blogs/blog-details/1.html [L]
+
+# competitions/[id]
+RewriteRule ^competitions/[^/]+\.txt$ /competitions/1.txt [L]
+RewriteRule ^competitions/[^/]+/(.+)$ /competitions/1/$1 [L]
+RewriteRule ^competitions/[^/]+/?$ /competitions/1.html [L]
+
+# course-preview/[id]
+RewriteRule ^course-preview/[^/]+\.txt$ /course-preview/1.txt [L]
+RewriteRule ^course-preview/[^/]+/(.+)$ /course-preview/1/$1 [L]
+RewriteRule ^course-preview/[^/]+/?$ /course-preview/1.html [L]
+
+# placement-details/[id]
+RewriteRule ^placement-details/[^/]+\.txt$ /placement-details/1.txt [L]
+RewriteRule ^placement-details/[^/]+/(.+)$ /placement-details/1/$1 [L]
+RewriteRule ^placement-details/[^/]+/?$ /placement-details/1.html [L]
+
+# placement-test/[id]
+RewriteRule ^placement-test/[^/]+\.txt$ /placement-test/1.txt [L]
+RewriteRule ^placement-test/[^/]+/(.+)$ /placement-test/1/$1 [L]
+RewriteRule ^placement-test/[^/]+/?$ /placement-test/1.html [L]
+
+# student-results/[id]
+RewriteRule ^student-results/[^/]+\.txt$ /student-results/1.txt [L]
+RewriteRule ^student-results/[^/]+/(.+)$ /student-results/1/$1 [L]
+RewriteRule ^student-results/[^/]+/?$ /student-results/1.html [L]
+
+# teacher-overview/[id]
+RewriteRule ^teacher-overview/[^/]+\.txt$ /teacher-overview/1.txt [L]
+RewriteRule ^teacher-overview/[^/]+/(.+)$ /teacher-overview/1/$1 [L]
+RewriteRule ^teacher-overview/[^/]+/?$ /teacher-overview/1.html [L]
+
+# Fallback
+RewriteRule ^ /404.html [L]
