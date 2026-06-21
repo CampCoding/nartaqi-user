@@ -6,7 +6,7 @@ import "swiper/css/free-mode";
 import { FreeMode, Mousewheel, Navigation } from "swiper/modules";
 
 import CoursesCategoryCard from "./../ui/Cards/CoursesCategoryCard";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import Container from "../ui/Container";
 import CoursesCategoryCardMobile from "../ui/Cards/CoursesCategoryCard.mobile";
 

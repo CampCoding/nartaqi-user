@@ -4,7 +4,7 @@ import { Dropdown, Menu } from "antd";
 import React, { useEffect, useState, useCallback, memo } from "react";
 import { SaudiIcon, EgyptianIcon } from "../../../public/svgs";
 import { Eye, EyeOff } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import { useRouter } from "next/navigation";
 import Container from "../../../components/ui/Container";
 import { useForm } from "react-hook-form";

@@ -17,7 +17,7 @@ import {
   CoursePlayIcon,
 } from "../../public/svgs";
 import cx from "../../lib/cx";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import useMakeStudentView from "../shared/Hooks/useMakestudentView";

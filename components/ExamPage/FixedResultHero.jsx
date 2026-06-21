@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {

@@ -8,7 +8,7 @@ import {
   SeatsIcon,
   ShareIcon,
 } from "../../../public/svgs";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import { formatDateBackEnd } from "../../utils/helpers/date";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar, Tooltip } from "antd";

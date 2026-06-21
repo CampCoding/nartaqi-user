@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import { BarChart3 } from "lucide-react";
 import { useSelector } from "react-redux";
 

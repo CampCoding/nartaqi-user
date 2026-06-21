@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import PagesBanner from "../../components/ui/PagesBanner";
 import { ProductCard } from "../../components/Store/ProductCard";
 import { FiltersIcon } from "../../public/svgs";

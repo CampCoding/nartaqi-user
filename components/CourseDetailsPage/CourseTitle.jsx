@@ -1,6 +1,6 @@
 "use client"; // Required for Swiper hooks
 
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import React from "react";
 
 // 1. Import Swiper components and styles

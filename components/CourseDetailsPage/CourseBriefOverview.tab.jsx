@@ -7,7 +7,7 @@ import {
   RatingStarIcon,
   VideoCameraIcon,
 } from "../../public/svgs";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import { usePathname } from "next/navigation";
 
 const FALLBACK_TEACHER_IMG = "/images/teacher-placeholder.png";
@@ -52,18 +52,32 @@ const CourseBriefOverview = ({ isRegistered, courseData }) => {
             <div className="self-stretch text-right justify-center text-text text-xl md:text-2xl font-bold">
               مقدمة عن الدورة:
             </div>
-            <div className="text-right justify-center text-text-alt text-base md:text-lg leading-relaxed md:leading-loose font-medium">
-              {round.description || "غير محدد"}
-            </div>
+            {round.description ? (
+              <div
+                className="richtext text-right text-text-alt text-base md:text-lg leading-relaxed md:leading-loose font-medium"
+                dangerouslySetInnerHTML={{ __html: round.description.replaceAll(/&nbsp;/gi, " ") }}
+              />
+            ) : (
+              <div className="text-right justify-center text-text-alt text-base md:text-lg leading-relaxed md:leading-loose font-medium">
+                غير محدد
+              </div>
+            )}
           </div>
 
           <div className="self-stretch inline-flex flex-col justify-start items-end gap-2">
             <div className="self-stretch text-right justify-center text-text text-xl md:text-2xl font-bold">
               لمن هذه الدورة؟
             </div>
-            <div className="text-right justify-center text-text-alt text-base md:text-lg leading-relaxed md:leading-loose font-medium">
-              {round.for || "غير محدد"}
-            </div>
+            {round.for ? (
+              <div
+                className="richtext text-right text-text-alt text-base md:text-lg leading-relaxed md:leading-loose font-medium"
+                dangerouslySetInnerHTML={{ __html: round.for.replaceAll(/&nbsp;/gi, " ") }}
+              />
+            ) : (
+              <div className="text-right justify-center text-text-alt text-base md:text-lg leading-relaxed md:leading-loose font-medium">
+                غير محدد
+              </div>
+            )}
           </div>
         </>
       )}

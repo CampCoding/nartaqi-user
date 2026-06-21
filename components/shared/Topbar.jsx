@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { headerIcons } from "../../public/svgs";
 import SearchBanner from "./SearchBanner";
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import { Dropdown } from "antd";
 import { ChevronLeft, ChevronRight, Menu, X, ChevronDown } from "lucide-react";
 import headerData from "./headerData";
@@ -88,23 +88,23 @@ export default function Header() {
             ...g,
             items: coursesMenuLoading
               ? [
-                  {
-                    id: "loading-courses",
-                    title: "جاري التحميل...",
-                    count: null,
-                    link: "#",
-                  },
-                ]
+                {
+                  id: "loading-courses",
+                  title: "جاري التحميل...",
+                  count: null,
+                  link: "#",
+                },
+              ]
               : apiCoursesItems.length
                 ? apiCoursesItems
                 : [
-                    {
-                      id: "empty-courses",
-                      title: "لا توجد أقسام",
-                      count: 0,
-                      link: "/courses",
-                    },
-                  ],
+                  {
+                    id: "empty-courses",
+                    title: "لا توجد أقسام",
+                    count: 0,
+                    link: "/courses",
+                  },
+                ],
           };
         }
 
@@ -114,23 +114,23 @@ export default function Header() {
             ...g,
             items: freeMenuLoading
               ? [
-                  {
-                    id: "loading-free",
-                    title: "جاري التحميل...",
-                    count: null,
-                    link: "#",
-                  },
-                ]
+                {
+                  id: "loading-free",
+                  title: "جاري التحميل...",
+                  count: null,
+                  link: "#",
+                },
+              ]
               : apiFreeItems.length
                 ? [...apiFreeItems]
                 : [
-                    {
-                      id: "empty-free",
-                      title: "لا توجد أقسام",
-                      count: 0,
-                      link: "/free-courses",
-                    },
-                  ],
+                  {
+                    id: "empty-free",
+                    title: "لا توجد أقسام",
+                    count: 0,
+                    link: "/free-courses",
+                  },
+                ],
           };
         }
 
@@ -140,23 +140,23 @@ export default function Header() {
             ...g,
             items: freeMenuLoading
               ? [
-                  {
-                    id: "loading-free",
-                    title: "جاري التحميل...",
-                    count: null,
-                    link: "#",
-                  },
-                ]
+                {
+                  id: "loading-free",
+                  title: "جاري التحميل...",
+                  count: null,
+                  link: "#",
+                },
+              ]
               : achievementsItem.length
                 ? [...achievementsItem]
                 : [
-                    {
-                      id: "empty-free",
-                      title: "لا توجد داتا",
-                      count: 0,
-                      link: "/free-courses",
-                    },
-                  ],
+                  {
+                    id: "empty-free",
+                    title: "لا توجد داتا",
+                    count: 0,
+                    link: "/free-courses",
+                  },
+                ],
           };
         }
 
@@ -171,21 +171,21 @@ export default function Header() {
                   ...item,
                   subItems: placementTestsLoading
                     ? [
-                        {
-                          key: "loading-placement",
-                          title: "جاري التحميل...",
-                          link: "#",
-                        },
-                      ]
+                      {
+                        key: "loading-placement",
+                        title: "جاري التحميل...",
+                        link: "#",
+                      },
+                    ]
                     : placementTests.length
                       ? placementTests
                       : [
-                          {
-                            key: "empty-placement",
-                            title: "لا توجد اختبارات",
-                            link: "#",
-                          },
-                        ],
+                        {
+                          key: "empty-placement",
+                          title: "لا توجد اختبارات",
+                          link: "#",
+                        },
+                      ],
                 };
               }
               return item;
@@ -242,10 +242,10 @@ export default function Header() {
                 <Link
                   key={index}
                   href={group.link}
+                  onClick={() => typeof window != undefined ? window.location.href = group?.link : "#"}
                   target={group.target == "_blank" ? "_blank" : "_self"}
-                  className={`${
-                    index == 0 ? "ml-5" : ""
-                  } cursor-pointer hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary`}
+                  className={`${index == 0 ? "ml-5" : ""
+                    } cursor-pointer hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary`}
                 >
                   {group.title}
                 </Link>
@@ -293,6 +293,8 @@ export default function Header() {
             {!token && (
               <Link
                 href={"/login"}
+                onClick={() => typeof window != undefined ? window.location.href = "/login" : "#"}
+
                 className="flex mr-[16px] items-center text-xs font-bold pr-[24px] leading-[150%] relative bg-primary text-bg h-[56px] w-[241px] rounded-[100px]"
               >
                 إنشاء حساب / تسجيل الدخول
@@ -407,7 +409,10 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
         {/* ✅ Cart Link in Mobile Menu */}
         <Link
           href="/cart"
-          onClick={onClose}
+          onClick={() => {
+            onClose()
+            return typeof window != undefined ? window.location.href = "/cart" : "#"
+          }}
           className="py-4 px-2 border-b border-gray-200 text-text font-medium flex items-center justify-between"
         >
           <span>السلة</span>
@@ -423,8 +428,11 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
             return (
               <Link
                 key={group.key}
-                href={group.link}
-                onClick={onClose}
+                href={group?.link}
+                onClick={() => {
+                  onClose()
+                  return typeof window != undefined ? window.location.href = group?.link : "#"
+                }}
                 className="py-4 px-2 border-b border-gray-200 text-text font-medium"
               >
                 {group.title}
@@ -442,9 +450,8 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
               >
                 <span>{group.title}</span>
                 <ChevronDown
-                  className={`w-5 h-5 transition-transform ${
-                    expandedItem === index ? "rotate-180" : ""
-                  }`}
+                  className={`w-5 h-5 transition-transform ${expandedItem === index ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -460,7 +467,10 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
           {!token ? (
             <Link
               href="/login"
-              onClick={onClose}
+              onClick={() => {
+                onClose()
+                return typeof window != undefined ? window.location.href = "/login" : "#"
+              }}
               className="flex items-center justify-center text-sm font-bold relative bg-primary text-white h-[48px] rounded-[100px]"
             >
               إنشاء حساب / تسجيل الدخول
@@ -468,7 +478,10 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
           ) : (
             <Link
               href={user?.type == "marketer" ? "/marketer-profile" : "/profile"}
-              onClick={onClose}
+              onClick={() => {
+                onClose()
+                return typeof window != undefined ? window.location.href = user?.type == "marketer" ? "/marketer-profile" : "/profile" : "#"
+              }}
               className="flex items-center justify-center text-sm font-bold bg-white h-[48px] rounded-[100px] border-2 border-primary text-primary"
             >
               {user?.type == "marketer" ? "الملف الشخصي" : "حسابي"}
@@ -505,9 +518,8 @@ const MobileSubMenu = ({ items, onClose }) => {
                   <span>{item.title}</span>
                   <div className="flex items-center gap-2">
                     <ChevronDown
-                      className={`w-4 h-4 transition-transform ${
-                        expandedSubItem === index ? "rotate-180" : ""
-                      }`}
+                      className={`w-4 h-4 transition-transform ${expandedSubItem === index ? "rotate-180" : ""
+                        }`}
                     />
                   </div>
                 </button>
@@ -518,7 +530,10 @@ const MobileSubMenu = ({ items, onClose }) => {
                       <Link
                         key={subItem.key || subIndex}
                         href={subItem.link || "#"}
-                        onClick={onClose}
+                        onClick={() => {
+                          onClose()
+                          return typeof window != undefined ? window.location.href = subItem?.link || "#" : "#"
+                        }}
                         className="block py-2 text-sm text-text hover:text-primary"
                       >
                         {subItem.title}
@@ -530,7 +545,10 @@ const MobileSubMenu = ({ items, onClose }) => {
             ) : (
               <Link
                 href={item.link || item.href || "#"}
-                onClick={onClose}
+                onClick={() => {
+                  onClose()
+                  return typeof window != undefined ? window.location.href = item.link || item.href || "#" : "#"
+                }}
                 className="flex items-center justify-between py-3 text-sm text-text"
               >
                 <span>{item.title}</span>
@@ -566,23 +584,20 @@ export const DropDownItems = ({ items }) => {
 
         const rowContent = (
           <div
-            className={`flex w-[271px] cursor-pointer justify-between px-0 py-4 flex-[0_0_auto] ${
-              isFirst ? "mt-[-1.00px]" : ""
-            } ${
-              !isLast
+            className={`flex w-[271px] cursor-pointer justify-between px-0 py-4 flex-[0_0_auto] ${isFirst ? "mt-[-1.00px]" : ""
+              } ${!isLast
                 ? "ml-[-1.00px] mr-[-1.00px] bg-white border-b-2 [border-bottom-style:solid] border-variable-collection-stroke"
                 : "w-[269px] bg-white rounded-[0px_0px_30px_30px]"
-            } items-center relative cursor-pointer`}
+              } items-center relative cursor-pointer`}
             role="menuitem"
             aria-haspopup={hasSubItems ? "menu" : undefined}
             aria-expanded={openSub === rowId ? "true" : "false"}
           >
             <div
-              className={`${
-                isLast
-                  ? "flex h-6 items-center relative flex-1 grow"
-                  : "inline-flex h-6 items-center relative flex-[0_0_auto]"
-              }`}
+              className={`${isLast
+                ? "flex h-6 items-center relative flex-1 grow"
+                : "inline-flex h-6 items-center relative flex-[0_0_auto]"
+                }`}
             >
               {isLast ? (
                 <p className="flex-1 font-cairo mt-[-12.00px] mb-[-12.00px] relative flex items-center font-medium text-text text-base leading-6 [direction:rtl]">
@@ -653,10 +668,10 @@ const SubMenu = ({ course, subItems }) => {
   const links =
     Array.isArray(subItems) && subItems.length > 0
       ? subItems.map((s, idx) => ({
-          key: s.key || `sub-${idx}`,
-          href: s.link || "#",
-          title: s.title,
-        }))
+        key: s.key || `sub-${idx}`,
+        href: s.link || "#",
+        title: s.title,
+      }))
       : null;
 
   if (!links) return null;
@@ -670,6 +685,10 @@ const SubMenu = ({ course, subItems }) => {
             <li key={l.key}>
               <Link
                 href={href}
+                onClick={() => {
+                  onClose()
+                  return typeof window != undefined ? window.location.href = href : "#"
+                }}
                 className="block py-2 text-sm text-text hover:text-primary"
               >
                 {l.title}

@@ -9,7 +9,7 @@ import {
 } from "../../../public/svgs";
 import { Check, Phone } from "lucide-react";
 import { VerificationCodeModal } from "../../../components/ui/Modals/VerCodeModal";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import Container from "../../../components/ui/Container";
 import { TelephoneInput } from "../../(auth)/login/page.jsx";
 import { Controller, set, useForm } from "react-hook-form";

@@ -11,7 +11,7 @@ import {
   RatingLike,
   RatingStarIcon,
 } from "../../public/svgs";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import { useRouter } from "next/navigation";
 import {
   addToCart,

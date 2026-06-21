@@ -12,7 +12,7 @@ import Container from "../ui/Container";
 import { useGetAllCompetitions } from "../shared/Hooks/useGetCompetitions";
 import { useSelector } from "react-redux";
 import { CompetitionsNavs } from "./Leaderboard";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 
 const SkeletonCard = () => (
   <div className="w-full max-w-[419px] rounded-2xl border border-white/15 bg-white/5 backdrop-blur p-5">

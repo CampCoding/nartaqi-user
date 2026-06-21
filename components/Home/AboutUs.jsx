@@ -2,7 +2,7 @@
 
 import React, { useMemo, useRef, useState } from "react";
 import { ListCheck, SupportIcon } from "../../public/svgs";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import Container from "../ui/Container";
 
 export const AboutUs = ({

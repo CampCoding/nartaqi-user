@@ -1,6 +1,6 @@
 import React from "react";
 import { BlogCard } from "./../ui/Cards/BlogCard";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import NoContent from "../shared/NoContent";
 
 const RelatedBlogs = ({ blogs }) => {

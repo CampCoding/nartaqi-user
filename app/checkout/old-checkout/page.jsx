@@ -15,7 +15,7 @@ import { ElectronicPayment } from "../../../components/CheckoutPage/ElectronicPa
 import InstallmentCheckout from "../../../components/CheckoutPage/InstallmentCheckout";
 import BankCard from "../../../components/CheckoutPage/BankCard";
 import CheckoutBanksSection from "../../../components/CheckoutPage/CheckoutBanksSection";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import Container from "../../../components/ui/Container";
 
 const CheckoutPage = () => {

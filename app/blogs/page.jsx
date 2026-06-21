@@ -2,7 +2,7 @@
 import React, { useCallback, useState } from "react";
 import PagesBanner from "../../components/ui/PagesBanner";
 import { BlogCard } from "../../components/ui/Cards/BlogCard";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import Container from "../../components/ui/Container";
 import { useGetBlogs } from "../../components/shared/Hooks/useGetBlogs.jsx";
 import LoadingPage from "../../components/shared/Loading";

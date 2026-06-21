@@ -14,7 +14,7 @@ import {
   FooterYoutubeIcon,
 } from "../../public/svgs";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import Container from "../ui/Container";
 import useSupportInfo from "./Hooks/getSupportInfo";
 import useSocialAccounts from "./Hooks/useSocialAccounts";

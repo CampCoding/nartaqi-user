@@ -11,7 +11,7 @@ import {
   CertificationIcon,
   ShareIcon,
 } from "../../public/svgs";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import { message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import useRedirect from "../../components/shared/Hooks/useRedirect";

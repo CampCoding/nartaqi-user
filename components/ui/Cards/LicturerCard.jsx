@@ -3,7 +3,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import { RatingStarIcon } from "../../../public/svgs";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 
 const FALLBACK_AVATAR = "/images/Image-12422.png";
 

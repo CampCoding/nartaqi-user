@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import Container from "../ui/Container";
 import CoursesCategoryCard from "./../ui/Cards/CoursesCategoryCard";
 import CoursesCategoryCardMobile from "../ui/Cards/CoursesCategoryCard.mobile";

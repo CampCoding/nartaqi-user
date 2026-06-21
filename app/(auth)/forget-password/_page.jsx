@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import RadioButtons from "../../../components/ui/RadioButtons";
 import { SaudiIcon } from "../../../public/svgs";
 import { Eye } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import { useRouter } from "next/navigation";
 
 const ForgetPassword = () => {

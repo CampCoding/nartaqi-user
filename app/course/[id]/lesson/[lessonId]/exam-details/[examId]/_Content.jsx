@@ -7,7 +7,7 @@ import ExamDetailsHeader from "../../../../../../../components/ExamDetailsPage/E
 import { Instructions } from "../../../../../../../components/ExamDetailsPage/Instructions";
 import { Alerts } from "../../../../../../../components/ExamDetailsPage/Alerts";
 import ExamResults from "../../../../../../../components/ExamPage/ExamResults";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import Container from "../../../../../../../components/ui/Container";
 import { usePathname } from "next/navigation";
 import LoadingPage from "@/components/shared/Loading";

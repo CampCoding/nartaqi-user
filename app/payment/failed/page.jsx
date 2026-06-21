@@ -4,7 +4,7 @@
 import React, { Suspense, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import CourseTitle from "../../../components/CourseDetailsPage/CourseTitle";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 
 const PaymentFailedContent = () => {
   const router = useRouter();

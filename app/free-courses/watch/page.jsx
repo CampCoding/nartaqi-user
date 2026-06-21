@@ -3,7 +3,7 @@
 import React, { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, MessageCircle, Send } from "lucide-react";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 
 import PagesBanner from "../../../components/ui/PagesBanner";
 import Container from "../../../components/ui/Container";

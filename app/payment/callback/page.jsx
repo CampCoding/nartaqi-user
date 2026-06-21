@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import axios from "axios";
 import CourseTitle from "../../../components/CourseDetailsPage/CourseTitle";
 

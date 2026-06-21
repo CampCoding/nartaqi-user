@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import CourseContentDrawer from "../ui/CourseContentDrawer";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
   DownloadIcon,

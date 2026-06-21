@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import CourseCard from "./../ui/Cards/CourseCard";
 import { ProductCard } from "./../Store/ProductCard";
 import { BlogCard } from "./../ui/Cards/BlogCard";
-import Link from "next/link";
+import Link from "@/components/ui/NavLink";
 
 import { motion } from "framer-motion";
 import cx from "../../lib/cx";
