@@ -522,6 +522,7 @@ const MobileCourseDetails = ({
         onClose={() => setIsPaymentModalOpen(false)}
         round={round}
         user={user}
+        hasCoupon={courseData?.has_coupon == 1}
       />
 
       <style jsx>{`

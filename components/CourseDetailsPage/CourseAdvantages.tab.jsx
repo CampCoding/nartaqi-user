@@ -54,9 +54,16 @@ const CourseFeatures = ({ courseData }) => {
               </div>
             </div>
 
-            <div className=" flex items-start   text-right justify-center text-stone-600 text-base md:text-lg font-medium leading-relaxed md:leading-loose">
-            <Dot className="w-10 h-10" />{feature?.description || "لا يوجد وصف"}
-            </div>
+            {feature?.description ? (
+              <div
+                className="richtext text-right text-stone-600 text-base md:text-lg font-medium leading-relaxed md:leading-loose"
+                dangerouslySetInnerHTML={{ __html: feature.description.replaceAll(/&nbsp;/gi, " ") }}
+              />
+            ) : (
+              <div className="flex items-start text-right text-stone-600 text-base md:text-lg font-medium leading-relaxed md:leading-loose">
+                <Dot className="w-10 h-10" />لا يوجد وصف
+              </div>
+            )}
           </div>
         ))
       ) : (
