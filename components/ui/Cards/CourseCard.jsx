@@ -45,7 +45,7 @@ const CourseCard = ({
   buttonStyle = "normal",
   isRegistered = false,
   isInFav = false,
-  onShareClick = () => {},
+  onShareClick = () => { },
 }) => {
   const redirect = useRedirect();
   const { mutate } = useHandleFavoriteActions();
@@ -227,7 +227,7 @@ const CourseCard = ({
           className="w-full self-stretch px-3 sm:px-4 py-3 bg-gradient-to-r from-primary to-secondary rounded-[8px] sm:rounded-[10px] shadow-[0_4px_20px_rgba(0,0,0,0.25)] inline-flex justify-center items-center gap-2.5 transition-all duration-200 cursor-pointer hover:from-secondary hover:to-primary hover:scale-105 hover:shadow-[0_8px_24px_rgba(59,130,246,0.25)]"
         >
           <div className="justify-center text-bg text-xs sm:text-sm font-semibold">
-            {token && payload?.enrolled ? "ادخل الدورة" : "التحق بالدورة"}
+            {token && payload?.enrolled ? "عرض الدورة" : "التحق بالدورة"}
           </div>
         </Link>
 
@@ -258,9 +258,8 @@ const CourseCard = ({
           <div
             className="self-stretch h-40 sm:h-48 pt-[20px] sm:pt-[24px] px-[14px] sm:px-[16px] relative bg-black/25 rounded-tl-[inherit] rounded-tr-[inherit] overflow-hidden"
             style={{
-              backgroundImage: `url('${
-                payload?.image_url || "/images/Image-48.png"
-              }')`,
+              backgroundImage: `url('${payload?.image_url || "/images/Image-48.png"
+                }')`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
@@ -476,10 +475,9 @@ const FavIcon = ({
         if (!isLoading) onClick();
       }}
       className={`w-7 h-7 sm:w-8 sm:h-8 relative z-40 cursor-pointer
-        ${
-          isFav
-            ? "bg-secondary"
-            : "bg-black/30 backdrop-blur-sm border border-white/50"
+        ${isFav
+          ? "bg-secondary"
+          : "bg-black/30 backdrop-blur-sm border border-white/50"
         }
         rounded-[8px] sm:rounded-[10px] inline-flex justify-center items-center overflow-hidden
         transition-all duration-300 hover:scale-110 active:scale-95
@@ -514,9 +512,8 @@ const FavIcon = ({
           viewBox="0 0 18 16"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className={`w-4 h-4 sm:w-[18px] sm:h-4 transition-all duration-300 ${
-            isFav ? "fill-white scale-110" : "fill-white"
-          }`}
+          className={`w-4 h-4 sm:w-[18px] sm:h-4 transition-all duration-300 ${isFav ? "fill-white scale-110" : "fill-white"
+            }`}
         >
           <path
             d="M9 16C8.79 16 8.5764 15.9623 8.3592 15.8868C8.142 15.8114 7.9506 15.6907 7.785 15.5248L6.2325 14.099C4.6425 12.6355 3.2061 11.1836 1.9233 9.74303C0.6405 8.3025 -0.000599579 6.71442 4.20757e-07 4.97878C4.20757e-07 3.56058 0.472501 2.37624 1.4175 1.42574C2.3625 0.475247 3.54 0 4.95 0C5.745 0 6.495 0.16958 7.2 0.508741C7.905 0.847902 8.505 1.31198 9 1.90099C9.495 1.31259 10.095 0.848807 10.8 0.509646C11.505 0.170486 12.255 0.000603489 13.05 0C14.46 0 15.6375 0.475247 16.5825 1.42574C17.5275 2.37624 18 3.56058 18 4.97878C18 6.71381 17.3625 8.30552 16.0875 9.75389C14.8125 11.2023 13.365 12.6582 11.745 14.1216L10.215 15.5248C10.05 15.6907 9.8589 15.8114 9.6417 15.8868C9.4245 15.9623 9.2106 16 9 16Z"

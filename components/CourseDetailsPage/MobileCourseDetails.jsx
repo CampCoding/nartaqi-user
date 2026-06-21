@@ -3,7 +3,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import Link from "@/components/ui/NavLink";
 import { ChevronLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -104,8 +104,9 @@ const MobileCourseDetails = ({
   const { round } = courseData;
   const { id: roundId } = round;
 
+  const pathname = usePathname();
   const { items: cartItems } = useSelector((state) => state.cart);
-  const { token, user } = useSelector((state) => state.auth);
+  const { token, user } = useSelector((state) => state?.auth ?? {});
 
   const goLogin = useCallback(() => {
     router.push("/login");
@@ -481,16 +482,40 @@ const MobileCourseDetails = ({
                   </button>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleSubscribe}
-                  disabled={round.capacity - round?.students_count <= 0}
-                  className="items-center justify-center gap-2.5 px-2.5 py-[18px] self-stretch w-full flex-[0_0_auto] bg-orange-500 rounded-[20px] flex relative cursor-pointer hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                {round?.own == 1 ? (
+                  <Link
+                    href={`/course/${round.id}`}
+                    className="items-center justify-center gap-2.5 px-2.5 py-[18px] self-stretch w-full flex-[0_0_auto] bg-orange-500 rounded-[20px] flex relative cursor-pointer hover:bg-orange-600 transition-colors"
+                  >
+                    <span className="text-center justify-center text-slate-200 text-base font-bold">
+                      عرض الدورة
+                    </span>
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSubscribe}
+                    disabled={round.capacity - round?.students_count <= 0}
+                    className="items-center justify-center gap-2.5 px-2.5 py-[18px] self-stretch w-full flex-[0_0_auto] bg-orange-500 rounded-[20px] flex relative cursor-pointer hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="text-center justify-center text-slate-200 text-base font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
+                      التحاق بالدورة
+                    </span>
+                  </button>
+                )}
+
+                <Link
+                  href={
+                    pathname?.startsWith("/course-preview")
+                      ? `/course/${round.id}`
+                      : `/course-preview/${round.id}`
+                  }
+                  className="items-center justify-center gap-2.5 px-2.5 py-[18px] self-stretch w-full flex-[0_0_auto] bg-secondary rounded-[20px] flex relative cursor-pointer hover:opacity-90 transition-colors"
                 >
-                  <span className="text-center justify-center text-slate-200 text-base font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
-                    اشترك الأن
+                  <span className="text-center justify-center text-white text-base font-bold">
+                    {pathname?.startsWith("/course-preview") ? "الرجوع للدورة" : "الشروحات المجانية"}
                   </span>
-                </button>
+                </Link>
               </div>
             </div>
           </>
