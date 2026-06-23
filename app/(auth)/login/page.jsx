@@ -246,6 +246,7 @@ const LoginPage = () => {
                           pathname: "/reset-password",
                           query: { number: "" },
                         }}
+                        onClick={() => (typeof window != undefined ? window.location.href = "/reset-password?number=" : "#")}
                         className="text-right text-primary text-sm font-bold block hover:underline"
                         tabIndex={isLoading ? -1 : 0}
                       >
@@ -451,11 +452,10 @@ export const TelephoneInput = memo(function TelephoneInput({
         </div>
       </div>
       <div
-        className={`h-12 sm:h-14 md:h-[62px] justify-between overflow-hidden py-0 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid flex items-center relative w-full transition-colors ${
-          errors
+        className={`h-12 sm:h-14 md:h-[62px] justify-between overflow-hidden py-0 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid flex items-center relative w-full transition-colors ${errors
             ? "border-danger"
             : "border-[#c8c9d5] focus-within:border-primary"
-        } ${disabled ? "opacity-60" : ""}`}
+          } ${disabled ? "opacity-60" : ""}`}
       >
         <input
           className="justify-center w-full px-3 sm:px-4 h-full font-normal text-text placeholder-[#c8c9d5] text-sm sm:text-base text-right tracking-[0] leading-[normal] flex items-center relative focus:outline-none disabled:cursor-not-allowed"
@@ -536,9 +536,8 @@ export const PasswordInput = memo(function PasswordInput({
           placeholder={placeholder}
           disabled={disabled}
           autoComplete="current-password"
-          className={`justify-start outline-0 ring-0 h-12 sm:h-14 md:h-[62px] gap-2.5 px-3 w-full pl-12 sm:pl-14 sm:px-4 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid flex items-center relative self-stretch flex-[0_0_auto] text-sm sm:text-base disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none transition-colors ${
-            errors ? "border-danger" : "border-[#c8c9d5] focus:border-primary"
-          }`}
+          className={`justify-start outline-0 ring-0 h-12 sm:h-14 md:h-[62px] gap-2.5 px-3 w-full pl-12 sm:pl-14 sm:px-4 bg-white rounded-2xl md:rounded-[20px] border-2 border-solid flex items-center relative self-stretch flex-[0_0_auto] text-sm sm:text-base disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none transition-colors ${errors ? "border-danger" : "border-[#c8c9d5] focus:border-primary"
+            }`}
           {...register}
           {...props}
         />
