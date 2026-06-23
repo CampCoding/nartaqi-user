@@ -18,7 +18,7 @@ import { useHomeMeta } from "../hooks/useHomeMeta";
 const getYouTubeId = (url) => {
   if (!url) return null;
   const match = url.match(
-    /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/
+    /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/,
   );
   return match ? match[1] : null;
 };
@@ -34,17 +34,14 @@ export default function Home() {
   const { banners, videoUrl } = useHomeMeta();
   const youtubeId = getYouTubeId(videoUrl);
 
-  // ✅ التعامل مع الـ hash بعد تحميل الصفحة
   useEffect(() => {
-    // انتظر حتى تتحمل الصفحة بالكامل
     const handleHashScroll = () => {
       const hash = window.location.hash;
       if (hash) {
-        // انتظر قليلاً حتى يتم رندر المحتوى
         setTimeout(() => {
           const element = document.querySelector(hash);
           if (element) {
-            const headerHeight = 134; // ارتفاع الهيدر
+            const headerHeight = 134;
             const elementPosition = element.getBoundingClientRect().top;
             const offsetPosition =
               elementPosition + window.pageYOffset - headerHeight;
@@ -58,12 +55,10 @@ export default function Home() {
       }
     };
 
-    // تشغيل عند تحميل الصفحة
     if (!isLoading) {
       handleHashScroll();
     }
 
-    // الاستماع لتغييرات الـ hash
     window.addEventListener("hashchange", handleHashScroll);
 
     return () => {
@@ -71,31 +66,31 @@ export default function Home() {
     };
   }, [isLoading]);
 
-  // Loading State
   if (isLoading) {
     return <LoadingPage />;
   }
 
-  // Error State
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
+      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+        <div className="text-center space-y-3 sm:space-y-4 max-w-md">
           <Icon
             icon="mdi:alert-circle-outline"
-            className="w-16 h-16 text-red-600 mx-auto"
+            className="w-12 h-12 sm:w-16 sm:h-16 text-red-600 mx-auto"
           />
-          <h2 className="text-2xl font-bold text-red-600">حدث خطأ</h2>
-          <p className="text-gray-600">
+          <h2 className="text-xl sm:text-2xl font-bold text-red-600">
+            حدث خطأ
+          </h2>
+          <p className="text-sm sm:text-base text-gray-600">
             {error?.response?.data?.message ||
               error?.message ||
               "فشل تحميل البيانات"}
           </p>
           <button
             onClick={refetch}
-            className="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 mx-auto"
+            className="mt-3 sm:mt-4 px-4 sm:px-6 py-2 text-sm sm:text-base bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 mx-auto"
           >
-            <Icon icon="mdi:refresh" className="w-5 h-5" />
+            <Icon icon="mdi:refresh" className="w-4 h-4 sm:w-5 sm:h-5" />
             إعادة المحاولة
           </button>
         </div>
@@ -103,13 +98,11 @@ export default function Home() {
     );
   }
 
-  // Extract data with fallbacks
   const latestRounds = data?.latestRounds || [];
   const categories = data?.categories_with_rounds || [];
   const studentRates = data?.student_rates || [];
   const latestBlogs = data?.latestBlogs || [];
 
-  // Define colors for each category
   const categoryColors = ["secondary", "primary", "warning"];
 
   return (
@@ -128,7 +121,6 @@ export default function Home() {
 
       <CoursesCategoriesLable />
 
-      {/* Dynamic Category Sections */}
       {categories?.map((category, index) => (
         <CategorySection
           key={category.id}

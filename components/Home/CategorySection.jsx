@@ -10,7 +10,6 @@ const CategorySection = ({ category, color, index }) => {
 
   const categoryParts = category.category_parts || [];
 
-  // Define color classes based on color prop
   const colorClasses = {
     secondary: {
       bg: "bg-secondary",
@@ -43,12 +42,12 @@ const CategorySection = ({ category, color, index }) => {
   return categoryParts && categoryParts.length > 0 ? (
     <Container>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 mt-6 md:mt-[74px]">
+      <div className="flex items-center justify-between mb-5 sm:mb-7 md:mb-8 mt-5 sm:mt-6 md:mt-12 lg:mt-[74px] gap-3 sm:gap-4">
         <div
-          className={`flex md:min-w-[261px] items-center justify-center gap-2.5 px-4 py-3 md:px-14 md:py-8 relative ${colors.bg} rounded-[15px] md:rounded-[25px]`}
+          className={`flex items-center justify-center gap-2.5 px-3 sm:px-5 md:px-10 lg:px-14 py-2.5 sm:py-3 md:py-6 lg:py-8 relative ${colors.bg} rounded-[12px] sm:rounded-[15px] md:rounded-[20px] lg:rounded-[25px] min-w-[110px] sm:min-w-[140px] md:min-w-[200px] lg:min-w-[261px]`}
         >
           <div
-            className={`relative flex items-center justify-center w-fit mt-[-1.00px] font-medium ${colors.text} text-[12px] md:text-2xl text-left leading-5 whitespace-nowrap`}
+            className={`relative flex items-center justify-center w-fit mt-[-1.00px] font-medium ${colors.text} text-xs sm:text-sm md:text-xl lg:text-2xl text-left leading-5 whitespace-nowrap`}
           >
             {category.name}
           </div>
@@ -56,10 +55,10 @@ const CategorySection = ({ category, color, index }) => {
 
         <Link href={`/courses/${category.id}`}>
           <div
-            className={`inline-flex items-center justify-center gap-2.5 px-4 py-3 md:px-8 md:py-5 relative bg-bg rounded-[15px] md:rounded-[25px] border border-solid ${colors.border} ${colors.hover} group cursor-pointer transition-all duration-300 ease-in-out`}
+            className={`inline-flex items-center justify-center gap-2.5 px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 lg:py-5 relative bg-bg rounded-[12px] sm:rounded-[15px] md:rounded-[20px] lg:rounded-[25px] border border-solid ${colors.border} ${colors.hover} group cursor-pointer transition-all duration-300 ease-in-out`}
           >
             <div
-              className={`relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold group-hover:text-white ${colors.buttonText} text-[12px] md:text-xl text-left leading-5 whitespace-nowrap`}
+              className={`relative flex items-center justify-center w-fit mt-[-1.00px] font-semibold group-hover:text-white ${colors.buttonText} text-xs sm:text-sm md:text-lg lg:text-xl text-left leading-5 whitespace-nowrap`}
             >
               عرض المزيد
             </div>
@@ -68,7 +67,7 @@ const CategorySection = ({ category, color, index }) => {
       </div>
 
       {/* Cards Grid */}
-      <div className="gap-4 md:gap-6 grid grid-cols-2 md:grid-cols-4">
+      <div className="gap-3 sm:gap-4 md:gap-5 lg:gap-6 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {categoryParts?.map((item) => (
           <Link
             href={`/courses/${category.id}?category=${item.id}&categoryName=${item.name}`}
@@ -87,7 +86,7 @@ const CategorySection = ({ category, color, index }) => {
               />
             </div>
 
-            {/* Mobile Card - Now with color prop */}
+            {/* Mobile Card */}
             <div className="block md:hidden">
               <CoursesCategoryCardMobile
                 color={color}

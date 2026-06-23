@@ -42,7 +42,10 @@ const extractYoutubeId = (url) => {
 
 const CourseContent = ({ isRegistered, courseData }) => {
   const [selectedTab, setSelectedTab] = useState("foundation");
-  const [examModeModal, setExamModeModal] = useState({ isOpen: false, examId: null });
+  const [examModeModal, setExamModeModal] = useState({
+    isOpen: false,
+    examId: null,
+  });
 
   const handleOpenModeModal = (examId) => {
     setExamModeModal({ isOpen: true, examId });
@@ -61,14 +64,14 @@ const CourseContent = ({ isRegistered, courseData }) => {
 
   return (
     <div className="w-full flex-1">
-      <div className="text-right justify-center text-primary text-xl md:text-2xl font-bold mb-7 lg:mb-10">
+      <div className="text-right text-primary text-lg sm:text-xl md:text-2xl font-bold mb-5 sm:mb-7 lg:mb-10">
         محتوي الدورة : {round.name}
       </div>
 
       <Navs selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
 
       {selectedTab === "foundation" && (
-        <div className="  flex flex-col gap-4 md:gap-5">
+        <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
           {foundationContents.length > 0 ? (
             [...foundationContents].map((content) => (
               <CourseContentDrawer
@@ -80,7 +83,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
               />
             ))
           ) : (
-            <div className="text-center py-12 md:py-14 text-text-alt text-base md:text-lg">
+            <div className="text-center py-10 sm:py-12 md:py-14 text-text-alt text-sm sm:text-base md:text-lg">
               لا يوجد محتوى تأسيسي متاح
             </div>
           )}
@@ -88,7 +91,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
       )}
 
       {selectedTab === "lectures" && (
-        <div className="flex flex-col gap-4 md:gap-5">
+        <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
           {lectureContents.length > 0 ? (
             lectureContents.map((content) => (
               <CourseContentDrawer
@@ -99,7 +102,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
               />
             ))
           ) : (
-            <div className="text-center py-12 md:py-14 text-text-alt text-base md:text-lg">
+            <div className="text-center py-10 sm:py-12 md:py-14 text-text-alt text-sm sm:text-base md:text-lg">
               لا توجد محاضرات متاحة
             </div>
           )}
@@ -107,7 +110,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
       )}
 
       {selectedTab === "tests" && (
-        <div className="flex flex-col gap-4 md:gap-5">
+        <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
           {allExams.length > 0 ? (
             allExams.map((examData) => (
               <TestRow
@@ -118,7 +121,7 @@ const CourseContent = ({ isRegistered, courseData }) => {
               />
             ))
           ) : (
-            <div className="text-center py-12 md:py-14 text-text-alt text-base md:text-lg">
+            <div className="text-center py-10 sm:py-12 md:py-14 text-text-alt text-sm sm:text-base md:text-lg">
               لا توجد اختبارات متاحة
             </div>
           )}
@@ -166,10 +169,10 @@ export const Navs = ({ selectedTab, setSelectedTab }) => {
       role="tablist"
       aria-label="أقسام الدورة"
       onKeyDown={onKeyDown}
-      className="flex w-full mb-7 lg:mb-9 items-center justify-between
-                 p-3.5 lg:p-4 bg-[#ebf3fe]
-                 rounded-[22px] lg:rounded-[28px]
-                 overflow-x-auto hidden-scroll gap-2.5"
+      className="flex w-full mb-5 sm:mb-7 lg:mb-9 items-center justify-between
+                 p-2 sm:p-3 lg:p-4 bg-[#ebf3fe]
+                 rounded-[16px] sm:rounded-[20px] lg:rounded-[28px]
+                 overflow-x-auto hidden-scroll gap-1.5 sm:gap-2.5"
     >
       {tabsData.map((tab) => {
         const selected = selectedTab === tab.id;
@@ -182,9 +185,9 @@ export const Navs = ({ selectedTab, setSelectedTab }) => {
             onClick={() => handleTabClick(tab.id)}
             className={[
               "flex-1 lg:flex-none inline-flex justify-center items-center",
-              "min-h-[48px] lg:min-h-[54px]",
-              "px-4 md:px-6 py-3 md:py-3.5",
-              "rounded-[18px] lg:rounded-[20px]",
+              "min-h-[40px] sm:min-h-[44px] md:min-h-[48px] lg:min-h-[54px]",
+              "px-2.5 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3.5",
+              "rounded-[12px] sm:rounded-[16px] lg:rounded-[20px]",
               "transition-all duration-200",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300",
               tab.id === "tests" ? "lg:w-[210px]" : "lg:inline-flex",
@@ -194,7 +197,7 @@ export const Navs = ({ selectedTab, setSelectedTab }) => {
               !selected ? "hover:bg-white/60 hover:text-zinc-700" : "",
             ].join(" ")}
           >
-            <span className="w-fit text-center text-sm md:text-lg lg:text-xl leading-normal truncate">
+            <span className="w-fit text-center text-xs sm:text-sm md:text-base lg:text-xl leading-normal truncate">
               {tab.label}
             </span>
           </button>
@@ -254,10 +257,8 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
 
   const getVideoPlatform = (videoUrl) => {
     if (!videoUrl) return null;
-
     const vimeoId = extractVimeoId(videoUrl);
     if (vimeoId || videoUrl.toLowerCase().includes("vimeo")) return "vimeo";
-
     const youtubeId = extractYoutubeId(videoUrl);
     if (
       youtubeId ||
@@ -265,7 +266,6 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
       videoUrl.toLowerCase().includes("youtu.be")
     )
       return "youtube";
-
     return null;
   };
 
@@ -277,20 +277,6 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
     if (h === 0) return `${m} دقيقة`;
     if (m === 0) return `${h} ساعة`;
     return `${h} ساعة ${m} دقيقة`;
-  };
-
-  const getLevelLabel = (level) => {
-    const levels = { easy: "سهل", medium: "متوسط", hard: "صعب" };
-    return levels[level] || "";
-  };
-
-  const getLevelColor = (level) => {
-    const colors = {
-      easy: "bg-green-100 text-green-600",
-      medium: "bg-yellow-100 text-yellow-600",
-      hard: "bg-red-100 text-red-600",
-    };
-    return colors[level] || "";
   };
 
   const handleDownloadFile = async (e, fileUrl, title, extension = "pdf") => {
@@ -343,44 +329,40 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
 
   const hasContent = videos.length > 0 || exam_pdfs.length > 0;
 
-
-
   const examDate = examData?.show_date ? new Date(examData?.show_date) : null;
   const isFutureExam = examDate ? examDate.getTime() > Date.now() : false;
   const isBlocked = !isRegistered || isFutureExam;
 
-
-
-
   return (
     <div
       title={
-        !isRegistered ? "يجب التسجيل في الدورة أولاً 🔒" : isFutureExam ? "هذا الاختبار لم يبدأ بعد ⏳" : ""
+        !isRegistered
+          ? "يجب التسجيل في الدورة أولاً 🔒"
+          : isFutureExam
+            ? "هذا الاختبار لم يبدأ بعد ⏳"
+            : ""
       }
       className={cx(
-        "flex flex-col relative bg-white rounded-[22px] md:rounded-[26px] border-2 border-solid transition-all border-zinc-300",
+        "flex flex-col relative bg-white rounded-[16px] sm:rounded-[20px] md:rounded-[26px] border-2 border-solid transition-all border-zinc-300",
         isExpanded ? "shadow-xl" : "hover:shadow-2xl"
       )}
     >
       {/* Main Row */}
       <div
         onClick={() => {
-
-          hasContent && setIsExpanded(!isExpanded)
-
-
+          hasContent && setIsExpanded(!isExpanded);
         }}
         className={cx(
           "flex flex-col lg:flex-row items-start lg:items-center justify-between",
-          "p-4 sm:p-5 lg:px-7 lg:py-7",
-          "gap-4 sm:gap-5",
+          "p-3 sm:p-4 md:p-5 lg:px-7 lg:py-7",
+          "gap-3 sm:gap-4 lg:gap-5",
           hasContent && "cursor-pointer"
         )}
       >
         {/* Title + Tags */}
-        <div className="flex items-center gap-3 sm:gap-4 flex-1 flex-wrap w-full lg:w-auto min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-1 flex-wrap w-full lg:w-auto min-w-0">
           {!isRegistered && (
-            <LockIcon2 className="fill-secondary w-5 h-5 md:w-6 md:h-6 flex-shrink-0" />
+            <LockIcon2 className="fill-secondary w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 flex-shrink-0" />
           )}
           <Link
             href={
@@ -405,7 +387,7 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
               e.stopPropagation();
             }}
             className={[
-              "font-medium text-text text-sm sm:text-base md:text-lg transition-all line-clamp-2 sm:line-clamp-1",
+              "font-medium text-text text-xs sm:text-sm md:text-base lg:text-lg transition-all line-clamp-2 sm:line-clamp-1",
               isBlocked
                 ? "pointer-events-auto opacity-60 cursor-not-allowed hover:no-underline hover:text-text"
                 : "hover:text-primary hover:underline",
@@ -419,39 +401,29 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
               <span className="text-secondary">(تدريـــــب)</span>
             )}
           </Link>
-
-          {/* {exam.level && (
-            <span
-              className={`text-xs md:text-sm px-2.5 py-1 rounded-full whitespace-nowrap ${getLevelColor(
-                exam.level
-              )}`}
-            >
-              {getLevelLabel(exam.level)}
-            </span>
-          )} */}
         </div>
 
         {/* Time + Date */}
-        <div className="w-full lg:w-auto flex items-center justify-between lg:justify-end gap-3 sm:gap-4 lg:gap-5">
-          <div className="flex items-center gap-3 sm:gap-4">
-
+        <div className="w-full lg:w-auto flex items-center justify-between lg:justify-end gap-2 sm:gap-3 md:gap-4 lg:gap-5">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-wrap">
             {examData?.show_date && isBlocked && (
-              <span className="text-text-alt text-xs sm:text-sm whitespace-nowrap">
-                متاح في {new Date(examData?.show_date).toLocaleDateString("ar-EG", {
+              <span className="text-text-alt text-[11px] sm:text-xs md:text-sm whitespace-nowrap">
+                متاح في{" "}
+                {new Date(examData?.show_date).toLocaleDateString("ar-EG", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
                 })}
               </span>
             )}
-            <span className="text-text-alt text-xs sm:text-sm whitespace-nowrap">
+            <span className="text-text-alt text-[11px] sm:text-xs md:text-sm whitespace-nowrap">
               {formatTime(exam.time)}
             </span>
           </div>
 
           {hasContent && (
             <div
-              className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 flex-shrink-0 ${isExpanded ? "rotate-180" : "rotate-0"
+              className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transition-transform duration-300 flex-shrink-0 ${isExpanded ? "rotate-180" : "rotate-0"
                 }`}
               aria-hidden="true"
             >
@@ -476,18 +448,18 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
 
       {/* Expanded Content */}
       {isExpanded && hasContent && (
-        <div className="border-t-2 border-zinc-200 px-4 sm:px-5 lg:px-7 py-5 sm:py-6 space-y-5 sm:space-y-6">
+        <div className="border-t-2 border-zinc-200 px-3 sm:px-4 md:px-5 lg:px-7 py-4 sm:py-5 md:py-6 space-y-4 sm:space-y-5 md:space-y-6">
           {exam.description && (
-            <p className="text-text-alt text-sm md:text-base leading-relaxed">
+            <p className="text-text-alt text-xs sm:text-sm md:text-base leading-relaxed">
               {exam.description}
             </p>
           )}
 
           {/* Videos */}
           {videos.length > 0 && (
-            <div className="space-y-3 sm:space-y-4">
-              <h4 className="font-medium text-text text-sm md:text-base flex items-center gap-2">
-                <RoundedPlayIcon className="w-5 h-5 md:w-6 md:h-6 stroke-primary flex-shrink-0" />
+            <div className="space-y-2.5 sm:space-y-3 md:space-y-4">
+              <h4 className="font-medium text-text text-xs sm:text-sm md:text-base flex items-center gap-2">
+                <RoundedPlayIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 stroke-primary flex-shrink-0" />
                 فيديوهات الشرح
               </h4>
 
@@ -499,11 +471,11 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
                   <div
                     key={video.id}
                     className="flex flex-col sm:flex-row sm:items-center justify-between
-                               p-3.5 sm:p-4.5 bg-gray-50 rounded-2xl border border-gray-200
-                               gap-3 sm:gap-4"
+                               p-3 sm:p-3.5 md:p-4 bg-gray-50 rounded-xl sm:rounded-2xl border border-gray-200
+                               gap-2.5 sm:gap-3 md:gap-4"
                   >
-                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                      <RoundedPlayIcon className="w-6 h-6 md:w-7 md:h-7 stroke-primary flex-shrink-0" />
+                    <div className="flex items-center gap-2.5 sm:gap-3 md:gap-4 flex-1 min-w-0">
+                      <RoundedPlayIcon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 stroke-primary flex-shrink-0" />
                       <div className="flex flex-col flex-1 min-w-0 gap-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           {isRegistered && isPlayable ? (
@@ -513,19 +485,19 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
                                 query: buildExamVideoQuery(video),
                                 hash: "player",
                               }}
-                              className="font-medium text-text text-sm md:text-base hover:text-primary hover:underline transition-colors line-clamp-1"
+                              className="font-medium text-text text-xs sm:text-sm md:text-base hover:text-primary hover:underline transition-colors line-clamp-1"
                             >
                               {video.title}
                             </Link>
                           ) : (
-                            <span className="font-medium text-text text-sm md:text-base line-clamp-1">
+                            <span className="font-medium text-text text-xs sm:text-sm md:text-base line-clamp-1">
                               {video.title}
                             </span>
                           )}
                         </div>
 
                         {video.description && (
-                          <span className="text-text-alt text-xs md:text-sm line-clamp-1">
+                          <span className="text-text-alt text-[11px] sm:text-xs md:text-sm line-clamp-1">
                             {video.description}
                           </span>
                         )}
@@ -534,7 +506,7 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
 
                     <div className="flex items-center gap-2 flex-shrink-0 self-end sm:self-auto">
                       {!isRegistered ? (
-                        <LockIcon2 className="fill-secondary w-5 h-5 md:w-6 md:h-6" />
+                        <LockIcon2 className="fill-secondary w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                       ) : (
                         isPlayable && (
                           <Link
@@ -543,10 +515,10 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
                               query: buildExamVideoQuery(video),
                               hash: "player",
                             }}
-                            className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary rounded-full hover:opacity-90 transition-opacity"
+                            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-primary rounded-full hover:opacity-90 transition-opacity"
                           >
                             <svg
-                              className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0"
+                              className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white flex-shrink-0"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                             >
@@ -556,7 +528,7 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
                                 clipRule="evenodd"
                               />
                             </svg>
-                            <span className="text-white font-medium text-sm md:text-base whitespace-nowrap">
+                            <span className="text-white font-medium text-xs sm:text-sm md:text-base whitespace-nowrap">
                               تشغيل
                             </span>
                           </Link>
@@ -571,9 +543,9 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
 
           {/* PDFs */}
           {exam_pdfs.length > 0 && (
-            <div className="space-y-3 sm:space-y-4">
-              <h4 className="font-medium text-text text-sm md:text-base flex items-center gap-2">
-                <FileIcon className="w-5 h-5 md:w-6 md:h-6 fill-primary flex-shrink-0" />
+            <div className="space-y-2.5 sm:space-y-3 md:space-y-4">
+              <h4 className="font-medium text-text text-xs sm:text-sm md:text-base flex items-center gap-2">
+                <FileIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 fill-primary flex-shrink-0" />
                 ملفات الاختبار
               </h4>
 
@@ -585,13 +557,13 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
                   <div
                     key={pdf.id}
                     className="flex flex-col sm:flex-row sm:items-center justify-between
-                               p-3.5 sm:p-4.5 rounded-2xl border bg-gray-50 border-gray-200
-                               gap-3 sm:gap-4"
+                               p-3 sm:p-3.5 md:p-4 rounded-xl sm:rounded-2xl border bg-gray-50 border-gray-200
+                               gap-2.5 sm:gap-3 md:gap-4"
                   >
-                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                    <div className="flex items-center gap-2.5 sm:gap-3 md:gap-4 flex-1 min-w-0">
                       <FileIcon
                         className={cx(
-                          "w-6 h-6 md:w-7 md:h-7 flex-shrink-0",
+                          "w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 flex-shrink-0",
                           pdf.type === "question"
                             ? "fill-blue-600"
                             : "fill-green-600"
@@ -600,21 +572,13 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
 
                       <div className="flex flex-col flex-1 min-w-0 gap-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-medium text-text text-sm md:text-base line-clamp-1">
+                          <span className="font-medium text-text text-xs sm:text-sm md:text-base line-clamp-1">
                             {pdf.title}
                           </span>
-                          {/* <span
-                            className={`text-xs md:text-sm px-2.5 py-1 rounded-full whitespace-nowrap ${pdf.type === "question"
-                              ? "bg-blue-100 text-blue-600"
-                              : "bg-green-100 text-green-600"
-                              }`}
-                          >
-                            {pdf.type === "question" ? "أسئلة" : "إجابات"}
-                          </span> */}
                         </div>
 
                         {pdf.description && (
-                          <span className="text-text-alt text-xs md:text-sm line-clamp-1">
+                          <span className="text-text-alt text-[11px] sm:text-xs md:text-sm line-clamp-1">
                             {pdf.description}
                           </span>
                         )}
@@ -623,7 +587,7 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
 
                     <div className="self-end sm:self-auto flex-shrink-0">
                       {!isRegistered ? (
-                        <LockIcon2 className="fill-secondary w-5 h-5 md:w-6 md:h-6" />
+                        <LockIcon2 className="fill-secondary w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                       ) : (
                         <button
                           onClick={(e) =>
@@ -631,7 +595,7 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
                           }
                           disabled={isPdfDownloading}
                           className={cx(
-                            "inline-flex items-center gap-2 px-4 py-2.5 rounded-full md:rounded-[12px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-wait",
+                            "inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full md:rounded-[12px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-wait",
                             pdf.type === "question"
                               ? "bg-blue-600"
                               : "bg-green-600"
@@ -639,7 +603,7 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
                         >
                           {isPdfDownloading ? (
                             <svg
-                              className="animate-spin w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0"
+                              className="animate-spin w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white flex-shrink-0"
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
                               viewBox="0 0 24 24"
@@ -659,9 +623,9 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
                               />
                             </svg>
                           ) : (
-                            <DownloadIcon className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+                            <DownloadIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
                           )}
-                          <span className="text-white font-medium text-sm md:text-base whitespace-nowrap">
+                          <span className="text-white font-medium text-xs sm:text-sm md:text-base whitespace-nowrap">
                             {isPdfDownloading ? "جاري..." : "تحميل"}
                           </span>
                         </button>
@@ -692,10 +656,15 @@ export const TestRow = ({ examData, isRegistered, onOpenModeModal }) => {
                     onOpenModeModal(exam.id);
                   }
                 }}
-                className={["inline-flex items-center gap-2 px-7 sm:px-9 py-3.5 bg-primary text-white rounded-2xl hover:opacity-90 transition-opacity font-medium text-sm md:text-base", isBlocked ? "pointer-events-auto opacity-60 cursor-not-allowed hover:no-underline hover:text-text" : " hover:shadow-2xl hover:scale-105 !transition-all "].join(" ")}
+                className={[
+                  "inline-flex items-center gap-2 px-5 sm:px-7 md:px-9 py-2.5 sm:py-3 md:py-3.5 bg-primary text-white rounded-xl sm:rounded-2xl hover:opacity-90 transition-opacity font-medium text-xs sm:text-sm md:text-base",
+                  isBlocked
+                    ? "pointer-events-auto opacity-60 cursor-not-allowed hover:no-underline hover:text-text"
+                    : "hover:shadow-2xl hover:scale-105 !transition-all",
+                ].join(" ")}
               >
                 <svg
-                  className="w-5 h-5 md:w-6 md:h-6 flex-shrink-0"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 flex-shrink-0"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -730,13 +699,11 @@ const ExamModeModal = ({ isOpen, onClose, examId }) => {
     setMounted(true);
   }, []);
 
-  // Lock body scroll + hide overflow
   useEffect(() => {
     if (isOpen) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
 
-      // ESC to close
       const handleEsc = (e) => {
         if (e.key === "Escape") onClose();
       };
@@ -753,25 +720,23 @@ const ExamModeModal = ({ isOpen, onClose, examId }) => {
 
   const modalContent = (
     <div
-      className="fixed inset-0 flex items-center justify-center p-4"
-      style={{ zIndex: 2147483647 }} // أعلى z-index ممكن
+      className="fixed inset-0 flex items-center justify-center p-3 sm:p-4"
+      style={{ zIndex: 2147483647 }}
     >
-      {/* Overlay */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
         onClick={onClose}
         style={{ zIndex: 1 }}
       />
 
-      {/* Modal */}
       <div
-        className="relative bg-white rounded-[32px] w-full max-w-lg overflow-hidden shadow-2xl transform transition-all scale-100"
+        className="relative bg-white rounded-[20px] sm:rounded-[28px] md:rounded-[32px] w-full max-w-sm sm:max-w-md md:max-w-lg overflow-hidden shadow-2xl transform transition-all scale-100"
         style={{ zIndex: 2 }}
       >
-        <div className="bg-primary p-8 text-white text-center">
-          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="bg-primary p-5 sm:p-6 md:p-8 text-white text-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
             <svg
-              className="w-10 h-10 text-white"
+              className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -784,21 +749,23 @@ const ExamModeModal = ({ isOpen, onClose, examId }) => {
               />
             </svg>
           </div>
-          <h3 className="text-2xl font-bold mb-2">اختيار وضع الاختبار</h3>
-          <p className="text-white/80">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1.5 sm:mb-2">
+            اختيار وضع الاختبار
+          </h3>
+          <p className="text-white/80 text-xs sm:text-sm md:text-base">
             اختر الطريقة التي تفضل بها أداء الاختبار المحاكي
           </p>
         </div>
 
-        <div className="p-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="p-5 sm:p-6 md:p-8 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
           <Link
             href={`/mock-test/${examId}`}
             onClick={onClose}
-            className="group flex flex-col items-center p-6 bg-gray-50 rounded-3xl border-2 border-transparent hover:border-primary hover:bg-primary/5 transition-all"
+            className="group flex flex-col items-center p-4 sm:p-5 md:p-6 bg-gray-50 rounded-2xl sm:rounded-3xl border-2 border-transparent hover:border-primary hover:bg-primary/5 transition-all"
           >
-            <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-all text-primary">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-white rounded-xl sm:rounded-2xl shadow-sm flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-primary group-hover:text-white transition-all text-primary">
               <svg
-                className="w-8 h-8"
+                className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -811,8 +778,10 @@ const ExamModeModal = ({ isOpen, onClose, examId }) => {
                 />
               </svg>
             </div>
-            <span className="font-bold text-lg text-text">الوضع الافتراضي</span>
-            <span className="text-sm text-text-alt text-center mt-2">
+            <span className="font-bold text-sm sm:text-base md:text-lg text-text">
+              الوضع الافتراضي
+            </span>
+            <span className="text-[11px] sm:text-xs md:text-sm text-text-alt text-center mt-1.5 sm:mt-2">
               الشكل الكلاسيكي للاختبار المحاكي
             </span>
           </Link>
@@ -820,11 +789,11 @@ const ExamModeModal = ({ isOpen, onClose, examId }) => {
           <Link
             href={`/mock-test/${examId}?mode=tiger`}
             onClick={onClose}
-            className="group flex flex-col items-center p-6 bg-gray-50 rounded-3xl border-2 border-transparent hover:border-secondary hover:bg-secondary/5 transition-all"
+            className="group flex flex-col items-center p-4 sm:p-5 md:p-6 bg-gray-50 rounded-2xl sm:rounded-3xl border-2 border-transparent hover:border-secondary hover:bg-secondary/5 transition-all"
           >
-            <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 group-hover:bg-secondary group-hover:text-white transition-all text-secondary">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-white rounded-xl sm:rounded-2xl shadow-sm flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-secondary group-hover:text-white transition-all text-secondary">
               <svg
-                className="w-8 h-8"
+                className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -837,8 +806,10 @@ const ExamModeModal = ({ isOpen, onClose, examId }) => {
                 />
               </svg>
             </div>
-            <span className="font-bold text-lg text-text">وضع النمر</span>
-            <span className="text-sm text-text-alt text-center mt-2">
+            <span className="font-bold text-sm sm:text-base md:text-lg text-text">
+              وضع النمر
+            </span>
+            <span className="text-[11px] sm:text-xs md:text-sm text-text-alt text-center mt-1.5 sm:mt-2">
               تصميم عصري وتجربة أسرع
             </span>
           </Link>
@@ -846,7 +817,7 @@ const ExamModeModal = ({ isOpen, onClose, examId }) => {
 
         <button
           onClick={onClose}
-          className="w-full py-5 text-text-alt font-medium hover:text-text bg-gray-50 hover:bg-gray-100 transition-all border-t border-gray-100"
+          className="w-full py-3.5 sm:py-4 md:py-5 text-text-alt font-medium hover:text-text bg-gray-50 hover:bg-gray-100 transition-all border-t border-gray-100 text-sm sm:text-base"
         >
           إلغاء
         </button>

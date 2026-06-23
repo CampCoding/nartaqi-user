@@ -52,9 +52,8 @@ export const HeaderHero = ({ banners = [], videoUrl = null }) => {
           flex: 1,
           color: "var(--color-bg)",
         }}
-        className="w-full min-h-[725px] relative"
+        className="w-full min-h-[500px] lg:min-h-[600px] xl:min-h-[725px] relative"
       >
-        {/* Swiper for cycling through banner images */}
         <div className="absolute inset-0">
           <Swiper
             modules={[Autoplay]}
@@ -72,47 +71,58 @@ export const HeaderHero = ({ banners = [], videoUrl = null }) => {
 
         {/* Play button */}
         {youtubeId && (
-          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-10">
+          <div className="absolute bottom-12 lg:bottom-16 left-1/2 -translate-x-1/2 z-10">
             <button
               onClick={openVideo}
               aria-label="مشاهدة الفيديو"
               type="button"
-              className="inline-flex items-center justify-center gap-2 px-14 py-6 rounded-[20px] bg-gradient-to-r from-primary to-secondary text-white cursor-pointer transition-all duration-200 hover:opacity-90 shadow-2xl"
+              className="inline-flex items-center justify-center gap-2 px-8 lg:px-14 py-4 lg:py-6 rounded-[16px] lg:rounded-[20px] bg-gradient-to-r from-primary to-secondary text-white cursor-pointer transition-all duration-200 hover:opacity-90 shadow-2xl"
             >
-              <Play className="w-5 h-5" />
-              <span className="font-bold text-base whitespace-nowrap">مشاهدة الفيديو</span>
+              <Play className="w-4 h-4 lg:w-5 lg:h-5" />
+              <span className="font-bold text-sm lg:text-base whitespace-nowrap">
+                مشاهدة الفيديو
+              </span>
             </button>
           </div>
         )}
 
         {/* Navigation arrows */}
-        <div className="absolute left-10 bottom-10 z-20">
+        <div className="absolute left-6 lg:left-10 bottom-6 lg:bottom-10 z-20">
           <div
-            className="w-[72px] group flex items-center justify-center h-[72px] relative bg-primary-light hover:bg-primary rounded-[50px] transition-all hover:shadow-[0px_-8px_50px_0px_var(--color-primary)] cursor-pointer"
+            className="w-14 h-14 lg:w-[72px] lg:h-[72px] group flex items-center justify-center relative bg-primary-light hover:bg-primary rounded-[50px] transition-all hover:shadow-[0px_-8px_50px_0px_var(--color-primary)] cursor-pointer"
             onClick={() => swiperRef.current?.slidePrev()}
           >
             <HomeBannerArrowLeft className="text-text group-hover:fill-white fill-text" />
           </div>
           <div
-            className="w-[72px] group h-[72px] relative translate-x-[72px] bg-primary-light hover:bg-primary rounded-[50px] backdrop-blur-lg flex items-center justify-center hover:shadow-[0px_-8px_50px_0px_var(--color-primary)] cursor-pointer"
+            className="w-14 h-14 lg:w-[72px] lg:h-[72px] group relative translate-x-14 lg:translate-x-[72px] bg-primary-light hover:bg-primary rounded-[50px] backdrop-blur-lg flex items-center justify-center hover:shadow-[0px_-8px_50px_0px_var(--color-primary)] cursor-pointer"
             onClick={() => swiperRef.current?.slideNext()}
           >
-            <div className="w-[72px] h-[72px] left-0 top-0 absolute rounded-full border-2 border-bg group-hover:border-primary transition-all duration-200" />
+            <div className="w-14 h-14 lg:w-[72px] lg:h-[72px] left-0 top-0 absolute rounded-full border-2 border-bg group-hover:border-primary transition-all duration-200" />
             <HomeBannerArrowLeft className="!rotate-180 text-text group-hover:fill-white fill-text" />
           </div>
         </div>
 
         {/* Video Modal */}
         {isVideoOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/70" onClick={closeVideo} />
-            <div className="relative z-10 w-[92%] max-w-[1000px] rounded-2xl overflow-hidden shadow-2xl bg-black">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+            <div
+              className="absolute inset-0 bg-black/70"
+              onClick={closeVideo}
+            />
+            <div className="relative z-10 w-full max-w-[1000px] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl bg-black">
               <button
                 onClick={closeVideo}
                 aria-label="إغلاق الفيديو"
-                className="absolute top-3 left-3 z-20 w-10 h-10 rounded-full bg-white/90 text-text flex items-center justify-center hover:scale-105 transition"
+                className="absolute top-2 sm:top-3 left-2 sm:left-3 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/90 text-text flex items-center justify-center hover:scale-105 transition"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="sm:w-[18px] sm:h-[18px]"
+                >
                   <path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.71 2.89 18.3 9.17 12 2.89 5.71 4.3 4.29 10.59 10.6 16.89 4.29z" />
                 </svg>
               </button>

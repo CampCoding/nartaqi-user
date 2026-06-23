@@ -1,17 +1,15 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/free-mode";
-import { FreeMode, Mousewheel, Navigation, Autoplay } from "swiper/modules";
+import { FreeMode, Mousewheel, Navigation } from "swiper/modules";
 
 import CourseCard from "../ui/Cards/CourseCard";
 import Link from "@/components/ui/NavLink";
 import Container from "../ui/Container";
-import ShareModal from "../shared/ShareModal";
 
 const HomeSection4Courses = ({ latestRounds = [] }) => {
-  // Fallback data if API doesn't return data
   const fallbackData = [
     {
       id: 1,
@@ -23,13 +21,8 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
       for: "Beginner",
       gender: "male",
       price: 99.99,
-      course: {
-        name: "مهارات التعليم والتدريس",
-      },
-      teacher: {
-        name: "جون سميث",
-        image_url: "/images/Image-24.png",
-      },
+      course: { name: "مهارات التعليم والتدريس" },
+      teacher: { name: "جون سميث", image_url: "/images/Image-24.png" },
     },
   ];
 
@@ -46,59 +39,47 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
     price: item.price,
     for: item.for,
     gender: item.gender,
-    end_date: item.end_date,
     active: item.active,
     course_category_id: item.course_category_id,
     remainingSets: +item.capacity - +item.students_count,
-    // Transform course_categories to course
     course: {
       name: item.course_categories?.name || "غير محدد",
       id: item.course_categories?.id,
       description: item.course_categories?.description,
       image_url: item.course_categories?.image_url,
     },
-    // Teacher data (already in correct format)
     teacher: Array.isArray(item.teacher)
       ? item.teacher.map((teacher) => ({
-          name: teacher.name,
-          image_url: teacher.image_url,
-        }))
+        name: teacher.name,
+        image_url: teacher.image_url,
+      }))
       : item.teacher && typeof item.teacher === "object"
-        ? [
-            {
-              name: item.teacher.name,
-              image_url: item.teacher.image_url,
-            },
-          ]
+        ? [{ name: item.teacher.name, image_url: item.teacher.image_url }]
         : [],
     is_favorite: item?.fav || false,
     enrolled: item.enrolled || false,
     teachers: item.teachers,
   }));
 
-  // Use transformed data if available, otherwise use fallback
   const displayData =
     transformedData?.length > 0 ? transformedData : fallbackData;
 
   return (
-    // ✅ أضفنا id="latest-courses" و scroll-mt-[134px]
     <Container
       id="latest-courses"
-      className="mt-6 md:mt-[74px] scroll-mt-[134px]"
+      className="mt-5 sm:mt-6 md:mt-12 lg:mt-[74px] scroll-mt-[134px]"
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        {/* العنوان */}
-        <div className="flex md:w-[261px] items-center justify-center gap-2.5 px-4 py-3 md:px-14 md:py-8 relative rounded-[15px] md:rounded-[25px] bg-gradient-to-r from-primary to-secondary">
-          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-bg text-[12px] md:text-2xl text-left leading-5 whitespace-nowrap">
+      <div className="flex items-center justify-between mb-5 sm:mb-7 md:mb-8 gap-3 sm:gap-4">
+        <div className="flex items-center justify-center gap-2.5 px-3 sm:px-5 md:px-10 lg:px-14 py-2.5 sm:py-3 md:py-6 lg:py-8 relative rounded-[12px] sm:rounded-[15px] md:rounded-[20px] lg:rounded-[25px] bg-gradient-to-r from-primary to-secondary min-w-[110px] sm:min-w-[140px] md:min-w-[200px] lg:min-w-[261px]">
+          <div className="relative flex items-center justify-center w-fit mt-[-1.00px] font-medium text-bg text-xs sm:text-sm md:text-xl lg:text-2xl text-left leading-5 whitespace-nowrap">
             أحدث الدورات
           </div>
         </div>
 
-        {/* زر عرض المزيد */}
         <div
-          className="inline-flex items-center justify-center gap-2.5 relative bg-bg rounded-[15px] md:rounded-[25px] border-[none] 
-                        before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[15px] before:md:rounded-[25px] 
+          className="inline-flex items-center justify-center gap-2.5 relative bg-bg rounded-[12px] sm:rounded-[15px] md:rounded-[20px] lg:rounded-[25px] border-[none] 
+                        before:content-[''] before:absolute before:inset-0 before:p-px before:rounded-[12px] sm:before:rounded-[15px] md:before:rounded-[20px] lg:before:rounded-[25px] 
                         before:[background:linear-gradient(90deg,var(--color-primary)_0%,var(--color-secondary)_100%)] 
                         before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] 
                         before:[-webkit-mask-composite:xor] before:[mask-composite:exclude] before:z-[1] before:pointer-events-none
@@ -107,10 +88,10 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
           <Link
             href={"/courses/newest"}
             className="relative flex items-center justify-center w-fit mt-[-1.00px] 
-            text-[12px] md:text-xl 
+            text-xs sm:text-sm md:text-lg lg:text-xl
                           bg-gradient-to-r from-primary to-secondary 
                           [-webkit-background-clip:text] bg-clip-text 
-                          text-transparent font-semibold px-4 py-3 md:px-8 md:py-5 text-left whitespace-nowrap 
+                          text-transparent font-semibold px-3 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 lg:py-5 text-left whitespace-nowrap 
                           transition-all duration-200 group-hover:text-white group-hover:bg-none"
           >
             عرض المزيد
@@ -118,7 +99,7 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
         </div>
       </div>
 
-      {/* السلايدر */}
+      {/* Slider */}
       <div>
         {displayData?.length > 0 ? (
           <Swiper
@@ -138,7 +119,7 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
               nextEl: ".swiper-button-next",
             }}
             modules={[FreeMode, Mousewheel, Navigation]}
-            className="w-full relative pb-8"
+            className="w-full relative pb-6 sm:pb-8"
             breakpoints={{
               0: {
                 slidesPerView: 1,
@@ -146,6 +127,11 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
                 freeMode: false,
               },
               480: {
+                slidesPerView: 1.5,
+                spaceBetween: 14,
+                freeMode: false,
+              },
+              640: {
                 slidesPerView: 2,
                 spaceBetween: 16,
                 freeMode: false,
@@ -178,7 +164,7 @@ const HomeSection4Courses = ({ latestRounds = [] }) => {
             ))}
           </Swiper>
         ) : (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-10 sm:py-12 text-gray-500 text-sm sm:text-base">
             لا توجد دورات متاحة حالياً
           </div>
         )}

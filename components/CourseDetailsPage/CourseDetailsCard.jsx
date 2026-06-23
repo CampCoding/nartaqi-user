@@ -46,11 +46,7 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
   }, [round?.fav]);
 
   const genderLabel = useMemo(() => {
-    const genderMap = {
-      male: "طلاب",
-      female: "طالبات",
-      both: "الجميع",
-    };
+    const genderMap = { male: "طلاب", female: "طالبات", both: "الجميع" };
     return genderMap[round?.gender] || "غير محدد";
   }, [round?.gender]);
 
@@ -85,35 +81,26 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
 
   const formatDate = useCallback((dateString) => {
     if (!dateString) return "غير محدد";
-
     const d = new Date(dateString);
     if (Number.isNaN(d.getTime())) return "غير محدد";
-
     const day = String(d.getDate()).padStart(2, "0");
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const year = d.getFullYear();
-
     return `${day}/${month}/${year}`;
   }, []);
 
-  const goLogin = useCallback(() => {
-    router.push("/login");
-  }, [router]);
+  const goLogin = useCallback(() => router.push("/login"), [router]);
 
   const handleToggleCart = useCallback(async () => {
     if (!token) return goLogin();
-    if (!roundId) return console.error("Round ID is undefined!");
+    if (!roundId) return;
 
     setIsCartLoading(true);
     try {
       if (isInCart) {
-        await dispatch(
-          removeFromCart({ type: "rounds", item_id: roundId })
-        ).unwrap();
+        await dispatch(removeFromCart({ type: "rounds", item_id: roundId })).unwrap();
       } else {
-        await dispatch(
-          addToCart({ type: "rounds", item_id: roundId, quantity: 1 })
-        ).unwrap();
+        await dispatch(addToCart({ type: "rounds", item_id: roundId, quantity: 1 })).unwrap();
       }
       await dispatch(getUserCart()).unwrap();
     } catch (error) {
@@ -125,39 +112,31 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
 
   const handleToggleFavorite = useCallback(() => {
     if (!token) return goLogin();
-    if (!roundId) return console.error("Round ID is undefined!");
+    if (!roundId) return;
 
     setIsFavorited((prev) => !prev);
-
     toggleFavorite(
       { id: roundId, payload: { round_id: roundId } },
-      {
-        onError: () => {
-          setIsFavorited((prev) => !prev);
-        },
-      }
+      { onError: () => setIsFavorited((prev) => !prev) }
     );
   }, [token, roundId, toggleFavorite, goLogin]);
 
-  // ✅ Open payment modal
   const handlePayNow = () => {
     if (!token) {
       toast.error("يجب تسجيل الدخول أولاً");
       router.push("/login");
       return;
     }
-
     if (round.capacity - round?.students_count <= 0) {
       toast.error("عذراً، هذه الدورة ممتلئة");
       return;
     }
-
     setIsPaymentModalOpen(true);
   };
 
   if (!round || !roundId) {
     return (
-      <div className="w-full max-w-[460px] px-5 pt-6 bg-white rounded-[28px] shadow-lg">
+      <div className="w-full max-w-[420px] xl:max-w-[460px] px-4 sm:px-5 pt-5 sm:pt-6 bg-white rounded-[24px] shadow-lg">
         <p className="text-red-500 text-sm">Error: No round data available</p>
       </div>
     );
@@ -165,11 +144,11 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
 
   return (
     <>
-      <div className="w-full lg:text-white max-w-[460px] px-4 sm:px-5 pt-5 sm:pt-6 relative bg-white rounded-[30px] sm:rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] overflow-hidden">
+      <div className="w-full lg:text-white max-w-[380px] xl:max-w-[420px] 2xl:max-w-[460px] px-4 sm:px-5 pt-5 sm:pt-6 relative bg-white rounded-[24px] sm:rounded-[30px] xl:rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] overflow-hidden">
         {/* Image */}
         <div
           className={cx(
-            "w-full h-52 sm:h-60 relative bg-black/20 rounded-[22px] sm:rounded-[28px] overflow-hidden",
+            "w-full h-48 sm:h-52 xl:h-60 relative bg-black/20 rounded-[18px] sm:rounded-[22px] xl:rounded-[28px] overflow-hidden",
             scrolled ? "hidden" : "visible"
           )}
           style={{
@@ -186,14 +165,15 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
             className="absolute inset-0 flex items-center justify-center"
             aria-label="مشاهدة المعاينة"
           >
-            <div className="p-3.5 sm:p-4 bg-secondary rounded-full shadow-[0px_0px_40px_0px_rgba(249,115,22,1)] inline-flex justify-center items-center overflow-hidden">
-              <div className="w-5 h-5 relative flex justify-center items-center">
+            <div className="p-3 sm:p-3.5 xl:p-4 bg-secondary rounded-full shadow-[0px_0px_40px_0px_rgba(249,115,22,1)] inline-flex justify-center items-center overflow-hidden">
+              <div className="w-4 h-4 sm:w-5 sm:h-5 relative flex justify-center items-center">
                 <svg
                   width="15"
                   height="17"
                   viewBox="0 0 15 17"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
+                  className="w-full h-full"
                 >
                   <path
                     d="M2.5241 15.2741C1.85783 15.6841 1 15.2048 1 14.4224L1 2.00157C1 1.21925 1.85783 0.739905 2.5241 1.14992L12.6161 7.36032C13.2506 7.75082 13.2506 8.67321 12.6161 9.06371L2.5241 15.2741Z"
@@ -208,56 +188,55 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
         </div>
 
         {/* Info rows */}
-        <div className="inline-flex flex-col justify-start w-full mt-4 sm:mt-5 mb-6 sm:mb-7">
-          <div className="w-full pb-3 border-b border-zinc-100 inline-flex justify-between items-start gap-3">
-            <div className="flex justify-start w-1/2 items-center gap-2">
+        <div className="inline-flex flex-col justify-start w-full mt-4 sm:mt-5 mb-5 sm:mb-7">
+          <div className="w-full pb-3 border-b border-zinc-100 inline-flex justify-between items-start gap-2 sm:gap-3">
+            <div className="flex justify-start w-1/2 items-center gap-1.5 sm:gap-2">
               <CalenderStartIcon />
-              <div className="justify-center text-text text-xs sm:text-[13px] font-medium leading-5">
+              <div className="text-text text-[11px] sm:text-xs xl:text-[13px] font-medium leading-5">
                 تاريخ البداية : {formatDate(round.start_date)}
               </div>
             </div>
 
-            <div className="flex justify-start w-1/2 items-center gap-2">
+            <div className="flex justify-start w-1/2 items-center gap-1.5 sm:gap-2">
               <CalenderEndIcon />
-              <div className="justify-center text-text text-xs sm:text-[13px] font-medium leading-5">
+              <div className="text-text text-[11px] sm:text-xs xl:text-[13px] font-medium leading-5">
                 تاريخ الإنتهاء : {formatDate(round.end_date)}
               </div>
             </div>
           </div>
 
-          <div className="w-full py-3 border-b border-zinc-100 inline-flex justify-between items-start gap-3">
-            <div className="flex justify-start w-1/2 items-center gap-2">
+          <div className="w-full py-3 border-b border-zinc-100 inline-flex justify-between items-start gap-2 sm:gap-3">
+            <div className="flex justify-start w-1/2 items-center gap-1.5 sm:gap-2">
               <GenderIcon />
-              <div className="justify-center text-text text-xs sm:text-[13px] font-medium leading-5">
+              <div className="text-text text-[11px] sm:text-xs xl:text-[13px] font-medium leading-5">
                 النوع : {genderLabel}
               </div>
             </div>
 
-            <div className="flex justify-start w-1/2 items-center gap-2">
+            <div className="flex justify-start w-1/2 items-center gap-1.5 sm:gap-2">
               <SeatsIcon />
-              <div className="justify-center text-text text-xs sm:text-[13px] font-medium leading-5">
-                المقاعد المتبقية:{" "}
-                {+round.capacity - +round.students_count || "غير محدد"}
+              <div className="text-text text-[11px] sm:text-xs xl:text-[13px] font-medium leading-5">
+                المقاعد المتبقية: {+round.capacity - +round.students_count || "غير محدد"}
               </div>
             </div>
           </div>
 
-          <div className="w-full pt-3 inline-flex justify-between items-start gap-3">
-            <div className="flex justify-start w-1/2 items-center gap-2">
+          <div className="w-full pt-3 inline-flex justify-between items-start gap-2 sm:gap-3">
+            <div className="flex justify-start w-1/2 items-center gap-1.5 sm:gap-2">
               <CycleClock />
-              <div className="inline-flex justify-start items-center gap-3">
-                <div className="text-right justify-center text-text text-xs sm:text-[13px] font-medium leading-5">
+              <div className="inline-flex justify-start items-center gap-2 sm:gap-3 flex-wrap">
+                <div className="text-right text-text text-[11px] sm:text-xs xl:text-[13px] font-medium leading-5">
                   الساعات : {round.total_hours || "غير محدد"}
                 </div>
-                <div className="text-right justify-center text-text text-xs sm:text-[13px] font-medium leading-5">
+                <div className="text-right text-text text-[11px] sm:text-xs xl:text-[13px] font-medium leading-5">
                   الأيام : {round.total_days || "غير محدد"}
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-start w-1/2 items-center gap-2">
+            <div className="flex justify-start w-1/2 items-center gap-1.5 sm:gap-2">
               <RatingLike />
-              <div className="flex items-center gap-1 text-xs sm:text-[13px] font-medium text-text">
+              <div className="flex items-center gap-1 text-[11px] sm:text-xs xl:text-[13px] font-medium text-text">
                 التقييم :
                 <div className="flex items-center gap-1">
                   <div className="font-semibold">{ratingValue}</div>
@@ -269,105 +248,37 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
         </div>
 
         {/* Price + Actions */}
-        <div className="pt-3 sm:pt-4 pb-8 sm:pb-10">
-          <div className="self-stretch inline-flex justify-end items-end gap-3 sm:gap-4 mt-1">
-            <div className="justify-center text-primary text-xl sm:text-2xl font-bold">
+        <div className="pt-3 sm:pt-4 pb-6 sm:pb-8 xl:pb-10">
+          <div className="self-stretch inline-flex justify-end items-end gap-2 sm:gap-3 xl:gap-4 mt-1 flex-wrap">
+            <div className="text-primary text-lg sm:text-xl xl:text-2xl font-bold">
               {round.price} ر.س
             </div>
             {round.show_round_book == "1" && (
-              <div className="justify-center text-text text-[11px] sm:text-xs font-medium">
+              <div className="text-text text-[10px] sm:text-[11px] xl:text-xs font-medium">
                 (شاملة كتاب الدورة بصيغة PDF)
               </div>
             )}
           </div>
 
-          <div className="mt-4 mb-4 sm:mb-5 w-full inline-flex justify-end items-center gap-3 sm:gap-4">
-            {/* Cart Button */}
-            {/* <button
-              type="button"
-              onClick={handleToggleCart}
-              disabled={isCartLoading}
-              aria-label={isInCart ? "حذف من السلة" : "إضافة إلى السلة"}
-              className={`flex-1 px-3 py-3 rounded-[14px] sm:rounded-[16px] border border-1 border-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200
-                ${
-                  isInCart && !isCartLoading
-                    ? "bg-red-50 border-red-500 hover:bg-red-100 group"
-                    : isCartLoading
-                      ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
-                      : "bg-white border-secondary hover:bg-secondary group"
-                }`}
-            >
-              {isCartLoading ? (
-                <>
-                  <div className="spinner" />
-                  <span className="text-center justify-center text-gray-500 text-xs sm:text-[13px] font-bold">
-                    {isInCart ? "جاري الحذف..." : "جاري الإضافة..."}
-                  </span>
-                </>
-              ) : isInCart ? (
-                <>
-                  <svg
-                    className="w-5 h-5 text-red-500 transition-transform group-hover:scale-110"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span className="text-center justify-center text-red-600 text-xs sm:text-[13px] font-bold">
-                    حذف من السلة
-                    {cartItem?.quantity > 1 && ` (${cartItem.quantity})`}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-5 h-5 text-secondary group-hover:text-white transition-colors"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M3 3H5L5.4 5M5.4 5H21L17 13H7M5.4 5L7 13M7 13L4.707 15.293C4.077 15.923 4.523 17 5.414 17H17M17 17C16.4696 17 15.9609 17.2107 15.5858 17.5858C15.2107 17.9609 15 18.4696 15 19C15 19.5304 15.2107 20.0391 15.5858 20.4142C15.9609 20.7893 16.4696 21 17 21C17.5304 21 18.0391 20.7893 18.4142 20.4142C18.7893 20.0391 19 19.5304 19 19C19 18.4696 18.7893 17.9609 18.4142 17.5858C18.0391 17.2107 17.5304 17 17 17ZM9 19C9 19.5304 8.78929 20.0391 8.41421 20.4142C8.03914 20.7893 7.53043 21 7 21C6.46957 21 5.96086 20.7893 5.58579 20.4142C5.21071 20.0391 5 19.5304 5 19C5 18.4696 5.21071 17.9609 5.58579 17.5858C5.96086 17.2107 6.46957 17 7 17C7.53043 17 8.03914 17.2107 8.41421 17.5858C8.78929 17.9609 9 18.4696 9 19Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span className="text-center justify-center text-secondary text-xs sm:text-[13px] font-bold group-hover:text-white transition-colors">
-                    أضف الي السلة
-                  </span>
-                </>
-              )}
-            </button> */}
-
-            {/* Favorite Button */}
+          <div className="mt-3 sm:mt-4 mb-4 sm:mb-5 w-full inline-flex justify-end items-center gap-2 sm:gap-3 xl:gap-4">
             <button
               type="button"
               onClick={handleToggleFavorite}
               disabled={isFavLoading}
               aria-label={isFavorited ? "إزالة من المفضلة" : "إضافة للمفضلة"}
-              className={`flex px-3 py-3 rounded-[14px] sm:rounded-[16px] border border-1 border-offset-[-1px] flex justify-center items-center gap-2 transition-all duration-200
-                ${
-                  isFavorited && !isFavLoading
-                    ? "bg-red-50 border-red-500 hover:bg-red-100 group"
-                    : isFavLoading
-                      ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
-                      : "bg-white border-secondary hover:bg-secondary group"
+              className={`flex px-3 py-2.5 sm:py-3 rounded-[12px] sm:rounded-[14px] xl:rounded-[16px] border justify-center items-center gap-2 transition-all duration-200
+                ${isFavorited && !isFavLoading
+                  ? "bg-red-50 border-red-500 hover:bg-red-100 group"
+                  : isFavLoading
+                    ? "bg-gray-50 border-gray-300 cursor-wait opacity-70"
+                    : "bg-white border-secondary hover:bg-secondary group"
                 }`}
             >
               {isFavLoading ? (
                 <div className="spinner" />
               ) : isFavorited ? (
                 <svg
-                  className="w-5 h-5 text-red-500 transition-transform group-hover:scale-110"
+                  className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 transition-transform group-hover:scale-110"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                   xmlns="http://www.w3.org/2000/svg"
@@ -376,7 +287,7 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
                 </svg>
               ) : (
                 <svg
-                  className="w-5 h-5 text-secondary group-hover:text-white transition-colors"
+                  className="w-4 h-4 sm:w-5 sm:h-5 text-secondary group-hover:text-white transition-colors"
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -398,9 +309,9 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
             type="button"
             onClick={handlePayNow}
             disabled={round.capacity - round?.students_count <= 0}
-            className="w-full px-3.5 py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group disabled:!bg-gray-300 disabled:!cursor-not-allowed bg-secondary hover:bg-secondary-warm focus:bg-primary"
+            className="w-full px-3 sm:px-3.5 py-2.5 sm:py-3 rounded-[12px] sm:rounded-[14px] xl:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group disabled:!bg-gray-300 disabled:!cursor-not-allowed bg-secondary hover:bg-secondary-warm focus:bg-primary"
           >
-            <span className="text-center justify-center text-slate-200 text-xs sm:text-[13px] font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
+            <span className="text-center text-slate-200 text-xs sm:text-[13px] font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
               اشترك الآن - {round.price} ر.س
             </span>
           </button>
@@ -408,9 +319,9 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
           {/* Free Preview Link */}
           <Link
             href={`/course-preview/${roundId}`}
-            className="w-full px-3.5 mt-3 bg-primary py-3 rounded-[14px] sm:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group"
+            className="w-full px-3 sm:px-3.5 mt-2.5 sm:mt-3 bg-primary py-2.5 sm:py-3 rounded-[12px] sm:rounded-[14px] xl:rounded-[16px] inline-flex justify-center items-center gap-2.5 transition-colors duration-200 group"
           >
-            <span className="text-center justify-center text-slate-200 text-xs sm:text-[13px] font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
+            <span className="text-center text-slate-200 text-xs sm:text-[13px] font-bold transition-colors duration-200 group-hover:text-white group-focus:text-white">
               الشروحات المجانية
             </span>
           </Link>
@@ -426,24 +337,18 @@ const CourseDetailsCard = ({ courseData, onSubscribe, scrolled }) => {
             animation: spin 0.8s linear infinite;
           }
           @keyframes spin {
-            0% {
-              transform: rotate(0deg);
-            }
-            100% {
-              transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
           }
         `}</style>
       </div>
 
-      {/* ✅ Payment Modal */}
       <CoursePaymentModal
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
         round={round}
         user={user}
-          hasCoupon={courseData?.has_coupon == 1}
-
+        hasCoupon={courseData?.has_coupon == 1}
       />
     </>
   );

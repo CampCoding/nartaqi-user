@@ -1,5 +1,3 @@
-// CourseContentDrawer.jsx (full file)
-
 "use client";
 
 import {
@@ -64,14 +62,8 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
   const [infoOpen, setInfoOpen] = useState(false);
 
   const openInfo = (e) => {
-    e.stopPropagation(); // ✅ يمنع toggle للدراور
+    e.stopPropagation();
     setInfoOpen(true);
-  };
-
-  const formatTime = (timeString) => {
-    if (!timeString) return "";
-    const [hours, minutes] = timeString.split(":");
-    return `${hours}:${minutes}`;
   };
 
   const closeInfo = () => setInfoOpen(false);
@@ -85,7 +77,7 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
             own &&
             !content?.was_opened &&
             content?.show_date && (
-              <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
+              <div className="text-xs sm:text-sm !text-red-900 text-right mt-2 text-text font-normal">
                 متاح في: {content.show_date}
               </div>
             )}
@@ -94,33 +86,35 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
     >
       <div
         className={cx(
-          "self-stretch w-full transition-all bg-white rounded-2xl md:rounded-[24px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] outline outline-2 outline-offset-[-1px] outline-neutral-300 inline-flex flex-col justify-start items-start",
+          "self-stretch w-full transition-all bg-white rounded-xl sm:rounded-2xl md:rounded-[24px] shadow-[0px_1px_4px_0px_rgba(0,0,0,0.25)] outline outline-2 outline-offset-[-1px] outline-neutral-300 inline-flex flex-col justify-start items-start",
           !isOpen ? "hover:shadow-2xl" : "shadow-xl"
         )}
       >
         {/* Header */}
         <div
-          className="self-stretch px-5 md:px-7 py-5 md:py-7 inline-flex justify-between items-start cursor-pointer"
+          className="self-stretch px-3.5 sm:px-5 md:px-7 py-4 sm:py-5 md:py-7 inline-flex justify-between items-start cursor-pointer gap-2"
           onClick={handleToggle}
         >
-          <div>
-            <div className="text-right flex items-start gap-2 justify-center text-text text-base md:text-lg font-bold">
+          <div className="flex-1 min-w-0">
+            <div className="text-right flex items-start gap-2 text-text text-sm sm:text-base md:text-lg font-bold">
               <button
                 type="button"
                 onClick={openInfo}
-                className="inline-flex items-center justify-center mt-1"
+                className="inline-flex items-center justify-center mt-1 flex-shrink-0"
                 aria-label="عرض وصف المحتوى"
               >
                 <InfoIcon />
               </button>
 
-              <div className="">
-                <div>{content.content_title || "غير محدد"}</div>
+              <div className="min-w-0">
+                <div className="line-clamp-2 sm:line-clamp-none">
+                  {content.content_title || "غير محدد"}
+                </div>
                 {isRegistered &&
                   own &&
                   !content?.was_opened &&
                   content?.show_date && (
-                    <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
+                    <div className="text-xs sm:text-sm !text-red-900 text-right mt-2 text-text font-normal">
                       متاح في: {content.show_date}
                     </div>
                   )}
@@ -128,15 +122,14 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
             </div>
           </div>
 
-          <div className="transition-transform duration-300">
-            <div className="flex justify-between items-center gap-4 md:gap-5">
+          <div className="transition-transform duration-300 flex-shrink-0">
+            <div className="flex justify-between items-center gap-3 sm:gap-4 md:gap-5">
               <CourseChevronTopIcon
-                className={`w-[22px] h-[22px] md:w-[26px] md:h-[26px] ${
-                  !isOpen ? "rotate-180" : "rotate-0"
-                } transition-transform duration-300 !fill-primary`}
+                className={`w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px] ${!isOpen ? "rotate-180" : "rotate-0"
+                  } transition-transform duration-300 !fill-primary`}
               />
               {!isRegistered && (
-                <CourseLockIcon className="w-[22px] h-[22px] md:w-[26px] md:h-[26px] !fill-primary" />
+                <CourseLockIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px] !fill-primary" />
               )}
             </div>
           </div>
@@ -148,9 +141,11 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
           footer={null}
           centered
           title={content.content_title || "وصف المحتوى"}
+          width="90%"
+          style={{ maxWidth: 600 }}
         >
           <div
-            className="text-right leading-relaxed prose prose-neutral text-text leading-7 md:leading-8 text-sm md:text-base font-normal"
+            className="text-right leading-relaxed prose prose-neutral text-text leading-7 md:leading-8 text-xs sm:text-sm md:text-base font-normal"
             dangerouslySetInnerHTML={{
               __html:
                 content?.description ||
@@ -163,9 +158,12 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
         {/* Body */}
         {isOpen &&
           (isRegistered ? (
-            <div className="w-full flex flex-col gap-4 md:gap-5 px-5 md:px-7 pb-5 md:pb-7">
+            <div className="w-full flex flex-col gap-3 sm:gap-4 md:gap-5 px-3.5 sm:px-5 md:px-7 pb-4 sm:pb-5 md:pb-7">
               {!content.lessons || content.lessons.length == 0 ? (
-                <span className="text-gray-500 text-xl"> لا يوجد بيانات </span>
+                <span className="text-gray-500 text-base sm:text-lg md:text-xl">
+                  {" "}
+                  لا يوجد بيانات{" "}
+                </span>
               ) : (
                 content.lessons.map((lesson) => (
                   <RegLectureDrawer
@@ -177,14 +175,13 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
                     isRegistered={isRegistered}
                     token={token}
                     studentId={user?.id}
-                    // ✅ round_id كان غلط/غير معرّف — لازم من الداتا
                     roundId={content?.round_id}
                   />
                 ))
               )}
             </div>
           ) : (
-            <div className="w-full flex flex-col gap-4 md:gap-5 px-5 md:px-7 pb-5 md:pb-7">
+            <div className="w-full flex flex-col gap-3 sm:gap-4 md:gap-5 px-3.5 sm:px-5 md:px-7 pb-4 sm:pb-5 md:pb-7">
               {content.lessons.map((lesson) => (
                 <RegLectureDrawer
                   key={lesson.id}
@@ -192,7 +189,6 @@ const CourseContentDrawer = ({ isRegistered, content, allExams, own }) => {
                   isDone={true}
                   isSectionOpen={content.was_opened}
                   own={own}
-                  // ✅ كان غلط: isRegistered={!isRegistered}
                   isRegistered={isRegistered}
                   token={token}
                   studentId={user?.id}
@@ -248,18 +244,13 @@ export const RegLectureDrawer = ({
     setSavingMap((prev) => ({ ...prev, [key]: true }));
 
     try {
-      // ✅ نفس الـ endpoint في الحالتين (حدد/الغِ)
-      // لازم الـ API يدعم flag زي watched / is_viewed / action
       const res = await makeStudentView({
         student_id: String(studentId),
         round_id: String(roundId),
         video_id: String(item.id),
-
-        // ✅ ده اللي يخلي الـ endpoint يعرف هل مشاهدة ولا إلغاء مشاهدة
         watched: nextChecked ? "1" : "0",
       });
 
-      // لو الـ hook بيرجع falsy على failure
       return !!res;
     } catch (e) {
       return false;
@@ -274,13 +265,10 @@ export const RegLectureDrawer = ({
     const prevChecked = !!checkedMap[key];
     const nextChecked = !prevChecked;
 
-    // ✅ Optimistic UI
     setCheckedMap((prev) => ({ ...prev, [key]: nextChecked }));
 
-    // ✅ Call API on BOTH check/uncheck
     const ok = await setWatched(item, nextChecked);
 
-    // ✅ Rollback لو فشل
     if (!ok) {
       setCheckedMap((prev) => ({ ...prev, [key]: prevChecked }));
       toast.error("حصل خطأ أثناء تحديث حالة المشاهدة");
@@ -300,23 +288,18 @@ export const RegLectureDrawer = ({
 
   const toggleExpanded = () => setIsExpanded((v) => !v);
 
-  // ✅ professional time formatter: supports seconds (number) or "mm:ss" / "hh:mm:ss"
   const formatTime = (timeString) => {
     if (!timeString) return "";
 
-    // التحقق إذا كان الوقت يحتوي على AM/PM
     const isPM = timeString.toUpperCase().includes("PM");
     const isAM = timeString.toUpperCase().includes("AM");
 
-    // إزالة AM/PM والمسافات
     const cleanTime = timeString.replace(/\s*(AM|PM)\s*/gi, "").trim();
     const [hours, minutes] = cleanTime.split(":");
 
     let hour = parseInt(hours, 10);
 
-    // إذا كان التنسيق 12 ساعة مع AM/PM
     if (isPM || isAM) {
-      // تحويل لنظام 24 ساعة أولاً ثم للعربي
       if (isPM && hour !== 12) {
         hour = hour + 12;
       } else if (isAM && hour === 12) {
@@ -324,7 +307,6 @@ export const RegLectureDrawer = ({
       }
     }
 
-    // تحويل لنظام 12 ساعة مع ص/م
     const period = hour >= 12 ? "م" : "ص";
     const hour12 = hour % 12 || 12;
 
@@ -334,28 +316,23 @@ export const RegLectureDrawer = ({
   const buildVideoQuery = (item) => {
     const query = { ...mergedParams, video: item.id };
 
-    // ✅ جمع كل الروابط المحتملة (video/live)
     const vimeoSource =
       item?.vimeo_link || item?.link || item?.video_url || item?.url;
     const youtubeSource =
       item?.youtube_link || item?.link || item?.video_url || item?.url;
 
-    // ✅ حاول Vimeo أولاً
     const vimeoId = extractVimeoId(vimeoSource);
     if (vimeoId) {
       query.vimeo_id = encodeId(vimeoId);
       return query;
     }
 
-    // ✅ ثم YouTube
     const youtubeId = extractYoutubeId(youtubeSource);
     if (youtubeId) {
       query.youtube_id = encodeId(youtubeId);
       return query;
     }
 
-    // ✅ fallback: لو الرابط موجود بس مش معروف هل vimeo/youtube
-    // (لو player عندك بيفهم vimeo_id كـ url كمان)
     const raw =
       item?.vimeo_link ||
       item?.youtube_link ||
@@ -363,13 +340,11 @@ export const RegLectureDrawer = ({
       item?.video_url ||
       item?.url;
     if (raw) {
-      // إذا الرابط فيه كلمة vimeo استخدمه كـ vimeo_id
       if (String(raw).toLowerCase().includes("vimeo")) {
         query.vimeo_id = encodeId(raw);
         return query;
       }
 
-      // إذا الرابط فيه youtube/youtu.be استخدمه كـ youtube_id
       if (
         String(raw).toLowerCase().includes("youtube") ||
         String(raw).toLowerCase().includes("youtu.be")
@@ -378,12 +353,12 @@ export const RegLectureDrawer = ({
         return query;
       }
 
-      // آخر حل: اعتبره vimeo
       query.vimeo_id = encodeId(raw);
     }
 
     return query;
   };
+
   const hasActiveLive = useMemo(() => {
     return (lesson.live || []).some((live) => live.finished !== "1");
   }, [lesson.live]);
@@ -405,7 +380,6 @@ export const RegLectureDrawer = ({
 
   const hasExams = lesson.exam_all_data && lesson.exam_all_data.length > 0;
 
-  // ✅ Checkbox state per item (video/live), matches YOUR API: video.watched boolean
   const toBool = (v) => v === true || v === 1 || v === "1" || v === "true";
 
   const buildInitCheckedMap = () => {
@@ -423,31 +397,27 @@ export const RegLectureDrawer = ({
 
   const [checkedMap, setCheckedMap] = useState(() => buildInitCheckedMap());
 
-  // ✅ sync لو الداتا اتغيرت / refetch
   useEffect(() => {
     setCheckedMap(buildInitCheckedMap());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lesson?.id]);
 
-  const itemKey = (item) => `${item.type}-${item.id}`;
-
   const [lessonInfoOpen, setLessonInfoOpen] = useState(false);
 
   const openLessonInfo = (e) => {
-    e.stopPropagation(); // ✅ عشان مايفتحش/يقفل الـ drawer
+    e.stopPropagation();
     setLessonInfoOpen(true);
   };
 
   const closeLessonInfo = () => setLessonInfoOpen(false);
 
-  // اختار field الوصف حسب API عندك
   const lessonDescription =
     lesson?.description || lesson?.lesson_description || lesson?.desc || "";
 
   return (
     <article
       className={cx(
-        "flex w-full flex-col items-start relative bg-white rounded-2xl md:rounded-[32px] border-2 border-solid border-variable-collection-stroke transition-all",
+        "flex w-full flex-col items-start relative bg-white rounded-xl sm:rounded-2xl md:rounded-[32px] border-2 border-solid border-variable-collection-stroke transition-all",
         isExpanded ? "shadow-xl" : "hover:shadow-2xl"
       )}
     >
@@ -459,30 +429,30 @@ export const RegLectureDrawer = ({
             toggleExpanded();
           }
         }}
-        className="flex cursor-pointer gap-4 sm:gap-6 p-5 sm:p-6 md:p-7 items-start justify-between self-stretch w-full"
+        className="flex cursor-pointer gap-3 sm:gap-4 md:gap-6 p-3.5 sm:p-5 md:p-6 lg:p-7 items-start justify-between self-stretch w-full"
         role="button"
         tabIndex={0}
         aria-expanded={isExpanded}
         aria-controls={sectionId}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           <button
             type="button"
             onClick={openLessonInfo}
-            className="inline-flex items-center justify-center"
+            className="inline-flex items-center justify-center flex-shrink-0"
             aria-label="عرض وصف الدرس"
           >
             <InfoIcon />
           </button>
-          <div className="">
-            <h1 className="font-bold cursor-pointer flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
+          <div className="min-w-0">
+            <h1 className="font-bold cursor-pointer text-text text-sm sm:text-base md:text-lg leading-snug line-clamp-2">
               {lesson.lesson_title || "غير محدد"}
             </h1>
             {isRegistered &&
               own &&
               !lesson?.was_opened &&
               lesson?.show_date && (
-                <div className="  text-sm !text-red-900 text-right mt-2  text-text  font-normal">
+                <div className="text-xs sm:text-sm !text-red-900 text-right mt-2 text-text font-normal">
                   متاح في: {lesson.show_date}
                 </div>
               )}
@@ -493,15 +463,13 @@ export const RegLectureDrawer = ({
           className="shrink-0 transition-transform duration-300"
           aria-hidden="true"
         >
-          <div className="flex justify-between items-center gap-4 md:gap-5">
+          <div className="flex justify-between items-center gap-3 sm:gap-4 md:gap-5">
             <CourseChevronTopIcon
-              className={`w-[22px] h-[22px] md:w-[26px] md:h-[26px] ${
-                !isExpanded ? "rotate-180" : "rotate-0"
-              } transition-transform duration-300 !fill-primary`}
+              className={`w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px] ${!isExpanded ? "rotate-180" : "rotate-0"
+                } transition-transform duration-300 !fill-primary`}
             />
-            {/* ✅ القفل يظهر لغير المسجل */}
             {!isRegistered && (
-              <CourseLockIcon className="w-[22px] h-[22px] md:w-[26px] md:h-[26px] !fill-primary" />
+              <CourseLockIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px] !fill-primary" />
             )}
           </div>
         </div>
@@ -513,9 +481,11 @@ export const RegLectureDrawer = ({
         footer={null}
         centered
         title={lesson.lesson_title || "وصف الدرس"}
+        width="90%"
+        style={{ maxWidth: 600 }}
       >
         <div
-          className="text-right leading-relaxed prose prose-neutral text-text leading-7 md:leading-8 text-sm md:text-base font-normal"
+          className="text-right leading-relaxed prose prose-neutral text-text leading-7 md:leading-8 text-xs sm:text-sm md:text-base font-normal"
           dangerouslySetInnerHTML={{
             __html: lessonDescription?.trim()
               ? lessonDescription
@@ -527,11 +497,14 @@ export const RegLectureDrawer = ({
       {isExpanded && (
         <section
           id={sectionId}
-          className="flex flex-col items-start self-stretch w-full gap-4 sm:gap-6 p-5 sm:p-6 md:p-7 !pt-0"
+          className="flex flex-col items-start self-stretch w-full gap-3 sm:gap-4 md:gap-6 p-3.5 sm:p-5 md:p-6 lg:p-7 !pt-0"
         >
           {/* Videos and Live Sessions */}
           {!allContent || allContent.length == 0 ? (
-            <span className="text-gray-500 text-xl"> لا يوجد بيانات </span>
+            <span className="text-gray-500 text-base sm:text-lg md:text-xl">
+              {" "}
+              لا يوجد بيانات{" "}
+            </span>
           ) : (
             allContent.map((item) => {
               const key = `video-${item.id}`;
@@ -540,58 +513,46 @@ export const RegLectureDrawer = ({
               return (
                 <div
                   key={`${item.type}-${item.id}`}
-                  className="flex items-start gap-4 pt-4 pb-5 sm:pb-6 w-full border-b-[2px] border-solid border-variable-collection-stroke"
+                  className="flex items-start gap-3 sm:gap-4 pt-3 sm:pt-4 pb-4 sm:pb-5 md:pb-6 w-full border-b-[2px] border-solid border-variable-collection-stroke"
                 >
                   <RoundedPlayIcon
                     className={cx(
-                      "w-[30px] h-[30px] md:w-[36px] md:h-[36px]",
+                      "w-[24px] h-[24px] sm:w-[30px] sm:h-[30px] md:w-[36px] md:h-[36px] flex-shrink-0",
                       item.type === "live" ? "stroke-danger" : "stroke-primary"
                     )}
                   />
 
                   <div
                     className={cx(
-                      "flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 self-stretch"
+                      "flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 self-stretch min-w-0"
                     )}
                   >
-                    <div className="inline-flex items-center gap-3">
+                    <div className="inline-flex items-center gap-2 sm:gap-3 min-w-0">
                       {item.type === "video" ? (
-                        // ✅ المسجّل هو اللي يفتح الفيديو
                         isRegistered ? (
                           <Link
                             href={
                               lesson.was_opened && isSectionOpen
                                 ? {
-                                    pathname,
-                                    query: buildVideoQuery(item),
-                                    hash: "player",
-                                  }
+                                  pathname,
+                                  query: buildVideoQuery(item),
+                                  hash: "player",
+                                }
                                 : "#"
                             }
-                            // onClick={async () => {
-                            //   const key = `video-${item.id}`;
-                            //   if (!checkedMap[key] && isRegistered) {
-                            //     await toggleChecked(item);
-                            //   }
-                            // }}
                           >
-                            <h2
-                              onClick={() =>
-                                console.log("isSectionOpen", isSectionOpen)
-                              }
-                              className="cursor-pointer font-medium ..."
-                            >
+                            <h2 className="cursor-pointer font-medium text-text text-sm sm:text-base md:text-lg leading-snug line-clamp-2 hover:text-primary transition-colors">
                               {item.title || "غير محدد"}
                             </h2>
                           </Link>
                         ) : (
-                          <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
+                          <h2 className="font-medium text-text text-sm sm:text-base md:text-lg leading-snug line-clamp-2">
                             {item.title || "غير محدد"}
                           </h2>
                         )
                       ) : (
-                        <div className="flex flex-col gap-1">
-                          <h2 className="font-medium flex items-center justify-center w-fit -mt-px text-text text-base md:text-lg leading-snug">
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <h2 className="font-medium text-text text-sm sm:text-base md:text-lg leading-snug line-clamp-2">
                             {item.title || "غير محدد"}
                           </h2>
 
@@ -602,14 +563,14 @@ export const RegLectureDrawer = ({
                                 query: buildVideoQuery(item),
                                 hash: "player",
                               }}
-                              className="text-gray-500 underline text-sm md:text-base"
+                              className="text-gray-500 underline text-xs sm:text-sm md:text-base"
                               rel="noreferrer"
                             >
                               عرض التسجيل
                             </Link>
                           ) : (
                             <a
-                              className="text-gray-500 underline text-sm md:text-base"
+                              className="text-gray-500 underline text-xs sm:text-sm md:text-base"
                               href={item.link}
                               target="_blank"
                               rel="noreferrer"
@@ -621,41 +582,27 @@ export const RegLectureDrawer = ({
                       )}
                     </div>
 
-                    {/* Right side: status/time + checkbox for videos */}
-                    <div className="inline-flex items-center gap-3 sm:gap-4">
+                    {/* Right side: status/time */}
+                    <div className="inline-flex items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0 self-end sm:self-auto">
                       {item.type === "live" ? (
-                        <div className="inline-flex items-center gap-2">
-                          <span className="font-bold text-sm md:text-base leading-normal">
+                        <div className="inline-flex items-center gap-2 flex-wrap justify-end">
+                          <span className="font-bold text-xs sm:text-sm md:text-base leading-normal">
                             {item.finished == "1" ? (
                               <span className="text-green-500">انتهى البث</span>
                             ) : (
                               <span className="text-danger">بث مباشر</span>
                             )}
                           </span>
-                          <time className="font-medium text-text-alt text-xs md:text-sm">
+                          <time className="font-medium text-text-alt text-[11px] sm:text-xs md:text-sm">
                             {formatDate(item.date)} - {formatTime(item.time)} -{" "}
                             {formatTime(item.end_time)}
                           </time>
                         </div>
                       ) : (
                         <div className="inline-flex items-center gap-3 sm:gap-4">
-                          {/* ✅ Checkbox لكل فيديو */}
-
-                          <time className="font-medium text-text text-sm md:text-base leading-normal">
+                          <time className="font-medium text-text text-xs sm:text-sm md:text-base leading-normal">
                             {formatTime(item.time)}
                           </time>
-                          {/* {
-                          isRegistered &&
-                        <label className="inline-flex items-center gap-2 cursor-pointer select-none">
-                          <CheckboxButton
-                            id={key}
-                            type="checkbox"
-                            checked={!!checkedMap[key]}
-                            onChange={() => toggleChecked(item)}
-                            disabled={!isRegistered || isSaving}
-                          />
-                        </label>
-                        } */}
                         </div>
                       )}
                     </div>
@@ -764,16 +711,10 @@ export const ExerciseDropDown = ({
     }
 
     try {
-      const res = await fetch(fileUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`, // ✅ لازم token من props/state
-        },
-      });
-
+      const res = await fetch(fileUrl);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const blob = await res.blob();
-
       const a = document.createElement("a");
       const url = window.URL.createObjectURL(blob);
       a.href = url;
@@ -784,7 +725,6 @@ export const ExerciseDropDown = ({
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Download failed:", err);
-      // بدل ما تفتح تاب جديد، اعرض رسالة واضحة
       alert("تعذر تحميل الملف. قد يكون الرابط يحتاج صلاحيات أو CORS.");
     }
   };
@@ -799,28 +739,27 @@ export const ExerciseDropDown = ({
             toggleExpanded();
           }
         }}
-        className="flex select-none cursor-pointer items-center justify-between py-4 sm:py-5 w-full"
+        className="flex select-none cursor-pointer items-center justify-between py-3 sm:py-4 md:py-5 w-full"
         role="button"
         tabIndex={0}
         aria-expanded={isExpanded}
         aria-controls={sectionId}
       >
-        <div className="inline-flex items-center gap-2.5">
+        <div className="inline-flex items-center gap-2 sm:gap-2.5">
           <CheckListIcon />
-          <span className="font-medium text-text text-base md:text-lg leading-normal">
+          <span className="font-medium text-text text-sm sm:text-base md:text-lg leading-normal">
             تدريب
           </span>
         </div>
 
         <div aria-hidden="true">
-          <div className="flex justify-between items-center gap-4 md:gap-5">
+          <div className="flex justify-between items-center gap-3 sm:gap-4 md:gap-5">
             <CourseChevronTopIcon
-              className={`w-[22px] h-[22px] md:w-[26px] md:h-[26px] ${
-                !isExpanded ? "rotate-180" : "rotate-0"
-              } transition-transform duration-300 !fill-primary`}
+              className={`w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px] ${!isExpanded ? "rotate-180" : "rotate-0"
+                } transition-transform duration-300 !fill-primary`}
             />
             {!isRegistered && (
-              <CourseLockIcon className="w-[22px] h-[22px] md:w-[26px] md:h-[26px] !fill-primary" />
+              <CourseLockIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px] !fill-primary" />
             )}
           </div>
         </div>
@@ -829,63 +768,55 @@ export const ExerciseDropDown = ({
       {isExpanded && (
         <div id={sectionId} className="w-full">
           {!examAllData || examAllData.length == 0 ? (
-            <span className="text-gray-500 text-xl"> لا يوجد بيانات </span>
+            <span className="text-gray-500 text-base sm:text-lg md:text-xl">
+              {" "}
+              لا يوجد بيانات{" "}
+            </span>
           ) : (
             examAllData.map((examData) => {
               const exam = examData?.exam;
               const examVideos = examData.videos || [];
               const examPdfs = examData.exam_pdfs || [];
-              const isSolved = examData.is_solved === true;
 
               return (
-                <div
-                  onClick={() => console.log("isAvailable", isAvailable)}
-                  key={exam?.id}
-                  className="flex flex-col"
-                >
+                <div key={exam?.id} className="flex flex-col">
                   {/* Exam Title Row */}
                   {exam && (
-                    <div className="flex w-full flex-row justify-between  items-center  border-b-[2px] border-solid last:border-none pt-4 pb-5 bg-white">
-                      {(() => {
-                        const Tag = isDone && isRegistered ? Link : "div";
-                        return (
-                          <div className="inline-flex items-center gap-5 sm:gap-7 w-full justify-between">
-                            <div className="inline-flex items-center gap-3 sm:gap-5 bg-white  transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded">
-                              <div
-                                className="relative w-7 h-7 sm:w-8 sm:h-8 aspect-[1]"
-                                aria-hidden="true"
-                              >
-                                <FileIcon className="w-[22px] h-[22px] md:w-[30px] md:h-[30px] fill-primary" />
-                              </div>
-                              <span className="font-medium text-text text-base md:text-lg leading-normal">
-                                {exam.title || "أسئلة الاختبار"}
-                              </span>
-                            </div>
-                            {isAvailable && isRegistered && (
-                              <Link
-                                href={
-                                  isDone
-                                    ? `/course/${id}/lesson/${lesson.id}/exam-details/${exam?.id}`
-                                    : undefined
-                                }
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-primary rounded-full hover:opacity-90 transition-opacity"
-                              >
-                                <FileIcon className="w-5 h-5 fill-white" />
-
-                                <span className="text-white font-medium text-sm md:text-base">
-                                  بدء الاختبار
-                                </span>
-                              </Link>
-                            )}
-
-                            {!isDone && (
-                              <div className="relative w-7 h-7 sm:w-8 sm:h-8 aspect-[1]">
-                                <LockIcon2 className="fill-secondary w-6 h-6" />
-                              </div>
-                            )}
+                    <div className="flex w-full flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 border-b-[2px] border-solid last:border-none pt-3 sm:pt-4 pb-4 sm:pb-5 bg-white">
+                      <div className="inline-flex items-center gap-3 sm:gap-5 w-full justify-between">
+                        <div className="inline-flex items-center gap-2.5 sm:gap-3 md:gap-5 bg-white transition-opacity focus:outline-none focus:ring-2 focus:ring-variable-collection-text focus:ring-offset-2 rounded min-w-0 flex-1">
+                          <div
+                            className="relative w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 aspect-[1] flex-shrink-0"
+                            aria-hidden="true"
+                          >
+                            <FileIcon className="w-[20px] h-[20px] sm:w-[22px] sm:h-[22px] md:w-[30px] md:h-[30px] fill-primary" />
                           </div>
-                        );
-                      })()}
+                          <span className="font-medium text-text text-sm sm:text-base md:text-lg leading-normal line-clamp-2">
+                            {exam.title || "أسئلة الاختبار"}
+                          </span>
+                        </div>
+                        {isAvailable && isRegistered && (
+                          <Link
+                            href={
+                              isDone
+                                ? `/course/${id}/lesson/${lesson.id}/exam-details/${exam?.id}`
+                                : undefined
+                            }
+                            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary rounded-full hover:opacity-90 transition-opacity flex-shrink-0"
+                          >
+                            <FileIcon className="w-4 h-4 sm:w-5 sm:h-5 fill-white" />
+                            <span className="text-white font-medium text-xs sm:text-sm md:text-base whitespace-nowrap">
+                              بدء الاختبار
+                            </span>
+                          </Link>
+                        )}
+
+                        {!isDone && (
+                          <div className="relative w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 aspect-[1] flex-shrink-0">
+                            <LockIcon2 className="fill-secondary w-5 h-5 sm:w-6 sm:h-6" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -899,12 +830,12 @@ export const ExerciseDropDown = ({
                       return (
                         <div
                           key={`exam-video-${video.id}`}
-                          className="flex items-center gap-4 pt-4 pb-5 w-full border-b-[2px] border-solid border-variable-collection-stroke"
+                          className="flex items-center gap-3 sm:gap-4 pt-3 sm:pt-4 pb-4 sm:pb-5 w-full border-b-[2px] border-solid border-variable-collection-stroke"
                         >
-                          <RoundedPlayIcon className="w-[30px] h-[30px] md:w-[36px] md:h-[36px] stroke-primary flex-shrink-0" />
+                          <RoundedPlayIcon className="w-[24px] h-[24px] sm:w-[30px] sm:h-[30px] md:w-[36px] md:h-[36px] stroke-primary flex-shrink-0" />
 
-                          <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                            <div className="inline-flex items-center gap-2.5 flex-wrap flex-1 min-w-0">
+                          <div className="flex w-full flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 md:gap-4 min-w-0">
+                            <div className="inline-flex items-center gap-2 sm:gap-2.5 flex-wrap flex-1 min-w-0">
                               {isDone && isPlayable ? (
                                 <Link
                                   href={{
@@ -912,24 +843,20 @@ export const ExerciseDropDown = ({
                                     query: buildExamVideoQuery(video),
                                     hash: "player",
                                   }}
-                                  className="font-medium text-text text-base md:text-lg leading-snug hover:text-primary hover:underline transition-colors"
+                                  className="font-medium text-text text-sm sm:text-base md:text-lg leading-snug hover:text-primary hover:underline transition-colors line-clamp-2"
                                 >
                                   {video.title || "شرح الاختبار"}
                                 </Link>
                               ) : (
-                                <h2 className="font-medium text-text text-base md:text-lg leading-snug">
+                                <h2 className="font-medium text-text text-sm sm:text-base md:text-lg leading-snug line-clamp-2">
                                   {video.title || "شرح الاختبار"}
                                 </h2>
                               )}
-
-                              {/* <span className="text-xs md:text-sm px-2.5 py-1 rounded-full bg-primary/10 text-primary">
-                              شرح
-                            </span> */}
                             </div>
 
-                            <div className="inline-flex items-center gap-2 flex-shrink-0">
+                            <div className="inline-flex items-center gap-2 flex-shrink-0 self-end sm:self-auto">
                               {!isDone ? (
-                                <LockIcon2 className="fill-secondary w-6 h-6" />
+                                <LockIcon2 className="fill-secondary w-5 h-5 sm:w-6 sm:h-6" />
                               ) : (
                                 isAvailable &&
                                 isPlayable && (
@@ -939,10 +866,10 @@ export const ExerciseDropDown = ({
                                       query: buildExamVideoQuery(video),
                                       hash: "player",
                                     }}
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary rounded-full hover:opacity-90 transition-opacity"
+                                    className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary rounded-full hover:opacity-90 transition-opacity"
                                   >
                                     <svg
-                                      className="w-5 h-5 fill-white"
+                                      className="w-4 h-4 sm:w-5 sm:h-5 fill-white"
                                       viewBox="0 0 20 20"
                                     >
                                       <path
@@ -951,7 +878,7 @@ export const ExerciseDropDown = ({
                                         clipRule="evenodd"
                                       />
                                     </svg>
-                                    <span className="text-white font-medium text-sm md:text-base">
+                                    <span className="text-white font-medium text-xs sm:text-sm md:text-base">
                                       تشغيل
                                     </span>
                                   </Link>
@@ -969,22 +896,13 @@ export const ExerciseDropDown = ({
                     examPdfs.map((pdf) => (
                       <div
                         key={pdf.id}
-                        className="flex w-full flex-row items-center justify-between border-b-[2px] border-solid last:border-none pt-4 pb-5 bg-white"
+                        className="flex w-full flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 border-b-[2px] border-solid last:border-none pt-3 sm:pt-4 pb-4 sm:pb-5 bg-white"
                       >
-                        <div className="inline-flex items-center gap-3 sm:gap-5">
-                          <FileIcon className="w-[22px] h-[22px] md:w-[26px] md:h-[26px] fill-primary" />
-                          <span className="font-medium text-text text-base md:text-lg leading-normal">
+                        <div className="inline-flex items-center gap-2.5 sm:gap-3 md:gap-5 min-w-0 flex-1">
+                          <FileIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px] fill-primary flex-shrink-0" />
+                          <span className="font-medium text-text text-sm sm:text-base md:text-lg leading-normal line-clamp-2">
                             {pdf.title}
                           </span>
-                          {/* <span
-                          className={`text-xs md:text-sm px-2.5 py-1 rounded-full ${
-                            pdf.type === "question"
-                              ? "bg-blue-100 text-blue-600"
-                              : "bg-green-100 text-green-600"
-                          }`}
-                        >
-                          {pdf.type === "question" ? "أسئلة" : "إجابات"}
-                        </span> */}
                         </div>
 
                         {isAvailable && isRegistered && (
@@ -992,10 +910,10 @@ export const ExerciseDropDown = ({
                             onClick={() =>
                               handleDownloadFile(pdf.pdf_url, pdf.title, "pdf")
                             }
-                            className="inline-flex items-center justify-end gap-2.5 px-4 py-2 bg-secondary rounded-full md:rounded-[12px] hover:opacity-90 transition-opacity"
+                            className="inline-flex items-center justify-end gap-2 sm:gap-2.5 px-3 sm:px-4 py-1.5 sm:py-2 bg-secondary rounded-full md:rounded-[12px] hover:opacity-90 transition-opacity flex-shrink-0 self-end sm:self-auto"
                           >
-                            <DownloadIcon className="w-[18px] h-[18px] md:w-[22px] md:h-[22px]" />
-                            <span className="text-white font-medium text-sm md:text-base leading-normal">
+                            <DownloadIcon className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] md:w-[22px] md:h-[22px]" />
+                            <span className="text-white font-medium text-xs sm:text-sm md:text-base leading-normal whitespace-nowrap">
                               تحميل
                             </span>
                           </button>

@@ -38,6 +38,9 @@ const RegCourseDetailsCard = ({
   useEffect(() => {
     setIsFavorite(!!isInFavorites);
   }, [isInFavorites]);
+
+  const roundId = round?.id || courseData?.id;
+
   const buildShareUrl = () => {
     if (typeof window === "undefined") return "";
     const origin = window.location.origin;
@@ -55,14 +58,11 @@ const RegCourseDetailsCard = ({
 
   const formatDate = useCallback((dateString) => {
     if (!dateString) return "غير محدد";
-
     const d = new Date(dateString);
     if (Number.isNaN(d.getTime())) return "غير محدد";
-
     const day = String(d.getDate()).padStart(2, "0");
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const year = d.getFullYear();
-
     return `${day}/${month}/${year}`;
   }, []);
 
@@ -81,7 +81,6 @@ const RegCourseDetailsCard = ({
 
         if (!mustLogin) return;
 
-        // optimistic
         setIsFavorite((prev) => !prev);
         setIsUpdating(true);
 
@@ -118,15 +117,13 @@ const RegCourseDetailsCard = ({
     [mutate, redirect, token, onToggleFavorite, messageApi]
   );
 
-  const roundId = round?.id || courseData?.id;
-
   return (
-    <div className="w-full max-w-[460px] px-4 sm:px-5 pt-5 sm:pt-6 relative bg-white rounded-[30px] sm:rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] overflow-hidden">
+    <div className="w-full max-w-[380px] xl:max-w-[420px] 2xl:max-w-[460px] relative bg-white rounded-[24px] sm:rounded-[30px] xl:rounded-[36px] shadow-[0px_6px_25px_0px_rgba(0,0,0,0.25)] overflow-hidden">
       {/* inner padding */}
-      <div className="px-4 sm:px-5 lg:px-6 pt-4 sm:pt-5 lg:pt-6 pb-4 sm:pb-5">
+      <div className="px-4 sm:px-5 xl:px-6 pt-4 sm:pt-5 xl:pt-6 pb-4 sm:pb-5">
         {/* Cover */}
         <div
-          className="w-full h-40 sm:h-48 lg:h-56 relative bg-black/20 rounded-[18px] sm:rounded-[22px] lg:rounded-[26px] overflow-hidden"
+          className="w-full h-40 sm:h-44 xl:h-52 2xl:h-56 relative bg-black/20 rounded-[16px] sm:rounded-[20px] xl:rounded-[26px] overflow-hidden"
           style={{
             backgroundImage: `url('${round.image_url}')`,
             backgroundSize: "cover",
@@ -141,14 +138,15 @@ const RegCourseDetailsCard = ({
             className="absolute inset-0 flex items-center justify-center"
             aria-label="مشاهدة المعاينة"
           >
-            <div className="p-3.5 sm:p-4 bg-secondary rounded-full shadow-[0px_0px_40px_0px_rgba(249,115,22,1)] inline-flex justify-center items-center overflow-hidden">
-              <div className="w-5 h-5 relative flex justify-center items-center">
+            <div className="p-3 sm:p-3.5 xl:p-4 bg-secondary rounded-full shadow-[0px_0px_40px_0px_rgba(249,115,22,1)] inline-flex justify-center items-center overflow-hidden">
+              <div className="w-4 h-4 sm:w-5 sm:h-5 relative flex justify-center items-center">
                 <svg
                   width="15"
                   height="17"
                   viewBox="0 0 15 17"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
+                  className="w-full h-full"
                 >
                   <path
                     d="M2.5241 15.2741C1.85783 15.6841 1 15.2048 1 14.4224L1 2.00157C1 1.21925 1.85783 0.739905 2.5241 1.14992L12.6161 7.36032C13.2506 7.75082 13.2506 8.67321 12.6161 9.06371L2.5241 15.2741Z"
@@ -160,8 +158,9 @@ const RegCourseDetailsCard = ({
               </div>
             </div>
           </Link>
+
           {/* Share + Fav */}
-          <div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex items-center gap-2 sm:gap-2.5">
+          <div className="absolute top-2.5 sm:top-3 xl:top-4 right-2.5 sm:right-3 xl:right-4 flex items-center gap-2 sm:gap-2.5">
             <FavIconButton
               isFav={isFavorite}
               isLoading={isUpdating}
@@ -181,10 +180,10 @@ const RegCourseDetailsCard = ({
                   })
                 );
               }}
-              className="p-2 hover:scale-110 active:scale-95 sm:p-2.5 bg-black/20 backdrop-blur-sm rounded-full group hover:bg-white/30 transition-colors duration-200 cursor-pointer "
+              className="p-1.5 sm:p-2 xl:p-2.5 hover:scale-110 active:scale-95 bg-black/20 backdrop-blur-sm rounded-full group hover:bg-white/30 transition-colors duration-200 cursor-pointer"
               aria-label="مشاركة الدورة"
             >
-              <ShareIcon className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-white stroke-white " />
+              <ShareIcon className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-white stroke-white" />
             </button>
           </div>
         </div>
@@ -192,42 +191,39 @@ const RegCourseDetailsCard = ({
         {/* Rows */}
         <div className="mt-4 sm:mt-5">
           {/* Dates */}
-          <div className="w-full pb-3 sm:pb-3.5 border-b-2 border-zinc-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 sm:gap-4">
-            <div className="flex w-full sm:w-[200px] items-center gap-2">
-              <CalenderStartIcon className="w-5 h-5 sm:w-5 sm:h-5 flex-shrink-0" />
-              <div className="text-text text-xs sm:text-[13px] font-medium leading-relaxed line-clamp-1">
+          <div className="w-full pb-3 sm:pb-3.5 border-b-2 border-zinc-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3 xl:gap-4">
+            <div className="flex w-full sm:w-1/2 items-center gap-2 min-w-0">
+              <CalenderStartIcon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <div className="text-text text-[11px] sm:text-xs xl:text-[13px] font-medium leading-relaxed line-clamp-1">
                 تاريخ البداية : {formatDate(round.start_date)}
               </div>
             </div>
 
-            <div className="flex w-full sm:w-[200px] items-center gap-2">
-              <CalenderEndIcon className="w-5 h-5 sm:w-5 sm:h-5 flex-shrink-0" />
-              <div className="text-text text-xs sm:text-[13px] font-medium leading-relaxed line-clamp-1">
+            <div className="flex w-full sm:w-1/2 items-center gap-2 min-w-0">
+              <CalenderEndIcon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <div className="text-text text-[11px] sm:text-xs xl:text-[13px] font-medium leading-relaxed line-clamp-1">
                 تاريخ الإنتهاء : {formatDate(round.end_date)}
               </div>
             </div>
           </div>
 
           {/* Seats + Rating */}
-          <div className="w-full py-3 sm:py-3.5 border-b-2 border-zinc-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 sm:gap-4">
-            <div className="flex w-full sm:w-[200px] items-center gap-2">
-              <SeatsIcon className="w-5 h-5 flex-shrink-0" />
-              <div
-                onClick={() => console.log(+round.capacity)}
-                className="text-text text-xs sm:text-[13px] font-medium leading-relaxed line-clamp-1"
-              >
+          <div className="w-full py-3 sm:py-3.5 border-b-2 border-zinc-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3 xl:gap-4">
+            <div className="flex w-full sm:w-1/2 items-center gap-2 min-w-0">
+              <SeatsIcon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <div className="text-text text-[11px] sm:text-xs xl:text-[13px] font-medium leading-relaxed line-clamp-1">
                 المقاعد المتبقية:{" "}
                 {+round.capacity - +round?.students_count ?? " 0 "}
               </div>
             </div>
 
-            <div className="flex w-full sm:w-[200px] items-center gap-2">
-              <RatingLike className="w-5 h-5 flex-shrink-0" />
-              <div className="flex items-center text-xs sm:text-[13px] font-medium gap-1">
+            <div className="flex w-full sm:w-1/2 items-center gap-2 min-w-0">
+              <RatingLike className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <div className="flex items-center text-[11px] sm:text-xs xl:text-[13px] font-medium gap-1">
                 التقييم :
                 <span className="flex items-center gap-1">
                   <span>{ratingValue}</span>
-                  <RatingStarIcon className="w-4 h-4" />
+                  <RatingStarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </span>
               </div>
             </div>
@@ -235,39 +231,44 @@ const RegCourseDetailsCard = ({
         </div>
 
         {/* Hours / Days */}
-        <div className="flex items-center justify-center relative py-4 sm:py-5">
-          <div className="w-7 h-7 lg:w-8 lg:h-8 absolute right-3 sm:right-4 lg:right-5 aspect-[1]">
+        <div className="flex items-center justify-center relative py-3 sm:py-4 xl:py-5">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 xl:w-8 xl:h-8 absolute right-2 sm:right-3 xl:right-5 aspect-[1]">
             <CycleClock className="w-full h-full" />
           </div>
 
-          <div className="relative w-full max-w-[300px] flex justify-around items-center">
-            <div className="inline-flex flex-col items-center gap-1.5">
-              <div className="font-bold text-text text-sm">الساعات</div>
-              <div className="font-bold text-primary text-sm text-center">
+          <div className="relative w-full max-w-[260px] sm:max-w-[300px] flex justify-around items-center">
+            <div className="inline-flex flex-col items-center gap-1 sm:gap-1.5">
+              <div className="font-bold text-text text-xs sm:text-sm">
+                الساعات
+              </div>
+              <div className="font-bold text-primary text-xs sm:text-sm text-center">
                 {round.total_hours || "غير محدد"}
               </div>
             </div>
 
-            <div className="inline-flex flex-col items-center gap-1.5">
-              <div className="font-bold text-text text-sm">الأيام</div>
-              <div className="font-bold text-primary text-sm text-center">
+            <div className="inline-flex flex-col items-center gap-1 sm:gap-1.5">
+              <div className="font-bold text-text text-xs sm:text-sm">
+                الأيام
+              </div>
+              <div className="font-bold text-primary text-xs sm:text-sm text-center">
                 {round.total_days || "غير محدد"}
               </div>
             </div>
           </div>
         </div>
+
         <Link
-          href={`/course-preview/${round.id}  `}
+          href={`/course-preview/${round.id}`}
           className={[
             "flex w-full justify-center items-center gap-3",
-            "px-5 sm:px-6 py-3 sm:py-3.5",
-            "rounded-[14px] sm:rounded-[16px] lg:rounded-[18px]",
+            "px-4 sm:px-5 xl:px-6 py-2.5 sm:py-3 xl:py-3.5",
+            "rounded-[12px] sm:rounded-[14px] xl:rounded-[18px]",
             "bg-primary hover:opacity-95",
-            "transition-opacity",
-            "hover:scale-105 !transition-all hover:shadow-2xl",
+            "transition-all",
+            "hover:scale-[1.02] hover:shadow-2xl",
           ].join(" ")}
         >
-          <span className="font-bold text-white text-sm sm:text-[15px] text-center">
+          <span className="font-bold text-white text-xs sm:text-sm xl:text-[15px] text-center">
             الشروحات المجانية
           </span>
         </Link>
@@ -275,9 +276,9 @@ const RegCourseDetailsCard = ({
 
       {/* Certificate CTA */}
       {round.have_certificate != 0 && (
-        <div className="relative bg-white w-full pt-6 sm:pt-8 lg:pt-10 px-4 sm:px-5 lg:px-6 pb-6 sm:pb-7 lg:pb-8 min-h-[175px] sm:min-h-[190px] border-t-4 [border-top-style:solid] border-variable-collection-stroke">
+        <div className="relative bg-white w-full pt-5 sm:pt-6 xl:pt-10 px-4 sm:px-5 xl:px-6 pb-5 sm:pb-6 xl:pb-8 min-h-[160px] sm:min-h-[175px] xl:min-h-[190px] border-t-4 [border-top-style:solid] border-variable-collection-stroke">
           {isDone !== "true" && (
-            <p className="mb-4 font-medium text-danger text-xs sm:text-sm flex items-center justify-center text-center leading-relaxed">
+            <p className="mb-3 sm:mb-4 font-medium text-danger text-[11px] sm:text-xs xl:text-sm flex items-center justify-center text-center leading-relaxed">
               أكمل الدورة حتى تتمكن من تسجيل بيانات الشهادة
             </p>
           )}
@@ -286,17 +287,17 @@ const RegCourseDetailsCard = ({
             onClick={(e) => isDone !== "true" && e.preventDefault()}
             href={isDone === "true" ? "/register-certificate" : "#"}
             className={[
-              "flex w-full justify-center items-center gap-3",
-              "px-5 sm:px-6 py-3 sm:py-3.5",
-              "rounded-[14px] sm:rounded-[16px] lg:rounded-[18px]",
+              "flex w-full justify-center items-center gap-2 sm:gap-3",
+              "px-4 sm:px-5 xl:px-6 py-2.5 sm:py-3 xl:py-3.5",
+              "rounded-[12px] sm:rounded-[14px] xl:rounded-[18px]",
               isDone === "true"
                 ? "bg-primary hover:opacity-95"
                 : "bg-[#71717A] cursor-not-allowed",
               "transition-opacity",
             ].join(" ")}
           >
-            <CertificationIcon className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-            <span className="font-bold text-white text-sm sm:text-[15px] text-center">
+            <CertificationIcon className="w-4 h-4 sm:w-5 sm:h-5 xl:w-6 xl:h-6 flex-shrink-0" />
+            <span className="font-bold text-white text-xs sm:text-sm xl:text-[15px] text-center">
               تسجيل بيانات الشهادة
             </span>
           </Link>
@@ -308,7 +309,7 @@ const RegCourseDetailsCard = ({
   );
 };
 
-// ✅ Fav icon button (same design, but semantic button + sizes tuned)
+// ✅ Fav icon button
 export const FavIconButton = ({
   isFav = false,
   onClick = () => null,
@@ -324,7 +325,7 @@ export const FavIconButton = ({
       }}
       aria-label={isFav ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
       className={[
-        "w-9 h-9 sm:w-10 sm:h-10",
+        "w-8 h-8 sm:w-9 sm:h-9 xl:w-10 xl:h-10",
         "relative z-40",
         "rounded-full",
         "inline-flex justify-center items-center overflow-hidden",
@@ -337,7 +338,7 @@ export const FavIconButton = ({
     >
       {isLoading ? (
         <svg
-          className="animate-spin w-4 h-4 text-white"
+          className="animate-spin w-3.5 h-3.5 sm:w-4 sm:h-4 text-white"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -364,7 +365,7 @@ export const FavIconButton = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className={[
-            "w-[18px] h-4",
+            "w-4 h-3.5 sm:w-[18px] sm:h-4",
             "transition-all duration-300",
             isFav ? "fill-white scale-110" : "fill-white",
           ].join(" ")}

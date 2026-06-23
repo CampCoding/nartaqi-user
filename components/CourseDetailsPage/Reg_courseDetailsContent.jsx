@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import CourseBriefOverview from "./CourseBriefOverview.tab";
@@ -10,7 +16,7 @@ import CourseAdvantages from "./CourseAdvantages.tab";
 import CourseTermsAndConditions from "./CourseTermsAndConditions";
 import CourseRatings from "./CourseRatings.tab";
 
-/** ---------- RTL scroll helpers (robust) ---------- */
+/** ---------- RTL scroll helpers ---------- */
 function detectRtlScrollType() {
   if (typeof document === "undefined") return "negative";
 
@@ -37,8 +43,8 @@ function detectRtlScrollType() {
 
   document.body.removeChild(el);
 
-  if (after < 0) return "negative"; // Firefox-like
-  if (init > 0) return "positive-descending"; // Chrome/Safari common
+  if (after < 0) return "negative";
+  if (init > 0) return "positive-descending";
   return "positive-ascending";
 }
 
@@ -81,9 +87,13 @@ function setNormalizedScrollLeft(el, dir, rtlType, value) {
       return;
   }
 }
-/** ----------------------------------------------- */
+/** -------------------------------------- */
 
-const RegCourseDetailsContent = ({ courseData, onTabsChange = () => { }, open = false }) => {
+const RegCourseDetailsContent = ({
+  courseData,
+  onTabsChange = () => { },
+  open = false,
+}) => {
   const [activeTab, setActiveTab] = useState("content");
 
   const tabs = useMemo(
@@ -92,7 +102,7 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => { }, open = 
       { label: "محتوى الدورة", value: "content" },
       { label: "مميزات الدورة", value: "features" },
       { label: "الشروط والأحكام", value: "terms" },
-      { label: "مصادر الدورة", value: "sourses" }, // زي ما عندك
+      { label: "مصادر الدورة", value: "sourses" },
       { label: "تقييمات", value: "reviews" },
     ],
     []
@@ -115,9 +125,7 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => { }, open = 
     if (!el) return;
 
     const dir =
-      typeof window !== "undefined"
-        ? getComputedStyle(el).direction
-        : "rtl";
+      typeof window !== "undefined" ? getComputedStyle(el).direction : "rtl";
 
     const max = el.scrollWidth - el.clientWidth;
     const overflowing = max > 2;
@@ -161,30 +169,33 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => { }, open = 
     if (!el) return;
 
     const dir =
-      typeof window !== "undefined"
-        ? getComputedStyle(el).direction
-        : "rtl";
+      typeof window !== "undefined" ? getComputedStyle(el).direction : "rtl";
 
     const step = Math.max(200, Math.floor(el.clientWidth * 0.65));
     const current = getNormalizedScrollLeft(el, dir, rtlTypeRef.current);
 
-    setNormalizedScrollLeft(el, dir, rtlTypeRef.current, current + dirStep * step);
+    setNormalizedScrollLeft(
+      el,
+      dir,
+      rtlTypeRef.current,
+      current + dirStep * step
+    );
 
     setShowSwipeHint(false);
     updateScrollState();
   };
 
   return (
-    <div className="flex flex-col gap-5 md:gap-10">
+    <div className="flex flex-col gap-4 sm:gap-5 md:gap-8 lg:gap-10">
       {/* Tabs */}
-      <div className="sticky md:static top-[83px] z-30 bg-white/95 md:bg-transparent backdrop-blur supports-[backdrop-filter]:bg-white/80 py-2 md:py-3">
+      <div className="sticky md:static top-[70px] sm:top-[80px] md:top-[83px] z-30 bg-white/95 md:bg-transparent backdrop-blur supports-[backdrop-filter]:bg-white/80 py-2 md:py-3">
         <div className="relative">
           {/* Fade gradients */}
           {isOverflowing && (
             <>
               <div
                 className={[
-                  "pointer-events-none absolute inset-y-0 left-0 w-10",
+                  "pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-10",
                   "bg-gradient-to-r from-white/95 to-white/0",
                   "md:from-transparent",
                   canScrollLeft ? "opacity-100" : "opacity-0",
@@ -193,7 +204,7 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => { }, open = 
               />
               <div
                 className={[
-                  "pointer-events-none absolute inset-y-0 right-0 w-10",
+                  "pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-10",
                   "bg-gradient-to-l from-white/95 to-white/0",
                   "md:from-transparent",
                   canScrollRight ? "opacity-100" : "opacity-0",
@@ -203,7 +214,7 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => { }, open = 
             </>
           )}
 
-          {/* Scroll buttons */}
+          {/* Scroll buttons (hidden on mobile) */}
           {isOverflowing && (
             <>
               <button
@@ -211,14 +222,15 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => { }, open = 
                 aria-label="Scroll tabs left"
                 onClick={() => scrollByStep(-1)}
                 className={[
-                  "absolute left-1 top-1/2 -translate-y-1/2 z-10",
-                  "h-8 w-8 rounded-full border border-zinc-200 bg-white/90 shadow-sm",
-                  "grid place-items-center",
-                  "transition-all duration-200",
-                  canScrollLeft ? "opacity-100 hover:bg-white" : "opacity-0 pointer-events-none",
+                  "hidden sm:grid absolute left-1 top-1/2 -translate-y-1/2 z-10",
+                  "h-7 w-7 md:h-8 md:w-8 rounded-full border border-zinc-200 bg-white/90 shadow-sm",
+                  "place-items-center transition-all duration-200",
+                  canScrollLeft
+                    ? "opacity-100 hover:bg-white"
+                    : "opacity-0 pointer-events-none",
                 ].join(" ")}
               >
-                <ChevronLeft className="h-4 w-4 text-zinc-600" />
+                <ChevronLeft className="h-3.5 w-3.5 md:h-4 md:w-4 text-zinc-600" />
               </button>
 
               <button
@@ -226,14 +238,15 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => { }, open = 
                 aria-label="Scroll tabs right"
                 onClick={() => scrollByStep(1)}
                 className={[
-                  "absolute right-1 top-1/2 -translate-y-1/2 z-10",
-                  "h-8 w-8 rounded-full border border-zinc-200 bg-white/90 shadow-sm",
-                  "grid place-items-center",
-                  "transition-all duration-200",
-                  canScrollRight ? "opacity-100 hover:bg-white" : "opacity-0 pointer-events-none",
+                  "hidden sm:grid absolute right-1 top-1/2 -translate-y-1/2 z-10",
+                  "h-7 w-7 md:h-8 md:w-8 rounded-full border border-zinc-200 bg-white/90 shadow-sm",
+                  "place-items-center transition-all duration-200",
+                  canScrollRight
+                    ? "opacity-100 hover:bg-white"
+                    : "opacity-0 pointer-events-none",
                 ].join(" ")}
               >
-                <ChevronRight className="h-4 w-4 text-zinc-600" />
+                <ChevronRight className="h-3.5 w-3.5 md:h-4 md:w-4 text-zinc-600" />
               </button>
             </>
           )}
@@ -241,9 +254,9 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => { }, open = 
           <div
             ref={scrollerRef}
             className={[
-              "inline-flex w-full items-center justify-between gap-2 overflow-x-auto hidden-scroll overflow-y-hidden px-1",
+              "inline-flex w-full items-center md:justify-between gap-1.5 sm:gap-2 overflow-x-auto hidden-scroll overflow-y-hidden px-1",
               "scroll-smooth snap-x snap-mandatory",
-              isOverflowing ? "pr-10 pl-10" : "",
+              isOverflowing ? "sm:pr-10 sm:pl-10" : "",
             ].join(" ")}
             role="tablist"
             aria-label="Course Tabs"
@@ -262,22 +275,24 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => { }, open = 
                     setShowSwipeHint(false);
                   }}
                   className={[
-                    "relative flex justify-center items-center gap-2 cursor-pointer select-none",
-                    "px-2.5 md:px-3.5", // ✅ أصغر
-                    "py-1.5 md:py-2",   // ✅ أصغر
-                    "rounded-xl",
+                    "relative flex justify-center items-center gap-2 cursor-pointer select-none shrink-0",
+                    "px-2.5 sm:px-3 md:px-3.5",
+                    "py-1.5 md:py-2",
+                    "rounded-lg sm:rounded-xl",
                     "transition-all duration-200",
                     "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
                     "snap-start",
-                    isActive ? "bg-primary/8 text-primary font-bold" : "text-text/90 font-medium hover:bg-primary/5",
+                    isActive
+                      ? "bg-primary/8 text-primary font-bold"
+                      : "text-text/90 font-medium hover:bg-primary/5",
                   ].join(" ")}
                 >
-                  <span className="whitespace-nowrap text-xs sm:text-sm md:text-base leading-normal">
+                  <span className="whitespace-nowrap text-xs sm:text-[13px] md:text-sm lg:text-base leading-normal">
                     {tab.label}
                   </span>
 
                   {isActive && (
-                    <span className="absolute -bottom-1 left-2 right-2 h-[3px] rounded-full bg-primary" />
+                    <span className="absolute -bottom-1 left-2 right-2 h-[2px] sm:h-[3px] rounded-full bg-primary" />
                   )}
                 </button>
               );
@@ -286,21 +301,20 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => { }, open = 
 
           {/* Swipe hint */}
           {isOverflowing && showSwipeHint && (
-            <div className="mt-2 flex items-center justify-center md:hidden">
-              <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 px-3 py-1 text-[11px] text-zinc-600 border border-zinc-100">
+            <div className="mt-1.5 sm:mt-2 flex items-center justify-center md:hidden">
+              <span className="inline-flex items-center gap-1 rounded-full bg-zinc-50 px-2.5 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-[11px] text-zinc-600 border border-zinc-100">
                 اسحب للمزيد
-                <ChevronLeft className="h-3.5 w-3.5" />
+                <ChevronLeft className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               </span>
             </div>
           )}
         </div>
 
-        {/* subtle divider */}
         <div className="mt-2 md:hidden h-px w-full bg-zinc-100" />
       </div>
 
       {/* Content */}
-      <div className="mb-12 md:mb-16">
+      <div className="mb-10 sm:mb-12 md:mb-16">
         {activeTab === "overview" && (
           <CourseBriefOverview courseData={courseData} isRegistered={open} />
         )}
@@ -309,7 +323,9 @@ const RegCourseDetailsContent = ({ courseData, onTabsChange = () => { }, open = 
           <CourseContent courseData={courseData} isRegistered={open} />
         )}
 
-        {activeTab === "features" && <CourseAdvantages courseData={courseData} />}
+        {activeTab === "features" && (
+          <CourseAdvantages courseData={courseData} />
+        )}
 
         {activeTab === "terms" && (
           <CourseTermsAndConditions courseData={courseData} />

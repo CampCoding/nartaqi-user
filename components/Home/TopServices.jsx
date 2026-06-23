@@ -31,16 +31,16 @@ export const TopServices = () => {
   ];
 
   return (
-    <div className=" hidden md:flex h-[120px] items-center justify-center bg-primary-light">
-      <Container className="flex  h-[68px] w-full  relative items-center justify-between">
+    <div className="hidden md:flex h-[100px] lg:h-[120px] items-center justify-center bg-primary-light">
+      <Container className="flex h-[56px] lg:h-[68px] w-full relative items-center justify-between gap-3 lg:gap-4">
         {servicesData.map((service) => (
           <Link
             href={service.href}
             key={service.id}
-            className={`${service.borderColor} ${service?.hoverbg} cursor-pointer transition-all group hover:text-white flex w-[250px] h-[68px] items-center justify-center gap-2.5 py-5 relative bg-bg rounded-[20px] border-2 border-solid`}
+            className={`${service.borderColor} ${service?.hoverbg} cursor-pointer transition-all group hover:text-white flex flex-1 max-w-[250px] h-[56px] lg:h-[68px] items-center justify-center gap-2.5 py-3 lg:py-5 px-3 relative bg-bg rounded-[16px] lg:rounded-[20px] border-2 border-solid`}
           >
             <div
-              className={`${service.textColor} transition-all group-hover:!text-white relative flex items-center justify-center w-fit mt-[-3px] font-semibold text-base leading-normal `}
+              className={`${service.textColor} transition-all group-hover:!text-white relative flex items-center justify-center w-fit mt-[-3px] font-semibold text-sm lg:text-base leading-normal text-center`}
             >
               {service.text}
             </div>

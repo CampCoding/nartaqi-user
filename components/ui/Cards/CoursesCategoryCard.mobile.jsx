@@ -5,9 +5,8 @@ const CoursesCategoryCardMobile = ({
   freeWidth = false,
   color = "secondary",
 }) => {
-  const width = freeWidth ? "w-[100%]" : "w-[177px]";
+  const width = freeWidth ? "w-full" : "w-[150px] sm:w-[177px]";
 
-  // Color mapping for Tailwind classes
   const colorClasses = {
     secondary: {
       hover: "active:bg-secondary",
@@ -36,28 +35,25 @@ const CoursesCategoryCardMobile = ({
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
-      className={`group flex flex-col ${width} h-[200px] items-start justify-end gap-2.5 px-2 py-4 relative rounded-[20px] cursor-pointer shadow-lg active:shadow-2xl transition-all duration-300`}
+      className={`group flex flex-col ${width} h-[160px] sm:h-[200px] items-start justify-end gap-2.5 px-2 py-3 sm:py-4 relative rounded-[14px] sm:rounded-[20px] cursor-pointer shadow-lg active:shadow-2xl transition-all duration-300`}
     >
-      {/* Content Container */}
-      <div className="flex items-end justify-between w-full">
-        {/* Text Content */}
-        <div className="flex flex-col items-start justify-end gap-1 flex-1">
-          <h2 className="relative text-white font-bold w-fit font-semibold text-sm text-right leading-tight">
+      <div className="flex items-end justify-between w-full gap-2">
+        <div className="flex flex-col items-start justify-end gap-0.5 sm:gap-1 flex-1 min-w-0">
+          <h2 className="relative text-white font-bold w-full font-semibold text-xs sm:text-sm text-right leading-tight truncate">
             {data?.title || "التحصيلي"}
           </h2>
 
-          <p className="relative w-fit font-semibold text-[#fdd4b7] text-xs text-right leading-tight whitespace-nowrap">
+          <p className="relative w-fit font-semibold text-[#fdd4b7] text-[10px] sm:text-xs text-right leading-tight whitespace-nowrap">
             {data?.courses || 0} دورة
           </p>
         </div>
 
-        {/* Chevron Button */}
         <div
-          className={`group-active:scale-125 ${currentColor.hover} cursor-pointer transition-all duration-300 flex min-w-[32px] min-h-[32px] items-center justify-center gap-[5.8px] p-2 relative bg-white rounded-full overflow-hidden shadow-md aspect-[1]`}
+          className={`group-active:scale-125 ${currentColor.hover} cursor-pointer transition-all duration-300 flex min-w-[28px] min-h-[28px] sm:min-w-[32px] sm:min-h-[32px] items-center justify-center gap-[5.8px] p-1.5 sm:p-2 relative bg-white rounded-full overflow-hidden shadow-md aspect-[1] flex-shrink-0`}
         >
-          <div className="relative w-4 h-4 aspect-[1]">
+          <div className="relative w-3.5 h-3.5 sm:w-4 sm:h-4 aspect-[1]">
             <ChevronLeft
-              className={`${currentColor.fill} ${currentColor.fillHover} transition-all duration-300`}
+              className={`${currentColor.fill} ${currentColor.fillHover} transition-all duration-300 w-full h-full`}
             />
           </div>
         </div>

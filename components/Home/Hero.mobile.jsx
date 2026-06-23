@@ -42,11 +42,11 @@ export const MobileHero = ({ banners = [], videoUrl = null }) => {
 
   return (
     <Container
-      className="flex flex-col w-full items-center gap-3 relative"
+      className="flex flex-col w-full items-center gap-2.5 sm:gap-3 relative pt-3 sm:pt-4"
       aria-label="دورات تعليمية"
       role="region"
     >
-      <div className="relative self-stretch w-full h-[200px]">
+      <div className="relative self-stretch w-full h-[180px] sm:h-[220px]">
         <Swiper
           spaceBetween={10}
           modules={[Autoplay, Pagination]}
@@ -65,17 +65,16 @@ export const MobileHero = ({ banners = [], videoUrl = null }) => {
                   backgroundPosition: "50% 30%",
                   backgroundRepeat: "no-repeat",
                 }}
-                className="w-full h-[200px] rounded-[25px] overflow-hidden relative"
+                className="w-full h-[180px] sm:h-[220px] rounded-[18px] sm:rounded-[25px] overflow-hidden relative"
               >
-                {/* Play button on first slide */}
                 {index === 0 && youtubeId && (
                   <button
                     onClick={openVideo}
                     aria-label="مشاهدة الفيديو"
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/90 text-primary flex items-center justify-center shadow-lg"
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/90 text-primary flex items-center justify-center shadow-lg"
                   >
                     <span className="absolute inset-0 rounded-full ring-1 ring-white/60 animate-ping" />
-                    <Play className="w-6 h-6 ml-0.5" />
+                    <Play className="w-5 h-5 sm:w-6 sm:h-6 ml-0.5" />
                   </button>
                 )}
               </div>
@@ -86,17 +85,22 @@ export const MobileHero = ({ banners = [], videoUrl = null }) => {
 
       <div className="custom-pagination flex justify-center m-0" />
 
-      {/* Video Modal */}
       {isVideoOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
           <div className="absolute inset-0 bg-black/70" onClick={closeVideo} />
-          <div className="relative z-10 w-[94%] max-w-[640px] rounded-2xl overflow-hidden shadow-2xl bg-black">
+          <div className="relative z-10 w-full max-w-[640px] rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl bg-black">
             <button
               onClick={closeVideo}
               aria-label="إغلاق الفيديو"
-              className="absolute top-3 left-3 z-20 w-9 h-9 rounded-full bg-white/90 text-text flex items-center justify-center"
+              className="absolute top-2 sm:top-3 left-2 sm:left-3 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 text-text flex items-center justify-center"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="sm:w-4 sm:h-4"
+              >
                 <path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.71 2.89 18.3 9.17 12 2.89 5.71 4.3 4.29 10.59 10.6 16.89 4.29z" />
               </svg>
             </button>

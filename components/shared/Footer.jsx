@@ -76,7 +76,6 @@ export const Frame = ({
     { text: "الأسئلة الشائعة", href: "/faqs" },
     { text: "شروط الاستخدام والخصوصية", href: "/conditions-and-privacy" },
     { text: "سياسة الإسترجاع", href: "/refund-policy" },
-
     { text: "المدونة", href: "/blogs" },
     { text: "تواصل معنا", href: "/contact-us" },
   ];
@@ -124,6 +123,38 @@ export const Frame = ({
             تمكين الطلاب والمعلمين من خلال تحضير شامل للاختبارات وموارد التطوير
             المهني.
           </p>
+
+          {/* App Download Badges */}
+          <div className="flex flex-col gap-3 mt-6">
+            <a
+              href="https://play.google.com/store/apps/details?id=com.nartaqi.app&hl=ar"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Get it on Google Play"
+              className="inline-block transition-transform hover:scale-105"
+            >
+              <img
+                src="/images/google-play-badge.png"
+                alt="Get it on Google Play"
+                className="h-12 w-auto object-contain"
+                loading="lazy"
+              />
+            </a>
+            {/* <a
+              href="#"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Download on the App Store"
+              className="inline-block transition-transform hover:scale-105"
+            >
+              <img
+                src="/images/app-store-badge.png"
+                alt="Download on the App Store"
+                className="h-12 w-auto object-contain"
+                loading="lazy"
+              />
+            </a> */}
+          </div>
         </div>
 
         {/* About */}
@@ -204,18 +235,6 @@ export const Frame = ({
                 </span>
               </a>
             ))}
-
-            <a className="flex items-center gap-3 text-neutral-50 hover:text-neutral-200 transition">
-              <span className="w-6 h-6 flex items-center justify-center">
-                <FooterLocationIcon />
-              </span>
-              <span
-                dir="rtl"
-                className="text-sm leading-5  max-w-[220px] text-wrap"
-              >
-                دمياط الجديدة الحي السادس مجاورة ٣٠ قطعة ٣٣٠ /١٤{" "}
-              </span>
-            </a>
           </div>
 
           {/* Social icons (dynamic from API) */}

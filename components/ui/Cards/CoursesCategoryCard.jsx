@@ -5,7 +5,6 @@ const CoursesCategoryCard = ({
   color = "secondary",
   freeWidth = false,
 }) => {
-  // Color mapping for Tailwind classes
   const colorClasses = {
     secondary: {
       hover: "group-hover:bg-secondary",
@@ -28,9 +27,8 @@ const CoursesCategoryCard = ({
 
   return (
     <div
-      className={`group relative cursor-pointer ${
-        freeWidth ? "w-full" : "w-[267px]"
-      } h-[400px] rounded-[20px] shadow-2xl bg-[linear-gradient(180deg,rgba(0,0,0,0)_60%,rgba(0,0,0,1)_100%)]`}
+      className={`group relative cursor-pointer ${freeWidth ? "w-full" : "w-full max-w-[267px]"
+        } h-[320px] md:h-[360px] lg:h-[400px] rounded-[16px] md:rounded-[20px] shadow-2xl bg-[linear-gradient(180deg,rgba(0,0,0,0)_60%,rgba(0,0,0,1)_100%)]`}
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,1) 100%), url('${data?.image}')`,
         backgroundSize: "cover",
@@ -38,23 +36,23 @@ const CoursesCategoryCard = ({
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="flex absolute bottom-0 items-center justify-between px-[20px] w-full top-[290px]">
-        <div className="flex flex-col items-start gap-1 relative">
-          <div className="relative w-[200px] truncate mt-[-0.58px]  font-semibold text-bg text-base text-right leading-[19.2px]">
-            {data?.title} 
+      <div className="flex absolute bottom-4 md:bottom-5 items-center justify-between px-3 md:px-4 lg:px-[20px] w-full">
+        <div className="flex flex-col items-start gap-1 relative min-w-0 flex-1">
+          <div className="relative w-full max-w-[160px] md:max-w-[180px] lg:max-w-[200px] truncate mt-[-0.58px] font-semibold text-bg text-sm md:text-base text-right leading-[18px] md:leading-[19.2px]">
+            {data?.title}
           </div>
 
-          <div className="relative w-fit font-semibold text-[#fdd4b7] text-sm text-left leading-[21px] whitespace-nowrap">
+          <div className="relative w-fit font-semibold text-[#fdd4b7] text-xs md:text-sm text-left leading-[18px] md:leading-[21px] whitespace-nowrap">
             {data?.courses} دورة
           </div>
         </div>
 
         <div
-          className={`group-hover:scale-125 ${currentColor.hover} cursor-pointer transition-all duration-300 flex min-w-[40px] min-h-[40px] items-center justify-center gap-[5.8px] p-[11.61px] relative bg-white rounded-full overflow-hidden shadow-[0px_2.32px_2.32px_#00000040] aspect-[1]`}
+          className={`group-hover:scale-125 ${currentColor.hover} cursor-pointer transition-all duration-300 flex min-w-[32px] min-h-[32px] md:min-w-[36px] md:min-h-[36px] lg:min-w-[40px] lg:min-h-[40px] items-center justify-center gap-[5.8px] p-[8px] md:p-[10px] lg:p-[11.61px] relative bg-white rounded-full overflow-hidden shadow-[0px_2.32px_2.32px_#00000040] aspect-[1] flex-shrink-0`}
         >
-          <div className="relative w-6 h-6 aspect-[1]">
+          <div className="relative w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 aspect-[1]">
             <ChevronLeft
-              className={`${currentColor.fill} ${currentColor.fillHover} transition-all duration-300`}
+              className={`${currentColor.fill} ${currentColor.fillHover} transition-all duration-300 w-full h-full`}
             />
           </div>
         </div>

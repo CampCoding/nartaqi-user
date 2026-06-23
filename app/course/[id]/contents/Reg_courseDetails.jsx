@@ -16,7 +16,6 @@ import VideoPlayerModal from "../../../../components/shared/VideoPlayerModal";
 import cx from "../../../../lib/cx";
 import useIsLgUp from "../../../../hooks/useLgUp";
 
-// ✅ redux actions
 import {
   openVideoModal,
   closeVideoModal,
@@ -36,14 +35,10 @@ const Reg_courseDetails = ({ courseData, open }) => {
       setScrolled(window.scrollY >= 700);
     };
 
-    onScroll(); // initial
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-
-
-
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -52,12 +47,11 @@ const Reg_courseDetails = ({ courseData, open }) => {
 
   const isLgUp = useIsLgUp();
 
-  const watch = searchParams.get("watch"); // "true" / null
-  const currentVideoId = searchParams.get("video"); // id
-  const encodedVimeoId = searchParams.get("vimeo_id"); // encoded
-  const encodedYoutubeId = searchParams.get("youtube_id"); // encoded
+  const watch = searchParams.get("watch");
+  const currentVideoId = searchParams.get("video");
+  const encodedVimeoId = searchParams.get("vimeo_id");
+  const encodedYoutubeId = searchParams.get("youtube_id");
 
-  // ✅ Memoize active live session
   const activeLiveSession = React.useMemo(() => {
     if (!courseData?.contents) return null;
 
@@ -75,10 +69,9 @@ const Reg_courseDetails = ({ courseData, open }) => {
     return null;
   }, [courseData?.contents]);
 
-  const isDone = "false"; // TODO: حساب من progress API
+  const isDone = "false";
 
   const handleToggleFavorite = React.useCallback(async () => {
-    // TODO: API call to toggle favorite
     setIsFavorited((v) => !v);
   }, []);
 
@@ -86,7 +79,6 @@ const Reg_courseDetails = ({ courseData, open }) => {
     setOpenShareDrawer((v) => !v);
   }, []);
 
-  // ✅ helper: find video by id from courseData
   const findVideoById = React.useCallback(
     (videoId) => {
       if (!videoId || !courseData?.contents) return null;
@@ -109,11 +101,9 @@ const Reg_courseDetails = ({ courseData, open }) => {
     [courseData?.contents]
   );
 
-  // ✅ Close handler: close redux modal + clean URL
   const handleCloseVideoModal = React.useCallback(() => {
     dispatch(closeVideoModal());
 
-    // شيل watch/video/vimeo_id/youtube_id من الرابط
     const next = new URLSearchParams(searchParams.toString());
     next.delete("watch");
     next.delete("video");
@@ -124,19 +114,14 @@ const Reg_courseDetails = ({ courseData, open }) => {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [dispatch, router, pathname, searchParams]);
 
-  // ✅ When watch=true → open modal & feed redux with data
   React.useEffect(() => {
     if (watch !== "true") {
-      // لو المستخدم خرج من watch mode: اقفل المودال (لو مفتوح)
       dispatch(closeVideoModal());
       return;
     }
 
-    // 1) حاول تجيب الفيديو من video=id
     const videoObj = findVideoById(currentVideoId);
 
-    // 2) لو عندك encoded ids بالـ URL مررهم (المشغل عندك بيفكهم)
-    //    أو لو الفيديو جايب روابط خام (vimeo_link/youtube_link) مررهم برضه
     const vimeoValue =
       (videoObj?.vimeo_link || "").trim() || (encodedVimeoId || "").trim();
     const youtubeValue =
@@ -151,9 +136,6 @@ const Reg_courseDetails = ({ courseData, open }) => {
     dispatch(
       openVideo({
         title,
-        // NOTE:
-        // لو بتمرر encoded من URL خليه كما هو
-        // ولو بتمرر raw link/id برضه تمام (المشغل عندك عنده extract helpers)
         vimeoId: vimeoValue,
         youtubeId: youtubeValue,
         autoplay: true,
@@ -176,12 +158,9 @@ const Reg_courseDetails = ({ courseData, open }) => {
 
   return (
     <>
-      {/* ✅ Mount modal here (ممكن كمان تحطه مرة واحدة في layout) */}
-      {/* <VideoPlayerModal onClose={handleCloseVideoModal} /> */}
-
-      {/* ===================== MOBILE ===================== */}
+      {/* ===================== MOBILE & TABLET (< lg) ===================== */}
       {!isLgUp && (
-        <div className="lg:hidden space-y-5 sm:space-y-6">
+        <div className="lg:hidden space-y-4 sm:space-y-5 md:space-y-6">
           {!watch ? (
             <MobileCourseDetails
               courseData={courseData}
@@ -199,9 +178,9 @@ const Reg_courseDetails = ({ courseData, open }) => {
               rootClassName="w-full"
             />
           )}
-          
-          <Container className="px-3 sm:px-4 ">
-            <div className="space-y-6 sm:space-y-8">
+
+          <Container>
+            <div className="space-y-5 sm:space-y-6 md:space-y-8">
               <RegCourseDetailsContent
                 courseData={courseData}
                 onTabsChange={(e) => setSelectedTab(e)}
@@ -217,12 +196,12 @@ const Reg_courseDetails = ({ courseData, open }) => {
         </div>
       )}
 
-      {/* ===================== DESKTOP ===================== */}
+      {/* ===================== DESKTOP (lg+) ===================== */}
       {isLgUp && (
         <div className="hidden lg:block">
           {!watch ? (
-            <div className="w-full h-[560px] xl:h-[611px] relative ">
-              <div className="absolute inset-0 z-30  bg-gradient-to-b   from-transparent to-black/90" />{" "}
+            <div className="w-full h-[420px] xl:h-[560px] 2xl:h-[611px] relative">
+              <div className="absolute inset-0 z-30 bg-gradient-to-b from-transparent to-black/90" />
               <img
                 loading="lazy"
                 src={courseData.round.image_url}
@@ -239,10 +218,10 @@ const Reg_courseDetails = ({ courseData, open }) => {
             />
           )}
 
-          <Container className="mt-10 xl:mt-12 relative z-30  ">
-            <div className="flex ov gap-8 xl:gap-6 justify-between items-start">
+          <Container className="mt-8 lg:mt-10 xl:mt-12 xl:!px-10 relative z-30">
+            <div className="flex gap-6 lg:gap-8 xl:gap-10 justify-between items-start">
               {/* Left content */}
-              <div className="max-w-[762px] w-full">
+              <div className="max-w-[762px] w-full flex-1 min-w-0">
                 <RegCourseDetailsContent
                   open={open}
                   courseData={courseData}
@@ -253,9 +232,11 @@ const Reg_courseDetails = ({ courseData, open }) => {
               {/* Right sidebar */}
               <div
                 className={cx(
-                  "space-y-12 xl:space-y-14 transition-all mb-10",
+                  "space-y-10 lg:space-y-12 xl:space-y-14 transition-all mb-10 shrink-0",
                   !activeLiveSession && "lg:sticky lg:top-[160px]",
-                  watch || scrolled ? "" :  " translate-y-[-441px]"
+                  watch || scrolled
+                    ? ""
+                    : "translate-y-[-380px] xl:translate-y-[-441px]"
                 )}
               >
                 <RegCourseDetailsCard
@@ -276,7 +257,7 @@ const Reg_courseDetails = ({ courseData, open }) => {
             </div>
 
             {selectedTab === "sourses" && (
-              <div className="mt-10 xl:mt-12">
+              <div className="mt-8 lg:mt-10 xl:mt-12">
                 <CourseFaqs courseData={courseData} />
               </div>
             )}

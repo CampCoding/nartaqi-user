@@ -1,5 +1,3 @@
-// Header.jsx (full file)
-
 "use client";
 import { usePathname, useRouter } from "next/navigation";
 import { headerIcons } from "../../public/svgs";
@@ -7,7 +5,7 @@ import SearchBanner from "./SearchBanner";
 import { useEffect, useMemo, useState } from "react";
 import Link from "@/components/ui/NavLink";
 import { Dropdown } from "antd";
-import { ChevronLeft, ChevronRight, Menu, X, ChevronDown } from "lucide-react";
+import { ChevronLeft, Menu, X, ChevronDown } from "lucide-react";
 import headerData from "./headerData";
 import Container from "../ui/Container";
 import { AnimatePresence } from "framer-motion";
@@ -15,7 +13,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getUserCart } from "../utils/Store/Slices/cartSlice";
 import useHeaderCoursesItems from "./Hooks/useHeaderCategoryParts";
 import useHeaderFreeVideosItems from "./Hooks/useHeaderFreeVideosItems";
-import useHeaderPlacementTests from "./Hooks/useHeaderPlacementTests"; // ✅ أضف هذا
+import useHeaderPlacementTests from "./Hooks/useHeaderPlacementTests";
 import toast from "react-hot-toast";
 import { logoutUser } from "../utils/Store/Slices/authntcationSlice";
 
@@ -29,10 +27,7 @@ export default function Header() {
   const accountItems = useMemo(
     () => [
       { key: "my-courses", label: "دوراتي" },
-      {
-        key: "my-books",
-        label: "كتبي",
-      },
+      { key: "my-books", label: "كتبي" },
       { key: "account", label: "حسابي" },
       { key: "progress", label: "معدل الإنجاز" },
       { type: "divider" },
@@ -60,29 +55,23 @@ export default function Header() {
     }
   };
 
-  // Auth State
   const { user, token } = useSelector((state) => state.auth);
 
-  // ✅ API items for "الدورات"
   const { items: apiCoursesItems, loading: coursesMenuLoading } =
     useHeaderCoursesItems(user?.id);
 
-  // ✅ API items for "الشروحات المجانية"
   const {
     freeitems: apiFreeItems,
     achievementsItem,
     loading: freeMenuLoading,
   } = useHeaderFreeVideosItems();
 
-  // ✅ API items for "اختبار تحديد المستوى"
   const { placementTests, loading: placementTestsLoading } =
     useHeaderPlacementTests();
 
-  // ✅ build headerData exactly like old, but replace only courses.items + free.items + placement tests
   const finalHeaderData = useMemo(() => {
     return headerData
       .map((g) => {
-        // 1) Replace courses items
         if (g.key === "courses") {
           return {
             ...g,
@@ -108,7 +97,6 @@ export default function Header() {
           };
         }
 
-        // 2) Replace free items
         if (g.key === "free") {
           return {
             ...g,
@@ -134,7 +122,6 @@ export default function Header() {
           };
         }
 
-        // 3) Replace grades items
         if (g.key === "grades") {
           return {
             ...g,
@@ -160,12 +147,10 @@ export default function Header() {
           };
         }
 
-        // ✅ 4) Replace services items - اختبار تحديد المستوى
         if (g.key === "services" && g.title === "خدمات مجانية") {
           return {
             ...g,
             items: g.items.map((item) => {
-              // فقط عدّل "اختبار تحديد المستوى"
               if (item.id === 2 && item.title === "اختبار تحديد المستوى") {
                 return {
                   ...item,
@@ -207,10 +192,8 @@ export default function Header() {
     token,
   ]);
 
-  // Cart State
   const { totalItems, isLoading } = useSelector((state) => state.cart);
 
-  // Fetch cart when user is logged in
   useEffect(() => {
     if (token) {
       dispatch(getUserCart());
@@ -222,30 +205,34 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full sticky top-0 z-50 bg-white shadow-sm py-[20px] md:py-[35.5px] ">
-      <Container className="flex items-center justify-between">
+    <header className="w-full sticky top-0 z-50 bg-white shadow-sm py-3 sm:py-4 md:py-5 lg:py-[28px] xl:py-[35.5px]">
+      <Container className="flex items-center justify-between gap-2 sm:gap-3">
         {/* Logo */}
-        <Link href={"/"} className="flex items-center space-x-2">
+        <Link href={"/"} className="flex items-center space-x-2 flex-shrink-0">
           <img
             loading="lazy"
             src="/images/logo.svg"
             alt="Logo"
-            className="lg:w-[65.5px] w-[45px] h-auto"
+            className="w-10 sm:w-12 md:w-14 lg:w-[55px] xl:w-[65.5px] h-auto"
           />
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center space-x-4 md:!space-x-5 xl:space-x-6 space-x-reverse">
+        <nav className="hidden lg:flex items-center space-x-3 lg:space-x-4 xl:space-x-6 space-x-reverse">
           {finalHeaderData.map((group, index) => {
             if ((!group.items || group.items.length === 0) && group.link) {
               return (
                 <Link
                   key={index}
                   href={group.link}
-                  onClick={() => typeof window != undefined ? window.location.href = group?.link : "#"}
+                  onClick={() =>
+                    typeof window != undefined
+                      ? (window.location.href = group?.link)
+                      : "#"
+                  }
                   target={group.target == "_blank" ? "_blank" : "_self"}
-                  className={`${index == 0 ? "ml-5" : ""
-                    } cursor-pointer hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base flex items-center border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary`}
+                  className={`${index == 0 ? "ml-3 lg:ml-4 xl:ml-5" : ""
+                    } cursor-pointer hover:text-primary text-[12px] lg:text-[13px] xl:text-base flex items-center border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary whitespace-nowrap`}
                 >
                   {group.title}
                 </Link>
@@ -259,11 +246,7 @@ export default function Header() {
                 trigger={["hover"]}
                 arrow
               >
-                <div
-                  className={
-                    "cursor-pointer hover:text-primary !text-[calc(9px+.3vw)] xl:!text-base whitespace-nowrap border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary"
-                  }
-                >
+                <div className="cursor-pointer hover:text-primary text-[12px] lg:text-[13px] xl:text-base whitespace-nowrap border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary">
                   {group.title}
                 </div>
               </Dropdown>
@@ -272,34 +255,36 @@ export default function Header() {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden lg:flex items-center gap-x-4">
-          <div className="flex items-center gap-x-[8px]">
-            <button onClick={() => setOpenSearch(true)}>
-              <headerIcons.Search className="text-text stroke-primary" />
+        <div className="hidden lg:flex items-center gap-x-3 xl:gap-x-4 flex-shrink-0">
+          <div className="flex items-center gap-x-1.5 lg:gap-x-2 xl:gap-x-[8px]">
+            <button onClick={() => setOpenSearch(true)} className="p-1">
+              <headerIcons.Search className="text-text stroke-primary w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
             </button>
 
-            {/* ✅ Cart Icon with Dynamic Count */}
-            <Link href="/cart" className="relative">
-              <headerIcons.Cart className="text-text stroke-primary" />
+            <Link href="/cart" className="relative p-1">
+              <headerIcons.Cart className="text-text stroke-primary w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
               <CartBadge count={totalItems} isLoading={isLoading} />
             </Link>
 
             {token && (
-              <Link href="/notifications" className="relative">
-                <headerIcons.Notification className="text-text stroke-primary" />
+              <Link href="/notifications" className="relative p-1">
+                <headerIcons.Notification className="text-text stroke-primary w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
               </Link>
             )}
 
             {!token && (
               <Link
                 href={"/login"}
-                onClick={() => typeof window != undefined ? window.location.href = "/login" : "#"}
-
-                className="flex mr-[16px] items-center text-xs font-bold pr-[24px] leading-[150%] relative bg-primary text-bg h-[56px] w-[241px] rounded-[100px]"
+                onClick={() =>
+                  typeof window != undefined
+                    ? (window.location.href = "/login")
+                    : "#"
+                }
+                className="flex mr-2 lg:mr-3 xl:mr-[16px] items-center text-[10px] lg:text-xs font-bold pr-4 lg:pr-5 xl:pr-[24px] leading-[150%] relative bg-primary text-bg h-10 lg:h-12 xl:h-[56px] w-[170px] lg:w-[200px] xl:w-[241px] rounded-[100px]"
               >
                 إنشاء حساب / تسجيل الدخول
-                <div className="absolute left-[8px] top-1/2 -translate-y-1/2 rounded-full bg-text">
-                  <headerIcons.ArrowLoginButton className="text-bg" />
+                <div className="absolute left-1 lg:left-1.5 xl:left-[8px] top-1/2 -translate-y-1/2 rounded-full bg-text">
+                  <headerIcons.ArrowLoginButton className="text-bg w-6 h-6 lg:w-8 lg:h-8 xl:w-auto xl:h-auto" />
                 </div>
               </Link>
             )}
@@ -314,43 +299,46 @@ export default function Header() {
               <button
                 type="button"
                 onClick={(e) => e.preventDefault()}
-                className="px-12 py-4 bg-white transition-all rounded-[100px] outline outline-1 outline-offset-[-0.50px] outline-primary hover:bg-primary group hover:text-white inline-flex justify-center items-center gap-4"
+                className="px-4 lg:px-6 xl:px-12 py-2 lg:py-3 xl:py-4 bg-white transition-all rounded-[100px] outline outline-1 outline-offset-[-0.50px] outline-primary hover:bg-primary group hover:text-white inline-flex justify-center items-center gap-2 lg:gap-3 xl:gap-4 whitespace-nowrap"
               >
-                <span className="justify-center group-hover:text-white text-primary text-base font-bold font-['Cairo'] leading-normal">
-                  مرحبا {user?.name.split(" ")[0]}
-                </span>
-                <ChevronDown className="w-4 h-4 text-primary group-hover:text-white" />
+                {/* <span className="justify-center group-hover:text-white text-primary text-[10px] lg:text-xs xl:text-sm font-bold font-['Cairo'] leading-normal">
+                  مرحبا {user?.name?.split(" ")[0]}
+                </span> */}
+                <ChevronDown className="w-3 h-3 lg:w-3.5 lg:h-3.5 xl:w-4 xl:h-4 text-primary group-hover:text-white" />
               </button>
             </Dropdown>
           )}
         </div>
 
         {/* Mobile Actions */}
-        <div className="flex lg:hidden items-center gap-x-2">
-          <button onClick={() => setOpenSearch(true)}>
-            <headerIcons.Search className="text-text stroke-primary !w-10 !h-10" />
+        <div className="flex lg:hidden items-center gap-x-1 sm:gap-x-1.5 md:gap-x-2 flex-shrink-0">
+          <button
+            onClick={() => setOpenSearch(true)}
+            className="p-1 sm:p-1.5"
+          >
+            <headerIcons.Search className="text-text stroke-primary !w-7 !h-7 sm:!w-8 sm:!h-8 md:!w-10 md:!h-10" />
           </button>
 
-          <Link href="/cart" className="relative">
-            <headerIcons.Cart className="text-text stroke-primary !w-10 !h-10" />
+          <Link href="/cart" className="relative p-1 sm:p-1.5">
+            <headerIcons.Cart className="text-text stroke-primary !w-7 !h-7 sm:!w-8 sm:!h-8 md:!w-10 md:!h-10" />
             <CartBadge count={totalItems} isLoading={isLoading} size="small" />
           </Link>
 
           {token && (
-            <Link href="/notifications" className="relative">
-              <headerIcons.Notification className="text-text stroke-primary !w-10 !h-10" />
+            <Link href="/notifications" className="relative p-1 sm:p-1.5">
+              <headerIcons.Notification className="text-text stroke-primary !w-7 !h-7 sm:!w-8 sm:!h-8 md:!w-10 md:!h-10" />
             </Link>
           )}
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2"
+            className="p-1.5 sm:p-2"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (
-              <X className="w-6 h-6 text-primary" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             ) : (
-              <Menu className="w-6 h-6 text-primary" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             )}
           </button>
         </div>
@@ -380,8 +368,9 @@ const CartBadge = ({ count, isLoading, size = "normal" }) => {
   if (count === 0 && !isLoading) return null;
 
   const sizeClasses = {
-    normal: "w-6 h-6 text-base top-[-5px] right-[5px]",
-    small: "w-4 h-4 text-xs top-[-5px] right-[5px]",
+    normal:
+      "w-5 h-5 lg:w-6 lg:h-6 text-xs lg:text-sm xl:text-base top-[-4px] lg:top-[-5px] right-[5px]",
+    small: "w-4 h-4 text-[10px] sm:text-xs top-[-4px] sm:top-[-5px] right-[5px]",
   };
 
   return (
@@ -404,20 +393,22 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
   const [expandedItem, setExpandedItem] = useState(null);
 
   return (
-    <div className="lg:hidden fixed inset-0 top-[70px] bg-white z-40 overflow-y-auto">
-      <nav className="flex flex-col p-4">
-        {/* ✅ Cart Link in Mobile Menu */}
+    <div className="lg:hidden fixed inset-0 top-[60px] sm:top-[68px] md:top-[80px] bg-white z-40 overflow-y-auto">
+      <nav className="flex flex-col p-3 sm:p-4">
+        {/* Cart Link in Mobile Menu */}
         <Link
           href="/cart"
           onClick={() => {
-            onClose()
-            return typeof window != undefined ? window.location.href = "/cart" : "#"
+            onClose();
+            return typeof window != undefined
+              ? (window.location.href = "/cart")
+              : "#";
           }}
-          className="py-4 px-2 border-b border-gray-200 text-text font-medium flex items-center justify-between"
+          className="py-3 sm:py-4 px-2 border-b border-gray-200 text-text font-medium flex items-center justify-between text-sm sm:text-base"
         >
           <span>السلة</span>
           {totalItems > 0 && (
-            <span className="bg-red-700 text-white text-xs font-bold px-2 py-1 rounded-full">
+            <span className="bg-red-700 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full">
               {totalItems}
             </span>
           )}
@@ -430,10 +421,12 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
                 key={group.key}
                 href={group?.link}
                 onClick={() => {
-                  onClose()
-                  return typeof window != undefined ? window.location.href = group?.link : "#"
+                  onClose();
+                  return typeof window != undefined
+                    ? (window.location.href = group?.link)
+                    : "#";
                 }}
-                className="py-4 px-2 border-b border-gray-200 text-text font-medium"
+                className="py-3 sm:py-4 px-2 border-b border-gray-200 text-text font-medium text-sm sm:text-base"
               >
                 {group.title}
               </Link>
@@ -446,11 +439,11 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
                 onClick={() =>
                   setExpandedItem(expandedItem === index ? null : index)
                 }
-                className="w-full flex items-center justify-between py-4 px-2 text-text font-medium"
+                className="w-full flex items-center justify-between py-3 sm:py-4 px-2 text-text font-medium text-sm sm:text-base"
               >
                 <span>{group.title}</span>
                 <ChevronDown
-                  className={`w-5 h-5 transition-transform ${expandedItem === index ? "rotate-180" : ""
+                  className={`w-4 h-4 sm:w-5 sm:h-5 transition-transform ${expandedItem === index ? "rotate-180" : ""
                     }`}
                 />
               </button>
@@ -463,15 +456,17 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
         })}
 
         {/* Mobile Auth Buttons */}
-        <div className="mt-6 space-y-3">
+        <div className="mt-5 sm:mt-6 space-y-2.5 sm:space-y-3">
           {!token ? (
             <Link
               href="/login"
               onClick={() => {
-                onClose()
-                return typeof window != undefined ? window.location.href = "/login" : "#"
+                onClose();
+                return typeof window != undefined
+                  ? (window.location.href = "/login")
+                  : "#";
               }}
-              className="flex items-center justify-center text-sm font-bold relative bg-primary text-white h-[48px] rounded-[100px]"
+              className="flex items-center justify-center text-xs sm:text-sm font-bold relative bg-primary text-white h-11 sm:h-12 md:h-[48px] rounded-[100px]"
             >
               إنشاء حساب / تسجيل الدخول
             </Link>
@@ -479,10 +474,15 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
             <Link
               href={user?.type == "marketer" ? "/marketer-profile" : "/profile"}
               onClick={() => {
-                onClose()
-                return typeof window != undefined ? window.location.href = user?.type == "marketer" ? "/marketer-profile" : "/profile" : "#"
+                onClose();
+                return typeof window != undefined
+                  ? (window.location.href =
+                    user?.type == "marketer"
+                      ? "/marketer-profile"
+                      : "/profile")
+                  : "#";
               }}
-              className="flex items-center justify-center text-sm font-bold bg-white h-[48px] rounded-[100px] border-2 border-primary text-primary"
+              className="flex items-center justify-center text-xs sm:text-sm font-bold bg-white h-11 sm:h-12 md:h-[48px] rounded-[100px] border-2 border-primary text-primary"
             >
               {user?.type == "marketer" ? "الملف الشخصي" : "حسابي"}
             </Link>
@@ -498,7 +498,7 @@ const MobileSubMenu = ({ items, onClose }) => {
   const [expandedSubItem, setExpandedSubItem] = useState(null);
 
   return (
-    <div className="bg-gray-50 px-4 py-2">
+    <div className="bg-gray-50 px-3 sm:px-4 py-2">
       {items?.map((item, index) => {
         const hasSubItems = item.subItems && item.subItems.length > 0;
 
@@ -513,28 +513,30 @@ const MobileSubMenu = ({ items, onClose }) => {
                   onClick={() =>
                     setExpandedSubItem(expandedSubItem === index ? null : index)
                   }
-                  className="w-full flex items-center justify-between py-3 text-sm text-text"
+                  className="w-full flex items-center justify-between py-2.5 sm:py-3 text-xs sm:text-sm text-text"
                 >
                   <span>{item.title}</span>
                   <div className="flex items-center gap-2">
                     <ChevronDown
-                      className={`w-4 h-4 transition-transform ${expandedSubItem === index ? "rotate-180" : ""
+                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform ${expandedSubItem === index ? "rotate-180" : ""
                         }`}
                     />
                   </div>
                 </button>
 
                 {expandedSubItem === index && (
-                  <div className="pr-4 pb-2">
+                  <div className="pr-3 sm:pr-4 pb-2">
                     {item.subItems.map((subItem, subIndex) => (
                       <Link
                         key={subItem.key || subIndex}
                         href={subItem.link || "#"}
                         onClick={() => {
-                          onClose()
-                          return typeof window != undefined ? window.location.href = subItem?.link || "#" : "#"
+                          onClose();
+                          return typeof window != undefined
+                            ? (window.location.href = subItem?.link || "#")
+                            : "#";
                         }}
-                        className="block py-2 text-sm text-text hover:text-primary"
+                        className="block py-1.5 sm:py-2 text-xs sm:text-sm text-text hover:text-primary"
                       >
                         {subItem.title}
                       </Link>
@@ -546,10 +548,12 @@ const MobileSubMenu = ({ items, onClose }) => {
               <Link
                 href={item.link || item.href || "#"}
                 onClick={() => {
-                  onClose()
-                  return typeof window != undefined ? window.location.href = item.link || item.href || "#" : "#"
+                  onClose();
+                  return typeof window != undefined
+                    ? (window.location.href = item.link || item.href || "#")
+                    : "#";
                 }}
-                className="flex items-center justify-between py-3 text-sm text-text"
+                className="flex items-center justify-between py-2.5 sm:py-3 text-xs sm:text-sm text-text"
               >
                 <span>{item.title}</span>
               </Link>
@@ -584,10 +588,10 @@ export const DropDownItems = ({ items }) => {
 
         const rowContent = (
           <div
-            className={`flex w-[271px] cursor-pointer justify-between px-0 py-4 flex-[0_0_auto] ${isFirst ? "mt-[-1.00px]" : ""
+            className={`flex w-[260px] xl:w-[271px] cursor-pointer justify-between px-0 py-3 xl:py-4 flex-[0_0_auto] ${isFirst ? "mt-[-1.00px]" : ""
               } ${!isLast
                 ? "ml-[-1.00px] mr-[-1.00px] bg-white border-b-2 [border-bottom-style:solid] border-variable-collection-stroke"
-                : "w-[269px] bg-white rounded-[0px_0px_30px_30px]"
+                : "w-[258px] xl:w-[269px] bg-white rounded-[0px_0px_30px_30px]"
               } items-center relative cursor-pointer`}
             role="menuitem"
             aria-haspopup={hasSubItems ? "menu" : undefined}
@@ -600,18 +604,17 @@ export const DropDownItems = ({ items }) => {
                 }`}
             >
               {isLast ? (
-                <p className="flex-1 font-cairo mt-[-12.00px] mb-[-12.00px] relative flex items-center font-medium text-text text-base leading-6 [direction:rtl]">
+                <p className="flex-1 font-cairo mt-[-12.00px] mb-[-12.00px] relative flex items-center font-medium text-text text-sm xl:text-base leading-6 [direction:rtl]">
                   {course.title}
                 </p>
               ) : (
-                <h3 className="self-stretch font-cairo w-fit text-left whitespace-wrap relative flex items-center max-w-[100%] font-medium text-text text-base leading-6 [direction:rtl]">
+                <h3 className="self-stretch font-cairo w-fit text-left whitespace-wrap relative flex items-center max-w-[100%] font-medium text-text text-sm xl:text-base leading-6 [direction:rtl]">
                   {`${course.title?.length > 30 ? course?.title?.slice(0, 30) + "..." : course.title}`}
                 </h3>
               )}
             </div>
 
             <div className="inline-flex gap-2 flex-[0_0_auto] items-center relative">
-              {/* ✅ غيّر الـ ChevronLeft لـ ChevronRight لأن الاتجاه اتغير */}
               {hasSubItems && (
                 <span
                   className="relative w-4 h-4 aspect-[1]"
@@ -624,7 +627,6 @@ export const DropDownItems = ({ items }) => {
           </div>
         );
 
-        // If has subItems, wrap with Dropdown
         if (hasSubItems) {
           return (
             <Dropdown
@@ -632,7 +634,7 @@ export const DropDownItems = ({ items }) => {
               dropdownRender={() => (
                 <SubMenu course={course} subItems={course.subItems} />
               )}
-              placement="leftTop" // ✅ غيّر من rightTop لـ leftTop
+              placement="leftTop"
               trigger={["click"]}
               open={openSub === rowId}
               onOpenChange={(v) => setOpenSub(v ? rowId : null)}
@@ -647,7 +649,6 @@ export const DropDownItems = ({ items }) => {
           );
         }
 
-        // No subItems - just a link
         return (
           <div key={rowId}>
             {href && href !== "#" ? (
@@ -677,8 +678,8 @@ const SubMenu = ({ course, subItems }) => {
   if (!links) return null;
 
   return (
-    <div className="bg-white border rounded-2xl shadow-md p-4 min-w-[220px] max-h-[400px] overflow-y-auto">
-      <ul className="flex flex-col gap-3">
+    <div className="bg-white border rounded-2xl shadow-md p-3 sm:p-4 min-w-[200px] xl:min-w-[220px] max-h-[400px] overflow-y-auto">
+      <ul className="flex flex-col gap-2 sm:gap-3">
         {links.map((l) => {
           const href = l.href || "#";
           return (
@@ -686,10 +687,11 @@ const SubMenu = ({ course, subItems }) => {
               <Link
                 href={href}
                 onClick={() => {
-                  onClose()
-                  return typeof window != undefined ? window.location.href = href : "#"
+                  return typeof window != undefined
+                    ? (window.location.href = href)
+                    : "#";
                 }}
-                className="block py-2 text-sm text-text hover:text-primary"
+                className="block py-1.5 sm:py-2 text-xs sm:text-sm text-text hover:text-primary"
               >
                 {l.title}
               </Link>
