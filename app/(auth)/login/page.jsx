@@ -27,10 +27,24 @@ export const typeEnum = {
   marketer: "marketer",
 };
 
+// ✅ Helper function: يضمن إن الـ path دايمًا string
+const ensureStringPath = (path, fallback = "/") => {
+  if (!path) return fallback;
+  if (typeof path === "string") return path;
+  if (typeof path === "object") {
+    console.warn("⚠️ Path is object, converting:", path);
+    if (path.pathname) return String(path.pathname);
+    if (path.url) return String(path.url);
+    if (path.href) return String(path.href);
+    return fallback;
+  }
+  return String(path) || fallback;
+};
+
 const LoginPage = () => {
   const dispatch = useDispatch();
   const { token, loading } = useSelector((state) => state.auth);
-  const { link: redirectLink } = useSelector((state) => state.redirect);
+  const redirectState = useSelector((state) => state.redirect);
 
   const router = useRouter();
 
@@ -61,7 +75,6 @@ const LoginPage = () => {
     mode: "onBlur",
   });
 
-  // Auto focus on phone input when login form appears
   useEffect(() => {
     if (showLogin) {
       const timer = setTimeout(() => {
@@ -71,17 +84,14 @@ const LoginPage = () => {
     }
   }, [showLogin, setFocus]);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (token) {
       router.replace("/");
     }
   }, [token, router]);
 
-  // Memoized submit handler
   const onSubmit = useCallback(
     async (data) => {
-      // Prevent double submission
       if (isSubmitting || loading) return;
 
       if (!type.id) {
@@ -117,9 +127,14 @@ const LoginPage = () => {
 
         if (result) {
           toast.success("مرحباً بعودتك 🎉");
-          // Small delay to show success message
+
+          // ✅ استخدم الـ helper علشان نضمن إنه string
+          const safeRedirect = ensureStringPath(redirectState?.link, "/");
+
+          console.log("🚀 Redirecting to:", safeRedirect);
+
           setTimeout(() => {
-            router.push(redirectLink || "/");
+            router.push(safeRedirect);
           }, 100);
         }
       } catch (err) {
@@ -138,16 +153,14 @@ const LoginPage = () => {
       selectedCountry.code,
       type.id,
       router,
-      redirectLink,
+      redirectState,
       isSubmitting,
       loading,
     ]
   );
 
-  // Combined loading state
   const isLoading = loading || isSubmitting;
 
-  // Show loading if already authenticated
   if (token) {
     return (
       <Container>
@@ -160,7 +173,6 @@ const LoginPage = () => {
     <Container className="flex flex-col lg:flex-row lg:justify-between overflow-hidden min-h-[calc(100vh-64px)]">
       <div className="flex-1">
         <AnimatePresence mode="wait">
-          {/* {showLogin ? ( */}
           {true ? (
             <motion.div
               key="login-form"
@@ -174,7 +186,6 @@ const LoginPage = () => {
               }}
               className="w-full"
             >
-              {/* Back button */}
               <div className="flex justify-start items-center px-10" dir="ltr">
                 <button
                   type="button"
@@ -182,21 +193,10 @@ const LoginPage = () => {
                   className="group flex items-center justify-start"
                   disabled={isLoading}
                   aria-label="Go back"
-                >
-                  {/* <div className="flex justify-center items-center mt-5 w-[30px] h-[30px] group-hover:bg-white transition-all duration-300 rounded-lg cursor-pointer">
-                    <Icon
-                      icon="solar:undo-right-outline"
-                      width={22}
-                      height={22}
-                      className="text-black transition-all duration-300 group-hover:text-primary group-hover:rotate-[360deg] rotate-[180deg]"
-                    />
-                  </div> */}
-                </button>
+                />
               </div>
 
-              {/* Login Form Container */}
               <div className="flex justify-center items-center mx-auto flex-col py-8 md:py-16 lg:py-[64px] pl-4 sm:pl-6 md:pl-8 max-w-[719px] w-full">
-                {/* Header */}
                 <div className="inline-flex flex-col items-center gap-3 md:gap-4 relative mb-8 md:mb-12 lg:mb-[48px]">
                   <img
                     className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-[100px] md:h-[95.42px]"
@@ -207,13 +207,8 @@ const LoginPage = () => {
                   <p className="relative flex items-center justify-center w-fit font-bold text-text text-lg sm:text-xl md:text-2xl text-center">
                     مرحبا بعودتك مرة اخرى
                   </p>
-                  {/* <div className="flex justify-between gap-2 text-[20px] font-bold text-gray-100 bg-primary hover:scale-[1.02] transition-transform rounded-full px-4 py-2 items-center">
-                    {type.label}
-                    <Icon icon={type.icon} />
-                  </div> */}
                 </div>
 
-                {/* FORM */}
                 <form
                   onSubmit={handleSubmit(onSubmit)}
                   className="mx-auto w-full space-y-6 md:space-y-8 lg:space-y-[32px]"
@@ -242,11 +237,7 @@ const LoginPage = () => {
                         disabled={isLoading}
                       />
                       <Link
-                        href={{
-                          pathname: "/reset-password",
-                          query: { number: "" },
-                        }}
-                        onClick={() => (typeof window != undefined ? window.location.href = "/reset-password?number=" : "#")}
+                        href="/reset-password"
                         className="text-right text-primary text-sm font-bold block hover:underline"
                         tabIndex={isLoading ? -1 : 0}
                       >
@@ -312,7 +303,6 @@ const LoginPage = () => {
         </AnimatePresence>
       </div>
 
-      {/* RIGHT SIDE IMAGE */}
       <div
         className="w-full max-w-[592px] hidden lg:block relative select-none"
         style={{
@@ -329,6 +319,7 @@ const LoginPage = () => {
 export default LoginPage;
 
 // ============== MEMOIZED INPUT COMPONENTS ==============
+// نفس الموجود عندك بدون أي تغيير
 
 export const Input = memo(function Input({
   label = "الاسم رباعي باللغة العربية",

@@ -24,6 +24,8 @@ export default function Header() {
   const dispatch = useDispatch();
   const router = useRouter();
 
+  const { user, token } = useSelector((state) => state.auth);
+
   const accountItems = useMemo(
     () => [
       { key: "my-courses", label: "دوراتي" },
@@ -47,15 +49,13 @@ export default function Header() {
     if (key === "my-books") return router.push("/my-books");
     if (key === "account")
       return router.push(
-        user?.type == "marketer" ? "/marketer-profile" : "/profile"
+        user?.type === "marketer" ? "/marketer-profile" : "/profile"
       );
     if (key === "progress") return router.push("/course-rate");
     if (key === "logout") {
       handleLogout();
     }
   };
-
-  const { user, token } = useSelector((state) => state.auth);
 
   const { items: apiCoursesItems, loading: coursesMenuLoading } =
     useHeaderCoursesItems(user?.id);
@@ -208,7 +208,7 @@ export default function Header() {
     <header className="w-full sticky top-0 z-50 bg-white shadow-sm py-3 sm:py-4 md:py-5 lg:py-[28px] xl:py-[35.5px]">
       <Container className="flex items-center justify-between gap-2 sm:gap-3">
         {/* Logo */}
-        <Link href={"/"} className="flex items-center space-x-2 flex-shrink-0">
+        <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
           <img
             loading="lazy"
             src="/images/logo.svg"
@@ -221,17 +221,16 @@ export default function Header() {
         <nav className="hidden lg:flex items-center space-x-3 lg:space-x-4 xl:space-x-6 space-x-reverse">
           {finalHeaderData.map((group, index) => {
             if ((!group.items || group.items.length === 0) && group.link) {
+              // ✅ تأكد إن الـ link string
+              const safeLink =
+                typeof group.link === "string" ? group.link : "#";
+
               return (
                 <Link
                   key={index}
-                  href={group.link}
-                  onClick={() =>
-                    typeof window != undefined
-                      ? (window.location.href = group?.link)
-                      : "#"
-                  }
-                  target={group.target == "_blank" ? "_blank" : "_self"}
-                  className={`${index == 0 ? "ml-3 lg:ml-4 xl:ml-5" : ""
+                  href={safeLink}
+                  target={group.target === "_blank" ? "_blank" : "_self"}
+                  className={`${index === 0 ? "ml-3 lg:ml-4 xl:ml-5" : ""
                     } cursor-pointer hover:text-primary text-[12px] lg:text-[13px] xl:text-base flex items-center border-b-[3px] border-transparent hover:border-b-[3px] hover:border-primary whitespace-nowrap`}
                 >
                   {group.title}
@@ -274,12 +273,7 @@ export default function Header() {
 
             {!token && (
               <Link
-                href={"/login"}
-                onClick={() =>
-                  typeof window != undefined
-                    ? (window.location.href = "/login")
-                    : "#"
-                }
+                href="/login"
                 className="flex mr-2 lg:mr-3 xl:mr-[16px] items-center text-[10px] lg:text-xs font-bold pr-4 lg:pr-5 xl:pr-[24px] leading-[150%] relative bg-primary text-bg h-10 lg:h-12 xl:h-[56px] w-[170px] lg:w-[200px] xl:w-[241px] rounded-[100px]"
               >
                 إنشاء حساب / تسجيل الدخول
@@ -301,9 +295,6 @@ export default function Header() {
                 onClick={(e) => e.preventDefault()}
                 className="px-4 lg:px-6 xl:px-12 py-2 lg:py-3 xl:py-4 bg-white transition-all rounded-[100px] outline outline-1 outline-offset-[-0.50px] outline-primary hover:bg-primary group hover:text-white inline-flex justify-center items-center gap-2 lg:gap-3 xl:gap-4 whitespace-nowrap"
               >
-                {/* <span className="justify-center group-hover:text-white text-primary text-[10px] lg:text-xs xl:text-sm font-bold font-['Cairo'] leading-normal">
-                  مرحبا {user?.name?.split(" ")[0]}
-                </span> */}
                 <ChevronDown className="w-3 h-3 lg:w-3.5 lg:h-3.5 xl:w-4 xl:h-4 text-primary group-hover:text-white" />
               </button>
             </Dropdown>
@@ -312,10 +303,7 @@ export default function Header() {
 
         {/* Mobile Actions */}
         <div className="flex lg:hidden items-center gap-x-1 sm:gap-x-1.5 md:gap-x-2 flex-shrink-0">
-          <button
-            onClick={() => setOpenSearch(true)}
-            className="p-1 sm:p-1.5"
-          >
+          <button onClick={() => setOpenSearch(true)} className="p-1 sm:p-1.5">
             <headerIcons.Search className="text-text stroke-primary !w-7 !h-7 sm:!w-8 sm:!h-8 md:!w-10 md:!h-10" />
           </button>
 
@@ -398,12 +386,7 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
         {/* Cart Link in Mobile Menu */}
         <Link
           href="/cart"
-          onClick={() => {
-            onClose();
-            return typeof window != undefined
-              ? (window.location.href = "/cart")
-              : "#";
-          }}
+          onClick={onClose}
           className="py-3 sm:py-4 px-2 border-b border-gray-200 text-text font-medium flex items-center justify-between text-sm sm:text-base"
         >
           <span>السلة</span>
@@ -416,16 +399,14 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
 
         {headerData.map((group, index) => {
           if ((!group.items || group.items.length === 0) && group.link) {
+            const safeLink =
+              typeof group.link === "string" ? group.link : "#";
+
             return (
               <Link
                 key={group.key}
-                href={group?.link}
-                onClick={() => {
-                  onClose();
-                  return typeof window != undefined
-                    ? (window.location.href = group?.link)
-                    : "#";
-                }}
+                href={safeLink}
+                onClick={onClose}
                 className="py-3 sm:py-4 px-2 border-b border-gray-200 text-text font-medium text-sm sm:text-base"
               >
                 {group.title}
@@ -460,31 +441,20 @@ const MobileMenu = ({ headerData, token, onClose, user, totalItems }) => {
           {!token ? (
             <Link
               href="/login"
-              onClick={() => {
-                onClose();
-                return typeof window != undefined
-                  ? (window.location.href = "/login")
-                  : "#";
-              }}
+              onClick={onClose}
               className="flex items-center justify-center text-xs sm:text-sm font-bold relative bg-primary text-white h-11 sm:h-12 md:h-[48px] rounded-[100px]"
             >
               إنشاء حساب / تسجيل الدخول
             </Link>
           ) : (
             <Link
-              href={user?.type == "marketer" ? "/marketer-profile" : "/profile"}
-              onClick={() => {
-                onClose();
-                return typeof window != undefined
-                  ? (window.location.href =
-                    user?.type == "marketer"
-                      ? "/marketer-profile"
-                      : "/profile")
-                  : "#";
-              }}
+              href={
+                user?.type === "marketer" ? "/marketer-profile" : "/profile"
+              }
+              onClick={onClose}
               className="flex items-center justify-center text-xs sm:text-sm font-bold bg-white h-11 sm:h-12 md:h-[48px] rounded-[100px] border-2 border-primary text-primary"
             >
-              {user?.type == "marketer" ? "الملف الشخصي" : "حسابي"}
+              {user?.type === "marketer" ? "الملف الشخصي" : "حسابي"}
             </Link>
           )}
         </div>
@@ -526,37 +496,41 @@ const MobileSubMenu = ({ items, onClose }) => {
 
                 {expandedSubItem === index && (
                   <div className="pr-3 sm:pr-4 pb-2">
-                    {item.subItems.map((subItem, subIndex) => (
-                      <Link
-                        key={subItem.key || subIndex}
-                        href={subItem.link || "#"}
-                        onClick={() => {
-                          onClose();
-                          return typeof window != undefined
-                            ? (window.location.href = subItem?.link || "#")
-                            : "#";
-                        }}
-                        className="block py-1.5 sm:py-2 text-xs sm:text-sm text-text hover:text-primary"
-                      >
-                        {subItem.title}
-                      </Link>
-                    ))}
+                    {item.subItems.map((subItem, subIndex) => {
+                      const safeLink =
+                        typeof subItem.link === "string" ? subItem.link : "#";
+                      return (
+                        <Link
+                          key={subItem.key || subIndex}
+                          href={safeLink}
+                          onClick={onClose}
+                          className="block py-1.5 sm:py-2 text-xs sm:text-sm text-text hover:text-primary"
+                        >
+                          {subItem.title}
+                        </Link>
+                      );
+                    })}
                   </div>
                 )}
               </>
             ) : (
-              <Link
-                href={item.link || item.href || "#"}
-                onClick={() => {
-                  onClose();
-                  return typeof window != undefined
-                    ? (window.location.href = item.link || item.href || "#")
-                    : "#";
-                }}
-                className="flex items-center justify-between py-2.5 sm:py-3 text-xs sm:text-sm text-text"
-              >
-                <span>{item.title}</span>
-              </Link>
+              (() => {
+                const safeLink =
+                  typeof item.link === "string"
+                    ? item.link
+                    : typeof item.href === "string"
+                      ? item.href
+                      : "#";
+                return (
+                  <Link
+                    href={safeLink}
+                    onClick={onClose}
+                    className="flex items-center justify-between py-2.5 sm:py-3 text-xs sm:text-sm text-text"
+                  >
+                    <span>{item.title}</span>
+                  </Link>
+                );
+              })()
             )}
           </div>
         );
@@ -567,9 +541,9 @@ const MobileSubMenu = ({ items, onClose }) => {
 
 // Desktop DropDown Components
 export const DropDownItems = ({ items }) => {
-  if (!Array.isArray(items) || items.length === 0) return null;
-
   const [openSub, setOpenSub] = useState(null);
+
+  if (!Array.isArray(items) || items.length === 0) return null;
 
   return (
     <nav
@@ -581,7 +555,10 @@ export const DropDownItems = ({ items }) => {
       {items?.map((course, index) => {
         const isLast = index === items.length - 1;
         const isFirst = index === 0;
-        const href = course.link || course.href;
+        // ✅ تأكد إن href string
+        const rawHref = course.link || course.href;
+        const href = typeof rawHref === "string" ? rawHref : "#";
+
         const rowId = `${course.title || course.id}-${index}`;
         const target = course.target || "_self";
         const hasSubItems = course.subItems && course.subItems.length > 0;
@@ -599,8 +576,8 @@ export const DropDownItems = ({ items }) => {
           >
             <div
               className={`${isLast
-                ? "flex h-6 items-center relative flex-1 grow"
-                : "inline-flex h-6 items-center relative flex-[0_0_auto]"
+                  ? "flex h-6 items-center relative flex-1 grow"
+                  : "inline-flex h-6 items-center relative flex-[0_0_auto]"
                 }`}
             >
               {isLast ? (
@@ -609,17 +586,17 @@ export const DropDownItems = ({ items }) => {
                 </p>
               ) : (
                 <h3 className="self-stretch font-cairo w-fit text-left whitespace-wrap relative flex items-center max-w-[100%] font-medium text-text text-sm xl:text-base leading-6 [direction:rtl]">
-                  {`${course.title?.length > 30 ? course?.title?.slice(0, 30) + "..." : course.title}`}
+                  {`${course.title?.length > 30
+                      ? course?.title?.slice(0, 30) + "..."
+                      : course.title
+                    }`}
                 </h3>
               )}
             </div>
 
             <div className="inline-flex gap-2 flex-[0_0_auto] items-center relative">
               {hasSubItems && (
-                <span
-                  className="relative w-4 h-4 aspect-[1]"
-                  aria-hidden="true"
-                >
+                <span className="relative w-4 h-4 aspect-[1]" aria-hidden="true">
                   <ChevronLeft className="w-4 h-4" />
                 </span>
               )}
@@ -670,7 +647,7 @@ const SubMenu = ({ course, subItems }) => {
     Array.isArray(subItems) && subItems.length > 0
       ? subItems.map((s, idx) => ({
         key: s.key || `sub-${idx}`,
-        href: s.link || "#",
+        href: typeof s.link === "string" ? s.link : "#",
         title: s.title,
       }))
       : null;
@@ -686,11 +663,6 @@ const SubMenu = ({ course, subItems }) => {
             <li key={l.key}>
               <Link
                 href={href}
-                onClick={() => {
-                  return typeof window != undefined
-                    ? (window.location.href = href)
-                    : "#";
-                }}
                 className="block py-1.5 sm:py-2 text-xs sm:text-sm text-text hover:text-primary"
               >
                 {l.title}
